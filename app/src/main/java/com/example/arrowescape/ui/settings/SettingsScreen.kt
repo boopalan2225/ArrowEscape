@@ -1,5 +1,6 @@
 package com.example.arrowescape.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -48,7 +49,12 @@ fun SettingsScreen(
             onCheckedChange = onSoundToggle
         )
 
-        HorizontalDivider()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.outlineVariant)
+        )
 
         // Haptics toggle
         SettingsToggleRow(
@@ -57,7 +63,12 @@ fun SettingsScreen(
             onCheckedChange = onHapticsToggle
         )
 
-        HorizontalDivider()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.outlineVariant)
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
