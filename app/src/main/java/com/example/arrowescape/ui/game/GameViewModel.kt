@@ -20,9 +20,11 @@ import com.example.arrowescape.game.model.ArrowTile
 import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.game.model.GameState
 import com.example.arrowescape.game.model.GameStatus
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GameViewModel(
     private val preferences: GamePreferences,
@@ -125,10 +127,13 @@ class GameViewModel(
 
     fun startLevel(level: Int) {
         viewModelScope.launch {
-            val generated = if (level == 1) {
-                LevelGenerator.generateTutorialLevel()
-            } else {
-                LevelGenerator.generateLevel(level)
+            // Generate off the main thread to keep the UI smooth.
+            val generated = withContext(Dispatchers.Default) {
+                if (level == 1) {
+                    LevelGenerator.generateTutorialLevel()
+                } else {
+                    LevelGenerator.generateLevel(level)
+                }
             }
 
             currentLevelArrows = generated.arrows

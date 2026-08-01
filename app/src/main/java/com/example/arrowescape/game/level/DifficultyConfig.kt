@@ -2,12 +2,14 @@ package com.example.arrowescape.game.level
 
 /**
  * Configuration for level difficulty based on level number.
+ *
+ * Shapes are now FULLY filled, so difficulty is driven by grid size
+ * (bigger grid = more arrows = harder). Grids are square so shapes
+ * render accurately (round circles, proportioned hearts, etc.).
  */
 data class DifficultyConfig(
-    val arrowCount: Int,
     val gridRows: Int,
     val gridCols: Int,
-    val densityFactor: Float, // 0.0 to 1.0, higher = more blocking situations
     val shape: LevelShape,
     val difficultyLabel: String
 ) {
@@ -15,52 +17,26 @@ data class DifficultyConfig(
         /** Total number of designed levels in the game. */
         const val TOTAL_LEVELS = 100
 
-        /**
-         * Gets the difficulty configuration for a given level.
-         *
-         * Grids are larger than a plain rectangle would need so that shapes
-         * (triangle, circle, heart, etc.) are clearly recognizable. Arrow
-         * count is derived from the number of cells the shape actually fills.
-         */
         fun forLevel(level: Int): DifficultyConfig {
             val shape = LevelShape.forLevel(level)
 
-            val (rows, cols, density, label) = when {
-                level <= 5 -> Grid(6, 6, 0.2f, "Easy")
-                level <= 15 -> Grid(8, 7, 0.35f, "Easy")
-                level <= 30 -> Grid(9, 8, 0.5f, "Normal")
-                level <= 60 -> Grid(10, 9, 0.6f, "Normal")
-                level <= 85 -> Grid(11, 10, 0.7f, "Hard")
-                else -> Grid(12, 11, 0.8f, "Expert")
+            val (size, label) = when {
+                level <= 3 -> 4 to "Easy"
+                level <= 8 -> 5 to "Easy"
+                level <= 15 -> 6 to "Easy"
+                level <= 25 -> 7 to "Normal"
+                level <= 40 -> 8 to "Normal"
+                level <= 60 -> 9 to "Hard"
+                level <= 85 -> 10 to "Hard"
+                else -> 11 to "Expert"
             }
-
-            // Count how many cells this shape fills, then use a fraction of them.
-            // Higher fill ratios make shapes denser and more recognizable.
-            val availableCells = shape.validCells(rows, cols).size
-            val fillRatio = when {
-                level <= 5 -> 0.45f
-                level <= 15 -> 0.55f
-                level <= 40 -> 0.65f
-                level <= 80 -> 0.72f
-                else -> 0.78f
-            }
-            val arrowCount = (availableCells * fillRatio).toInt().coerceIn(4, 70)
 
             return DifficultyConfig(
-                arrowCount = arrowCount,
-                gridRows = rows,
-                gridCols = cols,
-                densityFactor = density,
+                gridRows = size,
+                gridCols = size,
                 shape = shape,
                 difficultyLabel = label
             )
         }
-
-        private data class Grid(
-            val rows: Int,
-            val cols: Int,
-            val density: Float,
-            val label: String
-        )
     }
 }

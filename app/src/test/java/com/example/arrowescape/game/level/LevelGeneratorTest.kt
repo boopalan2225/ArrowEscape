@@ -58,14 +58,28 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun `tutorial level is simple and solvable`() {
+    fun `tutorial level is a filled square and solvable`() {
         val level = LevelGenerator.generateTutorialLevel()
 
-        assertTrue("Tutorial should have few arrows", level.arrows.size <= 6)
+        assertEquals(LevelShape.SQUARE, level.shape)
+        assertEquals(16, level.arrows.size) // 4x4 fully filled
         assertTrue(
             "Tutorial should be solvable",
             GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols)
         )
+    }
+
+    @Test
+    fun `every shape cell is filled with an arrow`() {
+        for (levelNum in listOf(4, 12, 25, 45, 70, 95)) {
+            val level = LevelGenerator.generateLevel(levelNum)
+            val expectedCells = level.shape.validCells(level.gridRows, level.gridCols).size
+            assertEquals(
+                "Level $levelNum (${level.shape}) should fill every shape cell",
+                expectedCells,
+                level.arrows.size
+            )
+        }
     }
 
     @Test

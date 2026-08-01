@@ -17,35 +17,27 @@ data class GeneratedLevel(
 )
 
 /**
- * Generates solvable levels using reverse generation, with arrows arranged
- * into recognizable shapes (triangle, circle, heart, diamond, etc.).
+ * Generates dense, fully-filled shape levels that are guaranteed solvable.
  *
- * Key ideas:
- * - Arrows are only placed in cells that fall inside the level's shape mask.
- * - Boards are built so at least one valid solution always exists.
- * - The same level number always produces the same board (deterministic seed).
+ * Strategy - "reverse peeling":
+ *  1. Fill EVERY cell of the shape mask with an arrow (crisp, dense shapes).
+ *  2. Repeatedly find an arrow that currently has a clear escape path and
+ *     assign it that direction, then remove it from the working set.
+ *  3. Because arrows are assigned in a real removal order, replaying that
+ *     exact order is always a valid solution -> the board is solvable.
+ *
+ * The same level number always produces the same board (deterministic seed).
  */
 object LevelGenerator {
 
-    /**
-     * Generates a level for the given level number.
-     */
     fun generateLevel(levelNumber: Int): GeneratedLevel {
         val config = DifficultyConfig.forLevel(levelNumber)
-        val seed = levelNumber.toLong() * 31337 + 42
-        val random = Random(seed)
+        val random = Random(levelNumber.toLong() * 31337 + 42)
 
-        val validCells = config.shape.validCells(config.gridRows, config.gridCols)
+        val cells = config.shape.validCells(config.gridRows, config.gridCols)
+        val arrows = fillAndAssign(cells, config.gridRows, config.gridCols, random)
 
-        val arrows = generateSolvableBoard(
-            targetCount = config.arrowCount.coerceAtMost(validCells.size),
-            gridRows = config.gridRows,
-            gridCols = config.gridCols,
-            validCells = validCells,
-            densityFactor = config.densityFactor,
-            random = random
-        )
-
+        // Safety net (should always pass thanks to the peel construction).
         require(GameSolver.isSolvable(arrows, config.gridRows, config.gridCols)) {
             "Generated level $levelNumber is not solvable - this is a bug!"
         }
@@ -60,100 +52,90 @@ object LevelGenerator {
     }
 
     /**
-     * Reverse generation: add arrows one at a time, only keeping a new arrow
-     * if the board remains solvable. Positions are restricted to shape cells.
+     * Fills every provided cell with an arrow and assigns each a direction
+     * via the reverse-peeling method so the whole board is solvable.
      */
-    private fun generateSolvableBoard(
-        targetCount: Int,
-        gridRows: Int,
-        gridCols: Int,
-        validCells: List<Pair<Int, Int>>,
-        densityFactor: Float,
+    private fun fillAndAssign(
+        cells: List<Pair<Int, Int>>,
+        rows: Int,
+        cols: Int,
         random: Random
     ): List<ArrowTile> {
-        val arrows = mutableListOf<ArrowTile>()
-        var nextId = 0
-        val occupied = mutableSetOf<Pair<Int, Int>>()
+        val occupied = cells.toMutableSet()
+        val direction = HashMap<Pair<Int, Int>, Direction>()
 
-        // Shuffle valid cells once so placement follows the shape but is varied
-        val shuffledCells = validCells.shuffled(random)
-        var cellIndex = 0
-        var attempts = 0
-        val maxAttempts = targetCount * 30
+        while (occupied.isNotEmpty()) {
+            // Collect every (cell, direction) that can currently escape.
+            val escapableCells = mutableListOf<Pair<Int, Int>>()
+            for (cell in occupied) {
+                if (escapeDirections(cell, occupied, rows, cols).isNotEmpty()) {
+                    escapableCells.add(cell)
+                }
+            }
 
-        while (arrows.size < targetCount && attempts < maxAttempts) {
-            attempts++
+            // A filled shape always has at least one escapable outer cell.
+            val chosen = escapableCells.random(random)
+            val dirs = escapeDirections(chosen, occupied, rows, cols)
+            direction[chosen] = dirs.random(random)
+            occupied.remove(chosen)
+        }
 
-            // Cycle through shuffled shape cells
-            val pos = shuffledCells[cellIndex % shuffledCells.size]
-            cellIndex++
-
-            if (pos in occupied) continue
-
-            val (row, col) = pos
-            val direction = pickDirection(row, col, gridRows, gridCols, densityFactor, random)
-
-            val newArrow = ArrowTile(
-                id = nextId,
-                row = row,
-                col = col,
-                direction = direction,
+        // Build arrow tiles from the assigned directions, shuffled ids.
+        return cells.shuffled(random).mapIndexed { index, (r, c) ->
+            ArrowTile(
+                id = index,
+                row = r,
+                col = c,
+                direction = direction[r to c] ?: Direction.UP,
                 isActive = true
             )
-
-            if (GameSolver.isSolvable(arrows + newArrow, gridRows, gridCols)) {
-                arrows.add(newArrow)
-                occupied.add(pos)
-                nextId++
-            }
-        }
-
-        return shuffleArrowIds(arrows, random)
-    }
-
-    private fun pickDirection(
-        row: Int,
-        col: Int,
-        gridRows: Int,
-        gridCols: Int,
-        densityFactor: Float,
-        random: Random
-    ): Direction {
-        val biasThreshold = 1.0f - densityFactor
-        return if (random.nextFloat() < biasThreshold) {
-            when {
-                row <= gridRows / 4 -> Direction.UP
-                row >= gridRows * 3 / 4 -> Direction.DOWN
-                col <= gridCols / 4 -> Direction.LEFT
-                col >= gridCols * 3 / 4 -> Direction.RIGHT
-                else -> Direction.entries[random.nextInt(4)]
-            }
-        } else {
-            Direction.entries[random.nextInt(4)]
-        }
-    }
-
-    private fun shuffleArrowIds(arrows: List<ArrowTile>, random: Random): List<ArrowTile> {
-        return arrows.shuffled(random).mapIndexed { index, arrow ->
-            arrow.copy(id = index)
         }
     }
 
     /**
-     * Simple hand-crafted tutorial level (level 1).
+     * Returns which directions let [cell] reach the grid edge without
+     * crossing any currently-occupied cell.
+     */
+    private fun escapeDirections(
+        cell: Pair<Int, Int>,
+        occupied: Set<Pair<Int, Int>>,
+        rows: Int,
+        cols: Int
+    ): List<Direction> {
+        return Direction.entries.filter { dir ->
+            pathClear(cell, dir, occupied, rows, cols)
+        }
+    }
+
+    private fun pathClear(
+        cell: Pair<Int, Int>,
+        dir: Direction,
+        occupied: Set<Pair<Int, Int>>,
+        rows: Int,
+        cols: Int
+    ): Boolean {
+        var r = cell.first + dir.deltaRow()
+        var c = cell.second + dir.deltaCol()
+        while (r in 0 until rows && c in 0 until cols) {
+            if ((r to c) in occupied) return false
+            r += dir.deltaRow()
+            c += dir.deltaCol()
+        }
+        return true
+    }
+
+    /**
+     * Simple hand-crafted tutorial-friendly first level: a small full square.
      */
     fun generateTutorialLevel(): GeneratedLevel {
-        val arrows = listOf(
-            ArrowTile(0, 2, 2, Direction.UP),
-            ArrowTile(1, 1, 3, Direction.RIGHT),
-            ArrowTile(2, 3, 2, Direction.DOWN),
-            ArrowTile(3, 2, 1, Direction.LEFT),
-            ArrowTile(4, 0, 3, Direction.UP)
-        )
+        val rows = 4
+        val cols = 4
+        val cells = LevelShape.SQUARE.validCells(rows, cols)
+        val arrows = fillAndAssign(cells, rows, cols, Random(7))
         return GeneratedLevel(
             arrows = arrows,
-            gridRows = 6,
-            gridCols = 6,
+            gridRows = rows,
+            gridCols = cols,
             shape = LevelShape.SQUARE,
             difficultyLabel = "Easy"
         )
