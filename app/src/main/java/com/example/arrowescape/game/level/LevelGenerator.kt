@@ -90,7 +90,10 @@ object LevelGenerator {
                         val tail = path.first()
                         val prev = path[1]
                         val incoming = Cell(tail.row - prev.row, tail.col - prev.col)
-                        val options = neighbors(tail).filter { it in occupied && it !in snake }
+                        val options = neighbors(tail).filter {
+                            it in occupied && it !in snake &&
+                                    !isInFrontOfHead(it, head, dir)
+                        }
                         if (options.isEmpty()) break
                         val bends = options.filter {
                             Cell(tail.row - it.row, tail.col - it.col) != incoming
@@ -125,6 +128,20 @@ object LevelGenerator {
             c += dir.deltaCol()
         }
         true
+    }
+
+    /** True if [cell] lies on the head's forward ray (directly in front of it). */
+    private fun isInFrontOfHead(cell: Cell, head: Cell, dir: Direction): Boolean {
+        val dr = dir.deltaRow(); val dc = dir.deltaCol()
+        if (dr != 0) {
+            if (cell.col != head.col) return false
+            val steps = (cell.row - head.row) * dr
+            return steps > 0
+        } else {
+            if (cell.row != head.row) return false
+            val steps = (cell.col - head.col) * dc
+            return steps > 0
+        }
     }
 
     private fun neighbors(cell: Cell): List<Cell> = listOf(
