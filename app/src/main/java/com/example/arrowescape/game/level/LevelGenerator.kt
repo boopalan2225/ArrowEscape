@@ -18,14 +18,16 @@ data class GeneratedLevel(
  * Generates dense shape levels made of BENDABLE snake-arrows, guaranteed
  * solvable via reverse-peeling.
  *
- * Strategy:
- *  1. Fill every cell of the shape mask (crisp, dense silhouettes).
- *  2. Repeatedly carve out a "snake": pick a cell whose straight ray in some
- *     direction is clear of remaining cells, then grow a connected body
- *     (with bends) where EVERY body cell also has a clear ray in that
- *     direction. Remove it and record it.
- *  3. Because snakes are carved in a real removal order, replaying that order
- *     is always a valid solution -> solvable.
+ * Mechanic (see CollisionChecker): a snake slithers out head-first, its body
+ * following the head's trail. So only the HEAD needs a clear straight ray to
+ * the edge - the body may bend freely. This lets us pack lots of bent snakes.
+ *
+ * Reverse-peeling:
+ *  1. Fill every cell of the shape mask.
+ *  2. Repeatedly pick a cell whose head-ray (in some direction) is clear of the
+ *     other remaining cells; make it a snake head and grow a bendy body through
+ *     still-occupied cells. Remove and record it.
+ *  3. Replaying that removal order is always a valid solution -> solvable.
  */
 object LevelGenerator {
 
@@ -63,45 +65,37 @@ object LevelGenerator {
         var nextId = 0
 
         while (occupied.isNotEmpty()) {
-            // Head candidates: cells with at least one clear escape direction.
-            val candidates = occupied.filter { escapeDirs(it, occupied, rows, cols).isNotEmpty() }
+            // Heads = cells whose forward ray (in some dir) is clear of the
+            // OTHER occupied cells.
+            val candidates = occupied.filter { headDirs(it, occupied, rows, cols).isNotEmpty() }
             val head = candidates.random(random)
-            val dir = escapeDirs(head, occupied, rows, cols).random(random)
+            val dir = headDirs(head, occupied, rows, cols).random(random)
 
             val path = ArrayDeque<Cell>()
             path.addLast(head)
             val snake = hashSetOf(head)
 
-            // Favour longer snakes so the bendable nature is clearly visible.
             val targetLen = if (maxLen <= 1) 1
             else (maxLen - random.nextInt(0, 2)).coerceAtLeast(2)
 
-            // The cell entering the head MUST be directly behind it (opposite the
-            // arrow direction) so the whole body slides straight into the tip.
-            // If we can't place it, the snake stays a single cell - we NEVER
-            // attach a perpendicular cell directly to the head.
+            // Neck sits directly behind the head so the arrowhead reads cleanly.
+            // It only needs to be occupied now - NO ray check (body slithers out).
             if (targetLen >= 2) {
-                val behind = Cell(head.row - dir.deltaRow(), head.col - dir.deltaCol())
-                if (canJoin(behind, dir, occupied, snake, rows, cols)) {
-                    path.addFirst(behind); snake.add(behind)
+                val neck = Cell(head.row - dir.deltaRow(), head.col - dir.deltaCol())
+                if (neck in occupied && neck !in snake) {
+                    path.addFirst(neck); snake.add(neck)
 
-                    // Grow the rest of the body from the tail end. These cells
-                    // are behind the neck, so bends here are proper snake bends.
-                    // Prefer cells that create a bend for a snakier look.
+                    // Grow the rest with a strong preference for BENDS.
                     while (path.size < targetLen) {
                         val tail = path.first()
-                        val prev = path[1] // toward the head; always exists here
+                        val prev = path[1]
                         val incoming = Cell(tail.row - prev.row, tail.col - prev.col)
-                        val options = neighbors(tail).filter {
-                            canJoin(it, dir, occupied, snake, rows, cols)
-                        }
+                        val options = neighbors(tail).filter { it in occupied && it !in snake }
                         if (options.isEmpty()) break
-                        // A bend = the new segment direction differs from incoming.
                         val bends = options.filter {
-                            val seg = Cell(tail.row - it.row, tail.col - it.col)
-                            seg != incoming
+                            Cell(tail.row - it.row, tail.col - it.col) != incoming
                         }
-                        val pool = if (bends.isNotEmpty() && random.nextFloat() < 0.7f)
+                        val pool = if (bends.isNotEmpty() && random.nextFloat() < 0.8f)
                             bends else options
                         val next = pool.random(random)
                         path.addFirst(next); snake.add(next)
@@ -113,51 +107,24 @@ object LevelGenerator {
             arrows.add(Arrow(id = nextId++, cells = path.toList(), direction = dir))
         }
 
-        // Shuffle ids so solution order isn't guessable from id sequence.
         return arrows.shuffled(random).mapIndexed { i, a -> a.copy(id = i) }
     }
 
-    /** A candidate cell can join if it's occupied, unused, and its ray is clear. */
-    private fun canJoin(
-        cell: Cell,
-        dir: Direction,
-        occupied: Set<Cell>,
-        snake: Set<Cell>,
-        rows: Int,
-        cols: Int
-    ): Boolean {
-        if (cell !in occupied || cell in snake) return false
-        // Blockers = everything still occupied except this snake (incl. the new cell).
-        return rayClear(cell, dir, occupied, snake + cell, rows, cols)
-    }
-
-    /** Directions in which [cell]'s ray to the edge is clear of other occupied cells. */
-    private fun escapeDirs(
+    /** Directions in which [cell]'s forward ray is clear of other occupied cells. */
+    private fun headDirs(
         cell: Cell,
         occupied: Set<Cell>,
         rows: Int,
         cols: Int
-    ): List<Direction> = Direction.entries.filter {
-        rayClear(cell, it, occupied, setOf(cell), rows, cols)
-    }
-
-    private fun rayClear(
-        cell: Cell,
-        dir: Direction,
-        occupied: Set<Cell>,
-        exclude: Set<Cell>,
-        rows: Int,
-        cols: Int
-    ): Boolean {
+    ): List<Direction> = Direction.entries.filter { dir ->
         var r = cell.row + dir.deltaRow()
         var c = cell.col + dir.deltaCol()
         while (r in 0 until rows && c in 0 until cols) {
-            val here = Cell(r, c)
-            if (here in occupied && here !in exclude) return false
+            if (Cell(r, c) in occupied) return@filter false
             r += dir.deltaRow()
             c += dir.deltaCol()
         }
-        return true
+        true
     }
 
     private fun neighbors(cell: Cell): List<Cell> = listOf(

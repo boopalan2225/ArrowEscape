@@ -19,7 +19,7 @@ data class DifficultyConfig(
         const val TOTAL_LEVELS = 100
 
         fun forLevel(level: Int): DifficultyConfig {
-            val shape = LevelShape.HEART
+            val shape = LevelShape.forLevel(level)
 
             val (size, maxLen, label) = when {
                 level <= 3 -> Triple(4, 2, "Easy")

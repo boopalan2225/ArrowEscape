@@ -138,8 +138,8 @@ private fun DrawScope.drawDotGrid(
 }
 
 /**
- * Draws a bendable arrow as a thick continuous pipe with a solid filled
- * arrowhead at the tip. [points] are ordered tail -> head.
+ * Draws a bendable arrow as a thick continuous pipe with SOFT rounded bends
+ * and a solid filled arrowhead at the tip. [points] are ordered tail -> head.
  */
 private fun DrawScope.drawSnakeArrow(
     points: List<Offset>,
@@ -158,20 +158,23 @@ private fun DrawScope.drawSnakeArrow(
     }
     val perp = Offset(-dirVec.y, dirVec.x)
 
-    // Solid arrowhead geometry
-    val tip = head + dirVec * (cell * 0.40f)
-    val headHalf = cell * 0.26f          // half-width of the head base
-    val headBack = tip - dirVec * (cell * 0.42f)
+    // Arrowhead geometry
+    val tip = head + dirVec * (cell * 0.42f)
+    val headHalf = cell * 0.27f
+    val headBack = tip - dirVec * (cell * 0.44f)
 
-    // Body pipe: poly-line through every cell center, ending where the
-    // arrowhead base begins so the two read as one connected shape.
-    // For single-cell arrows, extend the tail back so a stem is visible.
-    val tailStart = if (points.size == 1) head - dirVec * (cell * 0.38f) else points.first()
-    val bodyPath = Path().apply {
-        moveTo(tailStart.x, tailStart.y)
-        for (i in 1 until points.size) lineTo(points[i].x, points[i].y)
-        lineTo(headBack.x, headBack.y)
+    // Build the body vertex list (tail -> ... -> headBack). Single-cell arrows
+    // get an extended tail so a stem is visible.
+    val vertices = ArrayList<Offset>()
+    if (points.size == 1) {
+        vertices.add(head - dirVec * (cell * 0.40f))
+    } else {
+        vertices.add(points.first())
+        for (i in 1 until points.size - 1) vertices.add(points[i])
     }
+    vertices.add(headBack)
+
+    val bodyPath = roundedPolyline(vertices, cornerRadius = cell * 0.40f)
     drawPath(
         bodyPath, color,
         style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
@@ -187,4 +190,47 @@ private fun DrawScope.drawSnakeArrow(
         close()
     }
     drawPath(headPath, color, style = Fill)
+}
+
+/**
+ * Builds a poly-line through [pts] with rounded corners of up to [cornerRadius]
+ * at each interior vertex (quadratic bezier), giving soft snake bends.
+ */
+private fun roundedPolyline(pts: List<Offset>, cornerRadius: Float): Path {
+    val path = Path()
+    if (pts.isEmpty()) return path
+    if (pts.size < 3) {
+        path.moveTo(pts.first().x, pts.first().y)
+        for (i in 1 until pts.size) path.lineTo(pts[i].x, pts[i].y)
+        return path
+    }
+
+    path.moveTo(pts.first().x, pts.first().y)
+    for (i in 1 until pts.size - 1) {
+        val prev = pts[i - 1]
+        val curr = pts[i]
+        val next = pts[i + 1]
+
+        val r1 = minOf(cornerRadius, distance(prev, curr) / 2f)
+        val r2 = minOf(cornerRadius, distance(curr, next) / 2f)
+
+        val entry = curr + unit(prev - curr) * r1
+        val exit = curr + unit(next - curr) * r2
+
+        path.lineTo(entry.x, entry.y)
+        path.quadraticBezierTo(curr.x, curr.y, exit.x, exit.y)
+    }
+    val last = pts.last()
+    path.lineTo(last.x, last.y)
+    return path
+}
+
+private fun distance(a: Offset, b: Offset): Float {
+    val dx = a.x - b.x; val dy = a.y - b.y
+    return kotlin.math.sqrt(dx * dx + dy * dy)
+}
+
+private fun unit(v: Offset): Offset {
+    val len = kotlin.math.sqrt(v.x * v.x + v.y * v.y)
+    return if (len == 0f) Offset.Zero else Offset(v.x / len, v.y / len)
 }

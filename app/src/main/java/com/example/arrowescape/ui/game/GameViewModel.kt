@@ -128,8 +128,7 @@ class GameViewModel(
         adManager.loadInterstitialAd(context)
     }
 
-    fun startLevel(leve: Int) {
-        val level = 45
+    fun startLevel(level: Int) {
         viewModelScope.launch {
             // Generate off the main thread to keep the UI smooth.
             val generated = withContext(Dispatchers.Default) {

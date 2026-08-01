@@ -44,16 +44,18 @@ class CollisionCheckerTest {
     }
 
     @Test
-    fun `multi-cell snake escapes only if every cell path is clear`() {
-        // Horizontal snake at row 2, cols 0-1, pointing UP.
+    fun `snake escape depends only on the head path`() {
+        // Head at (2,1) pointing UP, body cell at (2,0).
         val snake = arrow(0, Direction.UP, 2 to 0, 2 to 1)
-        // Blocker above col 1 -> should block.
-        val blocker = arrow(1, Direction.DOWN, 0 to 1)
-        assertFalse(CollisionChecker.canEscape(snake, listOf(snake, blocker), rows, cols))
 
-        // Blocker not in any cell's column -> does not block.
-        val faraway = arrow(2, Direction.DOWN, 0 to 4)
-        assertTrue(CollisionChecker.canEscape(snake, listOf(snake, faraway), rows, cols))
+        // Blocker above the BODY column (col 0) - head lane (col 1) is clear,
+        // so the snake can still slither out.
+        val bodyBlocker = arrow(1, Direction.DOWN, 0 to 0)
+        assertTrue(CollisionChecker.canEscape(snake, listOf(snake, bodyBlocker), rows, cols))
+
+        // Blocker directly above the HEAD (col 1) -> blocked.
+        val headBlocker = arrow(2, Direction.DOWN, 0 to 1)
+        assertFalse(CollisionChecker.canEscape(snake, listOf(snake, headBlocker), rows, cols))
     }
 
     @Test

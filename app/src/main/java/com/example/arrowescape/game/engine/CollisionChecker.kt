@@ -2,16 +2,19 @@ package com.example.arrowescape.game.engine
 
 import com.example.arrowescape.game.model.Arrow
 import com.example.arrowescape.game.model.Cell
-import com.example.arrowescape.game.model.Direction
 
 /**
  * Determines whether bendable snake-arrows can escape.
  * Pure logic, fully unit-testable.
  *
- * Rule: an arrow escapes only if EVERY one of its cells has a clear
- * straight path in the arrow's direction to the board edge, with no other
- * active arrow's cell in the way. This lets the rigid shape slide off
- * cleanly without ever overlapping another arrow.
+ * Mechanic: an arrow slithers out head-first, its body following the exact
+ * trail the head carved. Therefore the ONLY cells it newly enters are along
+ * the head's straight forward ray. So an arrow can escape if and only if its
+ * HEAD has a clear straight path in its direction to the board edge, with no
+ * other active arrow's cell in the way.
+ *
+ * This is what makes densely-packed BENT snakes playable - the body can bend
+ * any way it likes; only the head's exit lane matters.
  */
 object CollisionChecker {
 
@@ -33,15 +36,12 @@ object CollisionChecker {
         val dr = arrow.direction.deltaRow()
         val dc = arrow.direction.deltaCol()
 
-        // Every cell must have a clear ray to the edge.
-        for (cell in arrow.cells) {
-            var r = cell.row + dr
-            var c = cell.col + dc
-            while (r in 0 until gridRows && c in 0 until gridCols) {
-                if (Cell(r, c) in blocked) return false
-                r += dr
-                c += dc
-            }
+        var r = arrow.head.row + dr
+        var c = arrow.head.col + dc
+        while (r in 0 until gridRows && c in 0 until gridCols) {
+            if (Cell(r, c) in blocked) return false
+            r += dr
+            c += dc
         }
         return true
     }
