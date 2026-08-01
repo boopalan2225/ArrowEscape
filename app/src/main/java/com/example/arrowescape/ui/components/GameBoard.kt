@@ -47,7 +47,7 @@ fun GameBoard(
     val escapeAnim = escapingArrows.mapValues { (id, _) ->
         val a = remember(id) { Animatable(0f) }
         LaunchedEffect(id) {
-            a.animateTo(1f, tween(340, easing = FastOutSlowInEasing))
+            a.animateTo(1f, tween(520, easing = FastOutSlowInEasing))
         }
         a.value
     }
@@ -71,7 +71,14 @@ fun GameBoard(
             .aspectRatio(gridCols.toFloat() / gridRows.toFloat())
             .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.10f))
             .clip(RoundedCornerShape(24.dp))
-            .background(gameColors.boardBackground)
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    listOf(
+                        gameColors.boardBackground,
+                        gameColors.arrowPrimary.copy(alpha = 0.06f)
+                    )
+                )
+            )
     ) {
         val boardW = constraints.maxWidth.toFloat()
         val boardH = constraints.maxHeight.toFloat()
@@ -106,7 +113,8 @@ fun GameBoard(
                 val escaping = escapingArrows.containsKey(arrow.id)
 
                 val isHinted = arrow.id == hintArrowId
-                val color = if (isHinted) gameColors.arrowHint else gameColors.arrowPrimary
+                val c1 = if (isHinted) gameColors.arrowHint else gameColors.arrowPrimary
+                val c2 = if (isHinted) gameColors.arrowHint else gameColors.arrowSecondary
 
                 val basePoints = arrow.cells.map { centerOf(it) }
                 val points: List<Offset> = if (escaping && progress > 0f) {
@@ -123,7 +131,7 @@ fun GameBoard(
                     }
                 }
 
-                drawSnakeArrow(points, arrow.direction, cell, color)
+                drawSnakeArrow(points, arrow.direction, cell, c1, c2)
             }
         }
     }
@@ -146,7 +154,8 @@ private fun DrawScope.drawSnakeArrow(
     points: List<Offset>,
     direction: Direction,
     cell: Float,
-    color: Color
+    color1: Color,
+    color2: Color
 ) {
     val stroke = cell * 0.15f
     val head = points.last()
@@ -164,6 +173,13 @@ private fun DrawScope.drawSnakeArrow(
     val headHalf = cell * 0.27f
     val headBack = tip - dirVec * (cell * 0.44f)
 
+    // Branded gradient brush running from the tail to the tip.
+    val brush = androidx.compose.ui.graphics.Brush.linearGradient(
+        colors = listOf(color1, color2),
+        start = points.first(),
+        end = tip
+    )
+
     // Build the body vertex list (tail -> ... -> headBack). Single-cell arrows
     // get an extended tail so a stem is visible.
     val vertices = ArrayList<Offset>()
@@ -177,7 +193,7 @@ private fun DrawScope.drawSnakeArrow(
 
     val bodyPath = roundedPolyline(vertices, cornerRadius = cell * 0.40f)
     drawPath(
-        bodyPath, color,
+        bodyPath, brush,
         style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
     )
 
@@ -190,7 +206,7 @@ private fun DrawScope.drawSnakeArrow(
         lineTo(right.x, right.y)
         close()
     }
-    drawPath(headPath, color, style = Fill)
+    drawPath(headPath, brush, style = Fill)
 }
 
 /**

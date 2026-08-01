@@ -35,7 +35,7 @@ class GameViewModel(
 
     companion object {
         private const val INTERSTITIAL_FREQUENCY = 4 // Show ad every N completed levels
-        private const val ESCAPE_ANIMATION_DURATION_MS = 350L
+        private const val ESCAPE_ANIMATION_DURATION_MS = 530L
         private const val SHAKE_ANIMATION_DURATION_MS = 300L
     }
 
@@ -59,7 +59,7 @@ class GameViewModel(
     private val _levelShape = MutableStateFlow(com.example.arrowescape.game.level.LevelShape.SQUARE)
     val levelShape: StateFlow<com.example.arrowescape.game.level.LevelShape> = _levelShape.asStateFlow()
 
-    private val _hintsRemaining = MutableStateFlow(3)
+    private val _hintsRemaining = MutableStateFlow(2)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
 
     private val _combo = MutableStateFlow(0)
@@ -152,7 +152,7 @@ class GameViewModel(
             )
             _escapingArrows.value = emptyMap()
             _shakingArrows.value = emptySet()
-            _hintsRemaining.value = 3
+            _hintsRemaining.value = 2
             _combo.value = 0
             continueUsedThisLevel = false
 

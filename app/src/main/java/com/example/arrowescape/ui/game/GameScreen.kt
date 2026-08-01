@@ -57,16 +57,38 @@ fun GameScreen(
                 .fillMaxSize()
                 .then(if (shouldBlur) Modifier.blur(8.dp) else Modifier)
         ) {
-            GameTopBar(
-                level = gameState.level,
-                onBackClick = onBackClick
-            )
+            // Distinct branded header band (rounded bottom + subtle gradient)
+            androidx.compose.material3.Surface(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(
+                    bottomStart = 28.dp, bottomEnd = 28.dp
+                ),
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 3.dp
+            ) {
+                Column(
+                    modifier = Modifier.background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                androidx.compose.ui.graphics.Color.Transparent
+                            )
+                        )
+                    )
+                ) {
+                    GameTopBar(
+                        level = gameState.level,
+                        onBackClick = onBackClick
+                    )
 
-            GameStatsRow(
-                remainingArrows = gameState.remainingCount,
-                lives = gameState.lives,
-                difficultyLabel = gameState.difficultyLabel
-            )
+                    GameStatsRow(
+                        remainingArrows = gameState.remainingCount,
+                        lives = gameState.lives,
+                        difficultyLabel = gameState.difficultyLabel
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
 
             // Game board - centered, fills available space
             Box(

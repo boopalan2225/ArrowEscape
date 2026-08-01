@@ -60,6 +60,13 @@ val ArrowNavyLight = Color(0xFF1B2A4A)   // Deep navy for light mode
 val ArrowNavyDark = Color(0xFFE3E8F0)    // Off-white for dark mode
 val ArrowHintBlue = Color(0xFF2E7DF6)    // Blue highlight for hinted arrow
 
+// Distinct branded arrow gradient (differentiates our trade dress)
+val ArrowGrad1Light = Color(0xFF3D5AF1)  // vivid indigo
+val ArrowGrad2Light = Color(0xFF6C8CF5)  // lighter blue
+val ArrowGrad1Dark = Color(0xFF8AB4F8)
+val ArrowGrad2Dark = Color(0xFFB9D0FB)
+val ArrowHintAmber = Color(0xFFFF8F00)   // amber hint - stands out vs blue arrows
+
 // Life/Heart Colors
 val HeartFull = Color(0xFFE91E63)
 val HeartFullDark = Color(0xFFF48FB1)

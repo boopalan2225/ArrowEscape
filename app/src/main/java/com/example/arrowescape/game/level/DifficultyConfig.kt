@@ -22,14 +22,14 @@ data class DifficultyConfig(
             val shape = LevelShape.forLevel(level)
 
             val (size, maxLen, label) = when {
-                level <= 3 -> Triple(4, 2, "Easy")
-                level <= 8 -> Triple(5, 3, "Easy")
-                level <= 15 -> Triple(6, 3, "Easy")
-                level <= 25 -> Triple(7, 4, "Normal")
-                level <= 40 -> Triple(8, 4, "Normal")
-                level <= 60 -> Triple(9, 5, "Hard")
-                level <= 85 -> Triple(10, 5, "Hard")
-                else -> Triple(11, 6, "Expert")
+                level <= 3 -> Triple(5, 2, "Easy")
+                level <= 8 -> Triple(6, 3, "Easy")
+                level <= 15 -> Triple(7, 3, "Normal")
+                level <= 25 -> Triple(8, 4, "Normal")
+                level <= 40 -> Triple(9, 4, "Hard")
+                level <= 60 -> Triple(10, 5, "Hard")
+                level <= 85 -> Triple(11, 6, "Expert")
+                else -> Triple(12, 6, "Expert")
             }
 
             return DifficultyConfig(
