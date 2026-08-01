@@ -57,8 +57,29 @@ class LevelGeneratorTest {
 
     @Test
     fun `snakes respect max length`() {
-        val level = LevelGenerator.generateLevel(95) // maxSnakeLength = 5
-        assertTrue(level.arrows.all { it.cells.size in 1..5 })
+        val level = LevelGenerator.generateLevel(95) // maxSnakeLength = 6
+        assertTrue(level.arrows.all { it.cells.size in 1..6 })
+    }
+
+    @Test
+    fun `cell entering head is aligned with arrow direction`() {
+        // The neck cell (second from head) must be directly opposite the
+        // arrow direction - never perpendicular.
+        for (n in listOf(20, 45, 70, 95)) {
+            val level = LevelGenerator.generateLevel(n)
+            level.arrows.filter { it.cells.size >= 2 }.forEach { arrow ->
+                val head = arrow.cells.last()
+                val neck = arrow.cells[arrow.cells.size - 2]
+                val expected = com.example.arrowescape.game.model.Cell(
+                    head.row - arrow.direction.deltaRow(),
+                    head.col - arrow.direction.deltaCol()
+                )
+                assertEquals(
+                    "Neck must be directly behind head (level $n)",
+                    expected, neck
+                )
+            }
+        }
     }
 
     @Test

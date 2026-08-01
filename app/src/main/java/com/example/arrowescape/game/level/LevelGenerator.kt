@@ -72,23 +72,41 @@ object LevelGenerator {
             path.addLast(head)
             val snake = hashSetOf(head)
 
-            val targetLen = random.nextInt(1, maxLen + 1)
+            // Favour longer snakes so the bendable nature is clearly visible.
+            val targetLen = if (maxLen <= 1) 1
+            else (maxLen - random.nextInt(0, 2)).coerceAtLeast(2)
 
-            // First tail cell sits directly behind the head so the tip aligns.
-            val behind = Cell(head.row - dir.deltaRow(), head.col - dir.deltaCol())
-            if (path.size < targetLen && canJoin(behind, dir, occupied, snake, rows, cols)) {
-                path.addFirst(behind); snake.add(behind)
-            }
+            // The cell entering the head MUST be directly behind it (opposite the
+            // arrow direction) so the whole body slides straight into the tip.
+            // If we can't place it, the snake stays a single cell - we NEVER
+            // attach a perpendicular cell directly to the head.
+            if (targetLen >= 2) {
+                val behind = Cell(head.row - dir.deltaRow(), head.col - dir.deltaCol())
+                if (canJoin(behind, dir, occupied, snake, rows, cols)) {
+                    path.addFirst(behind); snake.add(behind)
 
-            // Grow the body (bends allowed) from the tail end.
-            while (path.size < targetLen) {
-                val tail = path.first()
-                val options = neighbors(tail).filter {
-                    canJoin(it, dir, occupied, snake, rows, cols)
+                    // Grow the rest of the body from the tail end. These cells
+                    // are behind the neck, so bends here are proper snake bends.
+                    // Prefer cells that create a bend for a snakier look.
+                    while (path.size < targetLen) {
+                        val tail = path.first()
+                        val prev = path[1] // toward the head; always exists here
+                        val incoming = Cell(tail.row - prev.row, tail.col - prev.col)
+                        val options = neighbors(tail).filter {
+                            canJoin(it, dir, occupied, snake, rows, cols)
+                        }
+                        if (options.isEmpty()) break
+                        // A bend = the new segment direction differs from incoming.
+                        val bends = options.filter {
+                            val seg = Cell(tail.row - it.row, tail.col - it.col)
+                            seg != incoming
+                        }
+                        val pool = if (bends.isNotEmpty() && random.nextFloat() < 0.7f)
+                            bends else options
+                        val next = pool.random(random)
+                        path.addFirst(next); snake.add(next)
+                    }
                 }
-                if (options.isEmpty()) break
-                val next = options.random(random)
-                path.addFirst(next); snake.add(next)
             }
 
             occupied.removeAll(snake)

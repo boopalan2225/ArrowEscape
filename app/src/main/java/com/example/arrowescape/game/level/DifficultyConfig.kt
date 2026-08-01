@@ -19,17 +19,17 @@ data class DifficultyConfig(
         const val TOTAL_LEVELS = 100
 
         fun forLevel(level: Int): DifficultyConfig {
-            val shape = LevelShape.forLevel(level)
+            val shape = LevelShape.HEART
 
             val (size, maxLen, label) = when {
-                level <= 3 -> Triple(4, 1, "Easy")
-                level <= 8 -> Triple(5, 2, "Easy")
-                level <= 15 -> Triple(6, 2, "Easy")
-                level <= 25 -> Triple(7, 3, "Normal")
-                level <= 40 -> Triple(8, 3, "Normal")
-                level <= 60 -> Triple(9, 4, "Hard")
-                level <= 85 -> Triple(10, 4, "Hard")
-                else -> Triple(11, 5, "Expert")
+                level <= 3 -> Triple(4, 2, "Easy")
+                level <= 8 -> Triple(5, 3, "Easy")
+                level <= 15 -> Triple(6, 3, "Easy")
+                level <= 25 -> Triple(7, 4, "Normal")
+                level <= 40 -> Triple(8, 4, "Normal")
+                level <= 60 -> Triple(9, 5, "Hard")
+                level <= 85 -> Triple(10, 5, "Hard")
+                else -> Triple(11, 6, "Expert")
             }
 
             return DifficultyConfig(

@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -137,8 +138,8 @@ private fun DrawScope.drawDotGrid(
 }
 
 /**
- * Draws a bendable arrow: rounded poly-line stem + chevron head.
- * [points] are ordered tail -> head.
+ * Draws a bendable arrow as a thick continuous pipe with a solid filled
+ * arrowhead at the tip. [points] are ordered tail -> head.
  */
 private fun DrawScope.drawSnakeArrow(
     points: List<Offset>,
@@ -146,7 +147,7 @@ private fun DrawScope.drawSnakeArrow(
     cell: Float,
     color: Color
 ) {
-    val stroke = cell * 0.13f
+    val stroke = cell * 0.15f
     val head = points.last()
 
     val dirVec = when (direction) {
@@ -157,32 +158,33 @@ private fun DrawScope.drawSnakeArrow(
     }
     val perp = Offset(-dirVec.y, dirVec.x)
 
-    // Stem: poly-line through all cell centers, ending a touch before the tip
-    // so the chevron sits cleanly at the head.
-    val stemEnd = head + dirVec * (cell * 0.10f)
-    val stemPath = Path().apply {
-        moveTo(points.first().x, points.first().y)
+    // Solid arrowhead geometry
+    val tip = head + dirVec * (cell * 0.40f)
+    val headHalf = cell * 0.26f          // half-width of the head base
+    val headBack = tip - dirVec * (cell * 0.42f)
+
+    // Body pipe: poly-line through every cell center, ending where the
+    // arrowhead base begins so the two read as one connected shape.
+    // For single-cell arrows, extend the tail back so a stem is visible.
+    val tailStart = if (points.size == 1) head - dirVec * (cell * 0.38f) else points.first()
+    val bodyPath = Path().apply {
+        moveTo(tailStart.x, tailStart.y)
         for (i in 1 until points.size) lineTo(points[i].x, points[i].y)
-        lineTo(stemEnd.x, stemEnd.y)
+        lineTo(headBack.x, headBack.y)
     }
     drawPath(
-        stemPath, color,
+        bodyPath, color,
         style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
     )
 
-    // Chevron head
-    val tip = head + dirVec * (cell * 0.34f)
-    val back = tip - dirVec * (cell * 0.30f)
-    val halfW = cell * 0.22f
-    val chevron = Path().apply {
-        val left = back + perp * halfW
-        val right = back - perp * halfW
-        moveTo(left.x, left.y)
-        lineTo(tip.x, tip.y)
+    // Solid filled triangular head
+    val headPath = Path().apply {
+        val left = headBack + perp * headHalf
+        val right = headBack - perp * headHalf
+        moveTo(tip.x, tip.y)
+        lineTo(left.x, left.y)
         lineTo(right.x, right.y)
+        close()
     }
-    drawPath(
-        chevron, color,
-        style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
-    )
+    drawPath(headPath, color, style = Fill)
 }
