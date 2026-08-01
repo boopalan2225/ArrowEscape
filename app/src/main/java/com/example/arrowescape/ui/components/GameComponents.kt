@@ -68,113 +68,192 @@ fun LivesDisplay(
 }
 
 /**
- * Top bar for the game screen showing level, lives, and back button.
+ * Top bar for the game screen: back button, level, and settings/pause.
  */
 @Composable
 fun GameTopBar(
     level: Int,
-    lives: Int,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 2.dp
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        IconButton(
+            onClick = onBackClick,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            // Back button
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                Text(
-                    text = "\u2190",
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // Level indicator with pill background
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Text(
-                    text = "Level $level",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-
-            // Lives display
-            LivesDisplay(lives = lives)
+            Text(
+                text = "\u2190",
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
+
+        Text(
+            text = "Level $level",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        // Spacer to balance the back button (settings lives on home)
+        Spacer(modifier = Modifier.size(40.dp))
     }
 }
 
 /**
- * Bottom info bar showing remaining arrows with animation.
+ * Stats row: arrow counter chip | lives | difficulty badge.
  */
 @Composable
-fun GameBottomBar(
+fun GameStatsRow(
     remainingArrows: Int,
+    lives: Int,
+    difficultyLabel: String,
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+        // Arrow counter chip
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                // Animated counter
+                Text(
+                    text = "\u2197",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 AnimatedContent(
                     targetState = remainingArrows,
                     transitionSpec = {
-                        if (targetState < initialState) {
-                            slideInVertically { -it } + fadeIn() togetherWith
-                                    slideOutVertically { it } + fadeOut()
-                        } else {
-                            slideInVertically { it } + fadeIn() togetherWith
-                                    slideOutVertically { -it } + fadeOut()
-                        }.using(SizeTransform(clip = false))
+                        (slideInVertically { -it } + fadeIn()) togetherWith
+                                (slideOutVertically { it } + fadeOut())
                     },
-                    label = "arrowCount"
+                    label = "count"
                 ) { count ->
                     Text(
                         text = "$count",
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                
-                Text(
-                    text = "arrows remaining",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = gameColors.textSecondary
+            }
+        }
+
+        // Lives
+        LivesDisplay(lives = lives)
+
+        // Difficulty badge
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = difficultyColor(difficultyLabel, gameColors).copy(alpha = 0.15f)
+        ) {
+            Text(
+                text = difficultyLabel,
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = difficultyColor(difficultyLabel, gameColors)
+            )
+        }
+    }
+}
+
+private fun difficultyColor(label: String, gameColors: com.example.arrowescape.ui.theme.GameColors): Color {
+    return when (label) {
+        "Easy" -> gameColors.success
+        "Normal" -> gameColors.arrowDown
+        "Hard" -> gameColors.warning
+        else -> gameColors.arrowLeft
+    }
+}
+
+/**
+ * Bottom bar with a hint button and the current shape name.
+ */
+@Composable
+fun GameBottomBar(
+    shapeName: String,
+    hintsRemaining: Int,
+    onHintClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val gameColors = ArrowEscapeTheme.gameColors
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Shape label
+        Column {
+            Text(
+                text = "SHAPE",
+                style = MaterialTheme.typography.labelSmall,
+                color = gameColors.textSecondary,
+                letterSpacing = 1.5.sp
+            )
+            Text(
+                text = shapeName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        // Hint button with badge
+        Box(contentAlignment = Alignment.TopEnd) {
+            FilledIconButton(
+                onClick = onHintClick,
+                enabled = hintsRemaining > 0,
+                modifier = Modifier.size(56.dp),
+                shape = CircleShape,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.primary
                 )
+            ) {
+                Text(text = "\uD83D\uDCA1", fontSize = 22.sp)
+            }
+
+            if (hintsRemaining > 0) {
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "$hintsRemaining",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
     }

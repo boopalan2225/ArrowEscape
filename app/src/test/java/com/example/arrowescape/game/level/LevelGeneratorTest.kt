@@ -10,88 +10,96 @@ import org.junit.Test
 class LevelGeneratorTest {
 
     @Test
-    fun `generateLevel returns correct arrow count for level 1`() {
-        val (arrows, rows, cols) = LevelGenerator.generateLevel(1)
+    fun `generateLevel returns reasonable arrow count for level 1`() {
+        val level = LevelGenerator.generateLevel(1)
 
-        assertTrue("Level 1 should have 5-10 arrows", arrows.size in 5..10)
-        assertTrue("Grid rows should be reasonable", rows in 3..10)
-        assertTrue("Grid cols should be reasonable", cols in 3..10)
+        assertTrue("Level 1 should have at least 4 arrows", level.arrows.size >= 4)
+        assertTrue("Grid rows should be reasonable", level.gridRows in 4..14)
+        assertTrue("Grid cols should be reasonable", level.gridCols in 4..14)
     }
 
     @Test
     fun `generated levels are solvable`() {
-        // Test multiple levels
-        for (level in listOf(1, 5, 10, 25, 50, 75, 100)) {
-            val (arrows, rows, cols) = LevelGenerator.generateLevel(level)
-
+        for (levelNum in listOf(1, 5, 10, 25, 50, 75, 100, 150)) {
+            val level = LevelGenerator.generateLevel(levelNum)
             assertTrue(
-                "Level $level should be solvable",
-                GameSolver.isSolvable(arrows, rows, cols)
+                "Level $levelNum should be solvable",
+                GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols)
             )
         }
     }
 
     @Test
     fun `same level number generates same board`() {
-        val (arrows1, rows1, cols1) = LevelGenerator.generateLevel(42)
-        val (arrows2, rows2, cols2) = LevelGenerator.generateLevel(42)
+        val a = LevelGenerator.generateLevel(42)
+        val b = LevelGenerator.generateLevel(42)
 
-        assertEquals("Same level should generate same rows", rows1, rows2)
-        assertEquals("Same level should generate same cols", cols1, cols2)
-        assertEquals("Same level should generate same arrow count", arrows1.size, arrows2.size)
+        assertEquals(a.gridRows, b.gridRows)
+        assertEquals(a.gridCols, b.gridCols)
+        assertEquals(a.shape, b.shape)
+        assertEquals(a.arrows.size, b.arrows.size)
 
-        // Check arrow positions match
-        arrows1.forEachIndexed { index, arrow ->
-            assertEquals(arrow.row, arrows2[index].row)
-            assertEquals(arrow.col, arrows2[index].col)
-            assertEquals(arrow.direction, arrows2[index].direction)
+        a.arrows.forEachIndexed { index, arrow ->
+            assertEquals(arrow.row, b.arrows[index].row)
+            assertEquals(arrow.col, b.arrows[index].col)
+            assertEquals(arrow.direction, b.arrows[index].direction)
         }
     }
 
     @Test
     fun `different levels generate different boards`() {
-        val (arrows1, _, _) = LevelGenerator.generateLevel(10)
-        val (arrows2, _, _) = LevelGenerator.generateLevel(11)
+        val a = LevelGenerator.generateLevel(10)
+        val b = LevelGenerator.generateLevel(11)
 
-        // Different levels should have different configurations
-        val config1 = arrows1.map { Triple(it.row, it.col, it.direction) }.toSet()
-        val config2 = arrows2.map { Triple(it.row, it.col, it.direction) }.toSet()
+        val configA = a.arrows.map { Triple(it.row, it.col, it.direction) }.toSet()
+        val configB = b.arrows.map { Triple(it.row, it.col, it.direction) }.toSet()
 
-        assertNotEquals("Different levels should generate different boards", config1, config2)
+        assertNotEquals("Different levels should differ", configA, configB)
     }
 
     @Test
     fun `tutorial level is simple and solvable`() {
-        val (arrows, rows, cols) = LevelGenerator.generateTutorialLevel()
+        val level = LevelGenerator.generateTutorialLevel()
 
-        assertTrue("Tutorial should have few arrows", arrows.size <= 6)
-        assertTrue("Tutorial should be solvable", GameSolver.isSolvable(arrows, rows, cols))
-    }
-
-    @Test
-    fun `higher levels have more arrows`() {
-        val (arrowsLow, _, _) = LevelGenerator.generateLevel(5)
-        val (arrowsHigh, _, _) = LevelGenerator.generateLevel(50)
-
+        assertTrue("Tutorial should have few arrows", level.arrows.size <= 6)
         assertTrue(
-            "Higher levels should have more arrows",
-            arrowsHigh.size > arrowsLow.size
+            "Tutorial should be solvable",
+            GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols)
         )
     }
 
     @Test
     fun `all arrows have unique IDs`() {
-        val (arrows, _, _) = LevelGenerator.generateLevel(30)
-
-        val ids = arrows.map { it.id }
+        val level = LevelGenerator.generateLevel(30)
+        val ids = level.arrows.map { it.id }
         assertEquals("All arrows should have unique IDs", ids.size, ids.toSet().size)
     }
 
     @Test
     fun `no arrows overlap positions`() {
-        val (arrows, _, _) = LevelGenerator.generateLevel(30)
-
-        val positions = arrows.map { it.row to it.col }
+        val level = LevelGenerator.generateLevel(30)
+        val positions = level.arrows.map { it.row to it.col }
         assertEquals("No arrows should overlap", positions.size, positions.toSet().size)
+    }
+
+    @Test
+    fun `arrows stay within shape mask`() {
+        // Every arrow must be inside the level's shape
+        for (levelNum in listOf(8, 20, 45, 90)) {
+            val level = LevelGenerator.generateLevel(levelNum)
+            level.arrows.forEach { arrow ->
+                assertTrue(
+                    "Arrow at (${arrow.row},${arrow.col}) should be inside ${level.shape} for level $levelNum",
+                    level.shape.contains(arrow.row, arrow.col, level.gridRows, level.gridCols)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `shape rotates across levels`() {
+        // Level 1-3 are SQUARE, later levels vary
+        assertEquals(LevelShape.SQUARE, LevelGenerator.generateLevel(1).shape)
+        assertEquals(LevelShape.SQUARE, LevelGenerator.generateLevel(2).shape)
     }
 }

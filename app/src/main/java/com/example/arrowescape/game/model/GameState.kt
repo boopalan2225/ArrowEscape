@@ -26,7 +26,9 @@ data class GameState(
     val lives: Int = 3,
     val status: GameStatus = GameStatus.PLAYING,
     val startTimeMillis: Long = System.currentTimeMillis(),
-    val mistakes: Int = 0
+    val mistakes: Int = 0,
+    val difficultyLabel: String = "Easy",
+    val hintArrowId: Int? = null
 ) {
     /**
      * Returns only the active (not yet removed) arrows.

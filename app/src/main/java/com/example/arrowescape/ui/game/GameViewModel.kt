@@ -54,6 +54,12 @@ class GameViewModel(
     private val _gridCols = MutableStateFlow(GameEngine.DEFAULT_GRID_COLS)
     val gridCols: StateFlow<Int> = _gridCols.asStateFlow()
 
+    private val _levelShape = MutableStateFlow(com.example.arrowescape.game.level.LevelShape.SQUARE)
+    val levelShape: StateFlow<com.example.arrowescape.game.level.LevelShape> = _levelShape.asStateFlow()
+
+    private val _hintsRemaining = MutableStateFlow(3)
+    val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
+
     val prefs = preferences.prefsFlow.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -104,21 +110,50 @@ class GameViewModel(
 
     fun startLevel(level: Int) {
         viewModelScope.launch {
-            val (arrows, rows, cols) = if (level == 1) {
+            val generated = if (level == 1) {
                 LevelGenerator.generateTutorialLevel()
             } else {
                 LevelGenerator.generateLevel(level)
             }
 
-            currentLevelArrows = arrows
-            _gridRows.value = rows
-            _gridCols.value = cols
-            _gameState.value = gameEngine.createLevel(level, arrows, rows, cols)
+            currentLevelArrows = generated.arrows
+            _gridRows.value = generated.gridRows
+            _gridCols.value = generated.gridCols
+            _levelShape.value = generated.shape
+            _gameState.value = gameEngine.createLevel(
+                level,
+                generated.arrows,
+                generated.gridRows,
+                generated.gridCols,
+                generated.difficultyLabel
+            )
             _escapingArrows.value = emptyMap()
             _shakingArrows.value = emptySet()
             continueUsedThisLevel = false
 
-            analytics.trackLevelStarted(level, arrows.size)
+            analytics.trackLevelStarted(level, generated.arrows.size)
+        }
+    }
+
+    /**
+     * Reveals a hint by highlighting an escapable arrow.
+     * Costs one hint from the available pool.
+     */
+    fun useHint() {
+        if (_hintsRemaining.value <= 0) return
+        val state = _gameState.value
+        if (state.status != GameStatus.PLAYING) return
+
+        val hintId = gameEngine.findHintArrow(state) ?: return
+        _hintsRemaining.value = _hintsRemaining.value - 1
+        _gameState.value = state.copy(hintArrowId = hintId)
+
+        // Clear the hint highlight after a few seconds
+        viewModelScope.launch {
+            delay(2500)
+            if (_gameState.value.hintArrowId == hintId) {
+                _gameState.value = _gameState.value.copy(hintArrowId = null)
+            }
         }
     }
 
@@ -131,7 +166,12 @@ class GameViewModel(
             return
         }
 
-        val (newState, wasValid) = gameEngine.tapArrow(currentState, arrow.id)
+        // Clear any active hint on interaction
+        if (currentState.hintArrowId != null) {
+            _gameState.value = currentState.copy(hintArrowId = null)
+        }
+
+        val (newState, wasValid) = gameEngine.tapArrow(_gameState.value, arrow.id)
 
         if (wasValid) {
             handleValidMove(arrow, newState)

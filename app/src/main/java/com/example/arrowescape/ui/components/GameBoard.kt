@@ -10,11 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -25,166 +25,172 @@ import androidx.compose.ui.unit.dp
 import com.example.arrowescape.game.model.ArrowTile
 import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
+import com.example.arrowescape.ui.theme.GameColors
+import kotlin.math.sin
 
 /**
- * The main game board component that renders arrows using Canvas.
- * Polished with shadows, rounded corners, and smooth animations.
+ * The main game board - elegant dot-grid background with polished arrows.
+ * Arrows are arranged into shapes (triangle, circle, heart, etc.) by the
+ * level generator; this component just renders whatever cells are populated.
  */
 @Composable
 fun GameBoard(
     arrows: List<ArrowTile>,
     gridRows: Int,
     gridCols: Int,
-    animatingArrows: Set<Int>,
     escapingArrows: Map<Int, Direction>,
     shakingArrows: Set<Int>,
+    hintArrowId: Int?,
     onArrowTap: (ArrowTile) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
     val gameColors = ArrowEscapeTheme.gameColors
 
-    // Escape animations - each arrow moves in its direction
+    // Escape animation: fly off in the arrow's direction
     val escapeAnimations = escapingArrows.mapValues { (arrowId, _) ->
         val animatable = remember(arrowId) { Animatable(0f) }
         LaunchedEffect(arrowId) {
             animatable.animateTo(
-                targetValue = 1.5f,
-                animationSpec = tween(
-                    durationMillis = 280,
-                    easing = FastOutLinearInEasing
-                )
+                targetValue = 1.6f,
+                animationSpec = tween(300, easing = FastOutLinearInEasing)
             )
         }
         animatable.value
     }
 
-    // Shake animations with spring effect
+    // Shake animation for blocked taps
     val shakeAnimations = shakingArrows.associateWith { arrowId ->
         val animatable = remember(arrowId) { Animatable(0f) }
         LaunchedEffect(arrowId) {
             animatable.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessHigh,
-                    visibilityThreshold = 0.1f
-                ),
-                initialVelocity = 800f
+                targetValue = 1f,
+                animationSpec = tween(300, easing = LinearEasing)
             )
         }
-        kotlin.math.sin(animatable.value * 3 * Math.PI.toFloat()) * 12f
+        sin(animatable.value * 4 * Math.PI.toFloat()) * 10f
     }
 
-    // Scale animation for tapped arrows
-    val scaleAnimations = remember { mutableStateMapOf<Int, Float>() }
+    // Hint pulse animation
+    val hintPulse = rememberInfiniteTransition(label = "hint")
+    val hintScale by hintPulse.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.18f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hintScale"
+    )
 
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp),
-                spotColor = Color.Black.copy(alpha = 0.1f)
-            )
-            .clip(RoundedCornerShape(16.dp))
+            .aspectRatio(gridCols.toFloat() / gridRows.toFloat())
+            .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.12f))
+            .clip(RoundedCornerShape(24.dp))
             .background(gameColors.boardBackground)
     ) {
         val boardWidth = constraints.maxWidth.toFloat()
-        val cellSize = boardWidth / gridCols
-        val boardHeight = cellSize * gridRows
+        val boardHeight = constraints.maxHeight.toFloat()
+        val cellSize = minOf(boardWidth / gridCols, boardHeight / gridRows)
+
+        // Center the grid within the board
+        val gridWidth = cellSize * gridCols
+        val gridHeight = cellSize * gridRows
+        val offsetX = (boardWidth - gridWidth) / 2f
+        val offsetY = (boardHeight - gridHeight) / 2f
 
         Canvas(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(with(density) { boardHeight.toDp() })
+                .fillMaxSize()
                 .pointerInput(arrows) {
-                    detectTapGestures { offset ->
-                        val col = (offset.x / cellSize).toInt()
-                        val row = (offset.y / cellSize).toInt()
-
-                        arrows
-                            .filter { it.isActive && it.row == row && it.col == col }
-                            .firstOrNull()
+                    detectTapGestures { tap ->
+                        val col = ((tap.x - offsetX) / cellSize).toInt()
+                        val row = ((tap.y - offsetY) / cellSize).toInt()
+                        arrows.firstOrNull { it.isActive && it.row == row && it.col == col }
                             ?.let { onArrowTap(it) }
                     }
                 }
         ) {
-            // Draw subtle grid lines
-            drawGridLines(gridRows, gridCols, cellSize, gameColors.gridLine)
+            // 1. Draw subtle dot grid at every cell center
+            drawDotGrid(gridRows, gridCols, cellSize, offsetX, offsetY, gameColors.gridLine)
 
-            // Draw each active arrow
+            // 2. Draw arrows
             arrows.filter { it.isActive || escapingArrows.containsKey(it.id) }.forEach { arrow ->
-                val baseX = arrow.col * cellSize + cellSize / 2
-                val baseY = arrow.row * cellSize + cellSize / 2
+                val baseX = offsetX + arrow.col * cellSize + cellSize / 2
+                val baseY = offsetY + arrow.row * cellSize + cellSize / 2
 
-                // Apply escape animation offset
                 val escapeProgress = escapeAnimations[arrow.id] ?: 0f
                 val escapeOffset = when (arrow.direction) {
-                    Direction.UP -> Offset(0f, -escapeProgress * boardHeight)
-                    Direction.DOWN -> Offset(0f, escapeProgress * boardHeight)
-                    Direction.LEFT -> Offset(-escapeProgress * boardWidth, 0f)
-                    Direction.RIGHT -> Offset(escapeProgress * boardWidth, 0f)
+                    Direction.UP -> Offset(0f, -escapeProgress * gridHeight)
+                    Direction.DOWN -> Offset(0f, escapeProgress * gridHeight)
+                    Direction.LEFT -> Offset(-escapeProgress * gridWidth, 0f)
+                    Direction.RIGHT -> Offset(escapeProgress * gridWidth, 0f)
                 }
 
-                // Apply shake animation offset
                 val shakeOffset = shakeAnimations[arrow.id] ?: 0f
-
                 val centerX = baseX + escapeOffset.x + shakeOffset
                 val centerY = baseY + escapeOffset.y
 
-                // Scale effect (slightly smaller during escape)
-                val scale = if (escapeProgress > 0f) {
-                    1f - (escapeProgress * 0.3f)
-                } else {
-                    scaleAnimations[arrow.id] ?: 1f
+                val isHinted = arrow.id == hintArrowId
+                val scale = when {
+                    escapeProgress > 0f -> 1f - (escapeProgress * 0.25f)
+                    isHinted -> hintScale
+                    else -> 1f
                 }
 
-                val arrowColor = getArrowColor(arrow.direction, gameColors)
-                
-                drawArrowTile(
+                val color = getArrowColor(arrow.direction, gameColors)
+
+                // Hint glow ring behind the arrow
+                if (isHinted) {
+                    drawCircle(
+                        color = color.copy(alpha = 0.18f),
+                        radius = cellSize * 0.55f,
+                        center = Offset(centerX, centerY)
+                    )
+                }
+
+                drawElegantArrow(
                     center = Offset(centerX, centerY),
-                    size = cellSize * 0.75f * scale,
+                    cellSize = cellSize * scale,
                     direction = arrow.direction,
-                    color = arrowColor
+                    color = color
                 )
             }
         }
     }
 }
 
-private fun DrawScope.drawGridLines(
+private fun DrawScope.drawDotGrid(
     rows: Int,
     cols: Int,
     cellSize: Float,
-    lineColor: Color
+    offsetX: Float,
+    offsetY: Float,
+    dotColor: Color
 ) {
-    val strokeWidth = 1.dp.toPx()
-
-    // Horizontal lines
-    for (i in 1 until rows) {
-        drawLine(
-            color = lineColor,
-            start = Offset(0f, i * cellSize),
-            end = Offset(size.width, i * cellSize),
-            strokeWidth = strokeWidth
-        )
-    }
-
-    // Vertical lines
-    for (i in 1 until cols) {
-        drawLine(
-            color = lineColor,
-            start = Offset(i * cellSize, 0f),
-            end = Offset(i * cellSize, size.height),
-            strokeWidth = strokeWidth
-        )
+    val dotRadius = cellSize * 0.04f
+    for (r in 0 until rows) {
+        for (c in 0 until cols) {
+            val cx = offsetX + c * cellSize + cellSize / 2
+            val cy = offsetY + r * cellSize + cellSize / 2
+            drawCircle(
+                color = dotColor,
+                radius = dotRadius,
+                center = Offset(cx, cy)
+            )
+        }
     }
 }
 
-private fun DrawScope.drawArrowTile(
+/**
+ * Draws a thick, rounded arrow in the "stroke + head" style similar to
+ * modern puzzle games. Base orientation points UP; rotated for others.
+ */
+private fun DrawScope.drawElegantArrow(
     center: Offset,
-    size: Float,
+    cellSize: Float,
     direction: Direction,
     color: Color
 ) {
@@ -195,84 +201,76 @@ private fun DrawScope.drawArrowTile(
         Direction.LEFT -> 270f
     }
 
+    val length = cellSize * 0.62f
+    val strokeWidth = cellSize * 0.16f
+    val headSize = cellSize * 0.26f
+
     rotate(rotation, pivot = center) {
-        // Draw shadow/glow effect
-        val shadowColor = color.copy(alpha = 0.3f)
-        val shadowOffset = 2.dp.toPx()
-        
-        drawArrowShape(
-            center = Offset(center.x + shadowOffset, center.y + shadowOffset),
-            size = size,
-            color = shadowColor
+        val topY = center.y - length / 2
+        val bottomY = center.y + length / 2
+
+        // Soft shadow underneath for depth
+        val shadowShift = cellSize * 0.03f
+        drawArrowStrokeAndHead(
+            center = center,
+            topY = topY + shadowShift,
+            bottomY = bottomY + shadowShift,
+            strokeWidth = strokeWidth,
+            headSize = headSize,
+            color = color.copy(alpha = 0.22f)
         )
 
-        // Draw main arrow with rounded appearance
-        drawArrowShape(
+        // Main arrow
+        drawArrowStrokeAndHead(
             center = center,
-            size = size,
+            topY = topY,
+            bottomY = bottomY,
+            strokeWidth = strokeWidth,
+            headSize = headSize,
             color = color
         )
-
-        // Draw highlight/shine effect
-        val highlightColor = Color.White.copy(alpha = 0.2f)
-        drawArrowHighlight(center, size, highlightColor)
     }
 }
 
-private fun DrawScope.drawArrowShape(
+private fun DrawScope.drawArrowStrokeAndHead(
     center: Offset,
-    size: Float,
+    topY: Float,
+    bottomY: Float,
+    strokeWidth: Float,
+    headSize: Float,
     color: Color
 ) {
-    val arrowPath = Path().apply {
-        // Arrow head (triangle pointing up)
-        moveTo(center.x, center.y - size / 2)
-        lineTo(center.x - size / 2.8f, center.y - size / 8)
-        
-        // Left shoulder
-        lineTo(center.x - size / 5, center.y - size / 8)
-        
-        // Left side of stem
-        lineTo(center.x - size / 5, center.y + size / 2.5f)
-        
-        // Bottom of stem (rounded)
-        quadraticBezierTo(
-            center.x - size / 5, center.y + size / 2.2f,
-            center.x, center.y + size / 2.2f
-        )
-        quadraticBezierTo(
-            center.x + size / 5, center.y + size / 2.2f,
-            center.x + size / 5, center.y + size / 2.5f
-        )
-        
-        // Right side of stem
-        lineTo(center.x + size / 5, center.y - size / 8)
-        
-        // Right shoulder
-        lineTo(center.x + size / 2.8f, center.y - size / 8)
-        
+    // Stem: from just below the head to the bottom
+    val headBaseY = topY + headSize
+    drawLine(
+        color = color,
+        start = Offset(center.x, headBaseY),
+        end = Offset(center.x, bottomY),
+        strokeWidth = strokeWidth,
+        cap = StrokeCap.Round
+    )
+
+    // Arrow head (filled triangle) with rounded joins
+    val headPath = Path().apply {
+        moveTo(center.x, topY)
+        lineTo(center.x - headSize, headBaseY + headSize * 0.15f)
+        lineTo(center.x + headSize, headBaseY + headSize * 0.15f)
         close()
     }
-
-    drawPath(arrowPath, color, style = Fill)
+    drawPath(
+        path = headPath,
+        color = color,
+        style = Fill
+    )
+    // Smooth the head corners with a matching stroke
+    drawPath(
+        path = headPath,
+        color = color,
+        style = Stroke(width = strokeWidth * 0.5f, join = StrokeJoin.Round, cap = StrokeCap.Round)
+    )
 }
 
-private fun DrawScope.drawArrowHighlight(
-    center: Offset,
-    size: Float,
-    color: Color
-) {
-    // Small highlight on the arrow head
-    val highlightPath = Path().apply {
-        moveTo(center.x - size / 6, center.y - size / 4)
-        lineTo(center.x, center.y - size / 2.5f)
-        lineTo(center.x + size / 12, center.y - size / 4)
-        close()
-    }
-    drawPath(highlightPath, color, style = Fill)
-}
-
-private fun getArrowColor(direction: Direction, gameColors: com.example.arrowescape.ui.theme.GameColors): Color {
+private fun getArrowColor(direction: Direction, gameColors: GameColors): Color {
     return when (direction) {
         Direction.UP -> gameColors.arrowUp
         Direction.DOWN -> gameColors.arrowDown

@@ -22,7 +22,7 @@ class GameEngine {
     /**
      * Creates a new game state for the given level.
      */
-    fun createLevel(level: Int, arrows: List<ArrowTile>, rows: Int = DEFAULT_GRID_ROWS, cols: Int = DEFAULT_GRID_COLS): GameState {
+    fun createLevel(level: Int, arrows: List<ArrowTile>, rows: Int = DEFAULT_GRID_ROWS, cols: Int = DEFAULT_GRID_COLS, difficultyLabel: String = "Easy"): GameState {
         gridRows = rows
         gridCols = cols
         return GameState(
@@ -31,7 +31,8 @@ class GameEngine {
             lives = MAX_LIVES,
             status = GameStatus.PLAYING,
             startTimeMillis = System.currentTimeMillis(),
-            mistakes = 0
+            mistakes = 0,
+            difficultyLabel = difficultyLabel
         )
     }
 
@@ -154,6 +155,17 @@ class GameEngine {
      */
     fun getCompletionTimeSeconds(state: GameState): Int {
         return ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
+    }
+
+    /**
+     * Returns the id of an arrow that can currently escape (for hints),
+     * or null if none can.
+     */
+    fun findHintArrow(state: GameState): Int? {
+        val escapable = CollisionChecker.getEscapableArrows(
+            state.activeArrows, gridRows, gridCols
+        )
+        return escapable.firstOrNull()?.id
     }
 
     fun getGridRows(): Int = gridRows
