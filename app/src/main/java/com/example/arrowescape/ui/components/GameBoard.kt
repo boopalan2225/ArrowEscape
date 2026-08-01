@@ -17,60 +17,50 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.example.arrowescape.game.model.ArrowTile
+import com.example.arrowescape.game.model.Arrow
+import com.example.arrowescape.game.model.Cell
 import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 import kotlin.math.sin
 
 /**
- * The main game board - clean, minimal, classic line-art arrows on a
- * subtle dot grid. Arrows are single-color (navy) like the reference
- * designs; the hinted arrow glows blue.
+ * Renders the board of bendable snake-arrows on a subtle dot grid.
+ * Each arrow is a rounded poly-line with a chevron head, single navy color
+ * (blue when hinted) - matching the reference art.
  */
 @Composable
 fun GameBoard(
-    arrows: List<ArrowTile>,
+    arrows: List<Arrow>,
     gridRows: Int,
     gridCols: Int,
     escapingArrows: Map<Int, Direction>,
     shakingArrows: Set<Int>,
     hintArrowId: Int?,
-    onArrowTap: (ArrowTile) -> Unit,
+    onArrowTap: (Arrow) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    val escapeAnimations = escapingArrows.mapValues { (arrowId, _) ->
-        val animatable = remember(arrowId) { Animatable(0f) }
-        LaunchedEffect(arrowId) {
-            animatable.animateTo(
-                targetValue = 1.6f,
-                animationSpec = tween(300, easing = FastOutLinearInEasing)
-            )
+    val escapeAnim = escapingArrows.mapValues { (id, _) ->
+        val a = remember(id) { Animatable(0f) }
+        LaunchedEffect(id) {
+            a.animateTo(1.7f, tween(320, easing = FastOutLinearInEasing))
         }
-        animatable.value
+        a.value
     }
 
-    val shakeAnimations = shakingArrows.associateWith { arrowId ->
-        val animatable = remember(arrowId) { Animatable(0f) }
-        LaunchedEffect(arrowId) {
-            animatable.animateTo(1f, animationSpec = tween(300, easing = LinearEasing))
-        }
-        sin(animatable.value * 4 * Math.PI.toFloat()) * 9f
+    val shakeAnim = shakingArrows.associateWith { id ->
+        val a = remember(id) { Animatable(0f) }
+        LaunchedEffect(id) { a.animateTo(1f, tween(300, easing = LinearEasing)) }
+        sin(a.value * 4 * Math.PI.toFloat()) * 9f
     }
 
     val hintPulse = rememberInfiniteTransition(label = "hint")
     val hintGlow by hintPulse.animateFloat(
-        initialValue = 0.25f,
-        targetValue = 0.55f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(700, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        0.25f, 0.6f,
+        infiniteRepeatable(tween(700, easing = FastOutSlowInEasing), RepeatMode.Reverse),
         label = "hintGlow"
     )
 
@@ -82,135 +72,117 @@ fun GameBoard(
             .clip(RoundedCornerShape(24.dp))
             .background(gameColors.boardBackground)
     ) {
-        val boardWidth = constraints.maxWidth.toFloat()
-        val boardHeight = constraints.maxHeight.toFloat()
-        val cellSize = minOf(boardWidth / gridCols, boardHeight / gridRows)
+        val boardW = constraints.maxWidth.toFloat()
+        val boardH = constraints.maxHeight.toFloat()
+        val cell = minOf(boardW / gridCols, boardH / gridRows)
+        val gridW = cell * gridCols
+        val gridH = cell * gridRows
+        val offX = (boardW - gridW) / 2f
+        val offY = (boardH - gridH) / 2f
 
-        val gridWidth = cellSize * gridCols
-        val gridHeight = cellSize * gridRows
-        val offsetX = (boardWidth - gridWidth) / 2f
-        val offsetY = (boardHeight - gridHeight) / 2f
+        fun centerOf(c: Cell) = Offset(
+            offX + c.col * cell + cell / 2,
+            offY + c.row * cell + cell / 2
+        )
 
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
                 .pointerInput(arrows) {
                     detectTapGestures { tap ->
-                        val col = ((tap.x - offsetX) / cellSize).toInt()
-                        val row = ((tap.y - offsetY) / cellSize).toInt()
-                        arrows.firstOrNull { it.isActive && it.row == row && it.col == col }
+                        val col = ((tap.x - offX) / cell).toInt()
+                        val row = ((tap.y - offY) / cell).toInt()
+                        arrows.firstOrNull { it.isActive && it.occupies(row, col) }
                             ?.let { onArrowTap(it) }
                     }
                 }
         ) {
-            drawDotGrid(gridRows, gridCols, cellSize, offsetX, offsetY, gameColors.gridLine)
+            drawDotGrid(gridRows, gridCols, cell, offX, offY, gameColors.gridLine)
 
             arrows.filter { it.isActive || escapingArrows.containsKey(it.id) }.forEach { arrow ->
-                val baseX = offsetX + arrow.col * cellSize + cellSize / 2
-                val baseY = offsetY + arrow.row * cellSize + cellSize / 2
-
-                val escapeProgress = escapeAnimations[arrow.id] ?: 0f
-                val escapeOffset = when (arrow.direction) {
-                    Direction.UP -> Offset(0f, -escapeProgress * gridHeight)
-                    Direction.DOWN -> Offset(0f, escapeProgress * gridHeight)
-                    Direction.LEFT -> Offset(-escapeProgress * gridWidth, 0f)
-                    Direction.RIGHT -> Offset(escapeProgress * gridWidth, 0f)
+                val progress = escapeAnim[arrow.id] ?: 0f
+                val slide = when (arrow.direction) {
+                    Direction.UP -> Offset(0f, -progress * gridH)
+                    Direction.DOWN -> Offset(0f, progress * gridH)
+                    Direction.LEFT -> Offset(-progress * gridW, 0f)
+                    Direction.RIGHT -> Offset(progress * gridW, 0f)
                 }
-
-                val shakeOffset = shakeAnimations[arrow.id] ?: 0f
-                val centerX = baseX + escapeOffset.x + shakeOffset
-                val centerY = baseY + escapeOffset.y
+                val shake = shakeAnim[arrow.id] ?: 0f
+                val delta = Offset(slide.x + shake, slide.y)
 
                 val isHinted = arrow.id == hintArrowId
                 val color = if (isHinted) gameColors.arrowHint else gameColors.arrowPrimary
 
+                val points = arrow.cells.map { centerOf(it) + delta }
+
                 if (isHinted) {
-                    drawCircle(
-                        color = gameColors.arrowHint.copy(alpha = hintGlow),
-                        radius = cellSize * 0.5f,
-                        center = Offset(centerX, centerY)
-                    )
+                    points.forEach {
+                        drawCircle(gameColors.arrowHint.copy(alpha = hintGlow), cell * 0.5f, it)
+                    }
                 }
 
-                drawClassicArrow(
-                    center = Offset(centerX, centerY),
-                    cellSize = cellSize,
-                    direction = arrow.direction,
-                    color = color
-                )
+                drawSnakeArrow(points, arrow.direction, cell, color)
             }
         }
     }
 }
 
 private fun DrawScope.drawDotGrid(
-    rows: Int,
-    cols: Int,
-    cellSize: Float,
-    offsetX: Float,
-    offsetY: Float,
-    dotColor: Color
+    rows: Int, cols: Int, cell: Float, offX: Float, offY: Float, dotColor: Color
 ) {
-    val dotRadius = cellSize * 0.035f
-    for (r in 0 until rows) {
-        for (c in 0 until cols) {
-            val cx = offsetX + c * cellSize + cellSize / 2
-            val cy = offsetY + r * cellSize + cellSize / 2
-            drawCircle(color = dotColor, radius = dotRadius, center = Offset(cx, cy))
-        }
+    val radius = cell * 0.035f
+    for (r in 0 until rows) for (c in 0 until cols) {
+        drawCircle(dotColor, radius, Offset(offX + c * cell + cell / 2, offY + r * cell + cell / 2))
     }
 }
 
 /**
- * Draws a classic thin-line arrow (stem + chevron head) matching the
- * reference art. Base orientation points UP; rotated for other directions.
+ * Draws a bendable arrow: rounded poly-line stem + chevron head.
+ * [points] are ordered tail -> head.
  */
-private fun DrawScope.drawClassicArrow(
-    center: Offset,
-    cellSize: Float,
+private fun DrawScope.drawSnakeArrow(
+    points: List<Offset>,
     direction: Direction,
+    cell: Float,
     color: Color
 ) {
-    val rotation = when (direction) {
-        Direction.UP -> 0f
-        Direction.RIGHT -> 90f
-        Direction.DOWN -> 180f
-        Direction.LEFT -> 270f
+    val stroke = cell * 0.13f
+    val head = points.last()
+
+    val dirVec = when (direction) {
+        Direction.UP -> Offset(0f, -1f)
+        Direction.DOWN -> Offset(0f, 1f)
+        Direction.LEFT -> Offset(-1f, 0f)
+        Direction.RIGHT -> Offset(1f, 0f)
     }
+    val perp = Offset(-dirVec.y, dirVec.x)
 
-    val length = cellSize * 0.66f
-    val strokeWidth = cellSize * 0.11f
-    val headHalfWidth = cellSize * 0.19f
-    val headHeight = cellSize * 0.24f
-
-    rotate(rotation, pivot = center) {
-        val tipY = center.y - length / 2
-        val tailY = center.y + length / 2
-        val headBaseY = tipY + headHeight
-
-        // Stem line
-        drawLine(
-            color = color,
-            start = Offset(center.x, tailY),
-            end = Offset(center.x, headBaseY - strokeWidth * 0.3f),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
-        )
-
-        // Chevron arrowhead (open V) drawn as two rounded strokes
-        val headPath = Path().apply {
-            moveTo(center.x - headHalfWidth, headBaseY)
-            lineTo(center.x, tipY)
-            lineTo(center.x + headHalfWidth, headBaseY)
-        }
-        drawPath(
-            path = headPath,
-            color = color,
-            style = Stroke(
-                width = strokeWidth,
-                cap = StrokeCap.Round,
-                join = StrokeJoin.Round
-            )
-        )
+    // Stem: poly-line through all cell centers, ending a touch before the tip
+    // so the chevron sits cleanly at the head.
+    val stemEnd = head + dirVec * (cell * 0.10f)
+    val stemPath = Path().apply {
+        moveTo(points.first().x, points.first().y)
+        for (i in 1 until points.size) lineTo(points[i].x, points[i].y)
+        lineTo(stemEnd.x, stemEnd.y)
     }
+    drawPath(
+        stemPath, color,
+        style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
+
+    // Chevron head
+    val tip = head + dirVec * (cell * 0.34f)
+    val back = tip - dirVec * (cell * 0.30f)
+    val halfW = cell * 0.22f
+    val chevron = Path().apply {
+        val left = back + perp * halfW
+        val right = back - perp * halfW
+        moveTo(left.x, left.y)
+        lineTo(tip.x, tip.y)
+        lineTo(right.x, right.y)
+    }
+    drawPath(
+        chevron, color,
+        style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
 }

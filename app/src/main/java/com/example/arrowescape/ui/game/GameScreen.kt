@@ -29,6 +29,7 @@ fun GameScreen(
     val gridCols by viewModel.gridCols.collectAsState()
     val levelShape by viewModel.levelShape.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
+    val combo by viewModel.combo.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
 
     val context = LocalContext.current
@@ -92,6 +93,14 @@ fun GameScreen(
                 onHintClick = { viewModel.useHint() }
             )
         }
+
+        // Combo indicator (floats near the top of the board)
+        ComboBadge(
+            combo = combo,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 120.dp)
+        )
 
         // Out of lives overlay
         AnimatedVisibility(

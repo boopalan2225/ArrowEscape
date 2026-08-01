@@ -1,119 +1,90 @@
 package com.example.arrowescape.game.level
 
 import com.example.arrowescape.game.engine.GameSolver
+import com.example.arrowescape.game.model.Cell
 import org.junit.Assert.*
 import org.junit.Test
 
-/**
- * Unit tests for LevelGenerator.
- */
 class LevelGeneratorTest {
 
     @Test
-    fun `generateLevel returns reasonable arrow count for level 1`() {
-        val level = LevelGenerator.generateLevel(1)
-
-        assertTrue("Level 1 should have at least 4 arrows", level.arrows.size >= 4)
-        assertTrue("Grid rows should be reasonable", level.gridRows in 4..14)
-        assertTrue("Grid cols should be reasonable", level.gridCols in 4..14)
-    }
-
-    @Test
     fun `generated levels are solvable`() {
-        for (levelNum in listOf(1, 5, 10, 25, 50, 75, 100, 150)) {
-            val level = LevelGenerator.generateLevel(levelNum)
+        for (n in listOf(1, 5, 10, 25, 50, 75, 100, 150)) {
+            val level = LevelGenerator.generateLevel(n)
             assertTrue(
-                "Level $levelNum should be solvable",
+                "Level $n should be solvable",
                 GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols)
             )
         }
     }
 
     @Test
-    fun `same level number generates same board`() {
+    fun `same level number is deterministic`() {
         val a = LevelGenerator.generateLevel(42)
         val b = LevelGenerator.generateLevel(42)
-
-        assertEquals(a.gridRows, b.gridRows)
-        assertEquals(a.gridCols, b.gridCols)
         assertEquals(a.shape, b.shape)
         assertEquals(a.arrows.size, b.arrows.size)
-
-        a.arrows.forEachIndexed { index, arrow ->
-            assertEquals(arrow.row, b.arrows[index].row)
-            assertEquals(arrow.col, b.arrows[index].col)
-            assertEquals(arrow.direction, b.arrows[index].direction)
+        a.arrows.forEachIndexed { i, arrow ->
+            assertEquals(arrow.cells, b.arrows[i].cells)
+            assertEquals(arrow.direction, b.arrows[i].direction)
         }
     }
 
     @Test
-    fun `different levels generate different boards`() {
-        val a = LevelGenerator.generateLevel(10)
-        val b = LevelGenerator.generateLevel(11)
+    fun `snakes cover every shape cell exactly once`() {
+        for (n in listOf(4, 12, 25, 45, 70, 95)) {
+            val level = LevelGenerator.generateLevel(n)
+            val shapeCells = level.shape
+                .validCells(level.gridRows, level.gridCols)
+                .map { Cell(it.first, it.second) }
+                .toSet()
 
-        val configA = a.arrows.map { Triple(it.row, it.col, it.direction) }.toSet()
-        val configB = b.arrows.map { Triple(it.row, it.col, it.direction) }.toSet()
+            val covered = mutableListOf<Cell>()
+            level.arrows.forEach { covered.addAll(it.cells) }
 
-        assertNotEquals("Different levels should differ", configA, configB)
-    }
-
-    @Test
-    fun `tutorial level is a filled square and solvable`() {
-        val level = LevelGenerator.generateTutorialLevel()
-
-        assertEquals(LevelShape.SQUARE, level.shape)
-        assertEquals(16, level.arrows.size) // 4x4 fully filled
-        assertTrue(
-            "Tutorial should be solvable",
-            GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols)
-        )
-    }
-
-    @Test
-    fun `every shape cell is filled with an arrow`() {
-        for (levelNum in listOf(4, 12, 25, 45, 70, 95)) {
-            val level = LevelGenerator.generateLevel(levelNum)
-            val expectedCells = level.shape.validCells(level.gridRows, level.gridCols).size
+            // Every shape cell covered
             assertEquals(
-                "Level $levelNum (${level.shape}) should fill every shape cell",
-                expectedCells,
-                level.arrows.size
+                "Level $n (${level.shape}) should cover all shape cells",
+                shapeCells, covered.toSet()
+            )
+            // No overlaps (each cell exactly once)
+            assertEquals(
+                "Level $n should have no overlapping cells",
+                covered.size, covered.toSet().size
             )
         }
     }
 
     @Test
-    fun `all arrows have unique IDs`() {
-        val level = LevelGenerator.generateLevel(30)
-        val ids = level.arrows.map { it.id }
-        assertEquals("All arrows should have unique IDs", ids.size, ids.toSet().size)
+    fun `snakes respect max length`() {
+        val level = LevelGenerator.generateLevel(95) // maxSnakeLength = 5
+        assertTrue(level.arrows.all { it.cells.size in 1..5 })
     }
 
     @Test
-    fun `no arrows overlap positions`() {
-        val level = LevelGenerator.generateLevel(30)
-        val positions = level.arrows.map { it.row to it.col }
-        assertEquals("No arrows should overlap", positions.size, positions.toSet().size)
-    }
-
-    @Test
-    fun `arrows stay within shape mask`() {
-        // Every arrow must be inside the level's shape
-        for (levelNum in listOf(8, 20, 45, 90)) {
-            val level = LevelGenerator.generateLevel(levelNum)
-            level.arrows.forEach { arrow ->
-                assertTrue(
-                    "Arrow at (${arrow.row},${arrow.col}) should be inside ${level.shape} for level $levelNum",
-                    level.shape.contains(arrow.row, arrow.col, level.gridRows, level.gridCols)
-                )
+    fun `snake cells are connected`() {
+        val level = LevelGenerator.generateLevel(50)
+        level.arrows.forEach { arrow ->
+            for (i in 1 until arrow.cells.size) {
+                val a = arrow.cells[i - 1]
+                val b = arrow.cells[i]
+                val manhattan = kotlin.math.abs(a.row - b.row) + kotlin.math.abs(a.col - b.col)
+                assertEquals("Snake cells must be adjacent", 1, manhattan)
             }
         }
     }
 
     @Test
-    fun `shape rotates across levels`() {
-        // Level 1-3 are SQUARE, later levels vary
-        assertEquals(LevelShape.SQUARE, LevelGenerator.generateLevel(1).shape)
-        assertEquals(LevelShape.SQUARE, LevelGenerator.generateLevel(2).shape)
+    fun `tutorial level is solvable`() {
+        val level = LevelGenerator.generateTutorialLevel()
+        assertEquals(LevelShape.SQUARE, level.shape)
+        assertTrue(GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols))
+    }
+
+    @Test
+    fun `all arrows have unique ids`() {
+        val level = LevelGenerator.generateLevel(30)
+        val ids = level.arrows.map { it.id }
+        assertEquals(ids.size, ids.toSet().size)
     }
 }

@@ -3,13 +3,14 @@ package com.example.arrowescape.game.level
 /**
  * Configuration for level difficulty based on level number.
  *
- * Shapes are now FULLY filled, so difficulty is driven by grid size
- * (bigger grid = more arrows = harder). Grids are square so shapes
- * render accurately (round circles, proportioned hearts, etc.).
+ * Difficulty is driven by grid size (more cells = more arrows) and by
+ * maximum snake length (longer bendable arrows = denser, more strategic
+ * boards). Grids are square so shapes render accurately.
  */
 data class DifficultyConfig(
     val gridRows: Int,
     val gridCols: Int,
+    val maxSnakeLength: Int,
     val shape: LevelShape,
     val difficultyLabel: String
 ) {
@@ -20,20 +21,21 @@ data class DifficultyConfig(
         fun forLevel(level: Int): DifficultyConfig {
             val shape = LevelShape.forLevel(level)
 
-            val (size, label) = when {
-                level <= 3 -> 4 to "Easy"
-                level <= 8 -> 5 to "Easy"
-                level <= 15 -> 6 to "Easy"
-                level <= 25 -> 7 to "Normal"
-                level <= 40 -> 8 to "Normal"
-                level <= 60 -> 9 to "Hard"
-                level <= 85 -> 10 to "Hard"
-                else -> 11 to "Expert"
+            val (size, maxLen, label) = when {
+                level <= 3 -> Triple(4, 1, "Easy")
+                level <= 8 -> Triple(5, 2, "Easy")
+                level <= 15 -> Triple(6, 2, "Easy")
+                level <= 25 -> Triple(7, 3, "Normal")
+                level <= 40 -> Triple(8, 3, "Normal")
+                level <= 60 -> Triple(9, 4, "Hard")
+                level <= 85 -> Triple(10, 4, "Hard")
+                else -> Triple(11, 5, "Expert")
             }
 
             return DifficultyConfig(
                 gridRows = size,
                 gridCols = size,
+                maxSnakeLength = maxLen,
                 shape = shape,
                 difficultyLabel = label
             )

@@ -1,109 +1,56 @@
 package com.example.arrowescape.game.engine
 
-import com.example.arrowescape.game.model.ArrowTile
+import com.example.arrowescape.game.model.Arrow
+import com.example.arrowescape.game.model.Cell
 import com.example.arrowescape.game.model.Direction
 
 /**
- * Determines whether arrows can escape based on their position and direction.
- * This is pure logic with no UI dependencies - fully unit testable.
+ * Determines whether bendable snake-arrows can escape.
+ * Pure logic, fully unit-testable.
+ *
+ * Rule: an arrow escapes only if EVERY one of its cells has a clear
+ * straight path in the arrow's direction to the board edge, with no other
+ * active arrow's cell in the way. This lets the rigid shape slide off
+ * cleanly without ever overlapping another arrow.
  */
 object CollisionChecker {
 
-    /**
-     * Checks if the given arrow can escape (has a clear path in its direction).
-     *
-     * @param arrow The arrow to check
-     * @param activeArrows All currently active arrows on the board
-     * @param gridRows Total number of rows in the grid (for boundary detection)
-     * @param gridCols Total number of columns in the grid (for boundary detection)
-     * @return true if the arrow can escape, false if blocked
-     */
     fun canEscape(
-        arrow: ArrowTile,
-        activeArrows: List<ArrowTile>,
+        arrow: Arrow,
+        activeArrows: List<Arrow>,
         gridRows: Int,
         gridCols: Int
     ): Boolean {
         if (!arrow.isActive) return false
 
-        // Get all other active arrows (exclude the one we're checking)
-        val otherArrows = activeArrows.filter { it.id != arrow.id && it.isActive }
-
-        // Check the path in the arrow's direction
-        return !isPathBlocked(arrow, otherArrows, gridRows, gridCols)
-    }
-
-    /**
-     * Checks if there's any active arrow blocking the escape path.
-     */
-    private fun isPathBlocked(
-        arrow: ArrowTile,
-        otherArrows: List<ArrowTile>,
-        gridRows: Int,
-        gridCols: Int
-    ): Boolean {
-        val deltaRow = arrow.direction.deltaRow()
-        val deltaCol = arrow.direction.deltaCol()
-
-        var checkRow = arrow.row + deltaRow
-        var checkCol = arrow.col + deltaCol
-
-        // Walk along the path until we hit the edge
-        while (checkRow in 0 until gridRows && checkCol in 0 until gridCols) {
-            // Check if any active arrow is at this position
-            if (otherArrows.any { it.row == checkRow && it.col == checkCol }) {
-                return true // Path is blocked
-            }
-            checkRow += deltaRow
-            checkCol += deltaCol
+        // Cells occupied by all OTHER active arrows.
+        val blocked = HashSet<Cell>()
+        for (other in activeArrows) {
+            if (other.id == arrow.id || !other.isActive) continue
+            blocked.addAll(other.cells)
         }
 
-        return false // Path is clear to the edge
+        val dr = arrow.direction.deltaRow()
+        val dc = arrow.direction.deltaCol()
+
+        // Every cell must have a clear ray to the edge.
+        for (cell in arrow.cells) {
+            var r = cell.row + dr
+            var c = cell.col + dc
+            while (r in 0 until gridRows && c in 0 until gridCols) {
+                if (Cell(r, c) in blocked) return false
+                r += dr
+                c += dc
+            }
+        }
+        return true
     }
 
-    /**
-     * Returns all arrows that are currently able to escape.
-     */
     fun getEscapableArrows(
-        activeArrows: List<ArrowTile>,
+        activeArrows: List<Arrow>,
         gridRows: Int,
         gridCols: Int
-    ): List<ArrowTile> {
-        return activeArrows.filter { arrow ->
-            canEscape(arrow, activeArrows, gridRows, gridCols)
-        }
-    }
-
-    /**
-     * Finds the blocking arrow(s) for a given arrow.
-     * Used for potential hint features.
-     */
-    fun findBlockingArrows(
-        arrow: ArrowTile,
-        activeArrows: List<ArrowTile>,
-        gridRows: Int,
-        gridCols: Int
-    ): List<ArrowTile> {
-        if (!arrow.isActive) return emptyList()
-
-        val blocking = mutableListOf<ArrowTile>()
-        val otherArrows = activeArrows.filter { it.id != arrow.id && it.isActive }
-
-        val deltaRow = arrow.direction.deltaRow()
-        val deltaCol = arrow.direction.deltaCol()
-
-        var checkRow = arrow.row + deltaRow
-        var checkCol = arrow.col + deltaCol
-
-        while (checkRow in 0 until gridRows && checkCol in 0 until gridCols) {
-            val blocker = otherArrows.find { it.row == checkRow && it.col == checkCol }
-            if (blocker != null) {
-                blocking.add(blocker)
-            }
-            checkRow += deltaRow
-            checkCol += deltaCol
-        }
-
-        return blocking
+    ): List<Arrow> = activeArrows.filter {
+        canEscape(it, activeArrows, gridRows, gridCols)
     }
 }

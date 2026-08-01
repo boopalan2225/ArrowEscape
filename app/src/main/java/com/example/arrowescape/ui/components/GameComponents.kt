@@ -22,6 +22,66 @@ import androidx.compose.ui.unit.sp
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 /**
+ * Animated combo badge - pops in when the player chains valid moves.
+ */
+@Composable
+fun ComboBadge(
+    combo: Int,
+    modifier: Modifier = Modifier
+) {
+    val gameColors = ArrowEscapeTheme.gameColors
+    val visible = combo >= 2
+
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = androidx.compose.animation.scaleIn(
+            initialScale = 0.5f,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+        ) + androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.scaleOut(targetScale = 0.5f) +
+                androidx.compose.animation.fadeOut()
+    ) {
+        // Bounce each time the combo increments
+        val bounce by animateFloatAsState(
+            targetValue = combo.toFloat(),
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+            label = "comboBounce"
+        )
+        val scale = 1f + (0.12f * kotlin.math.sin(bounce * 3f))
+
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = comboColor(combo, gameColors),
+            shadowElevation = 8.dp,
+            modifier = Modifier.scale(scale)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(text = "\uD83D\uDD25", fontSize = 20.sp)
+                Text(
+                    text = "COMBO x$combo",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+private fun comboColor(combo: Int, gameColors: com.example.arrowescape.ui.theme.GameColors): Color {
+    return when {
+        combo >= 8 -> gameColors.arrowLeft   // red-hot
+        combo >= 5 -> gameColors.warning     // orange
+        else -> gameColors.success           // green
+    }
+}
+
+/**
  * Displays the current lives as animated hearts.
  */
 @Composable

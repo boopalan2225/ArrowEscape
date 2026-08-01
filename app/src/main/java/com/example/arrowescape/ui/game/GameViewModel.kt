@@ -16,7 +16,7 @@ import com.example.arrowescape.analytics.AnalyticsTracker
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.game.engine.GameEngine
 import com.example.arrowescape.game.level.LevelGenerator
-import com.example.arrowescape.game.model.ArrowTile
+import com.example.arrowescape.game.model.Arrow
 import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.game.model.GameState
 import com.example.arrowescape.game.model.GameStatus
@@ -62,13 +62,16 @@ class GameViewModel(
     private val _hintsRemaining = MutableStateFlow(3)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
 
+    private val _combo = MutableStateFlow(0)
+    val combo: StateFlow<Int> = _combo.asStateFlow()
+
     val prefs = preferences.prefsFlow.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         GamePreferences.Prefs()
     )
 
-    private var currentLevelArrows: List<ArrowTile> = emptyList()
+    private var currentLevelArrows: List<Arrow> = emptyList()
     private var continueUsedThisLevel = false
     private var pendingLevel: Int? = null
 
@@ -150,6 +153,7 @@ class GameViewModel(
             _escapingArrows.value = emptyMap()
             _shakingArrows.value = emptySet()
             _hintsRemaining.value = 3
+            _combo.value = 0
             continueUsedThisLevel = false
 
             analytics.trackLevelStarted(level, generated.arrows.size)
@@ -178,7 +182,7 @@ class GameViewModel(
         }
     }
 
-    fun onArrowTap(arrow: ArrowTile) {
+    fun onArrowTap(arrow: Arrow) {
         val currentState = _gameState.value
         if (currentState.status != GameStatus.PLAYING) return
 
@@ -201,9 +205,12 @@ class GameViewModel(
         }
     }
 
-    private fun handleValidMove(arrow: ArrowTile, newState: GameState) {
+    private fun handleValidMove(arrow: Arrow, newState: GameState) {
         // Start escape animation
         _escapingArrows.value = _escapingArrows.value + (arrow.id to arrow.direction)
+
+        // Combo: increment on each consecutive valid move
+        _combo.value = _combo.value + 1
 
         // Play sound and haptic
         if (prefs.value.soundEnabled) playSuccessSound()
@@ -223,9 +230,12 @@ class GameViewModel(
         }
     }
 
-    private fun handleInvalidMove(arrow: ArrowTile, newState: GameState) {
+    private fun handleInvalidMove(arrow: Arrow, newState: GameState) {
         // Start shake animation
         _shakingArrows.value = _shakingArrows.value + arrow.id
+
+        // Reset combo on a mistake
+        _combo.value = 0
 
         // Play error sound and haptic
         if (prefs.value.soundEnabled) playErrorSound()

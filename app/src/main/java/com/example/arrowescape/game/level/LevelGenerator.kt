@@ -1,15 +1,13 @@
 package com.example.arrowescape.game.level
 
 import com.example.arrowescape.game.engine.GameSolver
-import com.example.arrowescape.game.model.ArrowTile
+import com.example.arrowescape.game.model.Arrow
+import com.example.arrowescape.game.model.Cell
 import com.example.arrowescape.game.model.Direction
 import kotlin.random.Random
 
-/**
- * The full result of generating a level.
- */
 data class GeneratedLevel(
-    val arrows: List<ArrowTile>,
+    val arrows: List<Arrow>,
     val gridRows: Int,
     val gridCols: Int,
     val shape: LevelShape,
@@ -17,16 +15,17 @@ data class GeneratedLevel(
 )
 
 /**
- * Generates dense, fully-filled shape levels that are guaranteed solvable.
+ * Generates dense shape levels made of BENDABLE snake-arrows, guaranteed
+ * solvable via reverse-peeling.
  *
- * Strategy - "reverse peeling":
- *  1. Fill EVERY cell of the shape mask with an arrow (crisp, dense shapes).
- *  2. Repeatedly find an arrow that currently has a clear escape path and
- *     assign it that direction, then remove it from the working set.
- *  3. Because arrows are assigned in a real removal order, replaying that
- *     exact order is always a valid solution -> the board is solvable.
- *
- * The same level number always produces the same board (deterministic seed).
+ * Strategy:
+ *  1. Fill every cell of the shape mask (crisp, dense silhouettes).
+ *  2. Repeatedly carve out a "snake": pick a cell whose straight ray in some
+ *     direction is clear of remaining cells, then grow a connected body
+ *     (with bends) where EVERY body cell also has a clear ray in that
+ *     direction. Remove it and record it.
+ *  3. Because snakes are carved in a real removal order, replaying that order
+ *     is always a valid solution -> solvable.
  */
 object LevelGenerator {
 
@@ -35,9 +34,10 @@ object LevelGenerator {
         val random = Random(levelNumber.toLong() * 31337 + 42)
 
         val cells = config.shape.validCells(config.gridRows, config.gridCols)
-        val arrows = fillAndAssign(cells, config.gridRows, config.gridCols, random)
+        val arrows = carveSnakes(
+            cells, config.gridRows, config.gridCols, config.maxSnakeLength, random
+        )
 
-        // Safety net (should always pass thanks to the peel construction).
         require(GameSolver.isSolvable(arrows, config.gridRows, config.gridCols)) {
             "Generated level $levelNumber is not solvable - this is a bug!"
         }
@@ -51,93 +51,108 @@ object LevelGenerator {
         )
     }
 
-    /**
-     * Fills every provided cell with an arrow and assigns each a direction
-     * via the reverse-peeling method so the whole board is solvable.
-     */
-    private fun fillAndAssign(
-        cells: List<Pair<Int, Int>>,
+    private fun carveSnakes(
+        shapeCells: List<Pair<Int, Int>>,
         rows: Int,
         cols: Int,
+        maxLen: Int,
         random: Random
-    ): List<ArrowTile> {
-        val occupied = cells.toMutableSet()
-        val direction = HashMap<Pair<Int, Int>, Direction>()
+    ): List<Arrow> {
+        val occupied = shapeCells.mapTo(HashSet()) { Cell(it.first, it.second) }
+        val arrows = mutableListOf<Arrow>()
+        var nextId = 0
 
         while (occupied.isNotEmpty()) {
-            // Collect every (cell, direction) that can currently escape.
-            val escapableCells = mutableListOf<Pair<Int, Int>>()
-            for (cell in occupied) {
-                if (escapeDirections(cell, occupied, rows, cols).isNotEmpty()) {
-                    escapableCells.add(cell)
-                }
+            // Head candidates: cells with at least one clear escape direction.
+            val candidates = occupied.filter { escapeDirs(it, occupied, rows, cols).isNotEmpty() }
+            val head = candidates.random(random)
+            val dir = escapeDirs(head, occupied, rows, cols).random(random)
+
+            val path = ArrayDeque<Cell>()
+            path.addLast(head)
+            val snake = hashSetOf(head)
+
+            val targetLen = random.nextInt(1, maxLen + 1)
+
+            // First tail cell sits directly behind the head so the tip aligns.
+            val behind = Cell(head.row - dir.deltaRow(), head.col - dir.deltaCol())
+            if (path.size < targetLen && canJoin(behind, dir, occupied, snake, rows, cols)) {
+                path.addFirst(behind); snake.add(behind)
             }
 
-            // A filled shape always has at least one escapable outer cell.
-            val chosen = escapableCells.random(random)
-            val dirs = escapeDirections(chosen, occupied, rows, cols)
-            direction[chosen] = dirs.random(random)
-            occupied.remove(chosen)
+            // Grow the body (bends allowed) from the tail end.
+            while (path.size < targetLen) {
+                val tail = path.first()
+                val options = neighbors(tail).filter {
+                    canJoin(it, dir, occupied, snake, rows, cols)
+                }
+                if (options.isEmpty()) break
+                val next = options.random(random)
+                path.addFirst(next); snake.add(next)
+            }
+
+            occupied.removeAll(snake)
+            arrows.add(Arrow(id = nextId++, cells = path.toList(), direction = dir))
         }
 
-        // Build arrow tiles from the assigned directions, shuffled ids.
-        return cells.shuffled(random).mapIndexed { index, (r, c) ->
-            ArrowTile(
-                id = index,
-                row = r,
-                col = c,
-                direction = direction[r to c] ?: Direction.UP,
-                isActive = true
-            )
-        }
+        // Shuffle ids so solution order isn't guessable from id sequence.
+        return arrows.shuffled(random).mapIndexed { i, a -> a.copy(id = i) }
     }
 
-    /**
-     * Returns which directions let [cell] reach the grid edge without
-     * crossing any currently-occupied cell.
-     */
-    private fun escapeDirections(
-        cell: Pair<Int, Int>,
-        occupied: Set<Pair<Int, Int>>,
-        rows: Int,
-        cols: Int
-    ): List<Direction> {
-        return Direction.entries.filter { dir ->
-            pathClear(cell, dir, occupied, rows, cols)
-        }
-    }
-
-    private fun pathClear(
-        cell: Pair<Int, Int>,
+    /** A candidate cell can join if it's occupied, unused, and its ray is clear. */
+    private fun canJoin(
+        cell: Cell,
         dir: Direction,
-        occupied: Set<Pair<Int, Int>>,
+        occupied: Set<Cell>,
+        snake: Set<Cell>,
         rows: Int,
         cols: Int
     ): Boolean {
-        var r = cell.first + dir.deltaRow()
-        var c = cell.second + dir.deltaCol()
+        if (cell !in occupied || cell in snake) return false
+        // Blockers = everything still occupied except this snake (incl. the new cell).
+        return rayClear(cell, dir, occupied, snake + cell, rows, cols)
+    }
+
+    /** Directions in which [cell]'s ray to the edge is clear of other occupied cells. */
+    private fun escapeDirs(
+        cell: Cell,
+        occupied: Set<Cell>,
+        rows: Int,
+        cols: Int
+    ): List<Direction> = Direction.entries.filter {
+        rayClear(cell, it, occupied, setOf(cell), rows, cols)
+    }
+
+    private fun rayClear(
+        cell: Cell,
+        dir: Direction,
+        occupied: Set<Cell>,
+        exclude: Set<Cell>,
+        rows: Int,
+        cols: Int
+    ): Boolean {
+        var r = cell.row + dir.deltaRow()
+        var c = cell.col + dir.deltaCol()
         while (r in 0 until rows && c in 0 until cols) {
-            if ((r to c) in occupied) return false
+            val here = Cell(r, c)
+            if (here in occupied && here !in exclude) return false
             r += dir.deltaRow()
             c += dir.deltaCol()
         }
         return true
     }
 
-    /**
-     * Simple hand-crafted tutorial-friendly first level: a small full square.
-     */
+    private fun neighbors(cell: Cell): List<Cell> = listOf(
+        Cell(cell.row - 1, cell.col),
+        Cell(cell.row + 1, cell.col),
+        Cell(cell.row, cell.col - 1),
+        Cell(cell.row, cell.col + 1)
+    )
+
     fun generateTutorialLevel(): GeneratedLevel {
-        val rows = 4
-        val cols = 4
-        val cells = LevelShape.SQUARE.validCells(rows, cols)
-        val arrows = fillAndAssign(cells, rows, cols, Random(7))
-        return GeneratedLevel(
-            arrows = arrows,
-            gridRows = rows,
-            gridCols = cols,
-            shape = LevelShape.SQUARE,
-            difficultyLabel = "Easy"
-        )
+        val size = 4
+        val cells = LevelShape.SQUARE.validCells(size, size)
+        val arrows = carveSnakes(cells, size, size, 2, Random(7))
+        return GeneratedLevel(arrows, size, size, LevelShape.SQUARE, "Easy")
     }
 }
