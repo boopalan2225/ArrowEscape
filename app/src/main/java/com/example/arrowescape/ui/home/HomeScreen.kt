@@ -26,6 +26,7 @@ import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 fun HomeScreen(
     prefs: GamePreferences.Prefs,
     onPlayClick: () -> Unit,
+    onJourneyClick: () -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -107,7 +108,30 @@ fun HomeScreen(
             // Play button with pulse animation
             PulsatingPlayButton(onClick = onPlayClick)
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Journey / milestone map button
+            OutlinedButton(
+                onClick = onJourneyClick,
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(48.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = "\uD83D\uDDFA", fontSize = 18.sp)
+                    Text(
+                        text = "Journey Map",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Settings button
             TextButton(

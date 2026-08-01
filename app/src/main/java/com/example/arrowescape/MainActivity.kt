@@ -21,6 +21,7 @@ import com.example.arrowescape.ui.game.GameScreen
 import com.example.arrowescape.ui.game.GameViewModel
 import com.example.arrowescape.ui.game.GameViewModelFactory
 import com.example.arrowescape.ui.home.HomeScreen
+import com.example.arrowescape.ui.milestone.MilestoneScreen
 import com.example.arrowescape.ui.settings.SettingsScreen
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -86,8 +87,23 @@ fun ArrowEscapeApp(
                     analytics.trackGameStarted(prefs.currentLevel)
                     navController.navigate("game")
                 },
+                onJourneyClick = {
+                    navController.navigate("milestones")
+                },
                 onSettingsClick = {
                     navController.navigate("settings")
+                }
+            )
+        }
+
+        composable("milestones") {
+            MilestoneScreen(
+                prefs = prefs,
+                onBackClick = { navController.popBackStack() },
+                onPlayMilestone = { level ->
+                    gameViewModel.setPendingLevel(level)
+                    analytics.trackGameStarted(level)
+                    navController.navigate("game")
                 }
             )
         }

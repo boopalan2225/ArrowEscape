@@ -55,6 +55,11 @@ object ArrowColors {
     val RightDark = Color(0xFFFDD663)    // Light Yellow
 }
 
+// Classic single-color arrow style (matches reference designs)
+val ArrowNavyLight = Color(0xFF1B2A4A)   // Deep navy for light mode
+val ArrowNavyDark = Color(0xFFE3E8F0)    // Off-white for dark mode
+val ArrowHintBlue = Color(0xFF2E7DF6)    // Blue highlight for hinted arrow
+
 // Life/Heart Colors
 val HeartFull = Color(0xFFE91E63)
 val HeartFullDark = Color(0xFFF48FB1)

@@ -12,6 +12,9 @@ data class DifficultyConfig(
     val difficultyLabel: String
 ) {
     companion object {
+        /** Total number of designed levels in the game. */
+        const val TOTAL_LEVELS = 100
+
         /**
          * Gets the difficulty configuration for a given level.
          *
@@ -27,20 +30,21 @@ data class DifficultyConfig(
                 level <= 15 -> Grid(8, 7, 0.35f, "Easy")
                 level <= 30 -> Grid(9, 8, 0.5f, "Normal")
                 level <= 60 -> Grid(10, 9, 0.6f, "Normal")
-                level <= 100 -> Grid(11, 9, 0.7f, "Hard")
-                else -> Grid(12, 10, 0.8f, "Expert")
+                level <= 85 -> Grid(11, 10, 0.7f, "Hard")
+                else -> Grid(12, 11, 0.8f, "Expert")
             }
 
-            // Count how many cells this shape fills, then use a fraction of them
+            // Count how many cells this shape fills, then use a fraction of them.
+            // Higher fill ratios make shapes denser and more recognizable.
             val availableCells = shape.validCells(rows, cols).size
             val fillRatio = when {
-                level <= 5 -> 0.35f
-                level <= 15 -> 0.45f
-                level <= 40 -> 0.55f
-                level <= 80 -> 0.65f
-                else -> 0.72f
+                level <= 5 -> 0.45f
+                level <= 15 -> 0.55f
+                level <= 40 -> 0.65f
+                level <= 80 -> 0.72f
+                else -> 0.78f
             }
-            val arrowCount = (availableCells * fillRatio).toInt().coerceIn(4, 60)
+            val arrowCount = (availableCells * fillRatio).toInt().coerceIn(4, 70)
 
             return DifficultyConfig(
                 arrowCount = arrowCount,

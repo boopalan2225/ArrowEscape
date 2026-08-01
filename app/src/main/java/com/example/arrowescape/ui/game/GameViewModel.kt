@@ -68,6 +68,21 @@ class GameViewModel(
 
     private var currentLevelArrows: List<ArrowTile> = emptyList()
     private var continueUsedThisLevel = false
+    private var pendingLevel: Int? = null
+
+    /**
+     * Requests that the game start at a specific level (e.g. from the
+     * milestone journey screen). Persists it as the current level.
+     */
+    fun setPendingLevel(level: Int) {
+        pendingLevel = level
+        viewModelScope.launch { preferences.setCurrentLevel(level) }
+    }
+
+    /**
+     * Returns and clears any pending level request.
+     */
+    fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
 
     // Haptics
     private val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -129,6 +144,7 @@ class GameViewModel(
             )
             _escapingArrows.value = emptyMap()
             _shakingArrows.value = emptySet()
+            _hintsRemaining.value = 3
             continueUsedThisLevel = false
 
             analytics.trackLevelStarted(level, generated.arrows.size)
