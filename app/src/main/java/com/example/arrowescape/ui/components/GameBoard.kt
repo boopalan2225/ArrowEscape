@@ -66,7 +66,7 @@ fun GameBoard(
             animatable.animateTo(
                 targetValue = 0f,
                 animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBocy,
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessHigh,
                     visibilityThreshold = 0.1f
                 ),
