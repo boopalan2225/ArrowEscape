@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.example.arrowescape.game.model.ArrowTile
 import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
-import com.example.arrowescape.ui.theme.GameColors
 import kotlin.math.sin
 
 /**
