@@ -47,7 +47,7 @@ fun GameBoard(
     val escapeAnim = escapingArrows.mapValues { (id, _) ->
         val a = remember(id) { Animatable(0f) }
         LaunchedEffect(id) {
-            a.animateTo(1.7f, tween(320, easing = FastOutLinearInEasing))
+            a.animateTo(1f, tween(340, easing = FastOutSlowInEasing))
         }
         a.value
     }
@@ -102,19 +102,20 @@ fun GameBoard(
 
             arrows.filter { it.isActive || escapingArrows.containsKey(it.id) }.forEach { arrow ->
                 val progress = escapeAnim[arrow.id] ?: 0f
-                val slide = when (arrow.direction) {
-                    Direction.UP -> Offset(0f, -progress * gridH)
-                    Direction.DOWN -> Offset(0f, progress * gridH)
-                    Direction.LEFT -> Offset(-progress * gridW, 0f)
-                    Direction.RIGHT -> Offset(progress * gridW, 0f)
-                }
                 val shake = shakeAnim[arrow.id] ?: 0f
-                val delta = Offset(slide.x + shake, slide.y)
+                val escaping = escapingArrows.containsKey(arrow.id)
 
                 val isHinted = arrow.id == hintArrowId
                 val color = if (isHinted) gameColors.arrowHint else gameColors.arrowPrimary
 
-                val points = arrow.cells.map { centerOf(it) + delta }
+                val basePoints = arrow.cells.map { centerOf(it) }
+                val points: List<Offset> = if (escaping && progress > 0f) {
+                    // Snake-peeling: head leads out along its direction, body
+                    // follows the exact trail the head carved (slithers away).
+                    slitherPoints(basePoints, arrow.direction, progress, gridW + gridH)
+                } else {
+                    basePoints.map { Offset(it.x + shake, it.y) }
+                }
 
                 if (isHinted) {
                     points.forEach {
@@ -233,4 +234,48 @@ private fun distance(a: Offset, b: Offset): Float {
 private fun unit(v: Offset): Offset {
     val len = kotlin.math.sqrt(v.x * v.x + v.y * v.y)
     return if (len == 0f) Offset.Zero else Offset(v.x / len, v.y / len)
+}
+
+/**
+ * Computes the slithering positions of each body point as the snake exits.
+ * The head runs off along [dir]; every other point advances the same arc
+ * distance along the shared track, so the body follows the head's trail
+ * (snake going into a hole) rather than the whole shape sliding rigidly.
+ */
+private fun slitherPoints(
+    base: List<Offset>,
+    dir: Direction,
+    progress: Float,
+    extend: Float
+): List<Offset> {
+    val dirVec = when (dir) {
+        Direction.UP -> Offset(0f, -1f)
+        Direction.DOWN -> Offset(0f, 1f)
+        Direction.LEFT -> Offset(-1f, 0f)
+        Direction.RIGHT -> Offset(1f, 0f)
+    }
+    // Track = body (tail..head) + a long straight extension past the head.
+    val track = ArrayList<Offset>(base.size + 1)
+    track.addAll(base)
+    track.add(base.last() + dirVec * extend)
+
+    val cum = FloatArray(track.size)
+    for (i in 1 until track.size) cum[i] = cum[i - 1] + distance(track[i - 1], track[i])
+    val total = cum.last()
+    val d = progress * total
+
+    return base.indices.map { i -> pointAlong(track, cum, cum[i] + d) }
+}
+
+private fun pointAlong(pts: List<Offset>, cum: FloatArray, s: Float): Offset {
+    if (s <= 0f) return pts.first()
+    if (s >= cum.last()) return pts.last()
+    var i = 1
+    while (i < cum.size && cum[i] < s) i++
+    val segLen = (cum[i] - cum[i - 1]).coerceAtLeast(0.0001f)
+    val t = (s - cum[i - 1]) / segLen
+    return Offset(
+        pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t,
+        pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t
+    )
 }
