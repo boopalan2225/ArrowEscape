@@ -1,16 +1,22 @@
 package com.example.arrowescape.ui.game
 
 import android.app.Activity
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.arrowescape.game.model.GameStatus
 import com.example.arrowescape.ui.components.*
+import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 @Composable
 fun GameScreen(
@@ -23,13 +29,14 @@ fun GameScreen(
     val shakingArrows by viewModel.shakingArrows.collectAsState()
     val gridRows by viewModel.gridRows.collectAsState()
     val gridCols by viewModel.gridCols.collectAsState()
+    val prefs by viewModel.prefs.collectAsState()
 
     val context = LocalContext.current
     val activity = context as? Activity
+    val gameColors = ArrowEscapeTheme.gameColors
 
     // Start level when screen is shown
     LaunchedEffect(Unit) {
-        val prefs = viewModel.prefs.value
         viewModel.startLevel(prefs.currentLevel)
     }
 
@@ -40,13 +47,22 @@ fun GameScreen(
         }
     }
 
+    // Determine if we should blur the background
+    val shouldBlur = gameState.status == GameStatus.OUT_OF_LIVES ||
+            gameState.status == GameStatus.LEVEL_COMPLETE
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        // Main game content
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (shouldBlur) Modifier.blur(8.dp) else Modifier
+                )
         ) {
             // Top bar with level, lives, back button
             GameTopBar(
@@ -60,7 +76,7 @@ fun GameScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 GameBoard(
@@ -83,11 +99,17 @@ fun GameScreen(
         }
 
         // Overlay for out of lives
-        if (gameState.status == GameStatus.OUT_OF_LIVES) {
+        AnimatedVisibility(
+            visible = gameState.status == GameStatus.OUT_OF_LIVES,
+            enter = fadeIn(animationSpec = tween(200)) +
+                    scaleIn(initialScale = 0.9f, animationSpec = tween(200)),
+            exit = fadeOut(animationSpec = tween(150)) +
+                    scaleOut(targetScale = 0.9f, animationSpec = tween(150))
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
+                    .background(Color.Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 OutOfLivesModal(
@@ -104,11 +126,16 @@ fun GameScreen(
         }
 
         // Overlay for level complete
-        if (gameState.status == GameStatus.LEVEL_COMPLETE) {
+        AnimatedVisibility(
+            visible = gameState.status == GameStatus.LEVEL_COMPLETE,
+            enter = fadeIn(animationSpec = tween(200)) +
+                    scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(150))
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
+                    .background(Color.Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 LevelCompleteOverlay(

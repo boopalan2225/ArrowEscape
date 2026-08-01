@@ -2,26 +2,75 @@ package com.example.arrowescape.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary colors
-val SparkBlue = Color(0xFF0071DC)
-val SparkYellow = Color(0xFFFFC220)
+// Primary Brand Colors
+val PrimaryLight = Color(0xFF1A73E8)
+val PrimaryDark = Color(0xFF8AB4F8)
+val PrimaryContainer = Color(0xFFD3E3FD)
+val OnPrimaryContainer = Color(0xFF001D36)
 
-// Background colors
-val White = Color(0xFFFFFFFF)
-val LightGray = Color(0xFFF5F5F5)
-val DarkGray = Color(0xFF1A1A1A)
-val Black = Color(0xFF000000)
+// Secondary Colors
+val SecondaryLight = Color(0xFF5F6368)
+val SecondaryDark = Color(0xFFE8EAED)
 
-// Status colors
-val SuccessGreen = Color(0xFF2E7D32)
-val ErrorRed = Color(0xFFD32F2F)
+// Background Colors - Light
+val BackgroundLight = Color(0xFFFAFAFA)
+val SurfaceLight = Color(0xFFFFFFFF)
+val SurfaceVariantLight = Color(0xFFF1F3F4)
+val CardLight = Color(0xFFFFFFFF)
 
-// Arrow colors (distinct for each direction)
-val ArrowUp = Color(0xFF4CAF50)      // Green
-val ArrowDown = Color(0xFF2196F3)    // Blue
-val ArrowLeft = Color(0xFFFF9800)    // Orange
-val ArrowRight = Color(0xFF9C27B0)   // Purple
+// Background Colors - Dark
+val BackgroundDark = Color(0xFF121212)
+val SurfaceDark = Color(0xFF1E1E1E)
+val SurfaceVariantDark = Color(0xFF2D2D2D)
+val CardDark = Color(0xFF2D2D2D)
 
-// Life heart colors
+// Text Colors
+val OnBackgroundLight = Color(0xFF202124)
+val OnBackgroundDark = Color(0xFFE8EAED)
+val OnSurfaceLight = Color(0xFF202124)
+val OnSurfaceDark = Color(0xFFE8EAED)
+val TextSecondaryLight = Color(0xFF5F6368)
+val TextSecondaryDark = Color(0xFF9AA0A6)
+
+// Status Colors
+val SuccessLight = Color(0xFF34A853)
+val SuccessDark = Color(0xFF81C995)
+val ErrorLight = Color(0xFFEA4335)
+val ErrorDark = Color(0xFFF28B82)
+val WarningLight = Color(0xFFFBBC04)
+val WarningDark = Color(0xFFFDD663)
+
+// Arrow Colors - Vibrant and distinct
+object ArrowColors {
+    // Light mode arrows
+    val UpLight = Color(0xFF34A853)      // Green
+    val DownLight = Color(0xFF4285F4)    // Blue
+    val LeftLight = Color(0xFFEA4335)    // Red
+    val RightLight = Color(0xFFFBBC04)   // Yellow/Gold
+
+    // Dark mode arrows - slightly brighter for contrast
+    val UpDark = Color(0xFF81C995)       // Light Green
+    val DownDark = Color(0xFF8AB4F8)     // Light Blue
+    val LeftDark = Color(0xFFF28B82)     // Light Red
+    val RightDark = Color(0xFFFDD663)    // Light Yellow
+}
+
+// Life/Heart Colors
 val HeartFull = Color(0xFFE91E63)
-val HeartEmpty = Color(0xFFBDBDBD)
+val HeartFullDark = Color(0xFFF48FB1)
+val HeartEmpty = Color(0xFFE0E0E0)
+val HeartEmptyDark = Color(0xFF424242)
+
+// Overlay/Scrim
+val ScrimLight = Color(0x80000000)
+val ScrimDark = Color(0x80000000)
+
+// Divider
+val DividerLight = Color(0xFFE0E0E0)
+val DividerDark = Color(0xFF424242)
+
+// Game Board
+val BoardBackgroundLight = Color(0xFFF8F9FA)
+val BoardBackgroundDark = Color(0xFF1A1A1A)
+val GridLineLight = Color(0xFFE8EAED)
+val GridLineDark = Color(0xFF333333)
