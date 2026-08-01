@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Arrow Escape</string>
+    <string name="play">PLAY</string>
+    <string name="settings">Settings</string>
+    <string name="level">Level %d</string>
+    <string name="best_level">Best: Level %d</string>
+    <string name="remaining">%d remaining</string>
+    <string name="out_of_lives">OUT OF LIVES</string>
+    <string name="cleared_percent">You cleared %d%%</string>
+    <string name="continue_game">Continue</string>
+    <string name="watch_ad_hint">Watch an ad to restore 3 lives</string>
+    <string name="restart_level">Restart Level</string>
+    <string name="level_complete">LEVEL COMPLETE</string>
+    <string name="next_level">NEXT LEVEL</string>
+    <string name="sound">Sound</string>
+    <string name="haptics">Haptics</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="about">About</string>
+    <string name="ad_unavailable">Reward unavailable right now</string>
+    <string name="back">Back</string>
+    <string name="time_format">%d:%02d</string>
+</resources>

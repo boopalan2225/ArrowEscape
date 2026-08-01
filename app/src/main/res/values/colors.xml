@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="spark_blue">#0071DC</color>
+    <color name="spark_yellow">#FFC220</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="dark_gray">#1A1A1A</color>
+    <color name="light_gray">#F5F5F5</color>
+    <color name="success_green">#2E7D32</color>
+    <color name="error_red">#D32F2F</color>
+    <color name="arrow_up">#4CAF50</color>
+    <color name="arrow_down">#2196F3</color>
+    <color name="arrow_left">#FF9800</color>
+    <color name="arrow_right">#9C27B0</color>
+</resources>
