@@ -100,7 +100,7 @@ fun ArrowEscapeApp(
             MilestoneScreen(
                 prefs = prefs,
                 onBackClick = { navController.popBackStack() },
-                onPlayMilestone = { level ->
+                onPlayLevel = { level ->
                     gameViewModel.setPendingLevel(level)
                     analytics.trackGameStarted(level)
                     navController.navigate("game")
