@@ -1,9 +1,7 @@
 package com.example.arrowescape.ui.home
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,12 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,36 +51,31 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Title with glow effect
+            // Title
             Text(
                 text = "ARROW",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Black,
-                color = Color(0xFF4D88FF),
-                letterSpacing = 6.sp,
-                modifier = Modifier.shadow(
-                    elevation = 20.dp,
-                    ambientColor = Color(0xFF4D88FF).copy(alpha = 0.6f),
-                    spotColor = Color(0xFF4D88FF).copy(alpha = 0.6f)
-                )
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 4.sp
             )
             Text(
                 text = "ESCAPE",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Black,
-                color = Color(0xFFEEF2FF),
-                letterSpacing = 6.sp
+                color = MaterialTheme.colorScheme.onBackground,
+                letterSpacing = 4.sp
             )
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
             // Subtitle
             Text(
                 text = "TAP  ·  VANISH  ·  ESCAPE",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF3A4A6C),
-                letterSpacing = 3.sp
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 2.sp
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -191,198 +183,75 @@ fun HomeScreen(
 }
 
 @Composable
-private fun AnimatedLogo(onClick: (() -> Unit)? = null) {
-    // Touch interaction state
-    var isPressed by remember { mutableStateOf(false) }
+private fun AnimatedLogo() {
+    val gameColors = ArrowEscapeTheme.gameColors
     
-    // Entry animation
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
+    // Continuous rotation animation
+    val infiniteTransition = rememberInfiniteTransition(label = "logoAnimation")
     
-    val entryScale by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessLow),
-        label = "entryScale"
-    )
-    
-    // Press animation - 3D push effect
-    val pressScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),
-        label = "pressScale"
-    )
-    val pressDepth by animateFloatAsState(
-        targetValue = if (isPressed) 2f else 8f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),
-        label = "pressDepth"
-    )
-    
-    // Continuous 3D rotation animation
-    val infiniteTransition = rememberInfiniteTransition(label = "3d")
-    val rotationY by infiniteTransition.animateFloat(
-        initialValue = -8f,
-        targetValue = 8f,
+    val rotation1 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
+            animation = tween(8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
         ),
-        label = "rotateY"
-    )
-    val rotationX by infiniteTransition.animateFloat(
-        initialValue = 5f,
-        targetValue = -5f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "rotateX"
-    )
-    
-    // Glow pulse
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow"
+        label = "rotation1"
     )
 
     Box(
-        modifier = Modifier
-            .scale(entryScale * pressScale)
-            .graphicsLayer {
-                this.rotationY = rotationY
-                this.rotationX = rotationX
-                cameraDistance = 12f * density
-            },
+        modifier = Modifier.size(120.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Outer glow ring
+        // Outer rotating ring of arrows
+        Box(modifier = Modifier.rotate(rotation1)) {
+            // Arrow indicators around the logo
+            listOf(0f, 90f, 180f, 270f).forEachIndexed { index, angle ->
+                val color = when (index) {
+                    0 -> gameColors.arrowUp
+                    1 -> gameColors.arrowRight
+                    2 -> gameColors.arrowDown
+                    else -> gameColors.arrowLeft
+                }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .rotate(angle)
+                        .offset(y = (-45).dp)
+                ) {
+                    Text(
+                        text = "\u2191",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = color
+                    )
+                }
+            }
+        }
+
+        // Center circle
         Box(
             modifier = Modifier
-                .size(110.dp)
+                .size(64.dp)
+                .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF3B82F6).copy(alpha = glowAlpha),
-                            Color.Transparent
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                         )
-                    ),
-                    CircleShape
-                )
-        )
-        
-        // 3D Shadow (offset for depth)
-        Box(
-            modifier = Modifier
-                .size(88.dp)
-                .offset(x = pressDepth.dp * 0.3f, y = pressDepth.dp * 0.5f)
-                .background(Color(0xFF0F172A), CircleShape)
-        )
-        
-        // Main circular logo
-        Box(
-            modifier = Modifier
-                .size(88.dp)
-                .shadow(elevation = pressDepth.dp, shape = CircleShape)
-                .clip(CircleShape)
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF1E40AF),
-                            Color(0xFF3B82F6),
-                            Color(0xFF60A5FA)
-                        ),
-                        start = androidx.compose.ui.geometry.Offset.Zero,
-                        end = androidx.compose.ui.geometry.Offset.Infinite
                     )
-                )
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            isPressed = true
-                            tryAwaitRelease()
-                            isPressed = false
-                        },
-                        onTap = { onClick?.invoke() }
-                    )
-                },
+                ),
             contentAlignment = Alignment.Center
         ) {
-            // Inner highlight (3D sphere effect)
-            Box(
-                modifier = Modifier
-                    .size(88.dp)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.25f),
-                                Color.Transparent
-                            ),
-                            center = androidx.compose.ui.geometry.Offset(30f, 25f),
-                            radius = 80f
-                        ),
-                        CircleShape
-                    )
+            Text(
+                text = "\u2192",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
-            
-            // Escaping arrow with 3D effect
-            Canvas(modifier = Modifier.size(46.dp)) {
-                // Arrow shadow
-                drawEscapeArrow(
-                    color = Color(0xFF1E3A8A).copy(alpha = 0.5f),
-                    offsetX = 2.dp.toPx(),
-                    offsetY = 2.dp.toPx()
-                )
-                // Main arrow
-                drawEscapeArrow(
-                    color = Color.White,
-                    offsetX = 0f,
-                    offsetY = 0f
-                )
-            }
         }
     }
-}
-
-// Extension function to draw the escape arrow
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawEscapeArrow(
-    color: Color,
-    offsetX: Float,
-    offsetY: Float
-) {
-    val strokeWidth = 4.5f.dp.toPx()
-    val centerY = size.height / 2 + offsetY
-    val startX = 10.dp.toPx() + offsetX
-    val endX = size.width - 10.dp.toPx() + offsetX
-    val arrowHeadSize = 10.dp.toPx()
-    
-    // Arrow shaft
-    drawLine(
-        color = color,
-        start = androidx.compose.ui.geometry.Offset(startX, centerY),
-        end = androidx.compose.ui.geometry.Offset(endX - arrowHeadSize * 0.3f, centerY),
-        strokeWidth = strokeWidth,
-        cap = androidx.compose.ui.graphics.StrokeCap.Round
-    )
-    
-    // Arrow head (chevron)
-    val headPath = androidx.compose.ui.graphics.Path().apply {
-        moveTo(endX - arrowHeadSize, centerY - arrowHeadSize * 0.6f)
-        lineTo(endX, centerY)
-        lineTo(endX - arrowHeadSize, centerY + arrowHeadSize * 0.6f)
-    }
-    drawPath(
-        path = headPath,
-        color = color,
-        style = androidx.compose.ui.graphics.drawscope.Stroke(
-            width = strokeWidth,
-            cap = androidx.compose.ui.graphics.StrokeCap.Round,
-            join = androidx.compose.ui.graphics.StrokeJoin.Round
-        )
-    )
 }
 
 @Composable
