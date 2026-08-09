@@ -193,17 +193,19 @@ private fun AnimatedLogo() {
         label = "scaleIn"
     )
 
-    // Corner arrow definitions: position, color, symbol
+    // Corner arrow definitions: position offset (outside the box), color, symbol
     data class CornerArrow(
         val alignment: Alignment,
+        val offsetX: Int,
+        val offsetY: Int,
         val color: Color,
         val symbol: String
     )
     val cornerArrows = listOf(
-        CornerArrow(Alignment.TopCenter, Color(0xFF4D88FF), "↑"),
-        CornerArrow(Alignment.TopEnd, Color(0xFFEF4444), "↗"),
-        CornerArrow(Alignment.BottomStart, Color(0xFFF5A623), "↙"),
-        CornerArrow(Alignment.BottomEnd, Color(0xFF22D45E), "↘")
+        CornerArrow(Alignment.TopCenter, 0, -16, Color(0xFF4D88FF), "↑"),      // top center, above
+        CornerArrow(Alignment.TopEnd, 16, -16, Color(0xFFEF4444), "↗"),        // top right, outside
+        CornerArrow(Alignment.BottomStart, -16, 16, Color(0xFFF5A623), "↙"),   // bottom left, outside
+        CornerArrow(Alignment.BottomEnd, 16, 16, Color(0xFF22D45E), "↘")       // bottom right, outside
     )
 
     // Glow color from reference: rgba(43,111,255) = #2B6FFF
@@ -272,7 +274,7 @@ private fun AnimatedLogo() {
                 color = Color.White
             )
 
-            // Corner mini-arrows
+            // Corner mini-arrows (positioned outside the box)
             cornerArrows.forEach { arrow ->
                 Text(
                     text = arrow.symbol,
@@ -281,7 +283,7 @@ private fun AnimatedLogo() {
                     color = arrow.color,
                     modifier = Modifier
                         .align(arrow.alignment)
-                        .padding(6.dp)
+                        .offset(x = arrow.offsetX.dp, y = arrow.offsetY.dp)
                 )
             }
         }
