@@ -44,18 +44,41 @@ fun GameBoard(
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    val escapeAnim = escapingArrows.mapValues { (id, _) ->
-        val a = remember(id) { Animatable(0f) }
-        LaunchedEffect(id) {
-            a.animateTo(1f, tween(520, easing = FastOutSlowInEasing))
-        }
-        a.value
+    // Stable animation state holders - mutations happen in SideEffect, not during composition
+    val escapeAnimatables = remember { mutableStateMapOf<Int, Animatable<Float, AnimationVector1D>>() }
+    val shakeAnimatables = remember { mutableStateMapOf<Int, Animatable<Float, AnimationVector1D>>() }
+    
+    // Cleanup stale animations after composition
+    SideEffect {
+        escapeAnimatables.keys.filter { it !in escapingArrows }.forEach { escapeAnimatables.remove(it) }
+        shakeAnimatables.keys.filter { it !in shakingArrows }.forEach { shakeAnimatables.remove(it) }
     }
-
-    val shakeAnim = shakingArrows.associateWith { id ->
-        val a = remember(id) { Animatable(0f) }
-        LaunchedEffect(id) { a.animateTo(1f, tween(300, easing = LinearEasing)) }
-        sin(a.value * 4 * Math.PI.toFloat()) * 9f
+    
+    // Launch escape animations for each escaping arrow
+    escapingArrows.keys.forEach { id ->
+        key(id) {
+            val animatable = remember { Animatable(0f) }
+            LaunchedEffect(Unit) {
+                escapeAnimatables[id] = animatable
+                animatable.animateTo(1f, tween(520, easing = FastOutSlowInEasing))
+            }
+        }
+    }
+    
+    // Launch shake animations
+    shakingArrows.forEach { id ->
+        key(id) {
+            val animatable = remember { Animatable(0f) }
+            LaunchedEffect(Unit) {
+                shakeAnimatables[id] = animatable
+                animatable.animateTo(1f, tween(300, easing = LinearEasing))
+            }
+        }
+    }
+    
+    val escapeAnim: Map<Int, Float> = escapeAnimatables.mapValues { it.value.value }
+    val shakeAnim: Map<Int, Float> = shakeAnimatables.mapValues { 
+        sin(it.value.value * 4 * Math.PI.toFloat()) * 9f 
     }
 
     val hintPulse = rememberInfiniteTransition(label = "hint")

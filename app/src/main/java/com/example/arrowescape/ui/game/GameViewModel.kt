@@ -182,7 +182,21 @@ class GameViewModel(
         }
     }
 
+    // Debounce guard to prevent duplicate tap processing
+    private var lastTapTimeMs = 0L
+    private var lastTappedArrowId = -1
+    private val TAP_DEBOUNCE_MS = 100L
+
     fun onArrowTap(arrow: Arrow) {
+        val now = System.currentTimeMillis()
+        
+        // Debounce: ignore rapid duplicate taps on same arrow
+        if (arrow.id == lastTappedArrowId && (now - lastTapTimeMs) < TAP_DEBOUNCE_MS) {
+            return
+        }
+        lastTapTimeMs = now
+        lastTappedArrowId = arrow.id
+        
         val currentState = _gameState.value
         if (currentState.status != GameStatus.PLAYING) return
 
