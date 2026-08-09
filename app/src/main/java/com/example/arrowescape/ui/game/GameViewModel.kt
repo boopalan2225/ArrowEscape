@@ -59,6 +59,9 @@ class GameViewModel(
     private val _levelShape = MutableStateFlow(com.example.arrowescape.game.level.LevelShape.SQUARE)
     val levelShape: StateFlow<com.example.arrowescape.game.level.LevelShape> = _levelShape.asStateFlow()
 
+    private val _shapeName = MutableStateFlow("Square")
+    val shapeName: StateFlow<String> = _shapeName.asStateFlow()
+
     private val _hintsRemaining = MutableStateFlow(2)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
 
@@ -143,6 +146,7 @@ class GameViewModel(
             _gridRows.value = generated.gridRows
             _gridCols.value = generated.gridCols
             _levelShape.value = generated.shape
+            _shapeName.value = generated.shapeName
             _gameState.value = gameEngine.createLevel(
                 level,
                 generated.arrows,

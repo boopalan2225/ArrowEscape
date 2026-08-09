@@ -151,6 +151,32 @@ class GamePreferences(private val context: Context) {
         }
     }
 
+    /**
+     * DEBUG: Unlock all levels for testing.
+     */
+    suspend fun unlockAllLevels(maxLevel: Int = 150) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_HIGHEST_LEVEL] = maxLevel
+            prefs[KEY_CURRENT_LEVEL] = maxLevel
+            prefs[KEY_TOTAL_LEVELS_COMPLETED] = maxLevel - 1
+            // Give 2 stars to all levels for testing
+            val starsString = (1 until maxLevel).joinToString(",") { "$it:2" }
+            prefs[KEY_LEVEL_STARS] = starsString
+        }
+    }
+
+    /**
+     * DEBUG: Reset progress to level 1.
+     */
+    suspend fun resetProgress() {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_HIGHEST_LEVEL] = 1
+            prefs[KEY_CURRENT_LEVEL] = 1
+            prefs[KEY_TOTAL_LEVELS_COMPLETED] = 0
+            prefs[KEY_LEVEL_STARS] = ""
+        }
+    }
+
     // Saved game state for resuming after app kill
     data class SavedGameState(
         val level: Int,

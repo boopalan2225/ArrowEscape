@@ -11,6 +11,7 @@ data class GeneratedLevel(
     val gridRows: Int,
     val gridCols: Int,
     val shape: LevelShape,
+    val shapeName: String,
     val difficultyLabel: String
 )
 
@@ -32,25 +33,61 @@ data class GeneratedLevel(
 object LevelGenerator {
 
     fun generateLevel(levelNumber: Int): GeneratedLevel {
-        val config = DifficultyConfig.forLevel(levelNumber)
+        val design = LevelDesigns.forLevel(levelNumber)
         val random = Random(levelNumber.toLong() * 31337 + 42)
 
-        val cells = config.shape.validCells(config.gridRows, config.gridCols)
+        // Scale template to grid size
+        val cells = ShapeTemplate.scaleTemplate(
+            design.template, 
+            design.gridSize, 
+            design.gridSize
+        ).toList()
+        
         val arrows = carveSnakes(
-            cells, config.gridRows, config.gridCols, config.maxSnakeLength, random
+            cells, design.gridSize, design.gridSize, design.maxSnakeLength, random
         )
 
-        require(GameSolver.isSolvable(arrows, config.gridRows, config.gridCols)) {
+        require(GameSolver.isSolvable(arrows, design.gridSize, design.gridSize)) {
             "Generated level $levelNumber is not solvable - this is a bug!"
         }
 
+        // Map design category to LevelShape for compatibility
+        val shape = mapCategoryToShape(design.category, design.shapeName)
+
         return GeneratedLevel(
             arrows = arrows,
-            gridRows = config.gridRows,
-            gridCols = config.gridCols,
-            shape = config.shape,
-            difficultyLabel = config.difficultyLabel
+            gridRows = design.gridSize,
+            gridCols = design.gridSize,
+            shape = shape,
+            shapeName = design.shapeName,
+            difficultyLabel = design.difficultyLabel
         )
+    }
+
+    /**
+     * Maps design category/name to closest LevelShape for icon display.
+     */
+    private fun mapCategoryToShape(category: String, shapeName: String): LevelShape {
+        val nameLower = shapeName.lowercase()
+        return when {
+            "square" in nameLower -> LevelShape.SQUARE
+            "circle" in nameLower || "ring" in nameLower -> LevelShape.CIRCLE
+            "triangle" in nameLower -> LevelShape.TRIANGLE
+            "diamond" in nameLower -> LevelShape.DIAMOND
+            "heart" in nameLower -> LevelShape.HEART
+            "star" in nameLower -> LevelShape.STAR
+            "cross" in nameLower -> LevelShape.CROSS
+            "crown" in nameLower -> LevelShape.CROWN
+            "butterfly" in nameLower -> LevelShape.BUTTERFLY
+            "spiral" in nameLower -> LevelShape.SPIRAL
+            "lightning" in nameLower -> LevelShape.LIGHTNING
+            "arrow" in nameLower -> LevelShape.ARROW_UP
+            "hexagon" in nameLower -> LevelShape.HEXAGON
+            "moon" in nameLower || "crescent" in nameLower -> LevelShape.CRESCENT
+            "hourglass" in nameLower -> LevelShape.HOURGLASS
+            category == "Letters" -> LevelShape.LETTER_X
+            else -> LevelShape.SQUARE
+        }
     }
 
     private fun carveSnakes(
@@ -155,6 +192,6 @@ object LevelGenerator {
         val size = 4
         val cells = LevelShape.SQUARE.validCells(size, size)
         val arrows = carveSnakes(cells, size, size, 2, Random(7))
-        return GeneratedLevel(arrows, size, size, LevelShape.SQUARE, "Easy")
+        return GeneratedLevel(arrows, size, size, LevelShape.SQUARE, "Square", "Tutorial")
     }
 }

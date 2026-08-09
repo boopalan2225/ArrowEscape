@@ -54,7 +54,18 @@ enum class LevelShape(val displayName: String) {
         BUTTERFLY -> isInButterfly(row, col, rows, cols)
     }
 
+    /**
+     * Get valid cells using bitmap templates for pixel-perfect shapes.
+     * Falls back to mathematical functions only if template scaling fails.
+     */
     fun validCells(rows: Int, cols: Int): List<Pair<Int, Int>> {
+        // Use bitmap templates for accurate shape rendering
+        val templateCells = ShapeTemplate.getValidCells(this, rows, cols)
+        if (templateCells.isNotEmpty()) {
+            return templateCells
+        }
+        
+        // Fallback to mathematical approach
         val cells = mutableListOf<Pair<Int, Int>>()
         for (r in 0 until rows) for (c in 0 until cols) {
             if (contains(r, c, rows, cols)) cells.add(r to c)

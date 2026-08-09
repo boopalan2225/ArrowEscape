@@ -31,6 +31,8 @@ fun SettingsScreen(
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
     onBackClick: () -> Unit,
+    onUnlockAllLevels: () -> Unit = {},
+    onResetProgress: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -129,6 +131,24 @@ fun SettingsScreen(
                     currentLevel = prefs.currentLevel,
                     highestLevel = prefs.highestLevel,
                     totalCompleted = prefs.totalLevelsCompleted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Debug Section (for testing)
+            SettingsSection(title = "Debug") {
+                SettingsClickableItem(
+                    icon = "\uD83D\uDD13",
+                    title = "Unlock All Levels",
+                    subtitle = "Set progress to level 150",
+                    onClick = onUnlockAllLevels
+                )
+                SettingsClickableItem(
+                    icon = "\uD83D\uDD04",
+                    title = "Reset Progress",
+                    subtitle = "Start from level 1",
+                    onClick = onResetProgress
                 )
             }
 

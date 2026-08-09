@@ -38,6 +38,7 @@ fun GameScreen(
     val gridRows by viewModel.gridRows.collectAsState()
     val gridCols by viewModel.gridCols.collectAsState()
     val levelShape by viewModel.levelShape.collectAsState()
+    val shapeName by viewModel.shapeName.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
@@ -45,10 +46,7 @@ fun GameScreen(
     val context = LocalContext.current
     val activity = context as? Activity
 
-    LaunchedEffect(Unit) {
-        val startLevel = 149//viewModel.consumePendingLevel() ?: prefs.currentLevel
-        viewModel.startLevel(startLevel)
-    }
+    // Level is now started from MainActivity via navigation arguments
 
     DisposableEffect(Unit) {
         onDispose { viewModel.saveGameState() }
@@ -120,7 +118,7 @@ fun GameScreen(
             }
 
             GameBottomBar(
-                shapeName = levelShape.displayName,
+                shapeName = shapeName,
                 hintsRemaining = hintsRemaining,
                 onHintClick = { viewModel.useHint() }
             )
@@ -171,7 +169,7 @@ fun GameScreen(
                     level = gameState.level,
                     timeSeconds = ((System.currentTimeMillis() - gameState.startTimeMillis) / 1000).toInt(),
                     mistakes = gameState.mistakes,
-                    shapeName = levelShape.displayName,
+                    shapeName = shapeName,
                     difficultyLabel = gameState.difficultyLabel,
                     onNextLevel = {
                         activity?.let { act ->

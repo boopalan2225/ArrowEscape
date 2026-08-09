@@ -10,8 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
+import kotlinx.coroutines.launch
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.ads.AdManagerImpl
 import com.example.arrowescape.analytics.AnalyticsTracker
@@ -101,14 +104,42 @@ fun ArrowEscapeApp(
                 prefs = prefs,
                 onBackClick = { navController.popBackStack() },
                 onPlayLevel = { level ->
-                    gameViewModel.setPendingLevel(level)
                     analytics.trackGameStarted(level)
-                    navController.navigate("game")
+                    navController.navigate("game/$level")
                 }
             )
         }
 
+        // Game route WITH level argument (from Journey screen)
+        composable(
+            route = "game/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val level = backStackEntry.arguments?.getInt("level") ?: prefs.currentLevel
+            
+            LaunchedEffect(level) {
+                gameViewModel.startLevel(level)
+            }
+            
+            GameScreen(
+                viewModel = gameViewModel,
+                onBackClick = {
+                    gameViewModel.saveGameState()
+                    navController.popBackStack()
+                },
+                onHomeClick = {
+                    gameViewModel.saveGameState()
+                    navController.popBackStack("home", inclusive = false)
+                }
+            )
+        }
+
+        // Game route WITHOUT level argument (from Home Play button)
         composable("game") {
+            LaunchedEffect(prefs.currentLevel) {
+                gameViewModel.startLevel(prefs.currentLevel)
+            }
+            
             GameScreen(
                 viewModel = gameViewModel,
                 onBackClick = {
@@ -123,6 +154,7 @@ fun ArrowEscapeApp(
         }
 
         composable("settings") {
+            val scope = rememberCoroutineScope()
             SettingsScreen(
                 prefs = prefs,
                 onSoundToggle = { enabled ->
@@ -133,6 +165,12 @@ fun ArrowEscapeApp(
                 },
                 onBackClick = {
                     navController.popBackStack()
+                },
+                onUnlockAllLevels = {
+                    scope.launch { preferences.unlockAllLevels() }
+                },
+                onResetProgress = {
+                    scope.launch { preferences.resetProgress() }
                 }
             )
         }

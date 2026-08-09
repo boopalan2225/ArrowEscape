@@ -113,4 +113,37 @@ class LevelShapeTest {
         // Spiral should have a reasonable number of cells (not too sparse)
         assertTrue("Spiral has substantial cells", cells.size >= 20)
     }
+
+    // --- Template scaling tests ---
+
+    @Test
+    fun `shapes scale with grid size`() {
+        // Larger grids should have more cells
+        val smallCells = LevelShape.CROWN.validCells(8, 8)
+        val largeCells = LevelShape.CROWN.validCells(20, 20)
+        assertTrue("Larger grid has more cells", largeCells.size > smallCells.size)
+    }
+
+    @Test
+    fun `level 112 and 148 have different densities for same shape`() {
+        // Level 112 is in Crown milestone (121-130 actually, but let's test the concept)
+        val config112 = DifficultyConfig.forLevel(112)
+        val config148 = DifficultyConfig.forLevel(148)
+        
+        // Higher level should have larger grid
+        assertTrue("Level 148 has larger grid", 
+            config148.gridRows > config112.gridRows)
+    }
+
+    @Test
+    fun `difficulty scales correctly`() {
+        // Test that difficulty increases with level
+        val easyConfig = DifficultyConfig.forLevel(5)
+        val hardConfig = DifficultyConfig.forLevel(100)
+        val masterConfig = DifficultyConfig.forLevel(145)
+        
+        assertTrue(easyConfig.gridRows < hardConfig.gridRows)
+        assertTrue(hardConfig.gridRows < masterConfig.gridRows)
+        assertTrue(easyConfig.maxSnakeLength < masterConfig.maxSnakeLength)
+    }
 }

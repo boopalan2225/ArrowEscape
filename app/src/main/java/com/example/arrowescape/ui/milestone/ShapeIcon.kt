@@ -233,3 +233,61 @@ private fun SingleShapeLargePreview() {
         }
     }
 }
+
+@Preview(showBackground = true, name = "Shape Scaling - Crown at Different Levels", widthDp = 400)
+@Composable
+private fun ShapeScalingPreview() {
+    // Demonstrates how the same shape looks at different difficulty levels
+    val levels = listOf(112 to 18, 130 to 20, 148 to 24) // level to grid size
+    
+    ArrowEscapeTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "CROWN - Scaling by Level",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFD700),
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    levels.forEach { (level, gridSize) ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                "Lvl $level",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White
+                            )
+                            Text(
+                                "${gridSize}x$gridSize",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.Gray
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .background(Color(0xFF1A1A2E), RoundedCornerShape(12.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ShapeIcon(
+                                    shape = LevelShape.CROWN,
+                                    color = Color(0xFFFFD700),
+                                    modifier = Modifier.size(80.dp),
+                                    resolution = gridSize
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
