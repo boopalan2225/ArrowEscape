@@ -489,6 +489,8 @@ fun LevelCompleteOverlay(
     onHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val gameColors = ArrowEscapeTheme.gameColors
+    
     // Calculate stars based on mistakes
     val stars = when {
         mistakes == 0 -> 3
@@ -496,15 +498,16 @@ fun LevelCompleteOverlay(
         else -> 1
     }
     
-    // Calculate score: base 100 - (mistakes * 10) - (time penalty)
+    // Calculate score
     val timeBonus = maxOf(0, 100 - timeSeconds)
     val score = maxOf(10, 100 - (mistakes * 15) + timeBonus / 2)
 
-    // Scale animation for the card
+    // Animation states
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
-    val scale by animateFloatAsState(
+    // Card scale animation
+    val cardScale by animateFloatAsState(
         targetValue = if (visible) 1f else 0.8f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -512,30 +515,55 @@ fun LevelCompleteOverlay(
         ),
         label = "cardScale"
     )
+    
+    // Star animations - staggered entrance
+    val star1Scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(400, delayMillis = 200, easing = FastOutSlowInEasing),
+        label = "star1"
+    )
+    val star2Scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(400, delayMillis = 350, easing = FastOutSlowInEasing),
+        label = "star2"
+    )
+    val star3Scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(400, delayMillis = 500, easing = FastOutSlowInEasing),
+        label = "star3"
+    )
+    val starScales = listOf(star1Scale, star2Scale, star3Scale)
+    
+    // Continuous star glow pulse
+    val infiniteTransition = rememberInfiniteTransition(label = "starPulse")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow"
+    )
 
-    // Star colors
+    // Theme-aware colors
     val starGold = Color(0xFFFFD700)
-    val starEmpty = Color(0xFF3A4A6C)
+    val starEmpty = gameColors.textSecondary.copy(alpha = 0.3f)
+    val cardBg = gameColors.cardBackground
+    val borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    val accentBlue = MaterialTheme.colorScheme.primary
+    val textPrimary = MaterialTheme.colorScheme.onSurface
+    val textSecondary = gameColors.textSecondary
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(24.dp)
-            .scale(scale)
+            .scale(cardScale)
             .shadow(24.dp, RoundedCornerShape(28.dp)),
         shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0D1B2A)
-        ),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            Brush.linearGradient(
-                colors = listOf(
-                    Color(0xFF1E3A5F),
-                    Color(0xFF0D1B2A)
-                )
-            )
-        )
+        colors = CardDefaults.cardColors(containerColor = cardBg),
+        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)
     ) {
         Column(
             modifier = Modifier
@@ -543,60 +571,67 @@ fun LevelCompleteOverlay(
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 3 Stars with glow
+            // Animated stars with glow
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(3) { index ->
                     val isFilled = index < stars
-                    Box(contentAlignment = Alignment.Center) {
+                    val starScale = starScales[index]
+                    
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.scale(starScale)
+                    ) {
                         // Glow effect for filled stars
-                        if (isFilled) {
+                        if (isFilled && starScale > 0.5f) {
                             Text(
                                 text = "\u2605",
-                                fontSize = 52.sp,
-                                color = starGold.copy(alpha = 0.3f),
-                                modifier = Modifier.blur(8.dp)
+                                fontSize = 56.sp,
+                                color = starGold.copy(alpha = glowAlpha),
+                                modifier = Modifier.blur(12.dp)
                             )
                         }
+                        // Star with bounce
                         Text(
                             text = "\u2605",
-                            fontSize = 48.sp,
-                            color = if (isFilled) starGold else starEmpty
+                            fontSize = 52.sp,
+                            color = if (isFilled) starGold else starEmpty,
+                            modifier = Modifier.scale(if (isFilled) 1f + (starScale * 0.1f) else 1f)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // ESCAPED! title
+            // ESCAPED! title with gradient effect
             Text(
                 text = "ESCAPED!",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Black,
                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                color = Color(0xFF5B8DEF),
-                letterSpacing = 2.sp
+                color = accentBlue,
+                letterSpacing = 3.sp
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Level info subtitle
             Text(
-                text = "Level $level · $shapeName · $difficultyLabel",
+                text = "Level $level \u00b7 $shapeName \u00b7 $difficultyLabel",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color(0xFF6B7B8C)
+                color = textSecondary
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // Stats card
+            // Stats card with animated counter effect
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF152238),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E3A5F))
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)
             ) {
                 Row(
                     modifier = Modifier
@@ -604,21 +639,35 @@ fun LevelCompleteOverlay(
                         .padding(24.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    // Score
+                    // Score with animation
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // Animated score counter
+                        val animatedScore by animateIntAsState(
+                            targetValue = if (visible) score else 0,
+                            animationSpec = tween(800, delayMillis = 400),
+                            label = "scoreAnim"
+                        )
                         Text(
-                            text = "$score",
+                            text = "$animatedScore",
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF5B8DEF)
+                            color = accentBlue
                         )
                         Text(
                             text = "SCORE",
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF4A5A6C),
+                            color = textSecondary,
                             letterSpacing = 2.sp
                         )
                     }
+                    
+                    // Divider
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(50.dp)
+                            .background(borderColor)
+                    )
                     
                     // Stars earned
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -639,14 +688,14 @@ fun LevelCompleteOverlay(
                         Text(
                             text = "STARS",
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFF4A5A6C),
+                            color = textSecondary,
                             letterSpacing = 2.sp
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Buttons row
             Row(
@@ -661,10 +710,9 @@ fun LevelCompleteOverlay(
                         .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color(0xFF1A2634),
-                        contentColor = Color(0xFFB0BEC5)
+                        contentColor = textSecondary
                     ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF2A3A4C))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)
                 ) {
                     Text(
                         text = "\u2302",
@@ -678,15 +726,26 @@ fun LevelCompleteOverlay(
                     )
                 }
                 
-                // Next Level button
+                // Next Level button with pulse
+                val buttonScale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.03f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(800, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "buttonPulse"
+                )
+                
                 Button(
                     onClick = onNextLevel,
                     modifier = Modifier
                         .weight(1.5f)
-                        .height(56.dp),
+                        .height(56.dp)
+                        .scale(buttonScale),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF3B7BF6)
+                        containerColor = accentBlue
                     )
                 ) {
                     Text(
@@ -697,7 +756,7 @@ fun LevelCompleteOverlay(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "›",
+                        text = "\u203a",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )

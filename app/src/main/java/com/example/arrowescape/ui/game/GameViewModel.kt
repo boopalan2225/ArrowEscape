@@ -296,6 +296,14 @@ class GameViewModel(
                 continueUsedThisLevel
             )
 
+            // Calculate and save stars
+            val stars = when {
+                state.mistakes == 0 -> 3
+                state.mistakes <= 2 -> 2
+                else -> 1
+            }
+            preferences.saveLevelStars(state.level, stars)
+
             preferences.setCurrentLevel(state.level + 1)
             preferences.incrementTotalLevelsCompleted()
             preferences.incrementLevelsSinceInterstitial()

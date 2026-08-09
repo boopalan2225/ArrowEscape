@@ -40,6 +40,7 @@ fun MilestoneScreen(
     modifier: Modifier = Modifier
 ) {
     val highestLevel = prefs.highestLevel
+    val levelStars = prefs.levelStars
     val listState = rememberLazyListState()
 
     // Auto-scroll to the current chapter.
@@ -68,6 +69,7 @@ fun MilestoneScreen(
                         milestone = milestone,
                         color = ChapterColors[milestone.index],
                         highestLevel = highestLevel,
+                        levelStars = levelStars,
                         onPlayLevel = onPlayLevel
                     )
                 }
@@ -131,6 +133,7 @@ private fun ChapterCard(
     milestone: Milestone,
     color: Color,
     highestLevel: Int,
+    levelStars: Map<Int, Int>,
     onPlayLevel: (Int) -> Unit
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -211,6 +214,7 @@ private fun ChapterCard(
                         LevelBubble(
                             level = lvl,
                             state = MilestoneData.levelState(lvl, highestLevel),
+                            stars = levelStars[lvl] ?: 0,
                             color = color,
                             onClick = { onPlayLevel(lvl) }
                         )
@@ -225,10 +229,12 @@ private fun ChapterCard(
 private fun LevelBubble(
     level: Int,
     state: LevelState,
+    stars: Int,
     color: Color,
     onClick: () -> Unit
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
+    val starGold = Color(0xFFFFD700)
 
     val pulse = rememberInfiniteTransition(label = "bubblePulse")
     val pulseScale by pulse.animateFloat(
@@ -261,8 +267,17 @@ private fun LevelBubble(
     ) {
         when (state) {
             LevelState.COMPLETED -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("$level", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text("\u2605", color = Color.White.copy(alpha = 0.9f), fontSize = 8.sp)
+                Text("$level", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                // Show star rating
+                Row(horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+                    repeat(3) { index ->
+                        Text(
+                            text = "\u2605",
+                            fontSize = 8.sp,
+                            color = if (index < stars) starGold else Color.White.copy(alpha = 0.3f)
+                        )
+                    }
+                }
             }
             LevelState.CURRENT -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("$level", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)

@@ -23,6 +23,7 @@ class GamePreferences(private val context: Context) {
         private val KEY_HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
         private val KEY_LEVELS_SINCE_INTERSTITIAL = intPreferencesKey("levels_since_interstitial")
         private val KEY_TOTAL_LEVELS_COMPLETED = intPreferencesKey("total_levels_completed")
+        private val KEY_LEVEL_STARS = stringPreferencesKey("level_stars") // JSON: "1:3,2:2,3:3"
 
         // Saved game state
         private val KEY_SAVED_LEVEL = intPreferencesKey("saved_level")
@@ -39,7 +40,8 @@ class GamePreferences(private val context: Context) {
         val soundEnabled: Boolean = true,
         val hapticsEnabled: Boolean = true,
         val levelsSinceInterstitial: Int = 0,
-        val totalLevelsCompleted: Int = 0
+        val totalLevelsCompleted: Int = 0,
+        val levelStars: Map<Int, Int> = emptyMap() // level -> stars (1-3)
     )
 
     /**
@@ -54,13 +56,28 @@ class GamePreferences(private val context: Context) {
             }
         }
         .map { prefs ->
+            // Parse level stars from "1:3,2:2,3:3" format
+            val starsString = prefs[KEY_LEVEL_STARS] ?: ""
+            val levelStars = starsString.split(",")
+                .filter { it.contains(":") }
+                .mapNotNull { entry ->
+                    val parts = entry.split(":")
+                    if (parts.size == 2) {
+                        val level = parts[0].toIntOrNull()
+                        val stars = parts[1].toIntOrNull()
+                        if (level != null && stars != null) level to stars else null
+                    } else null
+                }
+                .toMap()
+            
             Prefs(
                 currentLevel = prefs[KEY_CURRENT_LEVEL] ?: 1,
                 highestLevel = prefs[KEY_HIGHEST_LEVEL] ?: 1,
                 soundEnabled = prefs[KEY_SOUND_ENABLED] ?: true,
                 hapticsEnabled = prefs[KEY_HAPTICS_ENABLED] ?: true,
                 levelsSinceInterstitial = prefs[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
-                totalLevelsCompleted = prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0
+                totalLevelsCompleted = prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0,
+                levelStars = levelStars
             )
         }
 
@@ -88,6 +105,31 @@ class GamePreferences(private val context: Context) {
     suspend fun incrementTotalLevelsCompleted() {
         context.dataStore.edit { prefs ->
             prefs[KEY_TOTAL_LEVELS_COMPLETED] = (prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0) + 1
+        }
+    }
+
+    suspend fun saveLevelStars(level: Int, stars: Int) {
+        context.dataStore.edit { prefs ->
+            val existing = prefs[KEY_LEVEL_STARS] ?: ""
+            val starsMap = existing.split(",")
+                .filter { it.contains(":") }
+                .mapNotNull { entry ->
+                    val parts = entry.split(":")
+                    if (parts.size == 2) {
+                        val l = parts[0].toIntOrNull()
+                        val s = parts[1].toIntOrNull()
+                        if (l != null && s != null) l to s else null
+                    } else null
+                }
+                .toMutableMap()
+            
+            // Only update if new stars are better than existing
+            val currentStars = starsMap[level] ?: 0
+            if (stars > currentStars) {
+                starsMap[level] = stars
+            }
+            
+            prefs[KEY_LEVEL_STARS] = starsMap.entries.joinToString(",") { "${it.key}:${it.value}" }
         }
     }
 
