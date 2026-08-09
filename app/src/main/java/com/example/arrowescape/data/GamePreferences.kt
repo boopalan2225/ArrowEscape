@@ -121,6 +121,7 @@ class GamePreferences(private val context: Context) {
                         if (l != null && s != null) l to s else null
                     } else null
                 }
+                .toMap()
                 .toMutableMap()
             
             // Only update if new stars are better than existing
