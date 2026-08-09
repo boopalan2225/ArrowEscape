@@ -1,6 +1,7 @@
 package com.example.arrowescape.ui.home
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,20 +51,36 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Title
+            // Title with glow effect
             Text(
                 text = "ARROW",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.primary,
-                letterSpacing = 4.sp
+                color = Color(0xFF4D88FF),
+                letterSpacing = 6.sp,
+                modifier = Modifier.shadow(
+                    elevation = 20.dp,
+                    ambientColor = Color(0xFF4D88FF).copy(alpha = 0.6f),
+                    spotColor = Color(0xFF4D88FF).copy(alpha = 0.6f)
+                )
             )
             Text(
                 text = "ESCAPE",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onBackground,
-                letterSpacing = 4.sp
+                color = Color(0xFFEEF2FF),
+                letterSpacing = 6.sp
+            )
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Subtitle
+            Text(
+                text = "TAP  ·  VANISH  ·  ESCAPE",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF3A4A6C),
+                letterSpacing = 3.sp
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -203,11 +220,12 @@ private fun AnimatedLogo() {
         val color: Color,
         val symbol: String
     )
+    // Arrows positioned further out to match reference
     val cornerArrows = listOf(
-        CornerArrow(Alignment.TopCenter, 0, -16, Color(0xFF4D88FF), "↑"),      // top center, above
-        CornerArrow(Alignment.TopEnd, 16, -16, Color(0xFFEF4444), "↗"),        // top right, outside
-        CornerArrow(Alignment.BottomStart, -16, 16, Color(0xFFF5A623), "↙"),   // bottom left, outside
-        CornerArrow(Alignment.BottomEnd, 16, 16, Color(0xFF22D45E), "↘")       // bottom right, outside
+        CornerArrow(Alignment.TopCenter, 0, -28, Color(0xFF4D88FF), "↑"),      // top center, above
+        CornerArrow(Alignment.TopEnd, 20, -24, Color(0xFFEF4444), "↗"),        // top right, outside
+        CornerArrow(Alignment.BottomStart, -20, 24, Color(0xFFF5A623), "↙"),   // bottom left, outside
+        CornerArrow(Alignment.BottomEnd, 20, 24, Color(0xFF22D45E), "↘")       // bottom right, outside
     )
 
     // Glow color from reference: rgba(43,111,255) = #2B6FFF
@@ -268,13 +286,36 @@ private fun AnimatedLogo() {
                 ),
             contentAlignment = Alignment.Center
         ) {
-            // Center arrow
-            Text(
-                text = "→",
-                fontSize = 42.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+            // Center arrow - drawn with Canvas for proper styling
+            Canvas(
+                modifier = Modifier.size(44.dp)
+            ) {
+                val arrowColor = Color.White
+                val strokeWidth = 6.dp.toPx()
+                val arrowHeadSize = 14.dp.toPx()
+                
+                val centerY = size.height / 2
+                val startX = 4.dp.toPx()
+                val endX = size.width - 4.dp.toPx()
+                
+                // Arrow shaft
+                drawLine(
+                    color = arrowColor,
+                    start = androidx.compose.ui.geometry.Offset(startX, centerY),
+                    end = androidx.compose.ui.geometry.Offset(endX - arrowHeadSize / 2, centerY),
+                    strokeWidth = strokeWidth,
+                    cap = androidx.compose.ui.graphics.StrokeCap.Round
+                )
+                
+                // Arrow head
+                val headPath = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(endX, centerY)
+                    lineTo(endX - arrowHeadSize, centerY - arrowHeadSize * 0.6f)
+                    lineTo(endX - arrowHeadSize, centerY + arrowHeadSize * 0.6f)
+                    close()
+                }
+                drawPath(headPath, arrowColor)
+            }
 
             // Corner mini-arrows (positioned outside the box)
             cornerArrows.forEach { arrow ->
