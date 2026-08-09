@@ -172,23 +172,25 @@ fun HomeScreen(
 
 @Composable
 private fun AnimatedLogo() {
-    // Spin-in animation on first appearance
+    // Spin-in animation: 0.7s with cubic-bezier(0.34, 1.56, 0.64, 1) overshoot easing
+    val spinInEasing = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1f)
+    
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
     
     val rotation by animateFloatAsState(
         targetValue = if (visible) 0f else -180f,
-        animationSpec = spring(
-            dampingRatio = 0.6f,
-            stiffness = Spring.StiffnessLow
+        animationSpec = tween(
+            durationMillis = 700,
+            easing = spinInEasing
         ),
         label = "spinIn"
     )
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = 0.5f,
-            stiffness = Spring.StiffnessLow
+        animationSpec = tween(
+            durationMillis = 700,
+            easing = spinInEasing
         ),
         label = "scaleIn"
     )
