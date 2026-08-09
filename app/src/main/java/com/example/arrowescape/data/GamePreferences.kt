@@ -111,15 +111,21 @@ class GamePreferences(private val context: Context) {
     suspend fun saveLevelStars(level: Int, stars: Int) {
         context.dataStore.edit { prefs ->
             val existing = prefs[KEY_LEVEL_STARS] ?: ""
-            val starsMap = existing.split(",")
-                .filter { it.contains(":") }
-                .associate { entry ->
-                    val parts = entry.split(":")
-                    val l = parts[0].toIntOrNull() ?: 0
-                    val s = parts[1].toIntOrNull() ?: 0
-                    l to s
+            val starsMap = mutableMapOf<Int, Int>()
+            
+            // Parse existing stars
+            if (existing.isNotBlank()) {
+                existing.split(",").forEach { entry ->
+                    if (entry.contains(":")) {
+                        val parts = entry.split(":")
+                        val l = parts[0].toIntOrNull()
+                        val s = parts[1].toIntOrNull()
+                        if (l != null && s != null) {
+                            starsMap[l] = s
+                        }
+                    }
                 }
-                .toMutableMap()
+            }
             
             // Only update if new stars are better than existing
             val currentStars = starsMap[level] ?: 0
@@ -127,7 +133,9 @@ class GamePreferences(private val context: Context) {
                 starsMap[level] = stars
             }
             
-            prefs[KEY_LEVEL_STARS] = starsMap.map { (k, v) -> "$k:$v" }.joinToString(",")
+            // Convert back to string
+            val starsString = starsMap.entries.map { entry -> "${entry.key}:${entry.value}" }.joinToString(",")
+            prefs[KEY_LEVEL_STARS] = starsString
         }
     }
 
