@@ -20,6 +20,7 @@ import com.example.arrowescape.ui.components.*
 fun GameScreen(
     viewModel: GameViewModel,
     onBackClick: () -> Unit,
+    onHomeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val gameState by viewModel.gameState.collectAsState()
@@ -37,7 +38,7 @@ fun GameScreen(
 
     LaunchedEffect(Unit) {
         val startLevel = viewModel.consumePendingLevel() ?: prefs.currentLevel
-        viewModel.startLevel(96)
+        viewModel.startLevel(startLevel)
     }
 
     DisposableEffect(Unit) {
@@ -160,11 +161,15 @@ fun GameScreen(
                 LevelCompleteOverlay(
                     level = gameState.level,
                     timeSeconds = ((System.currentTimeMillis() - gameState.startTimeMillis) / 1000).toInt(),
+                    mistakes = gameState.mistakes,
+                    shapeName = levelShape.displayName,
+                    difficultyLabel = gameState.difficultyLabel,
                     onNextLevel = {
                         activity?.let { act ->
                             viewModel.showInterstitialIfNeeded(act) { viewModel.onNextLevel() }
                         } ?: viewModel.onNextLevel()
-                    }
+                    },
+                    onHome = onHomeClick
                 )
             }
         }

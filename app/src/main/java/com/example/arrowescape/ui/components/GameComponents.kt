@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -155,7 +156,7 @@ fun GameTopBar(
                 fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.offset(x = (-1).dp, y = (-3).dp) // Optical centering adjustment
+                modifier = Modifier.offset(x = (-1).dp, y = (-5).dp) // Optical centering adjustment
             )
         }
 
@@ -481,10 +482,23 @@ fun OutOfLivesModal(
 fun LevelCompleteOverlay(
     level: Int,
     timeSeconds: Int,
+    mistakes: Int,
+    shapeName: String,
+    difficultyLabel: String,
     onNextLevel: () -> Unit,
+    onHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val gameColors = ArrowEscapeTheme.gameColors
+    // Calculate stars based on mistakes
+    val stars = when {
+        mistakes == 0 -> 3
+        mistakes <= 2 -> 2
+        else -> 1
+    }
+    
+    // Calculate score: base 100 - (mistakes * 10) - (time penalty)
+    val timeBonus = maxOf(0, 100 - timeSeconds)
+    val score = maxOf(10, 100 - (mistakes * 15) + timeBonus / 2)
 
     // Scale animation for the card
     var visible by remember { mutableStateOf(false) }
@@ -499,123 +513,193 @@ fun LevelCompleteOverlay(
         label = "cardScale"
     )
 
+    // Star colors
+    val starGold = Color(0xFFFFD700)
+    val starEmpty = Color(0xFF3A4A6C)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(24.dp)
             .scale(scale)
-            .shadow(16.dp, RoundedCornerShape(24.dp)),
-        shape = RoundedCornerShape(24.dp),
+            .shadow(24.dp, RoundedCornerShape(28.dp)),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
-            containerColor = gameColors.cardBackground
+            containerColor = Color(0xFF0D1B2A)
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            Brush.linearGradient(
+                colors = listOf(
+                    Color(0xFF1E3A5F),
+                    Color(0xFF0D1B2A)
+                )
+            )
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(28.dp),
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Success checkmark with glow effect
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                gameColors.success.copy(alpha = 0.2f),
-                                gameColors.success.copy(alpha = 0.05f)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
+            // 3 Stars with glow
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(gameColors.success),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "\u2713",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                repeat(3) { index ->
+                    val isFilled = index < stars
+                    Box(contentAlignment = Alignment.Center) {
+                        // Glow effect for filled stars
+                        if (isFilled) {
+                            Text(
+                                text = "\u2605",
+                                fontSize = 52.sp,
+                                color = starGold.copy(alpha = 0.3f),
+                                modifier = Modifier.blur(8.dp)
+                            )
+                        }
+                        Text(
+                            text = "\u2605",
+                            fontSize = 48.sp,
+                            color = if (isFilled) starGold else starEmpty
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // ESCAPED! title
             Text(
-                text = "Level Complete!",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                text = "ESCAPED!",
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Black,
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                color = Color(0xFF5B8DEF),
+                letterSpacing = 2.sp
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Level info subtitle
             Text(
-                text = "Level $level cleared",
+                text = "Level $level · $shapeName · $difficultyLabel",
                 style = MaterialTheme.typography.bodyLarge,
-                color = gameColors.textSecondary
+                color = Color(0xFF6B7B8C)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Time display
+            // Stats card
             Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF152238),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E3A5F))
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(
-                        text = "\u23F1",
-                        fontSize = 20.sp
-                    )
-                    val minutes = timeSeconds / 60
-                    val seconds = timeSeconds % 60
-                    Text(
-                        text = String.format("%d:%02d", minutes, seconds),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    // Score
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "$score",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF5B8DEF)
+                        )
+                        Text(
+                            text = "SCORE",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFF4A5A6C),
+                            letterSpacing = 2.sp
+                        )
+                    }
+                    
+                    // Stars earned
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "$stars",
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = starGold
+                            )
+                            Text(
+                                text = "\u2605",
+                                fontSize = 28.sp,
+                                color = starGold,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                        Text(
+                            text = "STARS",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFF4A5A6C),
+                            letterSpacing = 2.sp
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Next level button
-            Button(
-                onClick = onNextLevel,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            // Buttons row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                // Home button
+                OutlinedButton(
+                    onClick = onHome,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color(0xFF1A2634),
+                        contentColor = Color(0xFFB0BEC5)
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF2A3A4C))
                 ) {
                     Text(
-                        text = "Next Level",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "\u2192",
+                        text = "\u2302",
                         fontSize = 18.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Home",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                
+                // Next Level button
+                Button(
+                    onClick = onNextLevel,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF3B7BF6)
+                    )
+                ) {
+                    Text(
+                        text = "NEXT LEVEL",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "›",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

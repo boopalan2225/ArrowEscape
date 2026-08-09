@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GamePreferences
@@ -60,7 +61,9 @@ fun SettingsScreen(
                     Text(
                         text = "\u2190",
                         fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.offset(y = (-3).dp)
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
