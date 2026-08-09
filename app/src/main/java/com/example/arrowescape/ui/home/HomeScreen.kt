@@ -189,96 +189,67 @@ fun HomeScreen(
 
 @Composable
 private fun AnimatedLogo() {
-    // Spin-in animation: 0.7s with cubic-bezier(0.34, 1.56, 0.64, 1) overshoot easing
+    // Spin-in animation
     val spinInEasing = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1f)
     
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
     
-    val rotation by animateFloatAsState(
-        targetValue = if (visible) 0f else -180f,
-        animationSpec = tween(
-            durationMillis = 700,
-            easing = spinInEasing
-        ),
-        label = "spinIn"
-    )
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 700,
-            easing = spinInEasing
-        ),
+        animationSpec = tween(durationMillis = 700, easing = spinInEasing),
         label = "scaleIn"
     )
-
-    // Corner arrow definitions: position offset (outside the box), color, symbol
-    data class CornerArrow(
-        val alignment: Alignment,
-        val offsetX: Int,
-        val offsetY: Int,
-        val color: Color,
-        val symbol: String
-    )
-    // Arrows positioned further out to match reference
-    val cornerArrows = listOf(
-        CornerArrow(Alignment.TopCenter, 0, -28, Color(0xFF4D88FF), "↑"),      // top center, above
-        CornerArrow(Alignment.TopEnd, 20, -24, Color(0xFFEF4444), "↗"),        // top right, outside
-        CornerArrow(Alignment.BottomStart, -20, 24, Color(0xFFF5A623), "↙"),   // bottom left, outside
-        CornerArrow(Alignment.BottomEnd, 20, 24, Color(0xFF22D45E), "↘")       // bottom right, outside
+    
+    // Subtle floating animation for 3D feel
+    val infiniteTransition = rememberInfiniteTransition(label = "float")
+    val floatOffset by infiniteTransition.animateFloat(
+        initialValue = -2f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float"
     )
 
-    // Glow color from reference: rgba(43,111,255) = #2B6FFF
-    val glowColor = Color(0xFF2B6FFF)
-
-    // Outer container for layered glow effect
     Box(
         modifier = Modifier
             .scale(scale)
-            .rotate(rotation),
+            .offset(y = floatOffset.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Layer 1: Outer glow (100px blur, 0.2 alpha)
+        // 3D Shadow layer (bottom/back)
         Box(
             modifier = Modifier
-                .size(90.dp)
+                .size(88.dp)
+                .offset(x = 4.dp, y = 6.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color(0xFF0A1628))
+        )
+        
+        // Glow layer
+        Box(
+            modifier = Modifier
+                .size(88.dp)
                 .shadow(
-                    elevation = 50.dp,
-                    shape = RoundedCornerShape(26.dp),
-                    ambientColor = glowColor.copy(alpha = 0.2f),
-                    spotColor = glowColor.copy(alpha = 0.2f)
+                    elevation = 30.dp,
+                    shape = RoundedCornerShape(24.dp),
+                    ambientColor = Color(0xFF2B6FFF).copy(alpha = 0.4f),
+                    spotColor = Color(0xFF2B6FFF).copy(alpha = 0.4f)
                 )
         )
         
-        // Layer 2: Inner glow (50px blur, 0.5 alpha)
+        // Main logo box with gradient
         Box(
             modifier = Modifier
-                .size(90.dp)
-                .shadow(
-                    elevation = 25.dp,
-                    shape = RoundedCornerShape(26.dp),
-                    ambientColor = glowColor.copy(alpha = 0.5f),
-                    spotColor = glowColor.copy(alpha = 0.5f)
-                )
-        )
-        
-        // Layer 3: Drop shadow (12px offset, 32px blur)
-        // Main logo box
-        Box(
-            modifier = Modifier
-                .size(90.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    shape = RoundedCornerShape(26.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.5f),
-                    spotColor = Color.Black.copy(alpha = 0.5f)
-                )
-                .clip(RoundedCornerShape(26.dp))
+                .size(88.dp)
+                .clip(RoundedCornerShape(24.dp))
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFF0D2060),
-                            Color(0xFF2B6FFF)
+                            Color(0xFF1E40AF),
+                            Color(0xFF3B82F6)
                         ),
                         start = androidx.compose.ui.geometry.Offset.Zero,
                         end = androidx.compose.ui.geometry.Offset.Infinite
@@ -286,51 +257,65 @@ private fun AnimatedLogo() {
                 ),
             contentAlignment = Alignment.Center
         ) {
-            // Center arrow - drawn with Canvas for proper styling
-            Canvas(
-                modifier = Modifier.size(44.dp)
-            ) {
+            // Draw the escaping arrow with 3D effect
+            Canvas(modifier = Modifier.size(50.dp)) {
+                val shadowColor = Color(0xFF1E3A8A)
                 val arrowColor = Color.White
-                val strokeWidth = 6.dp.toPx()
-                val arrowHeadSize = 14.dp.toPx()
                 
-                val centerY = size.height / 2
-                val startX = 4.dp.toPx()
-                val endX = size.width - 4.dp.toPx()
-                
-                // Arrow shaft
-                drawLine(
-                    color = arrowColor,
-                    start = androidx.compose.ui.geometry.Offset(startX, centerY),
-                    end = androidx.compose.ui.geometry.Offset(endX - arrowHeadSize / 2, centerY),
-                    strokeWidth = strokeWidth,
-                    cap = androidx.compose.ui.graphics.StrokeCap.Round
+                // Arrow shadow (3D depth)
+                drawArrowIcon(
+                    color = shadowColor,
+                    offsetX = 2.dp.toPx(),
+                    offsetY = 2.dp.toPx()
                 )
                 
-                // Arrow head
-                val headPath = androidx.compose.ui.graphics.Path().apply {
-                    moveTo(endX, centerY)
-                    lineTo(endX - arrowHeadSize, centerY - arrowHeadSize * 0.6f)
-                    lineTo(endX - arrowHeadSize, centerY + arrowHeadSize * 0.6f)
-                    close()
-                }
-                drawPath(headPath, arrowColor)
-            }
-
-            // Corner mini-arrows (positioned outside the box)
-            cornerArrows.forEach { arrow ->
-                Text(
-                    text = arrow.symbol,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Black,
-                    color = arrow.color,
-                    modifier = Modifier
-                        .align(arrow.alignment)
-                        .offset(x = arrow.offsetX.dp, y = arrow.offsetY.dp)
+                // Main arrow
+                drawArrowIcon(
+                    color = arrowColor,
+                    offsetX = 0f,
+                    offsetY = 0f
                 )
             }
         }
     }
+}
+
+// Extension function to draw arrow icon
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrowIcon(
+    color: Color,
+    offsetX: Float,
+    offsetY: Float
+) {
+    val strokeWidth = 5.dp.toPx()
+    val centerY = size.height / 2 + offsetY
+    val startX = 8.dp.toPx() + offsetX
+    val endX = size.width - 8.dp.toPx() + offsetX
+    val arrowHeadSize = 12.dp.toPx()
+    
+    // Arrow shaft
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(startX, centerY),
+        end = androidx.compose.ui.geometry.Offset(endX - arrowHeadSize * 0.5f, centerY),
+        strokeWidth = strokeWidth,
+        cap = androidx.compose.ui.graphics.StrokeCap.Round
+    )
+    
+    // Arrow head (chevron style)
+    val headPath = androidx.compose.ui.graphics.Path().apply {
+        moveTo(endX - arrowHeadSize, centerY - arrowHeadSize * 0.55f)
+        lineTo(endX, centerY)
+        lineTo(endX - arrowHeadSize, centerY + arrowHeadSize * 0.55f)
+    }
+    drawPath(
+        path = headPath,
+        color = color,
+        style = androidx.compose.ui.graphics.drawscope.Stroke(
+            width = strokeWidth,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+            join = androidx.compose.ui.graphics.StrokeJoin.Round
+        )
+    )
 }
 
 @Composable
