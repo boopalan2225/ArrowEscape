@@ -25,11 +25,14 @@ import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.milestone.MilestoneData.LevelState
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
-/** Vibrant accent color per chapter (index 0..9). */
+/** Vibrant accent color per chapter (cycles if more chapters than colors). */
 private val ChapterColors = listOf(
     Color(0xFF34A853), Color(0xFFFBBC04), Color(0xFF4285F4), Color(0xFF00ACC1),
     Color(0xFFE91E63), Color(0xFFEA4335), Color(0xFF9C27B0), Color(0xFFFF9800),
-    Color(0xFF3F51B5), Color(0xFFFFD700)
+    Color(0xFF3F51B5), Color(0xFFFFD700),
+    // Hard category chapters (bold, intense colors)
+    Color(0xFF00BFA5), Color(0xFFFF6D00), Color(0xFF6200EA), Color(0xFF00C853),
+    Color(0xFFD500F9)
 )
 
 @Composable
@@ -67,7 +70,7 @@ fun MilestoneScreen(
                 itemsIndexed(MilestoneData.milestones) { _, milestone ->
                     ChapterCard(
                         milestone = milestone,
-                        color = ChapterColors[milestone.index],
+                        color = ChapterColors[milestone.index % ChapterColors.size],
                         highestLevel = highestLevel,
                         levelStars = levelStars,
                         onPlayLevel = onPlayLevel
