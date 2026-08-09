@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GamePreferences
@@ -250,7 +251,7 @@ private fun AnimatedLogo() {
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.offset(x = 1.dp, y = (-1).dp) // Optical centering adjustment
+                modifier = Modifier.offset(x = 1.dp, y = (-3).dp) // Optical centering adjustment
             )
         }
     }
@@ -315,6 +316,19 @@ private fun PulsatingPlayButton(onClick: () -> Unit) {
                 letterSpacing = 2.sp
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    ArrowEscapeTheme {
+        HomeScreen(
+            prefs = GamePreferences.Prefs(),
+            onPlayClick = {},
+            onJourneyClick = {},
+            onSettingsClick = {}
+        )
     }
 }
 

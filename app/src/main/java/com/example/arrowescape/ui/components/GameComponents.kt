@@ -155,7 +155,7 @@ fun GameTopBar(
                 fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.offset(x = (-1).dp, y = (-1).dp) // Optical centering adjustment
+                modifier = Modifier.offset(x = (-1).dp, y = (-3).dp) // Optical centering adjustment
             )
         }
 
