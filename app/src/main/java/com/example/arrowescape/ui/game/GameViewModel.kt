@@ -218,14 +218,30 @@ class GameViewModel(
 
         analytics.trackValidMove(newState.level, newState.remainingCount)
 
+        // Commit the arrow list RIGHT NOW so other arrows immediately know
+        // this one is gone (fixes a bug where a blocked arrow tapped during
+        // the escape animation would be wrongly rejected as a mistake).
+        // We hold back a LEVEL_COMPLETE status flip until the animation
+        // finishes so the completion overlay doesn't pop in over a
+        // still-animating arrow. (Status here is guaranteed PLAYING - this
+        // fn only runs when the tap started from PLAYING.)
+        _gameState.value = newState.copy(status = _gameState.value.status)
+
+        // Capture only the final status we might need to apply. Do NOT
+        // reassign the full newState later - that would overwrite any
+        // arrows tapped while this animation was in flight.
+        val finalStatus = newState.status
+        val arrowId = arrow.id
+
         viewModelScope.launch {
             delay(ESCAPE_ANIMATION_DURATION_MS)
-            _escapingArrows.value = _escapingArrows.value - arrow.id
-            _gameState.value = newState
+            _escapingArrows.value = _escapingArrows.value - arrowId
 
-            // Check for level complete
-            if (newState.status == GameStatus.LEVEL_COMPLETE) {
-                handleLevelComplete(newState)
+            // Only update status if this was the last arrow (level complete).
+            // Read CURRENT state, don't clobber with stale captured state.
+            if (finalStatus == GameStatus.LEVEL_COMPLETE) {
+                _gameState.value = _gameState.value.copy(status = GameStatus.LEVEL_COMPLETE)
+                handleLevelComplete(_gameState.value)
             }
         }
     }

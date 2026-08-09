@@ -101,7 +101,7 @@ fun ArrowEscapeApp(
                 prefs = prefs,
                 onBackClick = { navController.popBackStack() },
                 onPlayLevel = { level ->
-                    gameViewModel.setPendingLevel(level)
+                    gameViewModel.setPendingLevel(96)
                     analytics.trackGameStarted(level)
                     navController.navigate("game")
                 }

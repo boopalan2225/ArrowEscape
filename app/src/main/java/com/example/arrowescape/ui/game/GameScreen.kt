@@ -37,7 +37,7 @@ fun GameScreen(
 
     LaunchedEffect(Unit) {
         val startLevel = viewModel.consumePendingLevel() ?: prefs.currentLevel
-        viewModel.startLevel(startLevel)
+        viewModel.startLevel(96)
     }
 
     DisposableEffect(Unit) {

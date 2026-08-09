@@ -93,15 +93,31 @@ fun GameBoard(
             offY + c.row * cell + cell / 2
         )
 
+        // Keep the gesture-detector coroutine ALIVE across recompositions.
+        // If we keyed pointerInput on `arrows` directly, a tap that
+        // synchronously mutates gameState (see GameViewModel.handleValidMove)
+        // would change `arrows`' identity mid-callback, causing Compose to
+        // cancel + relaunch detectTapGestures right in the middle of the
+        // gesture - which can double-fire the tap against the already-
+        // updated list (two arrows escaping from a single click). Reading
+        // everything through rememberUpdatedState gives fresh data (including
+        // layout metrics on rotation/resize) without ever restarting the
+        // coroutine mid-gesture.
+        val latestArrows by rememberUpdatedState(arrows)
+        val latestCell by rememberUpdatedState(cell)
+        val latestOffX by rememberUpdatedState(offX)
+        val latestOffY by rememberUpdatedState(offY)
+        val latestOnArrowTap by rememberUpdatedState(onArrowTap)
+
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(arrows) {
+                .pointerInput(Unit) {
                     detectTapGestures { tap ->
-                        val col = ((tap.x - offX) / cell).toInt()
-                        val row = ((tap.y - offY) / cell).toInt()
-                        arrows.firstOrNull { it.isActive && it.occupies(row, col) }
-                            ?.let { onArrowTap(it) }
+                        val col = ((tap.x - latestOffX) / latestCell).toInt()
+                        val row = ((tap.y - latestOffY) / latestCell).toInt()
+                        latestArrows.firstOrNull { it.isActive && it.occupies(row, col) }
+                            ?.let { latestOnArrowTap(it) }
                     }
                 }
         ) {
