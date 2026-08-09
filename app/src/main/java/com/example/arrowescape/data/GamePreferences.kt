@@ -130,7 +130,7 @@ class GamePreferences(private val context: Context) {
                 starsMap[level] = stars
             }
             
-            prefs[KEY_LEVEL_STARS] = starsMap.entries.joinToString(",") { "${it.key}:${it.value}" }
+            prefs[KEY_LEVEL_STARS] = starsMap.entries.joinToString(",") { entry -> "${entry.key}:${entry.value}" }
         }
     }
 
