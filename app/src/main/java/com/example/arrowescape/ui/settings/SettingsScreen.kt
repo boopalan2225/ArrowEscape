@@ -30,6 +30,7 @@ fun SettingsScreen(
     prefs: GamePreferences.Prefs,
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
+    onCurvedModeToggle: (Boolean) -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: () -> Unit = {},
     onResetProgress: () -> Unit = {},
@@ -87,6 +88,14 @@ fun SettingsScreen(
         ) {
             // Game Settings Section
             SettingsSection(title = "Game") {
+                SettingsToggleItem(
+                    icon = "",
+                    title = "Curved Arrows",
+                    subtitle = "Smooth bezier curves (new engine)",
+                    checked = prefs.curvedMode,
+                    onCheckedChange = onCurvedModeToggle
+                )
+
                 SettingsToggleItem(
                     icon = "\uD83D\uDD0A",
                     title = "Sound Effects",

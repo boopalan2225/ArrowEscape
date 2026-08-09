@@ -1,0 +1,489 @@
+package com.example.arrowescape.ui.game
+
+import android.app.Activity
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.SoundPool
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.arrowescape.ads.AdManager
+import com.example.arrowescape.analytics.AnalyticsTracker
+import com.example.arrowescape.data.GamePreferences
+import com.example.arrowescape.game.curve.*
+import com.example.arrowescape.game.model.GameStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+/**
+ * Game state for curved arrow puzzles.
+ */
+data class CurvedGameState(
+    val level: Int = 1,
+    val arrows: List<CurvedArrow> = emptyList(),
+    val shape: ShapePath? = null,
+    val shapeName: String = "",
+    val difficulty: String = "Easy",
+    val lives: Int = 3,
+    val mistakes: Int = 0,
+    val status: GameStatus = GameStatus.PLAYING,
+    val hintArrowId: Int? = null,
+    val startTimeMillis: Long = System.currentTimeMillis(),
+    val colorPalette: List<Long> = emptyList()
+) {
+    val activeArrows: List<CurvedArrow> get() = arrows.filter { it.isActive }
+    val remainingCount: Int get() = activeArrows.size
+    val clearedPercentage: Int get() {
+        val total = arrows.size
+        if (total == 0) return 0
+        return ((total - remainingCount) * 100) / total
+    }
+}
+
+/**
+ * ViewModel for curved arrow puzzle gameplay.
+ * Uses bezier curves instead of grid-based arrows.
+ */
+class CurvedGameViewModel(
+    private val preferences: GamePreferences,
+    private val adManager: AdManager,
+    private val analytics: AnalyticsTracker,
+    private val context: Context
+) : ViewModel() {
+
+    companion object {
+        private const val INTERSTITIAL_FREQUENCY = 4
+        private const val ESCAPE_ANIMATION_DURATION_MS = 600L
+        private const val SHAKE_ANIMATION_DURATION_MS = 300L
+        private const val DEFAULT_LIVES = 3
+        private const val BOARD_WIDTH = 400f
+        private const val BOARD_HEIGHT = 600f
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // State flows
+    // ─────────────────────────────────────────────────────────────────────
+    
+    private val _gameState = MutableStateFlow(CurvedGameState())
+    val gameState: StateFlow<CurvedGameState> = _gameState.asStateFlow()
+
+    // Escape progress: arrow ID -> animation progress (0 to 1)
+    private val _escapingArrows = MutableStateFlow<Map<Int, Float>>(emptyMap())
+    val escapingArrows: StateFlow<Map<Int, Float>> = _escapingArrows.asStateFlow()
+
+    private val _shakingArrows = MutableStateFlow<Set<Int>>(emptySet())
+    val shakingArrows: StateFlow<Set<Int>> = _shakingArrows.asStateFlow()
+
+    private val _hintsRemaining = MutableStateFlow(2)
+    val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
+
+    private val _combo = MutableStateFlow(0)
+    val combo: StateFlow<Int> = _combo.asStateFlow()
+
+    val prefs = preferences.prefsFlow.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        GamePreferences.Prefs()
+    )
+
+    // Board dimensions for rendering
+    private val _boardWidth = MutableStateFlow(BOARD_WIDTH)
+    val boardWidth: StateFlow<Float> = _boardWidth.asStateFlow()
+
+    private val _boardHeight = MutableStateFlow(BOARD_HEIGHT)
+    val boardHeight: StateFlow<Float> = _boardHeight.asStateFlow()
+
+    private var continueUsedThisLevel = false
+    private var pendingLevel: Int? = null
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Haptics & Sound
+    // ─────────────────────────────────────────────────────────────────────
+
+    private val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
+
+    private var soundPool: SoundPool? = null
+
+    init {
+        initSounds()
+        preloadAds()
+    }
+
+    private fun initSounds() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(3)
+            .setAudioAttributes(audioAttributes)
+            .build()
+    }
+
+    private fun preloadAds() {
+        adManager.loadRewardedAd(context)
+        adManager.loadInterstitialAd(context)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Level Navigation
+    // ─────────────────────────────────────────────────────────────────────
+
+    fun setPendingLevel(level: Int) {
+        pendingLevel = level
+        viewModelScope.launch { preferences.setCurrentLevel(level) }
+    }
+
+    fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
+
+    fun startLevel(level: Int) {
+        viewModelScope.launch {
+            // Generate level off the main thread
+            val curvedLevel = withContext(Dispatchers.Default) {
+                CurvedLevelGenerator.generateLevel(level, BOARD_WIDTH, BOARD_HEIGHT)
+            }
+
+            _gameState.value = CurvedGameState(
+                level = level,
+                arrows = curvedLevel.arrows,
+                shape = curvedLevel.shape,
+                shapeName = curvedLevel.shapeName,
+                difficulty = curvedLevel.difficulty,
+                lives = DEFAULT_LIVES,
+                mistakes = 0,
+                status = GameStatus.PLAYING,
+                hintArrowId = null,
+                startTimeMillis = System.currentTimeMillis(),
+                colorPalette = curvedLevel.colorPalette
+            )
+
+            _escapingArrows.value = emptyMap()
+            _shakingArrows.value = emptySet()
+            _hintsRemaining.value = 2
+            _combo.value = 0
+            continueUsedThisLevel = false
+
+            analytics.trackLevelStarted(level, curvedLevel.arrows.size)
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Gameplay
+    // ─────────────────────────────────────────────────────────────────────
+
+    // Debounce guard
+    private var lastTapTimeMs = 0L
+    private var lastTappedArrowId = -1
+    private val TAP_DEBOUNCE_MS = 100L
+
+    fun onArrowTap(arrow: CurvedArrow) {
+        val now = System.currentTimeMillis()
+
+        // Debounce duplicate taps
+        if (arrow.id == lastTappedArrowId && (now - lastTapTimeMs) < TAP_DEBOUNCE_MS) {
+            return
+        }
+        lastTapTimeMs = now
+        lastTappedArrowId = arrow.id
+
+        val currentState = _gameState.value
+        if (currentState.status != GameStatus.PLAYING) return
+
+        // Skip if already animating
+        if (_escapingArrows.value.containsKey(arrow.id) || _shakingArrows.value.contains(arrow.id)) {
+            return
+        }
+
+        // Clear hint highlight
+        if (currentState.hintArrowId != null) {
+            _gameState.value = currentState.copy(hintArrowId = null)
+        }
+
+        // Check if arrow can escape
+        val canEscape = CurvedGameEngine.canEscape(
+            arrow = arrow,
+            allArrows = currentState.activeArrows,
+            shapeWidth = currentState.shape?.width ?: BOARD_WIDTH,
+            shapeHeight = currentState.shape?.height ?: BOARD_HEIGHT
+        )
+
+        if (canEscape) {
+            handleValidMove(arrow)
+        } else {
+            handleInvalidMove(arrow)
+        }
+    }
+
+    private fun handleValidMove(arrow: CurvedArrow) {
+        val currentState = _gameState.value
+
+        // Start escape animation
+        _escapingArrows.value = _escapingArrows.value + (arrow.id to 0f)
+
+        // Increment combo
+        _combo.value = _combo.value + 1
+
+        // Sounds & haptics
+        if (prefs.value.soundEnabled) playSuccessSound()
+        if (prefs.value.hapticsEnabled) playSuccessHaptic()
+
+        analytics.trackValidMove(currentState.level, currentState.remainingCount - 1)
+
+        // Mark arrow as inactive immediately (so other taps see it as gone)
+        val updatedArrows = currentState.arrows.map {
+            if (it.id == arrow.id) it.withActive(false) else it
+        }
+        _gameState.value = currentState.copy(arrows = updatedArrows)
+
+        val arrowId = arrow.id
+
+        // Animate escape
+        viewModelScope.launch {
+            // Animate progress from 0 to 1
+            val steps = 30
+            val stepDelay = ESCAPE_ANIMATION_DURATION_MS / steps
+            for (i in 1..steps) {
+                val progress = i.toFloat() / steps
+                _escapingArrows.value = _escapingArrows.value + (arrowId to progress)
+                delay(stepDelay)
+            }
+
+            // Animation complete
+            _escapingArrows.value = _escapingArrows.value - arrowId
+
+            // Check for level complete
+            val state = _gameState.value
+            if (state.activeArrows.isEmpty()) {
+                _gameState.value = state.copy(status = GameStatus.LEVEL_COMPLETE)
+                handleLevelComplete(state)
+            }
+        }
+    }
+
+    private fun handleInvalidMove(arrow: CurvedArrow) {
+        val currentState = _gameState.value
+
+        // Start shake animation
+        _shakingArrows.value = _shakingArrows.value + arrow.id
+
+        // Reset combo
+        _combo.value = 0
+
+        // Sounds & haptics
+        if (prefs.value.soundEnabled) playErrorSound()
+        if (prefs.value.hapticsEnabled) playErrorHaptic()
+
+        // Lose a life
+        val newLives = currentState.lives - 1
+        val newStatus = if (newLives <= 0) GameStatus.OUT_OF_LIVES else GameStatus.PLAYING
+
+        _gameState.value = currentState.copy(
+            lives = newLives,
+            mistakes = currentState.mistakes + 1,
+            status = newStatus
+        )
+
+        analytics.trackInvalidMove(currentState.level, newLives)
+
+        viewModelScope.launch {
+            delay(SHAKE_ANIMATION_DURATION_MS)
+            _shakingArrows.value = _shakingArrows.value - arrow.id
+
+            if (newStatus == GameStatus.OUT_OF_LIVES) {
+                analytics.trackLivesExhausted(currentState.level, currentState.clearedPercentage)
+                analytics.trackRewardedAdOffered(currentState.level)
+            }
+        }
+    }
+
+    private fun handleLevelComplete(state: CurvedGameState) {
+        viewModelScope.launch {
+            val timeSeconds = ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
+            analytics.trackLevelCompleted(
+                state.level,
+                timeSeconds,
+                state.mistakes,
+                continueUsedThisLevel
+            )
+
+            // Calculate stars
+            val stars = when {
+                state.mistakes == 0 -> 3
+                state.mistakes <= 2 -> 2
+                else -> 1
+            }
+            preferences.saveLevelStars(state.level, stars)
+            preferences.setCurrentLevel(state.level + 1)
+            preferences.incrementTotalLevelsCompleted()
+            preferences.incrementLevelsSinceInterstitial()
+            preferences.clearSavedGame()
+
+            if (prefs.value.soundEnabled) playCompleteSound()
+            if (prefs.value.hapticsEnabled) playSuccessHaptic()
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Hints
+    // ─────────────────────────────────────────────────────────────────────
+
+    fun useHint() {
+        if (_hintsRemaining.value <= 0) return
+        val state = _gameState.value
+        if (state.status != GameStatus.PLAYING) return
+
+        val hintArrow = CurvedGameEngine.findEscapableArrow(
+            arrows = state.activeArrows,
+            shapeWidth = state.shape?.width ?: BOARD_WIDTH,
+            shapeHeight = state.shape?.height ?: BOARD_HEIGHT
+        ) ?: return
+
+        _hintsRemaining.value = _hintsRemaining.value - 1
+        _gameState.value = state.copy(hintArrowId = hintArrow.id)
+
+        viewModelScope.launch {
+            delay(2500)
+            if (_gameState.value.hintArrowId == hintArrow.id) {
+                _gameState.value = _gameState.value.copy(hintArrowId = null)
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Continue / Restart / Next Level
+    // ─────────────────────────────────────────────────────────────────────
+
+    fun onContinueWithAd(activity: Activity) {
+        val currentLevel = _gameState.value.level
+        analytics.trackRewardedAdStarted(currentLevel)
+
+        adManager.showRewardedAd(
+            activity = activity,
+            onRewarded = {
+                analytics.trackRewardedAdCompleted(currentLevel)
+                continueUsedThisLevel = true
+                _gameState.value = _gameState.value.copy(
+                    lives = DEFAULT_LIVES,
+                    status = GameStatus.PLAYING
+                )
+                adManager.loadRewardedAd(context)
+            },
+            onFailed = {
+                analytics.trackRewardedAdFailed(currentLevel)
+            }
+        )
+    }
+
+    fun onRestartLevel() {
+        val currentLevel = _gameState.value.level
+        analytics.trackLevelRestarted(currentLevel)
+        startLevel(currentLevel)
+    }
+
+    fun onNextLevel() {
+        val nextLevel = _gameState.value.level + 1
+        startLevel(nextLevel)
+    }
+
+    fun showInterstitialIfNeeded(activity: Activity, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            if (prefs.value.levelsSinceInterstitial >= INTERSTITIAL_FREQUENCY &&
+                !continueUsedThisLevel &&
+                adManager.isInterstitialAdReady()
+            ) {
+                analytics.trackInterstitialShown(_gameState.value.level)
+                preferences.resetLevelsSinceInterstitial()
+                adManager.showInterstitialAd(activity, onComplete)
+            } else {
+                onComplete()
+            }
+        }
+    }
+
+    fun isRewardedAdAvailable(): Boolean = adManager.isRewardedAdReady()
+
+    fun saveGameState() {
+        // For now, curved mode doesn't persist mid-level state
+        // Could be added later if needed
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Sounds & Haptics
+    // ─────────────────────────────────────────────────────────────────────
+
+    private fun playSuccessSound() {
+        // TODO: Load actual sound files
+    }
+
+    private fun playErrorSound() {
+        // TODO: Load actual sound files
+    }
+
+    private fun playCompleteSound() {
+        // TODO: Load actual sound files
+    }
+
+    private fun playSuccessHaptic() {
+        vibrator?.let { vib ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+            } else {
+                @Suppress("DEPRECATION")
+                vib.vibrate(10)
+            }
+        }
+    }
+
+    private fun playErrorHaptic() {
+        vibrator?.let { vib ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK))
+            } else {
+                @Suppress("DEPRECATION")
+                vib.vibrate(longArrayOf(0, 30, 50, 30), -1)
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        soundPool?.release()
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Settings
+    // ─────────────────────────────────────────────────────────────────────
+
+    fun setSoundEnabled(enabled: Boolean) {
+        viewModelScope.launch { preferences.setSoundEnabled(enabled) }
+    }
+
+    fun setHapticsEnabled(enabled: Boolean) {
+        viewModelScope.launch { preferences.setHapticsEnabled(enabled) }
+    }
+}
+
+class CurvedGameViewModelFactory(
+    private val preferences: GamePreferences,
+    private val adManager: AdManager,
+    private val analytics: AnalyticsTracker,
+    private val context: Context
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return CurvedGameViewModel(preferences, adManager, analytics, context) as T
+    }
+}
