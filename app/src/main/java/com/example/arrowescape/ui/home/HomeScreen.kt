@@ -223,7 +223,10 @@ private fun AnimatedLogo() {
                     colors = listOf(
                         Color(0xFF0D2060),
                         Color(0xFF2B6FFF)
-                    )
+                    ),
+                    // 135deg = top-left to bottom-right diagonal
+                    start = androidx.compose.ui.geometry.Offset.Zero,
+                    end = androidx.compose.ui.geometry.Offset.Infinite
                 )
             ),
         contentAlignment = Alignment.Center
