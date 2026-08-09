@@ -151,9 +151,11 @@ fun GameTopBar(
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Text(
-                text = "\u2190",
+                text = "←",
                 fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.offset(x = (-1).dp, y = (-1).dp) // Optical centering adjustment
             )
         }
 

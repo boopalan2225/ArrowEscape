@@ -245,10 +245,12 @@ private fun AnimatedLogo() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "\u2192",
+                text = "→",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.offset(x = 1.dp, y = (-1).dp) // Optical centering adjustment
             )
         }
     }
