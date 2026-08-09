@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GamePreferences
@@ -293,5 +294,39 @@ private fun LevelBubble(
                 fontSize = 13.sp
             )
         }
+    }
+}
+
+// ======================= PREVIEWS =======================
+
+@Preview(showBackground = true, name = "Journey - Light")
+@Composable
+private fun MilestoneScreenPreviewLight() {
+    ArrowEscapeTheme(darkTheme = false) {
+        MilestoneScreen(
+            prefs = GamePreferences.Prefs(
+                highestLevel = 25,
+                totalLevelsCompleted = 24,
+                levelStars = mapOf(1 to 3, 2 to 2, 3 to 3, 4 to 1, 5 to 2)
+            ),
+            onBackClick = {},
+            onPlayLevel = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Journey - Dark")
+@Composable
+private fun MilestoneScreenPreviewDark() {
+    ArrowEscapeTheme(darkTheme = true) {
+        MilestoneScreen(
+            prefs = GamePreferences.Prefs(
+                highestLevel = 105,
+                totalLevelsCompleted = 104,
+                levelStars = (1..104).associateWith { (it % 3) + 1 }
+            ),
+            onBackClick = {},
+            onPlayLevel = {}
+        )
     }
 }

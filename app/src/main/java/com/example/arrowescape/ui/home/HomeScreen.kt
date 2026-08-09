@@ -319,12 +319,29 @@ private fun PulsatingPlayButton(onClick: () -> Unit) {
     }
 }
 
-@Preview
+@Preview(showBackground = true, name = "Home - Light")
 @Composable
-fun HomeScreenPreview() {
-    ArrowEscapeTheme {
+fun HomeScreenPreviewLight() {
+    ArrowEscapeTheme(darkTheme = false) {
         HomeScreen(
-            prefs = GamePreferences.Prefs(),
+            prefs = GamePreferences.Prefs(currentLevel = 1, highestLevel = 1),
+            onPlayClick = {},
+            onJourneyClick = {},
+            onSettingsClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Home - Dark")
+@Composable
+fun HomeScreenPreviewDark() {
+    ArrowEscapeTheme(darkTheme = true) {
+        HomeScreen(
+            prefs = GamePreferences.Prefs(
+                currentLevel = 42,
+                highestLevel = 50,
+                totalLevelsCompleted = 49
+            ),
             onPlayClick = {},
             onJourneyClick = {},
             onSettingsClick = {}

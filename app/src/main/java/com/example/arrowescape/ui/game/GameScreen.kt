@@ -5,16 +5,25 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.arrowescape.game.level.LevelShape
+import com.example.arrowescape.game.model.Arrow
+import com.example.arrowescape.game.model.Cell
+import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.game.model.GameStatus
 import com.example.arrowescape.ui.components.*
+import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 @Composable
 fun GameScreen(
@@ -37,7 +46,7 @@ fun GameScreen(
     val activity = context as? Activity
 
     LaunchedEffect(Unit) {
-        val startLevel = viewModel.consumePendingLevel() ?: prefs.currentLevel
+        val startLevel = 149//viewModel.consumePendingLevel() ?: prefs.currentLevel
         viewModel.startLevel(startLevel)
     }
 
@@ -59,8 +68,8 @@ fun GameScreen(
                 .then(if (shouldBlur) Modifier.blur(8.dp) else Modifier)
         ) {
             // Distinct branded header band (rounded bottom + subtle gradient)
-            androidx.compose.material3.Surface(
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(
+            Surface(
+                shape = RoundedCornerShape(
                     bottomStart = 28.dp, bottomEnd = 28.dp
                 ),
                 color = MaterialTheme.colorScheme.surface,
@@ -68,10 +77,10 @@ fun GameScreen(
             ) {
                 Column(
                     modifier = Modifier.background(
-                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                        Brush.verticalGradient(
                             listOf(
                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                                androidx.compose.ui.graphics.Color.Transparent
+                                Color.Transparent
                             )
                         )
                     )
@@ -173,5 +182,177 @@ fun GameScreen(
                 )
             }
         }
+    }
+}
+
+// ======================= PREVIEWS =======================
+
+/**
+ * Preview-friendly version of game screen content (no ViewModel needed).
+ */
+@Composable
+private fun GameScreenPreviewContent(
+    level: Int = 5,
+    arrows: List<Arrow>,
+    gridRows: Int = 8,
+    gridCols: Int = 8,
+    lives: Int = 3,
+    shapeName: String = "Spiral",
+    difficultyLabel: String = "Medium",
+    hintsRemaining: Int = 2,
+    showLevelComplete: Boolean = false,
+    showOutOfLives: Boolean = false
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(if (showLevelComplete || showOutOfLives) Modifier.blur(8.dp) else Modifier)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp),
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 3.dp
+            ) {
+                Column(
+                    modifier = Modifier.background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+                ) {
+                    GameTopBar(level = level, onBackClick = {})
+                    GameStatsRow(
+                        remainingArrows = arrows.count { it.isActive },
+                        lives = lives,
+                        difficultyLabel = difficultyLabel
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                GameBoard(
+                    arrows = arrows,
+                    gridRows = gridRows,
+                    gridCols = gridCols,
+                    escapingArrows = emptyMap(),
+                    shakingArrows = emptySet(),
+                    hintArrowId = arrows.firstOrNull()?.id,
+                    onArrowTap = {}
+                )
+            }
+
+            GameBottomBar(
+                shapeName = shapeName,
+                hintsRemaining = hintsRemaining,
+                onHintClick = {}
+            )
+        }
+
+        if (showLevelComplete) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                LevelCompleteOverlay(
+                    level = level,
+                    timeSeconds = 45,
+                    mistakes = 1,
+                    shapeName = shapeName,
+                    difficultyLabel = difficultyLabel,
+                    onNextLevel = {},
+                    onHome = {}
+                )
+            }
+        }
+
+        if (showOutOfLives) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                OutOfLivesModal(
+                    clearedPercentage = 67,
+                    isAdAvailable = true,
+                    onContinueClick = {},
+                    onRestartClick = {}
+                )
+            }
+        }
+    }
+}
+
+private fun createPreviewArrows(shape: LevelShape, gridSize: Int = 8): List<Arrow> {
+    val validCells = shape.validCells(gridSize, gridSize)
+    if (validCells.isEmpty()) return emptyList()
+    
+    val directions = Direction.entries
+    return validCells.filterIndexed { index, _ -> index % 3 == 0 }.take(10).mapIndexed { idx, (row, col) ->
+        Arrow(
+            id = idx,
+            cells = listOf(Cell(row, col)),
+            direction = directions[idx % directions.size],
+            isActive = true
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Game - Playing")
+@Composable
+private fun GameScreenPreviewPlaying() {
+    ArrowEscapeTheme {
+        GameScreenPreviewContent(
+            level = 5,
+            arrows = createPreviewArrows(LevelShape.BUTTERFLY, 8),
+            shapeName = "Spiral",
+            difficultyLabel = "Hard"
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Game - Level Complete")
+@Composable
+private fun GameScreenPreviewLevelComplete() {
+    ArrowEscapeTheme(darkTheme = true) {
+        GameScreenPreviewContent(
+            level = 12,
+            arrows = emptyList(),
+            shapeName = "Crown",
+            difficultyLabel = "Hard",
+            showLevelComplete = true
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Game - Out of Lives")
+@Composable
+private fun GameScreenPreviewOutOfLives() {
+    ArrowEscapeTheme {
+        GameScreenPreviewContent(
+            level = 8,
+            arrows = createPreviewArrows(LevelShape.RING),
+            lives = 0,
+            shapeName = "Ring",
+            difficultyLabel = "Medium",
+            showOutOfLives = true
+        )
     }
 }

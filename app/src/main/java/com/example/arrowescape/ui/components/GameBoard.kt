@@ -6,7 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -19,7 +23,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.arrowescape.game.level.LevelShape
 import com.example.arrowescape.game.model.Arrow
 import com.example.arrowescape.game.model.Cell
 import com.example.arrowescape.game.model.Direction
@@ -103,8 +110,9 @@ fun GameBoard(
                 )
             )
     ) {
-        val boardW = constraints.maxWidth.toFloat()
-        val boardH = constraints.maxHeight.toFloat()
+        // Using constraints from BoxWithConstraintsScope
+        val boardW = this.constraints.maxWidth.toFloat()
+        val boardH = this.constraints.maxHeight.toFloat()
         val cell = minOf(boardW / gridCols, boardH / gridRows)
         val gridW = cell * gridCols
         val gridH = cell * gridRows
@@ -333,4 +341,147 @@ private fun pointAlong(pts: List<Offset>, cum: FloatArray, s: Float): Offset {
         pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t,
         pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t
     )
+}
+
+// ======================= PREVIEWS =======================
+
+/**
+ * Creates sample arrows for a given shape - useful for preview testing.
+ */
+private fun createSampleArrows(shape: LevelShape, gridSize: Int = 8): List<Arrow> {
+    val validCells = shape.validCells(gridSize, gridSize)
+    if (validCells.isEmpty()) return emptyList()
+    
+    val arrows = mutableListOf<Arrow>()
+    val directions = Direction.entries
+    
+    // Create arrows at valid cells (every 3rd cell to avoid overlap)
+    validCells.filterIndexed { index, _ -> index % 3 == 0 }.take(8).forEachIndexed { idx, (row, col) ->
+        val dir = directions[idx % directions.size]
+        arrows.add(
+            Arrow(
+                id = idx,
+                cells = listOf(Cell(row, col)),
+                direction = dir,
+                isActive = true
+            )
+        )
+    }
+    return arrows
+}
+
+@Preview(showBackground = true, name = "GameBoard - Square")
+@Composable
+private fun GameBoardPreviewSquare() {
+    ArrowEscapeTheme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            GameBoard(
+                arrows = createSampleArrows(LevelShape.SQUARE),
+                gridRows = 8,
+                gridCols = 8,
+                escapingArrows = emptyMap(),
+                shakingArrows = emptySet(),
+                hintArrowId = 0,
+                onArrowTap = {},
+                modifier = Modifier.size(300.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GameBoard - Spiral (Hard)")
+@Composable
+private fun GameBoardPreviewSpiral() {
+    ArrowEscapeTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    "SPIRAL",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE91E63)
+                )
+                Spacer(Modifier.height(8.dp))
+                GameBoard(
+                    arrows = createSampleArrows(LevelShape.SPIRAL, 10),
+                    gridRows = 10,
+                    gridCols = 10,
+                    escapingArrows = emptyMap(),
+                    shakingArrows = emptySet(),
+                    hintArrowId = null,
+                    onArrowTap = {},
+                    modifier = Modifier.size(280.dp)
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GameBoard - All Hard Shapes", widthDp = 400, heightDp = 600)
+@Composable
+private fun GameBoardPreviewAllHardShapes() {
+    val hardShapes = listOf(
+        LevelShape.SPIRAL to "Spiral",
+        LevelShape.LIGHTNING to "Lightning", 
+        LevelShape.CROWN to "Crown",
+        LevelShape.RING to "Ring",
+        LevelShape.BUTTERFLY to "Butterfly"
+    )
+    
+    ArrowEscapeTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    "HARD SHAPES - GameBoard Preview",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE91E63),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                hardShapes.chunked(2).forEach { rowShapes ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowShapes.forEach { (shape, name) ->
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White
+                                )
+                                GameBoard(
+                                    arrows = createSampleArrows(shape, 8),
+                                    gridRows = 8,
+                                    gridCols = 8,
+                                    escapingArrows = emptyMap(),
+                                    shakingArrows = emptySet(),
+                                    hintArrowId = null,
+                                    onArrowTap = {},
+                                    modifier = Modifier.size(150.dp)
+                                )
+                            }
+                        }
+                        // Fill empty space if odd number
+                        if (rowShapes.size == 1) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

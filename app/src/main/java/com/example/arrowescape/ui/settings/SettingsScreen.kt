@@ -1,6 +1,7 @@
 package com.example.arrowescape.ui.settings
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -377,6 +378,46 @@ private fun StatItem(
             text = label,
             style = MaterialTheme.typography.bodySmall,
             color = ArrowEscapeTheme.gameColors.textSecondary
+        )
+    }
+}
+
+// ======================= PREVIEWS =======================
+
+@Preview(showBackground = true, name = "Settings - Light")
+@Composable
+private fun SettingsScreenPreviewLight() {
+    ArrowEscapeTheme(darkTheme = false) {
+        SettingsScreen(
+            prefs = GamePreferences.Prefs(
+                currentLevel = 15,
+                highestLevel = 23,
+                totalLevelsCompleted = 22,
+                soundEnabled = true,
+                hapticsEnabled = false
+            ),
+            onSoundToggle = {},
+            onHapticsToggle = {},
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Settings - Dark")
+@Composable
+private fun SettingsScreenPreviewDark() {
+    ArrowEscapeTheme(darkTheme = true) {
+        SettingsScreen(
+            prefs = GamePreferences.Prefs(
+                currentLevel = 42,
+                highestLevel = 42,
+                totalLevelsCompleted = 41,
+                soundEnabled = false,
+                hapticsEnabled = true
+            ),
+            onSoundToggle = {},
+            onHapticsToggle = {},
+            onBackClick = {}
         )
     }
 }
