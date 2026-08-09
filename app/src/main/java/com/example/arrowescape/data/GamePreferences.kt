@@ -113,15 +113,12 @@ class GamePreferences(private val context: Context) {
             val existing = prefs[KEY_LEVEL_STARS] ?: ""
             val starsMap = existing.split(",")
                 .filter { it.contains(":") }
-                .mapNotNull { entry ->
+                .associate { entry ->
                     val parts = entry.split(":")
-                    if (parts.size == 2) {
-                        val l = parts[0].toIntOrNull()
-                        val s = parts[1].toIntOrNull()
-                        if (l != null && s != null) l to s else null
-                    } else null
+                    val l = parts[0].toIntOrNull() ?: 0
+                    val s = parts[1].toIntOrNull() ?: 0
+                    l to s
                 }
-                .toMap()
                 .toMutableMap()
             
             // Only update if new stars are better than existing
