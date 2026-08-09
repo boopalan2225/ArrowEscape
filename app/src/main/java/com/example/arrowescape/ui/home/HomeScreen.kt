@@ -206,50 +206,84 @@ private fun AnimatedLogo() {
         CornerArrow(Alignment.BottomEnd, Color(0xFF22D45E), "↘")
     )
 
+    // Glow color from reference: rgba(43,111,255) = #2B6FFF
+    val glowColor = Color(0xFF2B6FFF)
+
+    // Outer container for layered glow effect
     Box(
         modifier = Modifier
             .scale(scale)
-            .rotate(rotation)
-            .size(90.dp)
-            .shadow(
-                elevation = 24.dp,
-                shape = RoundedCornerShape(26.dp),
-                ambientColor = Color(0xFF2B6FFF).copy(alpha = 0.5f),
-                spotColor = Color(0xFF2B6FFF).copy(alpha = 0.5f)
-            )
-            .clip(RoundedCornerShape(26.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF0D2060),
-                        Color(0xFF2B6FFF)
-                    ),
-                    // 135deg = top-left to bottom-right diagonal
-                    start = androidx.compose.ui.geometry.Offset.Zero,
-                    end = androidx.compose.ui.geometry.Offset.Infinite
-                )
-            ),
+            .rotate(rotation),
         contentAlignment = Alignment.Center
     ) {
-        // Center arrow
-        Text(
-            text = "→",
-            fontSize = 42.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
+        // Layer 1: Outer glow (100px blur, 0.2 alpha)
+        Box(
+            modifier = Modifier
+                .size(90.dp)
+                .shadow(
+                    elevation = 50.dp,
+                    shape = RoundedCornerShape(26.dp),
+                    ambientColor = glowColor.copy(alpha = 0.2f),
+                    spotColor = glowColor.copy(alpha = 0.2f)
+                )
         )
-
-        // Corner mini-arrows
-        cornerArrows.forEach { arrow ->
+        
+        // Layer 2: Inner glow (50px blur, 0.5 alpha)
+        Box(
+            modifier = Modifier
+                .size(90.dp)
+                .shadow(
+                    elevation = 25.dp,
+                    shape = RoundedCornerShape(26.dp),
+                    ambientColor = glowColor.copy(alpha = 0.5f),
+                    spotColor = glowColor.copy(alpha = 0.5f)
+                )
+        )
+        
+        // Layer 3: Drop shadow (12px offset, 32px blur)
+        // Main logo box
+        Box(
+            modifier = Modifier
+                .size(90.dp)
+                .shadow(
+                    elevation = 16.dp,
+                    shape = RoundedCornerShape(26.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.5f),
+                    spotColor = Color.Black.copy(alpha = 0.5f)
+                )
+                .clip(RoundedCornerShape(26.dp))
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF0D2060),
+                            Color(0xFF2B6FFF)
+                        ),
+                        start = androidx.compose.ui.geometry.Offset.Zero,
+                        end = androidx.compose.ui.geometry.Offset.Infinite
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            // Center arrow
             Text(
-                text = arrow.symbol,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Black,
-                color = arrow.color,
-                modifier = Modifier
-                    .align(arrow.alignment)
-                    .padding(6.dp)
+                text = "→",
+                fontSize = 42.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
+
+            // Corner mini-arrows
+            cornerArrows.forEach { arrow ->
+                Text(
+                    text = arrow.symbol,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Black,
+                    color = arrow.color,
+                    modifier = Modifier
+                        .align(arrow.alignment)
+                        .padding(6.dp)
+                )
+            }
         }
     }
 }
