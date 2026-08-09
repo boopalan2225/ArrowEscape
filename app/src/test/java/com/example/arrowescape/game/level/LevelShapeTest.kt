@@ -65,4 +65,52 @@ class LevelShapeTest {
             assertEquals(LevelShape.forLevel(level), LevelShape.forLevel(level))
         }
     }
+
+    // --- Hard category shape tests ---
+
+    @Test
+    fun `ring has hollow center`() {
+        val rows = 9
+        val cols = 9
+        // Center should be hollow (excluded)
+        assertFalse("Ring center should be hollow", LevelShape.RING.contains(rows / 2, cols / 2, rows, cols))
+        // But edges of the ring should be included
+        assertTrue("Ring edge should be included", LevelShape.RING.contains(rows / 2, 0, rows, cols))
+    }
+
+    @Test
+    fun `butterfly includes center body`() {
+        val rows = 10
+        val cols = 10
+        // Center column should be included (the body)
+        assertTrue("Butterfly body center", LevelShape.BUTTERFLY.contains(rows / 2, cols / 2, rows, cols))
+    }
+
+    @Test
+    fun `crown has wide base`() {
+        val rows = 10
+        val cols = 10
+        // Bottom row (base) should be included near center
+        assertTrue("Crown base", LevelShape.CROWN.contains(rows - 1, cols / 2, rows, cols))
+    }
+
+    @Test
+    fun `lightning produces continuous path`() {
+        val rows = 10
+        val cols = 10
+        // Should have cells throughout vertically
+        val cells = LevelShape.LIGHTNING.validCells(rows, cols)
+        val rowsWithCells = cells.map { it.first }.toSet()
+        // Should span most rows
+        assertTrue("Lightning spans vertically", rowsWithCells.size >= rows - 2)
+    }
+
+    @Test
+    fun `spiral produces enough cells`() {
+        val rows = 10
+        val cols = 10
+        val cells = LevelShape.SPIRAL.validCells(rows, cols)
+        // Spiral should have a reasonable number of cells (not too sparse)
+        assertTrue("Spiral has substantial cells", cells.size >= 20)
+    }
 }

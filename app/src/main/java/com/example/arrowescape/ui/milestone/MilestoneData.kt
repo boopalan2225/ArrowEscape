@@ -18,7 +18,7 @@ data class Milestone(
 
 object MilestoneData {
 
-    const val TOTAL_LEVELS = 100
+    const val TOTAL_LEVELS = 150
     const val LEVELS_PER_MILESTONE = 10
 
     val milestones: List<Milestone> = listOf(
@@ -31,7 +31,13 @@ object MilestoneData {
         Milestone(6, 61, 70, "Hexa Hive", LevelShape.HEXAGON, "\u2B22"),
         Milestone(7, 71, 80, "Star Power", LevelShape.STAR, "\uD83C\uDF1F"),
         Milestone(8, 81, 90, "Eclipse", LevelShape.CRESCENT, "\uD83C\uDF19"),
-        Milestone(9, 91, 100, "Grand Finale", LevelShape.LETTER_X, "\uD83C\uDFC6")
+        Milestone(9, 91, 100, "X Marks It", LevelShape.LETTER_X, "\u2716\uFE0F"),
+        // Hard category shapes
+        Milestone(10, 101, 110, "Spiral Madness", LevelShape.SPIRAL, "\uD83C\uDF00"),
+        Milestone(11, 111, 120, "Storm Surge", LevelShape.LIGHTNING, "\u26A1"),
+        Milestone(12, 121, 130, "Royal Challenge", LevelShape.CROWN, "\uD83D\uDC51"),
+        Milestone(13, 131, 140, "Ring Master", LevelShape.RING, "\uD83D\uDCAD"),
+        Milestone(14, 141, 150, "Grand Finale", LevelShape.BUTTERFLY, "\uD83E\uDD8B")
     )
 
     fun milestoneForLevel(level: Int): Milestone {

@@ -24,7 +24,13 @@ enum class LevelShape(val displayName: String) {
     HOURGLASS("Hourglass"),
     ARROW_UP("Arrow"),
     LETTER_X("X Mark"),
-    CRESCENT("Crescent");
+    CRESCENT("Crescent"),
+    // Hard category shapes
+    SPIRAL("Spiral"),
+    LIGHTNING("Lightning"),
+    CROWN("Crown"),
+    RING("Ring"),
+    BUTTERFLY("Butterfly");
 
     fun contains(row: Int, col: Int, rows: Int, cols: Int): Boolean = when (this) {
         SQUARE -> true
@@ -40,6 +46,12 @@ enum class LevelShape(val displayName: String) {
         ARROW_UP -> isInArrowUp(row, col, rows, cols)
         LETTER_X -> isInLetterX(row, col, rows, cols)
         CRESCENT -> isInCrescent(row, col, rows, cols)
+        // Hard category
+        SPIRAL -> isInSpiral(row, col, rows, cols)
+        LIGHTNING -> isInLightning(row, col, rows, cols)
+        CROWN -> isInCrown(row, col, rows, cols)
+        RING -> isInRing(row, col, rows, cols)
+        BUTTERFLY -> isInButterfly(row, col, rows, cols)
     }
 
     fun validCells(rows: Int, cols: Int): List<Pair<Int, Int>> {
@@ -67,7 +79,10 @@ enum class LevelShape(val displayName: String) {
                 level <= 70 -> listOf(
                     CIRCLE, HEART, CROSS, STAR, HEXAGON, OVAL, HOURGLASS, ARROW_UP, LETTER_X
                 )
-                else -> entries.toList() // everything, including CRESCENT
+                level <= 90 -> listOf(
+                    HEART, STAR, HOURGLASS, ARROW_UP, LETTER_X, CRESCENT, SPIRAL, LIGHTNING
+                )
+                else -> entries.toList() // everything, including hard shapes
             }
             return pool[level % pool.size]
         }
@@ -158,4 +173,106 @@ private fun isInCrescent(row: Int, col: Int, rows: Int, cols: Int): Boolean {
     val ox = (col - (cx + cols * 0.30f)) / (cols / 2f); val oy = ny
     val inSmall = ox * ox + oy * oy <= 0.85f
     return inBig && !inSmall
+}
+
+// --- Hard category shapes ---
+
+/**
+ * Spiral: winding path from outside to center. Disorienting and fun.
+ */
+private fun isInSpiral(row: Int, col: Int, rows: Int, cols: Int): Boolean {
+    val cx = (cols - 1) / 2f; val cy = (rows - 1) / 2f
+    val dx = col - cx; val dy = row - cy
+    val dist = sqrt(dx * dx + dy * dy)
+    val angle = kotlin.math.atan2(dy.toDouble(), dx.toDouble())
+    // Spiral arm: distance should be proportional to angle (with wrapping)
+    val normalizedAngle = (angle + kotlin.math.PI) / (2 * kotlin.math.PI) // 0 to 1
+    val spiralRadius = (normalizedAngle * 0.6f + 0.2f) * (cols / 2f)
+    val armThickness = cols / 5f
+    // Multiple spiral arms by modulating
+    val armDist = abs(dist - spiralRadius) % (cols / 3f)
+    return armDist <= armThickness && dist <= cols / 2f
+}
+
+/**
+ * Lightning bolt: zigzag flash pattern. Narrow and tricky.
+ */
+private fun isInLightning(row: Int, col: Int, rows: Int, cols: Int): Boolean {
+    val cx = (cols - 1) / 2f
+    val progress = row.toFloat() / (rows - 1) // 0 at top, 1 at bottom
+    val thickness = cols / 5f
+    // Zigzag center line shifts left/right based on row sections
+    val segment = (row * 5) / rows // 0-4 segments
+    val zigzagOffset = when (segment) {
+        0 -> 0f
+        1 -> cols * 0.25f
+        2 -> -cols * 0.15f
+        3 -> cols * 0.20f
+        else -> 0f
+    }
+    val centerX = cx + zigzagOffset
+    return abs(col - centerX) <= thickness
+}
+
+/**
+ * Crown: royal shape with 3-5 points at top, solid base.
+ */
+private fun isInCrown(row: Int, col: Int, rows: Int, cols: Int): Boolean {
+    val cx = (cols - 1) / 2f
+    // Bottom half is solid rectangle (crown base)
+    if (row >= rows * 0.6f) {
+        return abs(col - cx) <= cols * 0.4f
+    }
+    // Top half has peaks
+    val progress = row.toFloat() / (rows * 0.6f) // 0 at top, 1 at base
+    val numPeaks = 3
+    val peakWidth = cols.toFloat() / (numPeaks * 2)
+    // Check if we're in any peak
+    for (i in 0 until numPeaks) {
+        val peakCenter = cols * (0.2f + 0.3f * i)
+        val peakHeight = 1.0f - abs(col - peakCenter) / peakWidth
+        if (peakHeight > 0f && progress >= (1.0f - peakHeight)) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
+ * Ring/Donut: hollow circle - center is cut out.
+ */
+private fun isInRing(row: Int, col: Int, rows: Int, cols: Int): Boolean {
+    val cx = (cols - 1) / 2f; val cy = (rows - 1) / 2f
+    val dx = (col - cx) / (cols / 2f); val dy = (row - cy) / (rows / 2f)
+    val distSq = dx * dx + dy * dy
+    // Inside outer circle but outside inner circle (hole)
+    return distSq <= 1.02f && distSq >= 0.25f
+}
+
+/**
+ * Butterfly: two symmetrical wings with narrow body in center.
+ */
+private fun isInButterfly(row: Int, col: Int, rows: Int, cols: Int): Boolean {
+    val cx = (cols - 1) / 2f; val cy = (rows - 1) / 2f
+    val nx = abs(col - cx) / (cols / 2f); val ny = abs(row - cy) / (rows / 2f)
+    
+    // Narrow body in center (vertical strip)
+    if (nx <= 0.15f) return true
+    
+    // Wings: ellipses on each side, vertically stacked
+    // Upper wings
+    val wingCenterY = 0.4f
+    val wingCenterX = 0.55f
+    val wingRadX = 0.45f
+    val wingRadY = 0.5f
+    val dxWing = (nx - wingCenterX) / wingRadX
+    val dyWingUpper = ((row.toFloat() / rows) - 0.3f) / wingRadY
+    val dyWingLower = ((row.toFloat() / rows) - 0.7f) / wingRadY
+    
+    // Check upper wing
+    if (dxWing * dxWing + dyWingUpper * dyWingUpper <= 1.0f && nx > 0.15f) return true
+    // Check lower wing
+    if (dxWing * dxWing + dyWingLower * dyWingLower <= 1.0f && nx > 0.15f) return true
+    
+    return false
 }
