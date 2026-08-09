@@ -3,7 +3,6 @@ package com.example.arrowescape.ui.home
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -173,71 +172,80 @@ fun HomeScreen(
 
 @Composable
 private fun AnimatedLogo() {
-    val gameColors = ArrowEscapeTheme.gameColors
+    // Spin-in animation on first appearance
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
     
-    // Continuous rotation animation
-    val infiniteTransition = rememberInfiniteTransition(label = "logoAnimation")
-    
-    val rotation1 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+    val rotation by animateFloatAsState(
+        targetValue = if (visible) 0f else -180f,
+        animationSpec = spring(
+            dampingRatio = 0.6f,
+            stiffness = Spring.StiffnessLow
         ),
-        label = "rotation1"
+        label = "spinIn"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = 0.5f,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "scaleIn"
+    )
+
+    // Corner arrow definitions: position, color, symbol
+    data class CornerArrow(
+        val alignment: Alignment,
+        val color: Color,
+        val symbol: String
+    )
+    val cornerArrows = listOf(
+        CornerArrow(Alignment.TopCenter, Color(0xFF4D88FF), "↑"),
+        CornerArrow(Alignment.TopEnd, Color(0xFFEF4444), "↗"),
+        CornerArrow(Alignment.BottomStart, Color(0xFFF5A623), "↙"),
+        CornerArrow(Alignment.BottomEnd, Color(0xFF22D45E), "↘")
     )
 
     Box(
-        modifier = Modifier.size(120.dp),
+        modifier = Modifier
+            .scale(scale)
+            .rotate(rotation)
+            .size(90.dp)
+            .shadow(
+                elevation = 24.dp,
+                shape = RoundedCornerShape(26.dp),
+                ambientColor = Color(0xFF2B6FFF).copy(alpha = 0.5f),
+                spotColor = Color(0xFF2B6FFF).copy(alpha = 0.5f)
+            )
+            .clip(RoundedCornerShape(26.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF0D2060),
+                        Color(0xFF2B6FFF)
+                    )
+                )
+            ),
         contentAlignment = Alignment.Center
     ) {
-        // Outer rotating ring of arrows
-        Box(modifier = Modifier.rotate(rotation1)) {
-            // Arrow indicators around the logo
-            listOf(0f, 90f, 180f, 270f).forEachIndexed { index, angle ->
-                val color = when (index) {
-                    0 -> gameColors.arrowUp
-                    1 -> gameColors.arrowRight
-                    2 -> gameColors.arrowDown
-                    else -> gameColors.arrowLeft
-                }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .rotate(angle)
-                        .offset(y = (-45).dp)
-                ) {
-                    Text(
-                        text = "\u2191",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = color
-                    )
-                }
-            }
-        }
+        // Center arrow
+        Text(
+            text = "→",
+            fontSize = 42.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
 
-        // Center circle
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
+        // Corner mini-arrows
+        cornerArrows.forEach { arrow ->
             Text(
-                text = "\u2192",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                text = arrow.symbol,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Black,
+                color = arrow.color,
+                modifier = Modifier
+                    .align(arrow.alignment)
+                    .padding(6.dp)
             )
         }
     }
