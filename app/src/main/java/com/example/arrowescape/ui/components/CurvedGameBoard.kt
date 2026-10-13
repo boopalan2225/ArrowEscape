@@ -98,15 +98,24 @@ fun CurvedGameBoard(
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures { tap ->
-                        // Convert tap to shape coordinates
-                        val shapeX = tap.x / scaleX
-                        val shapeY = tap.y / scaleY
-                        val tapPoint = Point2D(shapeX, shapeY)
-                        
-                        // Find tapped arrow
-                        val tapped = latestArrows.firstOrNull { arrow ->
-                            arrow.isActive && arrow.isNear(tapPoint, 20f)
-                        }
+                        val tapPoint = Point2D(tap.x / scaleX, tap.y / scaleY)
+
+                        // Pick the NEAREST arrow, not the first match. With dense
+                        // packing several arrows sit inside one fingertip, and
+                        // first-match meant taps landed on whichever happened to
+                        // be generated earliest.
+                        val tapRadius = 22f
+                        val tapped = latestArrows
+                            .filter { it.isActive }
+                            .mapNotNull { arrow ->
+                                arrow.polyline
+                                    .minOfOrNull { it.distanceTo(tapPoint) }
+                                    ?.let { arrow to it }
+                            }
+                            .filter { it.second <= tapRadius }
+                            .minByOrNull { it.second }
+                            ?.first
+
                         tapped?.let { latestOnArrowTap(it) }
                     }
                 }
@@ -135,6 +144,10 @@ fun CurvedGameBoard(
 
 /**
  * Draw a single curved arrow with bezier paths.
+ *
+ * Escape is rendered as the arrow flying off along its own heading with a
+ * motion-blur trail, rather than shrinking in place - a dissolving arrow read
+ * as "deleted", not "escaped", which hid the whole point of the mechanic.
  */
 private fun DrawScope.drawCurvedArrow(
     arrow: CurvedArrow,
@@ -146,48 +159,49 @@ private fun DrawScope.drawCurvedArrow(
     hintGlow: Float
 ) {
     if (arrow.segments.isEmpty()) return
-    
+
     val color = Color(arrow.color)
     val strokeWidth = arrow.strokeWidth * ((scaleX + scaleY) / 2)
-    
-    // Build the path
-    val path = Path()
-    var isFirst = true
-    
-    for (segment in arrow.segments) {
-        // Apply escape animation - shrink from tail
-        val adjustedSegment = if (escapeProgress > 0f) {
-            // Calculate how much of this segment should be visible
-            val segmentStart = arrow.segments.indexOf(segment).toFloat() / arrow.segments.size
-            val segmentEnd = (arrow.segments.indexOf(segment) + 1).toFloat() / arrow.segments.size
-            
-            if (escapeProgress >= segmentEnd) {
-                null // This segment has escaped
-            } else if (escapeProgress > segmentStart) {
-                // Partially visible - trim from start
-                val localProgress = (escapeProgress - segmentStart) / (segmentEnd - segmentStart)
-                segment.splitAt(localProgress).second
-            } else {
-                segment
-            }
-        } else {
-            segment
+
+    // Ease-in flight: slow lift-off, then snap away.
+    val eased = escapeProgress * escapeProgress * (3f - 2f * escapeProgress)
+    val flightDistance = (size.width + size.height) * 0.75f * eased
+    val heading = arrow.direction
+    val travel = Offset(heading.x * flightDistance, heading.y * flightDistance)
+    val alpha = (1f - escapeProgress * escapeProgress).coerceIn(0f, 1f)
+
+    fun buildPath(extra: Offset): Path {
+        val path = Path()
+        arrow.segments.forEachIndexed { i, seg ->
+            fun map(p: com.example.arrowescape.game.curve.Point2D) = Offset(
+                p.x * scaleX + shakeOffset + extra.x,
+                p.y * scaleY + extra.y
+            )
+            if (i == 0) map(seg.p0).let { path.moveTo(it.x, it.y) }
+            val c1 = map(seg.p1)
+            val c2 = map(seg.p2)
+            val end = map(seg.p3)
+            path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y)
         }
-        
-        adjustedSegment?.let { seg ->
-            val p0 = Offset(seg.p0.x * scaleX + shakeOffset, seg.p0.y * scaleY)
-            val p1 = Offset(seg.p1.x * scaleX + shakeOffset, seg.p1.y * scaleY)
-            val p2 = Offset(seg.p2.x * scaleX + shakeOffset, seg.p2.y * scaleY)
-            val p3 = Offset(seg.p3.x * scaleX + shakeOffset, seg.p3.y * scaleY)
-            
-            if (isFirst) {
-                path.moveTo(p0.x, p0.y)
-                isFirst = false
-            }
-            path.cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
+        return path
+    }
+
+    // Motion-blur trail while escaping.
+    if (escapeProgress > 0f) {
+        val trailCount = 3
+        for (i in trailCount downTo 1) {
+            val lag = i.toFloat() / (trailCount + 1)
+            val ghost = Offset(travel.x * (1f - lag), travel.y * (1f - lag))
+            drawPath(
+                path = buildPath(ghost),
+                color = color.copy(alpha = alpha * 0.18f * (1f - lag)),
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            )
         }
     }
-    
+
+    val path = buildPath(travel)
+
     // Draw hint glow
     if (isHinted) {
         drawPath(
@@ -200,9 +214,8 @@ private fun DrawScope.drawCurvedArrow(
             )
         )
     }
-    
+
     // Draw the arrow body
-    val alpha = if (escapeProgress > 0f) 1f - escapeProgress * 0.3f else 1f
     drawPath(
         path = path,
         color = color.copy(alpha = alpha),
@@ -212,44 +225,24 @@ private fun DrawScope.drawCurvedArrow(
             join = StrokeJoin.Round
         )
     )
-    
+
     // Draw arrowhead at the tip
-    if (escapeProgress < 0.9f) {
-        val tipT = 1f - escapeProgress.coerceIn(0f, 0.8f)
-        val tip = arrow.pointAt(tipT)
-        val tangent = arrow.tangentAt(tipT)
-        
-        val tipX = tip.x * scaleX + shakeOffset
-        val tipY = tip.y * scaleY
-        val headLength = strokeWidth * 2.5f
-        val headWidth = strokeWidth * 1.8f
-        
-        val angle = kotlin.math.atan2(tangent.y, tangent.x)
-        
-        val arrowPath = Path().apply {
-            // Tip point
-            moveTo(
-                tipX + cos(angle) * headLength,
-                tipY + sin(angle) * headLength
-            )
-            // Left wing
-            lineTo(
-                tipX + cos(angle + 2.5f) * headWidth,
-                tipY + sin(angle + 2.5f) * headWidth
-            )
-            // Back to center-ish
-            lineTo(tipX, tipY)
-            // Right wing
-            lineTo(
-                tipX + cos(angle - 2.5f) * headWidth,
-                tipY + sin(angle - 2.5f) * headWidth
-            )
-            close()
-        }
-        
-        drawPath(
-            path = arrowPath,
-            color = color.copy(alpha = alpha)
-        )
+    val tip = arrow.endPoint
+    val tangent = arrow.direction
+    val tipX = tip.x * scaleX + shakeOffset + travel.x
+    val tipY = tip.y * scaleY + travel.y
+    val headLength = strokeWidth * 2.5f
+    val headWidth = strokeWidth * 1.8f
+    val angle = kotlin.math.atan2(tangent.y, tangent.x)
+
+    val arrowPath = Path().apply {
+        moveTo(tipX + cos(angle) * headLength, tipY + sin(angle) * headLength)
+        lineTo(tipX + cos(angle + 2.5f) * headWidth, tipY + sin(angle + 2.5f) * headWidth)
+        lineTo(tipX, tipY)
+        lineTo(tipX + cos(angle - 2.5f) * headWidth, tipY + sin(angle - 2.5f) * headWidth)
+        close()
     }
+
+    drawPath(path = arrowPath, color = color.copy(alpha = alpha))
 }
+

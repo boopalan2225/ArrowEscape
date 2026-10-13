@@ -232,19 +232,33 @@ data class CurvedArrow(
     }
     
     /**
+     * Flattened polyline approximation of the whole arrow, cached.
+     * Single source of truth for hit-testing and collision - re-evaluating
+     * beziers on every query was the old performance sinkhole.
+     */
+    val polyline: List<Point2D> by lazy { samplePolyline(COLLISION_SAMPLE_STEP) }
+
+    /**
+     * Sample the arrow into roughly evenly spaced points, about [step] apart.
+     */
+    fun samplePolyline(step: Float): List<Point2D> {
+        if (segments.isEmpty()) return emptyList()
+        val count = (length / step).toInt().coerceIn(2, 160)
+        return (0..count).map { pointAt(it.toFloat() / count) }
+    }
+
+    /**
      * Check if a point is close to this arrow path.
      */
-    fun isNear(point: Point2D, threshold: Float): Boolean {
-        // Sample points along the curve and check distance
-        val steps = (length / 5f).toInt().coerceIn(10, 100)
-        for (i in 0..steps) {
-            val t = i.toFloat() / steps
-            if (pointAt(t).distanceTo(point) <= threshold) {
-                return true
-            }
-        }
-        return false
-    }
+    fun isNear(point: Point2D, threshold: Float): Boolean =
+        polyline.any { it.distanceTo(point) <= threshold }
+
+    /**
+     * Flip the arrowhead to the opposite end, keeping identical geometry.
+     */
+    fun reversed(): CurvedArrow = copy(
+        segments = segments.reversed().map { BezierSegment(it.p3, it.p2, it.p1, it.p0) }
+    )
     
     /**
      * Get the bounding box of this arrow.
@@ -252,12 +266,10 @@ data class CurvedArrow(
     fun getBounds(): Pair<Point2D, Point2D> {
         var minX = Float.MAX_VALUE
         var minY = Float.MAX_VALUE
-        var maxX = Float.MIN_VALUE
-        var maxY = Float.MIN_VALUE
+        var maxX = -Float.MAX_VALUE
+        var maxY = -Float.MAX_VALUE
         
-        val steps = 50
-        for (i in 0..steps) {
-            val p = pointAt(i.toFloat() / steps)
+        for (p in polyline) {
             if (p.x < minX) minX = p.x
             if (p.y < minY) minY = p.y
             if (p.x > maxX) maxX = p.x
@@ -273,6 +285,9 @@ data class CurvedArrow(
     fun withActive(active: Boolean) = copy(isActive = active)
     
     companion object {
+        /** Spacing used when flattening a curve for collision queries. */
+        const val COLLISION_SAMPLE_STEP = 6f
+
         /**
          * Create a simple curved arrow between two points.
          */

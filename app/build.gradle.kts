@@ -7,6 +7,14 @@ android {
     namespace = "com.example.arrowescape"
     compileSdk = 34
 
+    testOptions {
+        unitTests.all {
+            it.testLogging {
+                showStandardStreams = true
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.arrowescape"
         minSdk = 26

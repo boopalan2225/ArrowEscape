@@ -103,6 +103,20 @@ class CurvedGameViewModel(
     private var continueUsedThisLevel = false
     private var pendingLevel: Int? = null
 
+    /**
+     * Precomputed blocking graph for the level. Built once - arrow geometry
+     * never changes during play, only which arrows are still alive, so every
+     * tap is a set lookup rather than a geometric sweep.
+     */
+    private var blockingGraph: CurvedGameEngine.BlockingGraph? = null
+
+    private fun requireGraph(state: CurvedGameState): CurvedGameEngine.BlockingGraph =
+        blockingGraph ?: CurvedGameEngine.BlockingGraph(state.arrows, board()).also {
+            blockingGraph = it
+        }
+
+    private fun board() = CurvedGameEngine.Board(BOARD_WIDTH, BOARD_HEIGHT)
+
     // ─────────────────────────────────────────────────────────────────────
     // Haptics & Sound
     // ─────────────────────────────────────────────────────────────────────
@@ -175,7 +189,7 @@ class CurvedGameViewModel(
             _hintsRemaining.value = 2
             _combo.value = 0
             continueUsedThisLevel = false
-
+            blockingGraph = null
             analytics.trackLevelStarted(level, curvedLevel.arrows.size)
         }
     }
@@ -212,13 +226,10 @@ class CurvedGameViewModel(
             _gameState.value = currentState.copy(hintArrowId = null)
         }
 
-        // Check if arrow can escape
-        val canEscape = CurvedGameEngine.canEscape(
-            arrow = arrow,
-            allArrows = currentState.activeArrows,
-            shapeWidth = currentState.shape?.width ?: BOARD_WIDTH,
-            shapeHeight = currentState.shape?.height ?: BOARD_HEIGHT
-        )
+        // Judged against the BOARD, not the shape - arrows escape off-screen
+        // and the shape is only an art guide.
+        val liveIds = currentState.arrows.filter { it.isActive }.map { it.id }.toSet()
+        val canEscape = requireGraph(currentState).isFree(arrow.id, liveIds)
 
         if (canEscape) {
             handleValidMove(arrow)
@@ -345,11 +356,13 @@ class CurvedGameViewModel(
         val state = _gameState.value
         if (state.status != GameStatus.PLAYING) return
 
-        val hintArrow = CurvedGameEngine.findEscapableArrow(
-            arrows = state.activeArrows,
-            shapeWidth = state.shape?.width ?: BOARD_WIDTH,
-            shapeHeight = state.shape?.height ?: BOARD_HEIGHT
-        ) ?: return
+        // Prefer the arrow that frees the most neighbours, so the hint
+        // actually teaches the solution instead of naming any legal move.
+        val graph = requireGraph(state)
+        val liveIds = state.activeArrows.map { it.id }.toSet()
+        val free = state.activeArrows.filter { graph.isFree(it.id, liveIds) }
+        val unblockCount = liveIds.flatMap { graph.blockersOf(it) }.groupingBy { it }.eachCount()
+        val hintArrow = free.maxByOrNull { unblockCount[it.id] ?: 0 } ?: return
 
         _hintsRemaining.value = _hintsRemaining.value - 1
         _gameState.value = state.copy(hintArrowId = hintArrow.id)

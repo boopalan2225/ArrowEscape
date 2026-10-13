@@ -107,38 +107,120 @@ data class ShapePath(
     }
     
     /**
-     * Check if a point is inside this closed shape (ray casting).
+     * Offset (translate) the shape by the given amount.
      */
-    fun contains(point: Point2D): Boolean {
-        val segments = toOutlineSegments()
-        if (segments.isEmpty()) return false
+    fun offsetBy(dx: Float, dy: Float): ShapePath {
+        fun offsetPoint(p: Point2D) = Point2D(p.x + dx, p.y + dy)
         
-        // Ray casting algorithm - count intersections
-        var intersections = 0
-        val rayEnd = Point2D(width * 2, point.y)
-        
-        for (segment in segments) {
-            // Sample the segment and check for crossing
-            var prevY = segment.p0.y
-            for (i in 1..20) {
-                val t = i / 20f
-                val p = segment.pointAt(t)
-                
-                // Check if ray crosses this mini-segment
-                if ((prevY <= point.y && p.y > point.y) || (prevY > point.y && p.y <= point.y)) {
-                    // Calculate x at intersection
-                    val prevP = segment.pointAt((i - 1) / 20f)
-                    val ratio = (point.y - prevP.y) / (p.y - prevP.y)
-                    val intersectX = prevP.x + ratio * (p.x - prevP.x)
-                    if (intersectX > point.x) {
-                        intersections++
-                    }
-                }
-                prevY = p.y
+        val offsetCommands = commands.map { cmd ->
+            when (cmd) {
+                is PathCommand.MoveTo -> PathCommand.MoveTo(offsetPoint(cmd.point))
+                is PathCommand.LineTo -> PathCommand.LineTo(offsetPoint(cmd.point))
+                is PathCommand.CurveTo -> PathCommand.CurveTo(
+                    offsetPoint(cmd.control1),
+                    offsetPoint(cmd.control2),
+                    offsetPoint(cmd.end)
+                )
+                is PathCommand.QuadTo -> PathCommand.QuadTo(
+                    offsetPoint(cmd.control),
+                    offsetPoint(cmd.end)
+                )
+                is PathCommand.Close -> PathCommand.Close
             }
         }
         
-        return intersections % 2 == 1
+        return copy(commands = offsetCommands)
+    }
+    
+    /**
+     * Cached flattened outline. `contains()` is called tens of thousands of
+     * times during generation, so re-evaluating beziers each call was the
+     * single biggest cost in level building.
+     */
+    private val outlinePoints: List<Point2D> by lazy {
+        val pts = mutableListOf<Point2D>()
+        for (segment in toOutlineSegments()) {
+            val steps = (segment.approximateLength() / 4f).toInt().coerceIn(6, 48)
+            for (i in 0..steps) pts.add(segment.pointAt(i.toFloat() / steps))
+        }
+        pts
+    }
+
+    /**
+     * Check if a point is inside this closed shape (even-odd ray casting
+     * against the cached outline polygon).
+     */
+    fun contains(point: Point2D): Boolean {
+        val pts = outlinePoints
+        if (pts.size < 3) return false
+
+        var inside = false
+        var j = pts.size - 1
+        for (i in pts.indices) {
+            val pi = pts[i]
+            val pj = pts[j]
+            if ((pi.y > point.y) != (pj.y > point.y)) {
+                val x = pi.x + (point.y - pi.y) / (pj.y - pi.y) * (pj.x - pi.x)
+                if (x > point.x) inside = !inside
+            }
+            j = i
+        }
+        return inside
+    }
+
+    /**
+     * Actual bounding box of the outline. Shapes get translated onto the board,
+     * so `width`/`height` alone say nothing about *where* the shape lives.
+     */
+    val bounds: Pair<Point2D, Point2D> by lazy {
+        val pts = outlinePoints
+        if (pts.isEmpty()) Point2D.ZERO to Point2D(width, height)
+        else Point2D(pts.minOf { it.x }, pts.minOf { it.y }) to
+            Point2D(pts.maxOf { it.x }, pts.maxOf { it.y })
+    }
+
+    /** Centre of the outline's bounding box. */
+    val center: Point2D get() = bounds.first.lerp(bounds.second, 0.5f)
+
+    /**
+     * Approximate distance from [point] to the nearest outline point.
+     */
+    fun distanceToEdge(point: Point2D): Float =
+        outlinePoints.minOfOrNull { it.distanceTo(point) } ?: Float.MAX_VALUE
+
+    /**
+     * Heading of the outline where it runs closest to [point]. Drives
+     * CONTOUR flow, which is what gives fur/feather shapes their look.
+     */
+    fun edgeTangentAt(point: Point2D): Float {
+        val pts = outlinePoints
+        if (pts.size < 2) return 0f
+        var bestIndex = 0
+        var bestDistance = Float.MAX_VALUE
+        for (i in pts.indices) {
+            val d = pts[i].distanceTo(point)
+            if (d < bestDistance) {
+                bestDistance = d
+                bestIndex = i
+            }
+        }
+        val next = pts[(bestIndex + 1) % pts.size]
+        val prev = pts[(bestIndex - 1 + pts.size) % pts.size]
+        return prev.angleTo(next)
+    }
+
+    /**
+     * Binary-search the boundary crossing on the segment [inside] -> [outside].
+     */
+    fun clipToEdge(inside: Point2D, outside: Point2D): Point2D? {
+        if (!contains(inside)) return null
+        var lo = inside
+        var hi = outside
+        repeat(12) {
+            val mid = lo.lerp(hi, 0.5f)
+            if (contains(mid)) lo = mid else hi = mid
+        }
+        return lo
     }
     
     companion object {

@@ -1,7 +1,6 @@
 package com.example.arrowescape.game.curve
 
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -9,13 +8,13 @@ import kotlin.random.Random
 
 /**
  * Generates curved arrows that fill a shape with organic, flowing patterns.
- * 
+ *
  * The algorithm:
- * 1. Sample the shape outline to get contour points
- * 2. Generate flow field (direction at each point)
- * 3. Trace streamlines through the flow field
- * 4. Convert streamlines to curved arrows
- * 5. Ensure arrows don't overlap and can escape
+ * 1. Build a *continuous* flow field over the shape (no per-step randomness).
+ * 2. Seed points on a jittered hex lattice, visited nearest-the-edge first.
+ * 3. Trace streamlines with angular inertia so curves stay smooth.
+ * 4. Rasterise each accepted streamline into an occupancy grid so the next
+ *    arrow can pack tightly against it.
  */
 object CurveGenerator {
 
@@ -24,7 +23,8 @@ object CurveGenerator {
         val arrowMaxLength: Float = 150f,
         val arrowSpacing: Float = 12f,
         val strokeWidth: Float = 6f,
-        val bendiness: Float = 0.4f,  // 0 = straight, 1 = very curvy
+        val bendiness: Float = 0.4f,      // 0 = straight, 1 = very curvy
+        val swirl: Float = 0f,            // rotates the field, creates vortices
         val flowType: FlowType = FlowType.ORGANIC,
         val colorPalette: List<Long> = listOf(0xFF4A90D9)
     )
@@ -34,8 +34,12 @@ object CurveGenerator {
         RADIAL,       // From center outward
         HORIZONTAL,   // Left to right waves
         VERTICAL,     // Top to bottom waves
-        SPIRAL        // Spiral from center
+        SPIRAL,       // Spiral from center
+        CONTOUR       // Follows the shape outline, like feather/fur flow
     }
+
+    /** Turning rate cap, in radians per step. Keeps streamlines smooth. */
+    private const val MAX_TURN_PER_STEP = 0.22f
 
     /**
      * Generate curved arrows that fill the given shape.
@@ -45,215 +49,135 @@ object CurveGenerator {
         config: GenerationConfig = GenerationConfig(),
         random: Random = Random.Default
     ): List<CurvedArrow> {
+        if (shape.toOutlineSegments().isEmpty()) return emptyList()
+
+        val field = FlowField(shape, config)
+
+        // Packing radii are driven by stroke width, not seed spacing. Tying
+        // them to spacing made every arrow reserve a corridor wider than the
+        // ink it drew, which is why shapes came out nearly empty.
+        val seedClearance = config.arrowSpacing * 0.85f
+        val occupyRadius = config.strokeWidth * 0.9f
+        val collideRadius = config.strokeWidth * 0.7f
+
+        val (boundsMin, boundsMax) = shape.bounds
+        val grid = OccupancyGrid(
+            originX = boundsMin.x - occupyRadius * 2,
+            originY = boundsMin.y - occupyRadius * 2,
+            width = (boundsMax.x - boundsMin.x) + occupyRadius * 4,
+            height = (boundsMax.y - boundsMin.y) + occupyRadius * 4,
+            cellSize = (config.strokeWidth * 0.5f).coerceAtLeast(2f)
+        )
         val arrows = mutableListOf<CurvedArrow>()
-        val occupiedRegions = mutableListOf<Pair<Point2D, Point2D>>() // Bounding boxes
-        
-        // Get shape bounds
-        val outline = shape.toOutlineSegments()
-        if (outline.isEmpty()) return emptyList()
-        
-        // Generate seed points inside the shape
-        val seedPoints = generateSeedPoints(shape, config.arrowSpacing, random)
-        
+
         var arrowId = 0
-        
-        for (seed in seedPoints.shuffled(random)) {
-            // Skip if too close to existing arrows
-            if (isNearOccupied(seed, occupiedRegions, config.arrowSpacing * 0.5f)) {
-                continue
-            }
-            
-            // Generate a curved path from this seed
-            val waypoints = traceFlowLine(
-                seed, shape, config, random
-            )
-            
+        for (seed in generateSeedPoints(shape, config, random)) {
+            if (grid.isOccupied(seed, seedClearance)) continue
+
+            val waypoints = traceFlowLine(seed, shape, field, config)
             if (waypoints.size < 2) continue
-            
-            // Calculate path length
-            var pathLength = 0f
-            for (i in 1 until waypoints.size) {
-                pathLength += waypoints[i - 1].distanceTo(waypoints[i])
-            }
-            
-            if (pathLength < config.arrowMinLength) continue
-            
-            // Trim to max length if needed
-            val trimmedWaypoints = trimToLength(waypoints, config.arrowMaxLength)
-            
-            // Pick a color from palette
-            val color = config.colorPalette[arrowId % config.colorPalette.size]
-            
-            // Create the curved arrow
-            val arrow = CurvedArrow.throughPoints(
-                id = arrowId++,
-                points = trimmedWaypoints,
-                color = color,
-                tension = 0.5f + random.nextFloat() * 0.3f
-            )
-            
-            arrows.add(arrow)
-            
-            // Mark region as occupied
-            val bounds = arrow.getBounds()
-            occupiedRegions.add(bounds)
+            if (polylineLength(waypoints) < config.arrowMinLength) continue
+
+            val trimmed = trimToLength(waypoints, config.arrowMaxLength)
+            val candidate = CurvedArrow.throughPoints(
+                id = arrowId,
+                points = trimmed,
+                color = config.colorPalette[arrowId % config.colorPalette.size],
+                tension = 0.5f
+            ).copy(strokeWidth = config.strokeWidth)
+
+            // Reject if the smoothed curve drifted into a neighbour.
+            if (grid.pathCollides(candidate.polyline, collideRadius)) continue
+
+            grid.occupyPath(candidate.polyline, occupyRadius)
+            arrows.add(candidate)
+            arrowId++
         }
-        
+
         return arrows
     }
 
     /**
-     * Generate seed points distributed inside the shape.
+     * Seed points on a jittered hex lattice. Hex packing beats a square grid
+     * because it leaves no axis-aligned corridors, which is exactly what made
+     * the old output look like stacked zig-zags.
      */
     private fun generateSeedPoints(
         shape: ShapePath,
-        spacing: Float,
+        config: GenerationConfig,
         random: Random
     ): List<Point2D> {
+        val spacing = config.arrowSpacing
+        val rowHeight = spacing * 0.866f // sqrt(3)/2
+        val (boundsMin, boundsMax) = shape.bounds
         val points = mutableListOf<Point2D>()
-        
-        // Grid-based seeding with jitter
-        val cols = (shape.width / spacing).toInt() + 1
-        val rows = (shape.height / spacing).toInt() + 1
-        
-        for (row in 0 until rows) {
-            for (col in 0 until cols) {
-                val x = col * spacing + random.nextFloat() * spacing * 0.5f
-                val y = row * spacing + random.nextFloat() * spacing * 0.5f
-                val point = Point2D(x, y)
-                
-                if (shape.contains(point)) {
-                    points.add(point)
-                }
+
+        var row = 0
+        var y = boundsMin.y
+        while (y <= boundsMax.y) {
+            val xOffset = if (row % 2 == 0) 0f else spacing * 0.5f
+            var x = boundsMin.x + xOffset
+            while (x <= boundsMax.x) {
+                val jitterX = (random.nextFloat() - 0.5f) * spacing * 0.35f
+                val jitterY = (random.nextFloat() - 0.5f) * rowHeight * 0.35f
+                val p = Point2D(x + jitterX, y + jitterY)
+                if (shape.contains(p)) points.add(p)
+                x += spacing
             }
+            y += rowHeight
+            row++
         }
-        
-        return points
+
+        // Seed from the outside in so the silhouette edge reads crisply.
+        return points.sortedBy { shape.distanceToEdge(it) }
     }
 
     /**
-     * Trace a flow line starting from the given point.
+     * Trace a flow line with angular inertia, so the path curves instead of
+     * jittering. Bendiness scales how far the heading may drift per step.
      */
     private fun traceFlowLine(
         start: Point2D,
         shape: ShapePath,
-        config: GenerationConfig,
-        random: Random
+        field: FlowField,
+        config: GenerationConfig
     ): List<Point2D> {
+        val stepSize = config.arrowSpacing * 0.6f
+        val maxSteps = (config.arrowMaxLength / stepSize).toInt() + 4
+        val maxTurn = MAX_TURN_PER_STEP * (0.35f + config.bendiness)
+
         val points = mutableListOf(start)
         var current = start
-        val stepSize = config.arrowSpacing * 0.5f
-        val maxSteps = (config.arrowMaxLength / stepSize).toInt() + 10
-        
-        // Trace forward
+        var heading = field.angleAt(start)
+
         for (step in 0 until maxSteps) {
-            val direction = getFlowDirection(current, shape, config, random)
-            val next = current + direction * stepSize
-            
-            // Stop if we leave the shape
+            val desired = field.angleAt(current)
+            heading += normalizeAngle(desired - heading).coerceIn(-maxTurn, maxTurn)
+
+            val next = current + Point2D(cos(heading), sin(heading)) * stepSize
             if (!shape.contains(next)) {
-                // Try to find edge point
-                val edgePoint = findEdgePoint(current, direction, shape, stepSize)
-                if (edgePoint != null && edgePoint.distanceTo(points.last()) > stepSize * 0.5f) {
-                    points.add(edgePoint)
+                shape.clipToEdge(current, next)?.let { edge ->
+                    if (edge.distanceTo(points.last()) > stepSize * 0.4f) points.add(edge)
                 }
                 break
             }
-            
-            // Add slight curve variation
-            val bendOffset = direction.perpendicular() * (random.nextFloat() - 0.5f) * config.bendiness * stepSize
-            val bentPoint = next + bendOffset
-            
-            if (shape.contains(bentPoint)) {
-                points.add(bentPoint)
-                current = bentPoint
-            } else {
-                points.add(next)
-                current = next
-            }
+            points.add(next)
+            current = next
         }
-        
+
         return points
     }
 
-    /**
-     * Get flow direction at a point based on flow type.
-     */
-    private fun getFlowDirection(
-        point: Point2D,
-        shape: ShapePath,
-        config: GenerationConfig,
-        random: Random
-    ): Point2D {
-        val cx = shape.width / 2
-        val cy = shape.height / 2
-        
-        return when (config.flowType) {
-            FlowType.ORGANIC -> {
-                // Perlin-like noise for organic flow
-                val noiseAngle = (sin(point.x * 0.05f) * cos(point.y * 0.05f) + 
-                                  sin(point.x * 0.03f + point.y * 0.02f)) * PI.toFloat()
-                Point2D(cos(noiseAngle), sin(noiseAngle))
-            }
-            FlowType.RADIAL -> {
-                // Outward from center
-                val dx = point.x - cx
-                val dy = point.y - cy
-                Point2D(dx, dy).normalize()
-            }
-            FlowType.HORIZONTAL -> {
-                // Left to right with waves
-                val waveOffset = sin(point.y * 0.1f) * 0.3f
-                Point2D(1f, waveOffset).normalize()
-            }
-            FlowType.VERTICAL -> {
-                // Top to bottom with waves
-                val waveOffset = sin(point.x * 0.1f) * 0.3f
-                Point2D(waveOffset, 1f).normalize()
-            }
-            FlowType.SPIRAL -> {
-                // Spiral from center
-                val dx = point.x - cx
-                val dy = point.y - cy
-                val angle = atan2(dy, dx) + PI.toFloat() / 4
-                Point2D(cos(angle), sin(angle))
-            }
-        }
-    }
+    private fun polylineLength(points: List<Point2D>): Float =
+        (1 until points.size).fold(0f) { acc, i -> acc + points[i - 1].distanceTo(points[i]) }
 
-    /**
-     * Find the point where a ray exits the shape.
-     */
-    private fun findEdgePoint(
-        start: Point2D,
-        direction: Point2D,
-        shape: ShapePath,
-        maxDist: Float
-    ): Point2D? {
-        val steps = 10
-        val stepSize = maxDist / steps
-        
-        var lastInside = start
-        for (i in 1..steps) {
-            val test = start + direction * (stepSize * i)
-            if (!shape.contains(test)) {
-                // Binary search for exact edge
-                var lo = 0f
-                var hi = stepSize
-                for (j in 0 until 5) {
-                    val mid = (lo + hi) / 2
-                    if (shape.contains(lastInside + direction * mid)) {
-                        lo = mid
-                    } else {
-                        hi = mid
-                    }
-                }
-                return lastInside + direction * lo
-            }
-            lastInside = test
-        }
-        
-        return null
+    /** Wrap an angle delta into (-PI, PI]. */
+    private fun normalizeAngle(angle: Float): Float {
+        var a = angle
+        val twoPi = (2 * PI).toFloat()
+        while (a > PI) a -= twoPi
+        while (a < -PI) a += twoPi
+        return a
     }
 
     /**
@@ -261,68 +185,54 @@ object CurveGenerator {
      */
     private fun trimToLength(points: List<Point2D>, maxLength: Float): List<Point2D> {
         if (points.size < 2) return points
-        
+
         val result = mutableListOf(points[0])
-        var accumulatedLength = 0f
-        
+        var accumulated = 0f
+
         for (i in 1 until points.size) {
             val segmentLength = points[i - 1].distanceTo(points[i])
-            if (accumulatedLength + segmentLength > maxLength) {
-                // Interpolate final point
-                val remaining = maxLength - accumulatedLength
-                val t = remaining / segmentLength
+            if (accumulated + segmentLength > maxLength) {
+                val t = (maxLength - accumulated) / segmentLength
                 result.add(points[i - 1].lerp(points[i], t))
                 break
             }
             result.add(points[i])
-            accumulatedLength += segmentLength
+            accumulated += segmentLength
         }
-        
+
         return result
     }
 
     /**
-     * Check if a point is near any occupied region.
+     * A smooth, deterministic direction field over the shape. Sampling the same
+     * point always yields the same angle, which is what makes neighbouring
+     * streamlines run parallel instead of crossing into spaghetti.
      */
-    private fun isNearOccupied(
-        point: Point2D,
-        regions: List<Pair<Point2D, Point2D>>,
-        threshold: Float
-    ): Boolean {
-        for ((min, max) in regions) {
-            val expandedMin = Point2D(min.x - threshold, min.y - threshold)
-            val expandedMax = Point2D(max.x + threshold, max.y + threshold)
-            
-            if (point.x >= expandedMin.x && point.x <= expandedMax.x &&
-                point.y >= expandedMin.y && point.y <= expandedMax.y) {
-                return true
-            }
-        }
-        return false
-    }
+    private class FlowField(
+        private val shape: ShapePath,
+        private val config: GenerationConfig
+    ) {
+        private val center = shape.center
+        private val cx = center.x
+        private val cy = center.y
 
-    /**
-     * Verify that all arrows can escape (have a clear path to exit).
-     */
-    fun validateEscapePaths(
-        arrows: List<CurvedArrow>,
-        shape: ShapePath
-    ): List<CurvedArrow> {
-        // For now, all arrows pointing outward can escape
-        // More sophisticated validation can be added later
-        return arrows.filter { arrow ->
-            val tip = arrow.endPoint
-            val direction = arrow.direction
-            
-            // Check if there's a clear path from tip to edge
-            var testPoint = tip
-            for (i in 0 until 50) {
-                testPoint = testPoint + direction * 10f
-                if (!shape.contains(testPoint)) {
-                    return@filter true // Can escape
-                }
+        fun angleAt(p: Point2D): Float {
+            val base = when (config.flowType) {
+                FlowType.ORGANIC -> organicAngle(p)
+                FlowType.RADIAL -> atan2(p.y - cy, p.x - cx)
+                FlowType.HORIZONTAL -> sin(p.y * 0.02f) * 0.45f
+                FlowType.VERTICAL -> (PI / 2).toFloat() + sin(p.x * 0.02f) * 0.45f
+                FlowType.SPIRAL -> atan2(p.y - cy, p.x - cx) + (PI / 3).toFloat()
+                FlowType.CONTOUR -> shape.edgeTangentAt(p)
             }
-            false // Blocked
+            return base + config.swirl * organicAngle(p) * 0.5f
+        }
+
+        /** Two octaves of smooth trig noise. Cheap, stable, no gradient jumps. */
+        private fun organicAngle(p: Point2D): Float {
+            val n1 = sin(p.x * 0.013f) * cos(p.y * 0.011f)
+            val n2 = sin((p.x + p.y) * 0.021f) * 0.5f
+            return (n1 + n2) * PI.toFloat()
         }
     }
 }
