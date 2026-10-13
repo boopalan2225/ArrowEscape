@@ -9,13 +9,17 @@ data class CurvedLevel(
     val levelNumber: Int,
     val shapeName: String,
     val shape: ShapePath,
+    /** Every region's outline, back to front. Used for previews and tinting. */
+    val regionOutlines: List<ShapePath>,
     val arrows: List<CurvedArrow>,
     val difficulty: String,
     val colorPalette: List<Long>,
     /** 0..1 measure of how constrained the solution is. */
     val tightness: Float,
     /** Known-good clear order, used for hints and auto-solve. */
-    val solutionOrder: List<Int>
+    val solutionOrder: List<Int>,
+    /** Arrows the generator laid out but had to discard to keep the level solvable. */
+    val droppedArrows: Int = 0
 ) {
     /**
      * Overall player-facing challenge.
@@ -45,23 +49,8 @@ object CurvedLevelGenerator {
 
     private const val STEPS_PER_ARROW = 40
 
-    // Shape generators for different level ranges (expanded set)
-    private val SHAPE_GENERATORS: List<Pair<String, (Float, Float) -> ShapePath>> = listOf(
-        "Circle" to { w, h -> ShapePath.circle(w / 2, h / 2, minOf(w, h) * 0.4f) },
-        "Heart" to { w, h -> ShapePath.heart(w * 0.8f, h * 0.8f) },
-        "Star" to { w, h -> ShapePath.star(w / 2, h / 2, minOf(w, h) * 0.4f, minOf(w, h) * 0.2f, 5) },
-        "Cat" to { w, h -> ShapePath.cat(w * 0.8f, h * 0.9f) },
-        "Owl" to { w, h -> ShapePath.owl(w * 0.7f, h * 0.9f) },
-        "Fish" to { w, h -> ShapePath.fish(w * 0.9f, h * 0.6f) },
-        "Butterfly" to { w, h -> ShapePath.butterfly(w * 0.85f, h * 0.85f) },
-        "Frog" to { w, h -> ShapePath.frog(w * 0.85f, h * 0.8f) },
-        "Deer" to { w, h -> ShapePath.deer(w * 0.9f, h * 0.9f) },
-        "Snail" to { w, h -> ShapePath.snail(w * 0.9f, h * 0.7f) },
-        "Moon" to { w, h -> ShapePath.moon(w * 0.7f, h * 0.85f) },
-        "Leaf" to { w, h -> ShapePath.leaf(w * 0.7f, h * 0.9f) },
-        "Star6" to { w, h -> ShapePath.star(w / 2, h / 2, minOf(w, h) * 0.45f, minOf(w, h) * 0.18f, 6) },
-        "Star8" to { w, h -> ShapePath.star(w / 2, h / 2, minOf(w, h) * 0.42f, minOf(w, h) * 0.22f, 8) }
-    )
+    /** Breathing room between the artwork and the board edge. */
+    private const val BOARD_PADDING = 28f
 
     /**
      * Generate a complete level.
@@ -69,68 +58,129 @@ object CurvedLevelGenerator {
     fun generateLevel(levelNumber: Int, boardWidth: Float = 400f, boardHeight: Float = 600f): CurvedLevel {
         val random = Random(levelNumber.toLong() * 31337 + 42)
         val tuning = DifficultyTuning.forLevel(levelNumber, random)
+        val design = ShapeCatalog.ALL[levelNumber % ShapeCatalog.ALL.size]
 
-        val shapeIndex = levelNumber % SHAPE_GENERATORS.size
-        val (shapeName, shapeGenerator) = SHAPE_GENERATORS[shapeIndex]
-
-        val padding = 40f
-        val baseShape = shapeGenerator(boardWidth - padding * 2, boardHeight - padding * 2)
-        val centeredShape = baseShape.offsetBy(
-            (boardWidth - baseShape.width) / 2,
-            (boardHeight - baseShape.height) / 2
-        )
-
-        // Solvability must be judged against the BOARD, not the shape. Arrows
-        // escape off-screen; the shape is only an art guide. Validating against
-        // shape bounds produced levels the generator believed were solvable but
-        // the running game did not.
+        // Solvability must be judged against the BOARD, not the artwork.
+        // Arrows escape off-screen; the shape is only a container.
         val board = CurvedGameEngine.Board(boardWidth, boardHeight)
 
-        val laidOut = layOutArrows(centeredShape, tuning.config, levelNumber, random)
-        val tuned = searchOrientations(laidOut, board, tuning.targetTightness, random)
+        val regions = design.ordered
+        val outlines = layOutRegions(design, boardWidth, boardHeight)
+
+        // Fill FRONT-to-BACK: the smallest detail regions (eyes, then belly)
+        // claim their space first, and broader layers underneath flow around
+        // whatever is already there. Filling back-to-front did the opposite -
+        // the body consumed the whole silhouette and every detail region was
+        // excluded out of existence.
+        val arrows = mutableListOf<CurvedArrow>()
+        val claimed = mutableListOf<ShapePath>()
+        val canvas = PackingCanvas(boardWidth, boardHeight)
+
+        for (index in regions.indices.reversed()) {
+            val region = regions[index]
+            val config = tuning.config.copy(
+                strokeWidth = tuning.config.strokeWidth * region.strokeScale,
+                arrowSpacing = tuning.config.arrowSpacing * region.strokeScale,
+                curl = tuning.config.curl * region.curl,
+                flowType = region.flow ?: tuning.config.flowType,
+                colorPalette = ArrowTones.of(region.color)
+            )
+
+            val regionArrows = CurveGenerator.generateArrows(
+                shape = outlines[index],
+                config = config,
+                random = random,
+                exclusions = claimed.toList(),
+                startId = arrows.size,
+                canvas = canvas
+            )
+
+            arrows.addAll(regionArrows)
+            claimed.add(outlines[index])
+        }
+
+        val tuned = searchOrientations(arrows, board, tuning.targetTightness, random)
 
         return CurvedLevel(
             levelNumber = levelNumber,
-            shapeName = shapeName,
-            shape = centeredShape,
+            shapeName = design.name,
+            shape = outlines.first(),
+            regionOutlines = outlines,
             arrows = tuned.arrows,
             difficulty = tuning.label,
-            colorPalette = tuning.config.colorPalette,
+            colorPalette = regions.map { it.color }.distinct(),
             tightness = tuned.result.tightness,
-            solutionOrder = tuned.result.order
+            solutionOrder = tuned.result.order,
+            droppedArrows = arrows.size - tuned.arrows.size
         )
     }
 
     /**
-     * Lay out the artwork, tightening spacing until the shape reads full.
-     *
-     * Thin shapes (leaves, crescents) starve at the default spacing because
-     * few seeds survive the containment test, so a single fixed retry was not
-     * enough - we step down until the silhouette is actually populated.
+     * Uniformly scale a whole illustration so its overall bounding box just
+     * fills [areaWidth] x [areaHeight] on its tighter axis. Uniform, so the
+     * proportions - and the relative placement of every region - survive.
      */
-    private fun layOutArrows(
-        shape: ShapePath,
-        config: CurveGenerator.GenerationConfig,
-        levelNumber: Int,
-        random: Random
-    ): List<CurvedArrow> {
-        val minimumArrows = 12
-        var best: List<CurvedArrow> = emptyList()
+    private fun fitToArea(
+        regions: List<ShapePath>,
+        areaWidth: Float,
+        areaHeight: Float
+    ): List<ShapePath> {
+        val minX = regions.minOf { it.bounds.first.x }
+        val minY = regions.minOf { it.bounds.first.y }
+        val maxX = regions.maxOf { it.bounds.second.x }
+        val maxY = regions.maxOf { it.bounds.second.y }
+        val spanX = maxX - minX
+        val spanY = maxY - minY
+        if (spanX <= 0f || spanY <= 0f) return regions
 
-        for ((attempt, factor) in listOf(1f, 0.75f, 0.55f, 0.4f).withIndex()) {
-            val attemptConfig = config.copy(
-                arrowSpacing = config.arrowSpacing * factor,
-                strokeWidth = config.strokeWidth * maxOf(factor, 0.6f),
-                arrowMinLength = config.arrowMinLength * maxOf(factor, 0.5f)
-            )
-            val seed = if (attempt == 0) random else Random(levelNumber * 7919L + attempt)
-            val arrows = CurveGenerator.generateArrows(shape, attemptConfig, seed)
+        val factor = minOf(areaWidth / spanX, areaHeight / spanY)
+        return regions.map { it.scaleTo(it.width * factor, it.height * factor) }
+    }
 
-            if (arrows.size > best.size) best = arrows
-            if (best.size >= minimumArrows) break
+    /**
+     * Build every region outline and centre the whole illustration on the board.
+     *
+     * Centring uses the artwork's real bounding box. The old code offset by the
+     * shape's *declared* size, which is only correct for shapes drawn from the
+     * origin - the circle, star and others were drawn around their own centre
+     * and so ended up visibly off-centre.
+     */
+    private fun layOutRegions(
+        design: ShapeDesign,
+        boardWidth: Float,
+        boardHeight: Float
+    ): List<ShapePath> {
+        val availableWidth = boardWidth - BOARD_PADDING * 2
+        val availableHeight = boardHeight - BOARD_PADDING * 2
+
+        var artWidth = availableWidth
+        var artHeight = availableHeight
+        design.aspect?.let { aspect ->
+            artHeight = artWidth / aspect
+            if (artHeight > availableHeight) {
+                artHeight = availableHeight
+                artWidth = artHeight * aspect
+            }
         }
 
-        return best
+        // Scale the finished illustration up to the space it is offered. The
+        // legacy shapes size themselves as a fraction of the shorter side, so
+        // on a tall board a star used to float in the middle third with the
+        // rest wasted - fewer arrows, harder to read, harder to tap.
+        val raw = fitToArea(
+            design.ordered.map { it.build(artWidth, artHeight) },
+            availableWidth,
+            availableHeight
+        )
+
+        val minX = raw.minOf { it.bounds.first.x }
+        val minY = raw.minOf { it.bounds.first.y }
+        val maxX = raw.maxOf { it.bounds.second.x }
+        val maxY = raw.maxOf { it.bounds.second.y }
+
+        val dx = boardWidth / 2 - (minX + maxX) / 2
+        val dy = boardHeight / 2 - (minY + maxY) / 2
+        return raw.map { it.offsetBy(dx, dy) }
     }
 
     /**

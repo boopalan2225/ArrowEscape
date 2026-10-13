@@ -30,7 +30,13 @@ enum class LevelShape(val displayName: String) {
     LIGHTNING("Lightning"),
     CROWN("Crown"),
     RING("Ring"),
-    BUTTERFLY("Butterfly");
+    BUTTERFLY("Butterfly"),
+    // Illustrated animals (masks derived from the vector art in ShapeLibrary)
+    OWL("Owl"),
+    CAT("Cat"),
+    CRAB("Crab"),
+    DEER("Deer"),
+    PANDA("Panda");
 
     fun contains(row: Int, col: Int, rows: Int, cols: Int): Boolean = when (this) {
         SQUARE -> true
@@ -52,6 +58,8 @@ enum class LevelShape(val displayName: String) {
         CROWN -> isInCrown(row, col, rows, cols)
         RING -> isInRing(row, col, rows, cols)
         BUTTERFLY -> isInButterfly(row, col, rows, cols)
+        // Illustrated animals
+        OWL, CAT, CRAB, DEER, PANDA -> DesignMask.contains(this, row, col, rows, cols)
     }
 
     /**

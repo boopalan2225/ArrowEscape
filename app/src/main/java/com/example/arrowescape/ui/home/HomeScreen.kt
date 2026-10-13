@@ -29,6 +29,7 @@ fun HomeScreen(
     onPlayClick: () -> Unit,
     onJourneyClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onDevClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -144,6 +145,24 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Developer entry point - only while developer mode is on.
+            if (prefs.devMode && onDevClick != null) {
+                FilledTonalButton(
+                    onClick = onDevClick,
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        text = "\uD83D\uDEE0  Dev: Open any level",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             // Settings button
             TextButton(

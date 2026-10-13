@@ -254,6 +254,28 @@ data class CurvedArrow(
         polyline.any { it.distanceTo(point) <= threshold }
 
     /**
+     * Point at [distance] measured along the path from the tail.
+     *
+     * Distances past the tip continue straight along [exitDirection], and
+     * distances before the tail extend backwards from the start. This lets the
+     * escape animation slide the whole body along its own curve and then off
+     * the board without any special-casing at the ends.
+     */
+    fun pointAtDistance(distance: Float, exitDirection: Point2D): Point2D {
+        if (segments.isEmpty()) return Point2D.ZERO
+
+        val total = length
+        return when {
+            distance <= 0f -> {
+                val back = segments.first().tangentAt(0f)
+                startPoint + back * distance
+            }
+            distance >= total -> endPoint + exitDirection * (distance - total)
+            else -> pointAt(distance / total)
+        }
+    }
+
+    /**
      * Flip the arrowhead to the opposite end, keeping identical geometry.
      */
     fun reversed(): CurvedArrow = copy(

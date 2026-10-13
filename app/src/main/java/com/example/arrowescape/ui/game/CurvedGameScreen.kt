@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.arrowescape.game.model.GameStatus
 import com.example.arrowescape.ui.components.*
+import com.example.arrowescape.ui.dev.DevLevelBar
 
 /**
  * Main game screen for curved arrow puzzles.
@@ -32,7 +33,7 @@ fun CurvedGameScreen(
 ) {
     val gameState by viewModel.gameState.collectAsState()
     val escapingArrows by viewModel.escapingArrows.collectAsState()
-    val shakingArrows by viewModel.shakingArrows.collectAsState()
+    val bumpingArrows by viewModel.bumpingArrows.collectAsState()
     val boardWidth by viewModel.boardWidth.collectAsState()
     val boardHeight by viewModel.boardHeight.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
@@ -105,9 +106,23 @@ fun CurvedGameScreen(
                     boardWidth = boardWidth,
                     boardHeight = boardHeight,
                     escapingArrows = escapingArrows,
-                    shakingArrows = shakingArrows,
+                    bumpingArrows = bumpingArrows,
                     hintArrowId = gameState.hintArrowId,
+                    resetKey = gameState.level,
+                    isArrowFree = viewModel::isArrowFree,
+                    exitPointOf = viewModel::exitPointOf,
                     onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
+                )
+            }
+
+            if (prefs.devMode) {
+                DevLevelBar(
+                    level = gameState.level,
+                    shapeName = gameState.shapeName,
+                    difficulty = gameState.difficulty,
+                    arrowCount = gameState.arrows.size,
+                    onPrevious = { viewModel.devStepLevel(-1) },
+                    onNext = { viewModel.devStepLevel(+1) }
                 )
             }
 

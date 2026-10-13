@@ -414,6 +414,10 @@ object ShapeTemplate {
         LevelShape.LIGHTNING -> LIGHTNING
         LevelShape.SPIRAL -> SPIRAL
         LevelShape.BUTTERFLY -> BUTTERFLY
+        // Illustrated animals have no hand-made bitmap; their masks come from
+        // the vector art via DesignMask (LevelShape falls back to contains()).
+        LevelShape.OWL, LevelShape.CAT, LevelShape.CRAB,
+        LevelShape.DEER, LevelShape.PANDA -> emptyList()
     }
 
     /**
@@ -421,6 +425,7 @@ object ShapeTemplate {
      */
     fun getValidCells(shape: LevelShape, rows: Int, cols: Int): List<Pair<Int, Int>> {
         val template = getTemplate(shape)
+        if (template.isEmpty()) return emptyList()
         return scaleTemplate(template, rows, cols).toList()
     }
 

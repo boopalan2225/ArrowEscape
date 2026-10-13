@@ -20,6 +20,7 @@ import com.example.arrowescape.ads.AdManagerImpl
 import com.example.arrowescape.analytics.AnalyticsTracker
 import com.example.arrowescape.analytics.DebugAnalyticsTracker
 import com.example.arrowescape.data.GamePreferences
+import com.example.arrowescape.ui.dev.DevLevelScreen
 import com.example.arrowescape.ui.game.CurvedGameScreen
 import com.example.arrowescape.ui.game.CurvedGameViewModel
 import com.example.arrowescape.ui.game.CurvedGameViewModelFactory
@@ -105,7 +106,17 @@ fun ArrowEscapeApp(
                 },
                 onSettingsClick = {
                     navController.navigate("settings")
+                },
+                onDevClick = {
+                    navController.navigate("dev")
                 }
+            )
+        }
+
+        composable("dev") {
+            DevLevelScreen(
+                onBackClick = { navController.popBackStack() },
+                onPlayLevel = { level -> navController.navigate("game/$level") }
             )
         }
 
@@ -215,6 +226,9 @@ fun ArrowEscapeApp(
                 },
                 onCurvedModeToggle = { enabled ->
                     scope.launch { preferences.setCurvedMode(enabled) }
+                },
+                onDevModeToggle = { enabled ->
+                    scope.launch { preferences.setDevMode(enabled) }
                 },
                 onBackClick = {
                     navController.popBackStack()

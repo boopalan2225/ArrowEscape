@@ -31,6 +31,7 @@ fun SettingsScreen(
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
     onCurvedModeToggle: (Boolean) -> Unit = {},
+    onDevModeToggle: (Boolean) -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: () -> Unit = {},
     onResetProgress: () -> Unit = {},
@@ -147,6 +148,13 @@ fun SettingsScreen(
 
             // Debug Section (for testing)
             SettingsSection(title = "Debug") {
+                SettingsToggleItem(
+                    icon = "\uD83D\uDEE0",
+                    title = "Developer Mode",
+                    subtitle = "Open any level from Home; play never changes your progress",
+                    checked = prefs.devMode,
+                    onCheckedChange = onDevModeToggle
+                )
                 SettingsClickableItem(
                     icon = "\uD83D\uDD13",
                     title = "Unlock All Levels",

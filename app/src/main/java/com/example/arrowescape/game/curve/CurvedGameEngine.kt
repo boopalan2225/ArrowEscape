@@ -4,29 +4,77 @@ package com.example.arrowescape.game.curve
 /**
  * Escape rules and solvability analysis for curved arrow puzzles.
  *
- * An arrow escapes by sliding forward along its own heading until its entire
- * body has left the board. It is blocked if any part of its swept body touches
- * a still-active arrow. This is a body sweep, not a ray cast from the tip -
- * the old tip-ray let arrows slip through neighbours they visibly overlapped.
+ * An escaping arrow slides along its OWN curve - the body follows exactly the
+ * trail the head leaves, like a train on a track - and then carries straight
+ * on past the tip until it clears the board. Because the body only ever
+ * occupies space the head has already passed through, the head's path is the
+ * whole story: an arrow is blocked iff something live sits on the ray ahead of
+ * its tip. That is also precisely what the escape animation draws, so what
+ * the player sees and what the rules enforce can never disagree.
  */
 object CurvedGameEngine {
 
-    /** Distance advanced per sweep step. Smaller = stricter, slower. */
-    private const val SWEEP_STEP = 7f
+    /** Distance between samples along the escape ray. */
+    private const val RAY_STEP = 4f
 
     /**
-     * Contact radius as a fraction of stroke width.
-     *
-     * Tuned against the packing density in CurveGenerator: arrows sit roughly
-     * one stroke-width apart, so a contact radius near 1.0 made every arrow
-     * permanently blocked by its own neighbours. Half a stroke means arrows
-     * must genuinely overlap to count as blocking.
+     * Fraction of the two strokes' combined width that counts as touching.
+     * Slightly under 1.0 so arrows that merely graze past do not block.
      */
-    private const val CONTACT_SLACK = 0.5f
+    private const val CONTACT_FACTOR = 0.9f
 
     data class Board(val width: Float, val height: Float) {
         fun isOutside(p: Point2D, margin: Float): Boolean =
             p.x < -margin || p.x > width + margin || p.y < -margin || p.y > height + margin
+
+        /**
+         * Where a ray from [origin] along [direction] leaves the board.
+         * Returns [origin] for a zero direction.
+         */
+        fun rayExit(origin: Point2D, direction: Point2D): Point2D {
+            val dir = direction.normalize()
+            if (dir == Point2D.ZERO) return origin
+            val tx = when {
+                dir.x > 0f -> (width - origin.x) / dir.x
+                dir.x < 0f -> -origin.x / dir.x
+                else -> Float.MAX_VALUE
+            }
+            val ty = when {
+                dir.y > 0f -> (height - origin.y) / dir.y
+                dir.y < 0f -> -origin.y / dir.y
+                else -> Float.MAX_VALUE
+            }
+            return origin + dir * minOf(tx, ty).coerceAtLeast(0f)
+        }
+    }
+
+    /**
+     * How far [arrow]'s tip can travel along its heading before touching one
+     * of [blockers] - the room it has to wiggle when a blocked tap bumps it.
+     * Runs to the board edge if nothing is in the way.
+     */
+    fun runwayBeforeContact(
+        arrow: CurvedArrow,
+        blockers: Collection<CurvedArrow>,
+        board: Board
+    ): Float {
+        val direction = arrow.direction
+        if (direction == Point2D.ZERO) return 0f
+
+        val tip = arrow.endPoint
+        val margin = arrow.strokeWidth * 2f
+        val steps = ((board.width + board.height) / RAY_STEP).toInt()
+
+        for (step in 0..steps) {
+            val probe = tip + direction * (RAY_STEP * step)
+            if (board.isOutside(probe, margin)) return RAY_STEP * step
+            val touched = blockers.any { other ->
+                other.id != arrow.id &&
+                    other.isNear(probe, (arrow.strokeWidth + other.strokeWidth) * 0.5f * CONTACT_FACTOR)
+            }
+            if (touched) return RAY_STEP * step
+        }
+        return RAY_STEP * steps
     }
 
     /**
@@ -58,7 +106,7 @@ object CurvedGameEngine {
     }
 
     /**
-     * Every arrow whose body lies in [arrow]'s swept escape corridor.
+     * Every arrow standing on the ray ahead of [arrow]'s tip.
      */
     private fun allBlockersFor(
         arrow: CurvedArrow,
@@ -68,29 +116,22 @@ object CurvedGameEngine {
         val direction = arrow.direction
         if (direction == Point2D.ZERO) return emptySet()
 
-        val body = arrow.polyline
-        if (body.isEmpty()) return emptySet()
-
-        val found = mutableSetOf<Int>()
-        val radius = arrow.strokeWidth * CONTACT_SLACK
+        val tip = arrow.endPoint
         val margin = arrow.strokeWidth * 2f
-        val steps = ((board.width + board.height) / SWEEP_STEP).toInt()
+        val steps = ((board.width + board.height) / RAY_STEP).toInt()
+        val found = mutableSetOf<Int>()
 
-        for (step in 1..steps) {
-            val shift = direction * (SWEEP_STEP * step)
-            var fullyOutside = true
+        for (step in 0..steps) {
+            val probe = tip + direction * (RAY_STEP * step)
+            if (board.isOutside(probe, margin)) break
 
-            for (bodyPoint in body) {
-                val swept = bodyPoint + shift
-                if (!board.isOutside(swept, margin)) fullyOutside = false
-                for (id in index.candidatesNear(swept)) {
-                    if (id == arrow.id || id in found) continue
-                    val other = index.arrowById(id) ?: continue
-                    if (other.isNear(swept, radius)) found.add(id)
-                }
+            for (id in index.candidatesNear(probe)) {
+                if (id == arrow.id || id in found) continue
+                val other = index.arrowById(id) ?: continue
+                // Centre-to-centre distance at which the two strokes touch.
+                val touching = (arrow.strokeWidth + other.strokeWidth) * 0.5f * CONTACT_FACTOR
+                if (other.isNear(probe, touching)) found.add(id)
             }
-
-            if (fullyOutside) break
         }
 
         return found
@@ -126,36 +167,57 @@ object CurvedGameEngine {
          * Greedy clear-through for one orientation assignment.
          * [flips] is indexed by slot, not by arrow id.
          */
-        fun analyze(flips: BooleanArray): SolveResult {
-            val slotOfId = HashMap<Int, Int>(size)
-            ids.forEachIndexed { slot, id -> slotOfId[id] = slot }
+        fun analyze(flips: BooleanArray): SolveResult =
+            greedyClear(ids) { slot -> blockersOf(slot, flips[slot]) }
+    }
 
-            val remaining = ids.toMutableSet()
-            val order = mutableListOf<Int>()
-            var branchingTotal = 0
-            var turns = 0
-            var forced = 0
+    /**
+     * Greedy clear-through over a dependency graph, in O(arrows + edges).
+     *
+     * Greedy is sound because removing an arrow never blocks another, so any
+     * free arrow is always safe to take. Done as a topological sweep with a
+     * count of unmet blockers per arrow: the old version rescanned every
+     * remaining arrow each turn (quadratic), which was fine for 30 arrows and
+     * hopeless for the 150+ a dense silhouette needs.
+     *
+     * [blockersOf] maps an arrow's index in [ids] to the ids it waits on. The
+     * lowest-index free arrow is taken each turn, so the order is stable.
+     */
+    private inline fun greedyClear(ids: List<Int>, blockersOf: (Int) -> Set<Int>): SolveResult {
+        val slotOfId = HashMap<Int, Int>(ids.size * 2)
+        ids.forEachIndexed { slot, id -> slotOfId[id] = slot }
 
-            while (remaining.isNotEmpty()) {
-                val free = remaining.filter { id ->
-                    val slot = slotOfId.getValue(id)
-                    blockersOf(slot, flips[slot]).none { it in remaining }
-                }
-                if (free.isEmpty()) {
-                    return SolveResult(false, order, averageOf(branchingTotal, turns), forced)
-                }
-
-                branchingTotal += free.size
-                turns++
-                if (free.size == 1) forced++
-
-                val chosen = free.first()
-                remaining.remove(chosen)
-                order.add(chosen)
+        val unmet = IntArray(ids.size)
+        val dependents = Array(ids.size) { ArrayList<Int>(2) }
+        for (slot in ids.indices) {
+            for (blocker in blockersOf(slot)) {
+                val blockerSlot = slotOfId[blocker] ?: continue
+                unmet[slot]++
+                dependents[blockerSlot].add(slot)
             }
-
-            return SolveResult(true, order, averageOf(branchingTotal, turns), forced)
         }
+
+        val free = java.util.TreeSet<Int>()
+        for (slot in ids.indices) if (unmet[slot] == 0) free.add(slot)
+
+        val order = ArrayList<Int>(ids.size)
+        var branchingTotal = 0
+        var turns = 0
+        var forced = 0
+
+        while (free.isNotEmpty()) {
+            branchingTotal += free.size
+            turns++
+            if (free.size == 1) forced++
+
+            val chosen = free.pollFirst()!!
+            order.add(ids[chosen])
+            for (dependent in dependents[chosen]) {
+                if (--unmet[dependent] == 0) free.add(dependent)
+            }
+        }
+
+        return SolveResult(order.size == ids.size, order, averageOf(branchingTotal, turns), forced)
     }
 
     /**
@@ -212,34 +274,9 @@ object CurvedGameEngine {
 
     /**
      * Greedily simulate clearing the board from a precomputed graph.
-     * Greedy is sound here: removing an arrow never blocks another, so any
-     * escapable arrow is always safe to take.
      */
-    fun analyze(graph: BlockingGraph): SolveResult {
-        val remaining = graph.ids.toMutableSet()
-        val order = mutableListOf<Int>()
-
-        var branchingTotal = 0
-        var turns = 0
-        var forced = 0
-
-        while (remaining.isNotEmpty()) {
-            val free = remaining.filter { graph.isFree(it, remaining) }
-            if (free.isEmpty()) {
-                return SolveResult(false, order, averageOf(branchingTotal, turns), forced)
-            }
-
-            branchingTotal += free.size
-            turns++
-            if (free.size == 1) forced++
-
-            val chosen = free.first()
-            remaining.remove(chosen)
-            order.add(chosen)
-        }
-
-        return SolveResult(true, order, averageOf(branchingTotal, turns), forced)
-    }
+    fun analyze(graph: BlockingGraph): SolveResult =
+        greedyClear(graph.ids) { slot -> graph.blockersOf(graph.ids[slot]) }
 
     private fun averageOf(total: Int, turns: Int): Float =
         if (turns == 0) 0f else total.toFloat() / turns

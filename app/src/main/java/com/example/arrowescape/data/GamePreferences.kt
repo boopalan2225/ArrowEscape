@@ -25,6 +25,7 @@ class GamePreferences(private val context: Context) {
         private val KEY_TOTAL_LEVELS_COMPLETED = intPreferencesKey("total_levels_completed")
         private val KEY_LEVEL_STARS = stringPreferencesKey("level_stars") // JSON: "1:3,2:2,3:3"
         private val KEY_CURVED_MODE = booleanPreferencesKey("curved_mode") // Use curved arrows
+        private val KEY_DEV_MODE = booleanPreferencesKey("dev_mode") // Open any level, no progress changes
 
         // Saved game state
         private val KEY_SAVED_LEVEL = intPreferencesKey("saved_level")
@@ -43,7 +44,9 @@ class GamePreferences(private val context: Context) {
         val levelsSinceInterstitial: Int = 0,
         val totalLevelsCompleted: Int = 0,
         val levelStars: Map<Int, Int> = emptyMap(), // level -> stars (1-3)
-        val curvedMode: Boolean = true // Use curved arrows by default (Option 2)
+        val curvedMode: Boolean = true, // Use curved arrows by default (Option 2)
+        /** Developer mode: level picker, prev/next, and play never touches saved progress. */
+        val devMode: Boolean = false
     )
 
     /**
@@ -80,7 +83,8 @@ class GamePreferences(private val context: Context) {
                 levelsSinceInterstitial = prefs[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
                 totalLevelsCompleted = prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0,
                 levelStars = levelStars,
-                curvedMode = prefs[KEY_CURVED_MODE] ?: true // Default to curved mode
+                curvedMode = prefs[KEY_CURVED_MODE] ?: true, // Default to curved mode
+                devMode = prefs[KEY_DEV_MODE] ?: false
             )
         }
 
@@ -157,6 +161,12 @@ class GamePreferences(private val context: Context) {
     suspend fun setCurvedMode(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_CURVED_MODE] = enabled
+        }
+    }
+
+    suspend fun setDevMode(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_DEV_MODE] = enabled
         }
     }
 

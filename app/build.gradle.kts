@@ -114,3 +114,15 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+// Dev-only: render generated levels to PNG for visual review.
+tasks.register<JavaExec>("renderShapes") {
+    group = "verification"
+    description = "Renders generated shapes to build/shape-preview for eyeballing."
+    dependsOn("compileDebugKotlin")
+    mainClass.set("com.example.arrowescape.game.curve.ShapePreview")
+    classpath = files(
+        layout.buildDirectory.dir("tmp/kotlin-classes/debug"),
+        configurations.getByName("debugRuntimeClasspath")
+    )
+}

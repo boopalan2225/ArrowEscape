@@ -60,8 +60,7 @@ class CurvedGameViewModel(
 
     companion object {
         private const val INTERSTITIAL_FREQUENCY = 4
-        private const val ESCAPE_ANIMATION_DURATION_MS = 600L
-        private const val SHAKE_ANIMATION_DURATION_MS = 300L
+        private const val ANIMATION_FRAME_MS = 16L
         private const val DEFAULT_LIVES = 3
         private const val BOARD_WIDTH = 400f
         private const val BOARD_HEIGHT = 600f
@@ -78,8 +77,9 @@ class CurvedGameViewModel(
     private val _escapingArrows = MutableStateFlow<Map<Int, Float>>(emptyMap())
     val escapingArrows: StateFlow<Map<Int, Float>> = _escapingArrows.asStateFlow()
 
-    private val _shakingArrows = MutableStateFlow<Set<Int>>(emptySet())
-    val shakingArrows: StateFlow<Set<Int>> = _shakingArrows.asStateFlow()
+    // Blocked taps: arrow ID -> how far it lunges and how far through the bump it is
+    private val _bumpingArrows = MutableStateFlow<Map<Int, ArrowMotion.Bump>>(emptyMap())
+    val bumpingArrows: StateFlow<Map<Int, ArrowMotion.Bump>> = _bumpingArrows.asStateFlow()
 
     private val _hintsRemaining = MutableStateFlow(2)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
@@ -165,9 +165,12 @@ class CurvedGameViewModel(
 
     fun startLevel(level: Int) {
         viewModelScope.launch {
-            // Generate level off the main thread
-            val curvedLevel = withContext(Dispatchers.Default) {
-                CurvedLevelGenerator.generateLevel(level, BOARD_WIDTH, BOARD_HEIGHT)
+            // Generate the level - and its blocking graph - off the main thread.
+            // Dense levels have hundreds of arrows; building the graph lazily on
+            // the first tap would stall the UI right when the player touches it.
+            val (curvedLevel, graph) = withContext(Dispatchers.Default) {
+                val generated = CurvedLevelGenerator.generateLevel(level, BOARD_WIDTH, BOARD_HEIGHT)
+                generated to CurvedGameEngine.BlockingGraph(generated.arrows, board())
             }
 
             _gameState.value = CurvedGameState(
@@ -185,12 +188,15 @@ class CurvedGameViewModel(
             )
 
             _escapingArrows.value = emptyMap()
-            _shakingArrows.value = emptySet()
+            _bumpingArrows.value = emptyMap()
             _hintsRemaining.value = 2
             _combo.value = 0
             continueUsedThisLevel = false
-            blockingGraph = null
-            analytics.trackLevelStarted(level, curvedLevel.arrows.size)
+            blockingGraph = graph
+            // Developer sessions are for looking at levels, not for metrics.
+            if (!prefs.value.devMode) {
+                analytics.trackLevelStarted(level, curvedLevel.arrows.size)
+            }
         }
     }
 
@@ -217,7 +223,7 @@ class CurvedGameViewModel(
         if (currentState.status != GameStatus.PLAYING) return
 
         // Skip if already animating
-        if (_escapingArrows.value.containsKey(arrow.id) || _shakingArrows.value.contains(arrow.id)) {
+        if (_escapingArrows.value.containsKey(arrow.id) || _bumpingArrows.value.containsKey(arrow.id)) {
             return
         }
 
@@ -261,15 +267,10 @@ class CurvedGameViewModel(
 
         val arrowId = arrow.id
 
-        // Animate escape
+        // Animate escape - longer arrows take longer to pull through
         viewModelScope.launch {
-            // Animate progress from 0 to 1
-            val steps = 30
-            val stepDelay = ESCAPE_ANIMATION_DURATION_MS / steps
-            for (i in 1..steps) {
-                val progress = i.toFloat() / steps
+            animateProgress(ArrowMotion.escapeDurationMs(arrow.length)) { progress ->
                 _escapingArrows.value = _escapingArrows.value + (arrowId to progress)
-                delay(stepDelay)
             }
 
             // Animation complete
@@ -286,9 +287,6 @@ class CurvedGameViewModel(
 
     private fun handleInvalidMove(arrow: CurvedArrow) {
         val currentState = _gameState.value
-
-        // Start shake animation
-        _shakingArrows.value = _shakingArrows.value + arrow.id
 
         // Reset combo
         _combo.value = 0
@@ -309,9 +307,13 @@ class CurvedGameViewModel(
 
         analytics.trackInvalidMove(currentState.level, newLives)
 
+        // Lunge toward whatever is in the way, touch it, and pull back.
+        val distance = ArrowMotion.bumpDistance(runwayAhead(arrow, currentState), arrow.strokeWidth)
         viewModelScope.launch {
-            delay(SHAKE_ANIMATION_DURATION_MS)
-            _shakingArrows.value = _shakingArrows.value - arrow.id
+            animateProgress(ArrowMotion.bumpDurationMs(distance)) { progress ->
+                _bumpingArrows.value = _bumpingArrows.value + (arrow.id to ArrowMotion.Bump(distance, progress))
+            }
+            _bumpingArrows.value = _bumpingArrows.value - arrow.id
 
             if (newStatus == GameStatus.OUT_OF_LIVES) {
                 analytics.trackLivesExhausted(currentState.level, currentState.clearedPercentage)
@@ -320,7 +322,44 @@ class CurvedGameViewModel(
         }
     }
 
+    /** Free space between [arrow]'s tip and the first live arrow in its way. */
+    private fun runwayAhead(arrow: CurvedArrow, state: CurvedGameState): Float {
+        val liveIds = state.activeArrows.map { it.id }.toSet()
+        val blockerIds = requireGraph(state).blockersOf(arrow.id).filter { it in liveIds }.toSet()
+        val blockers = state.arrows.filter { it.id in blockerIds }
+        return CurvedGameEngine.runwayBeforeContact(arrow, blockers, board())
+    }
+
+    /** True when [arrow] would escape if tapped right now. Drives the long-press preview. */
+    fun isArrowFree(arrow: CurvedArrow): Boolean {
+        val state = _gameState.value
+        val liveIds = state.activeArrows.map { it.id }.toSet()
+        return requireGraph(state).isFree(arrow.id, liveIds)
+    }
+
+    /** Where [arrow]'s straight exit ray leaves the board, for the preview line. */
+    fun exitPointOf(arrow: CurvedArrow): Point2D = board().rayExit(arrow.endPoint, arrow.direction)
+
+    /**
+     * Drive [onFrame] from 0 to 1 over [durationMs] of real time.
+     * Progress comes from the clock rather than counting frames, so a dropped
+     * frame makes the animation skip ahead instead of running long.
+     */
+    private suspend fun animateProgress(durationMs: Long, onFrame: (Float) -> Unit) {
+        val start = System.nanoTime()
+        while (true) {
+            val elapsedMs = (System.nanoTime() - start) / 1_000_000f
+            val progress = (elapsedMs / durationMs).coerceIn(0f, 1f)
+            onFrame(progress)
+            if (progress >= 1f) return
+            delay(ANIMATION_FRAME_MS)
+        }
+    }
+
     private fun handleLevelComplete(state: CurvedGameState) {
+        // Developer mode never changes saved progress, stars or ad counters.
+        if (prefs.value.devMode) return
+
         viewModelScope.launch {
             val timeSeconds = ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
             analytics.trackLevelCompleted(
@@ -409,6 +448,11 @@ class CurvedGameViewModel(
     fun onNextLevel() {
         val nextLevel = _gameState.value.level + 1
         startLevel(nextLevel)
+    }
+
+    /** Developer mode: step to the previous (-1) or next (+1) level without touching progress. */
+    fun devStepLevel(delta: Int) {
+        startLevel((_gameState.value.level + delta).coerceAtLeast(1))
     }
 
     fun showInterstitialIfNeeded(activity: Activity, onComplete: () -> Unit) {

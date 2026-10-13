@@ -19,92 +19,100 @@ data class DifficultyTuning(
 ) {
     companion object {
 
-        private val PALETTES = mapOf(
-            "ocean" to listOf(0xFF4A90D9, 0xFF5BA3E0, 0xFF6BB6E8, 0xFF3D7DC6),
-            "sunset" to listOf(0xFFE67E22, 0xFFE74C3C, 0xFFF39C12, 0xFFD35400),
-            "forest" to listOf(0xFF27AE60, 0xFF2ECC71, 0xFF1ABC9C, 0xFF16A085),
-            "purple" to listOf(0xFF9B59B6, 0xFF8E44AD, 0xFFA569BD, 0xFF7D3C98),
-            "rainbow" to listOf(0xFFE74C3C, 0xFFF39C12, 0xFF2ECC71, 0xFF3498DB, 0xFF9B59B6, 0xFFE91E8C)
+        // Last level of each difficulty tier; Master is everything after.
+        const val EASY_MAX = 10
+        const val NORMAL_MAX = 30
+        const val HARD_MAX = 60
+        const val EXPERT_MAX = 100
+
+        /** First level of each tier, in order - for tools that jump between tiers. */
+        val TIER_STARTS: List<Pair<String, Int>> = listOf(
+            "Easy" to 1,
+            "Normal" to EASY_MAX + 1,
+            "Hard" to NORMAL_MAX + 1,
+            "Expert" to HARD_MAX + 1,
+            "Master" to EXPERT_MAX + 1
         )
 
-        private fun paletteFor(level: Int): List<Long> = when {
-            level <= 20 -> PALETTES.getValue("ocean")
-            level <= 40 -> PALETTES.getValue("forest")
-            level <= 60 -> PALETTES.getValue("sunset")
-            level <= 80 -> PALETTES.getValue("purple")
-            else -> PALETTES.getValue("rainbow")
-        }
-
+        /**
+         * Reference artwork always flows along the silhouette - that is what
+         * makes fur, feathers and antlers legible. Random flow types made
+         * shapes unrecognisable, so CONTOUR is the default and other fields
+         * only appear as occasional variety on later levels.
+         */
         private fun flowFor(level: Int, random: Random): CurveGenerator.FlowType = when {
-            level <= 6 -> CurveGenerator.FlowType.CONTOUR
-            level <= 20 -> listOf(
-                CurveGenerator.FlowType.CONTOUR,
+            level <= 20 -> CurveGenerator.FlowType.CONTOUR
+            else -> if (random.nextFloat() < 0.75f) {
+                CurveGenerator.FlowType.CONTOUR
+            } else {
                 CurveGenerator.FlowType.ORGANIC
-            ).random(random)
-            else -> CurveGenerator.FlowType.entries.toTypedArray().random(random)
+            }
         }
 
         fun forLevel(level: Int, random: Random): DifficultyTuning {
-            val palette = paletteFor(level)
             val flow = flowFor(level, random)
 
             return when {
-                level <= 10 -> DifficultyTuning(
+                level <= EASY_MAX -> DifficultyTuning(
                     label = "Easy",
                     config = CurveGenerator.GenerationConfig(
-                        arrowMinLength = 45f,
-                        arrowMaxLength = 110f,
-                        arrowSpacing = 17f,
-                        strokeWidth = 8f,
+                        arrowMinLength = 34f,
+                        arrowMaxLength = 140f,
+                        arrowSpacing = 15f,
+                        strokeWidth = 7f,
                         bendiness = 0.35f,
                         swirl = 0.1f,
-                        flowType = flow,
-                        colorPalette = palette.take(2)
+                        curl = 0.25f,
+                        maxDependencies = 1,
+                        flowType = flow
                     ),
                     targetTightness = 0.30f
                 )
 
-                level <= 30 -> DifficultyTuning(
+                level <= NORMAL_MAX -> DifficultyTuning(
                     label = "Normal",
                     config = CurveGenerator.GenerationConfig(
-                        arrowMinLength = 40f,
-                        arrowMaxLength = 130f,
-                        arrowSpacing = 15f,
-                        strokeWidth = 7f,
+                        arrowMinLength = 28f,
+                        arrowMaxLength = 120f,
+                        arrowSpacing = 12f,
+                        strokeWidth = 5.5f,
                         bendiness = 0.45f,
                         swirl = 0.2f,
-                        flowType = flow,
-                        colorPalette = palette.take(3)
+                        curl = 0.4f,
+                        maxDependencies = 2,
+                        flowType = flow
                     ),
                     targetTightness = 0.48f
                 )
 
-                level <= 60 -> DifficultyTuning(
+                level <= HARD_MAX -> DifficultyTuning(
                     label = "Hard",
                     config = CurveGenerator.GenerationConfig(
-                        arrowMinLength = 35f,
-                        arrowMaxLength = 150f,
-                        arrowSpacing = 13f,
-                        strokeWidth = 6f,
+                        arrowMinLength = 22f,
+                        arrowMaxLength = 100f,
+                        arrowSpacing = 10f,
+                        strokeWidth = 4.5f,
                         bendiness = 0.55f,
                         swirl = 0.35f,
-                        flowType = flow,
-                        colorPalette = palette.take(4)
+                        curl = 0.55f,
+                        maxDependencies = 4,
+                        flowType = flow
                     ),
                     targetTightness = 0.64f
                 )
 
-                level <= 100 -> DifficultyTuning(
+                level <= EXPERT_MAX -> DifficultyTuning(
                     label = "Expert",
                     config = CurveGenerator.GenerationConfig(
-                        arrowMinLength = 30f,
-                        arrowMaxLength = 170f,
-                        arrowSpacing = 11f,
-                        strokeWidth = 5.5f,
+                        arrowMinLength = 18f,
+                        arrowMaxLength = 90f,
+                        arrowSpacing = 8.5f,
+                        strokeWidth = 3.8f,
                         bendiness = 0.65f,
                         swirl = 0.5f,
-                        flowType = flow,
-                        colorPalette = palette
+                        curl = 0.7f,
+                        maxDependencies = 6,
+                        flowType = flow
                     ),
                     targetTightness = 0.78f
                 )
@@ -112,14 +120,15 @@ data class DifficultyTuning(
                 else -> DifficultyTuning(
                     label = "Master",
                     config = CurveGenerator.GenerationConfig(
-                        arrowMinLength = 26f,
-                        arrowMaxLength = 190f,
-                        arrowSpacing = 9.5f,
-                        strokeWidth = 5f,
+                        arrowMinLength = 15f,
+                        arrowMaxLength = 80f,
+                        arrowSpacing = 7.5f,
+                        strokeWidth = 3.2f,
                         bendiness = 0.75f,
                         swirl = 0.65f,
-                        flowType = flow,
-                        colorPalette = palette
+                        curl = 0.85f,
+                        maxDependencies = 8,
+                        flowType = flow
                     ),
                     targetTightness = 0.88f
                 )

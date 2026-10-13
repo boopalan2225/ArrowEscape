@@ -36,6 +36,11 @@ data class ShapePath(
         for (cmd in commands) {
             when (cmd) {
                 is PathCommand.MoveTo -> {
+                    // Starting a new subpath implicitly closes the previous
+                    // one; leaving it open produced broken contour rings.
+                    if (currentPos.distanceTo(startPos) > 0.5f && segments.isNotEmpty()) {
+                        segments.add(lineSegment(currentPos, startPos))
+                    }
                     currentPos = cmd.point
                     startPos = cmd.point
                 }
@@ -62,18 +67,19 @@ data class ShapePath(
                     currentPos = cmd.end
                 }
                 is PathCommand.Close -> {
-                    if (currentPos.distanceTo(startPos) > 1f) {
-                        val p0 = currentPos
-                        val p3 = startPos
-                        val p1 = p0.lerp(p3, 0.33f)
-                        val p2 = p0.lerp(p3, 0.67f)
-                        segments.add(BezierSegment(p0, p1, p2, p3))
+                    if (currentPos.distanceTo(startPos) > 0.5f) {
+                        segments.add(lineSegment(currentPos, startPos))
                     }
                     currentPos = startPos
                 }
             }
         }
         
+        // Close the final subpath so its contour ring is complete.
+        if (currentPos.distanceTo(startPos) > 0.5f && segments.isNotEmpty()) {
+            segments.add(lineSegment(currentPos, startPos))
+        }
+
         return segments
     }
     
@@ -133,38 +139,52 @@ data class ShapePath(
     }
     
     /**
-     * Cached flattened outline. `contains()` is called tens of thousands of
-     * times during generation, so re-evaluating beziers each call was the
-     * single biggest cost in level building.
+     * Cached flattened outline, split into closed subpaths.
+     *
+     * Treating every point as one ring was wrong for multi-part shapes: it
+     * connected the owl's left eye to its right eye, so containment and edge
+     * distance were nonsense wherever a shape had more than one contour.
      */
-    private val outlinePoints: List<Point2D> by lazy {
-        val pts = mutableListOf<Point2D>()
+    val contours: List<List<Point2D>> by lazy {
+        val rings = mutableListOf<List<Point2D>>()
+        var current = mutableListOf<Point2D>()
+
         for (segment in toOutlineSegments()) {
+            // A gap between the previous end and this start means a new subpath.
+            if (current.isNotEmpty() && current.last().distanceTo(segment.p0) > 0.5f) {
+                if (current.size >= 3) rings.add(current)
+                current = mutableListOf()
+            }
             val steps = (segment.approximateLength() / 4f).toInt().coerceIn(6, 48)
-            for (i in 0..steps) pts.add(segment.pointAt(i.toFloat() / steps))
+            for (i in 0..steps) current.add(segment.pointAt(i.toFloat() / steps))
         }
-        pts
+        if (current.size >= 3) rings.add(current)
+        rings
     }
 
+    private val outlinePoints: List<Point2D> by lazy { contours.flatten() }
+
     /**
-     * Check if a point is inside this closed shape (even-odd ray casting
-     * against the cached outline polygon).
+     * Check if a point is inside the shape, using even-odd across all
+     * contours. Even-odd means an inner ring punches a hole, which is exactly
+     * the behaviour interior detail regions need.
      */
     fun contains(point: Point2D): Boolean {
-        val pts = outlinePoints
-        if (pts.size < 3) return false
-
         var inside = false
-        var j = pts.size - 1
-        for (i in pts.indices) {
-            val pi = pts[i]
-            val pj = pts[j]
-            if ((pi.y > point.y) != (pj.y > point.y)) {
-                val x = pi.x + (point.y - pi.y) / (pj.y - pi.y) * (pj.x - pi.x)
-                if (x > point.x) inside = !inside
+
+        for (ring in contours) {
+            var j = ring.size - 1
+            for (i in ring.indices) {
+                val pi = ring[i]
+                val pj = ring[j]
+                if ((pi.y > point.y) != (pj.y > point.y)) {
+                    val x = pi.x + (point.y - pi.y) / (pj.y - pi.y) * (pj.x - pi.x)
+                    if (x > point.x) inside = !inside
+                }
+                j = i
             }
-            j = i
         }
+
         return inside
     }
 
@@ -183,29 +203,67 @@ data class ShapePath(
     val center: Point2D get() = bounds.first.lerp(bounds.second, 0.5f)
 
     /**
+     * Nearest outline point to [point], across every contour.
+     */
+    private fun nearestOutline(point: Point2D): Pair<List<Point2D>, Int>? {
+        var bestRing: List<Point2D>? = null
+        var bestIndex = 0
+        var bestDistance = Float.MAX_VALUE
+
+        for (ring in contours) {
+            for (i in ring.indices) {
+                val d = ring[i].distanceTo(point)
+                if (d < bestDistance) {
+                    bestDistance = d
+                    bestRing = ring
+                    bestIndex = i
+                }
+            }
+        }
+
+        return bestRing?.let { it to bestIndex }
+    }
+
+    /**
      * Approximate distance from [point] to the nearest outline point.
      */
     fun distanceToEdge(point: Point2D): Float =
         outlinePoints.minOfOrNull { it.distanceTo(point) } ?: Float.MAX_VALUE
 
     /**
+     * Direction pointing from [point] back into the shape's interior.
+     * Used to reflect streamlines off the boundary.
+     */
+    fun inwardAngleAt(point: Point2D): Float {
+        val (ring, index) = nearestOutline(point) ?: return 0f
+        val edge = ring[index]
+
+        val next = ring[(index + 1) % ring.size]
+        val prev = ring[(index - 1 + ring.size) % ring.size]
+        val tangent = (next - prev).normalize()
+        val normal = tangent.perpendicular()
+
+        // Pick whichever normal direction actually lands inside.
+        val probe = (edge - point).normalize().let {
+            if (it == Point2D.ZERO) normal else it
+        }
+        val candidate = edge + normal * 4f
+        val inward = if (contains(candidate)) normal else normal * -1f
+
+        return kotlin.math.atan2(
+            inward.y + probe.y * 0.2f,
+            inward.x + probe.x * 0.2f
+        )
+    }
+
+    /**
      * Heading of the outline where it runs closest to [point]. Drives
      * CONTOUR flow, which is what gives fur/feather shapes their look.
      */
     fun edgeTangentAt(point: Point2D): Float {
-        val pts = outlinePoints
-        if (pts.size < 2) return 0f
-        var bestIndex = 0
-        var bestDistance = Float.MAX_VALUE
-        for (i in pts.indices) {
-            val d = pts[i].distanceTo(point)
-            if (d < bestDistance) {
-                bestDistance = d
-                bestIndex = i
-            }
-        }
-        val next = pts[(bestIndex + 1) % pts.size]
-        val prev = pts[(bestIndex - 1 + pts.size) % pts.size]
+        val (ring, index) = nearestOutline(point) ?: return 0f
+        val next = ring[(index + 1) % ring.size]
+        val prev = ring[(index - 1 + ring.size) % ring.size]
         return prev.angleTo(next)
     }
 
@@ -224,6 +282,11 @@ data class ShapePath(
     }
     
     companion object {
+        /** A straight line expressed as a degenerate cubic. */
+        private fun lineSegment(from: Point2D, to: Point2D) = BezierSegment(
+            from, from.lerp(to, 0.33f), from.lerp(to, 0.67f), to
+        )
+
         /**
          * Create a circle shape.
          */

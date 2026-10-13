@@ -66,6 +66,21 @@ class OccupancyGrid(
 }
 
 /**
+ * The shared canvas every region of a level is packed onto.
+ *
+ * One grid for the whole board (rather than one per region) is what lets the
+ * generator guarantee solvability: an arrow placed later can see - and avoid
+ * deadlocking with - everything placed before it, including arrows in other
+ * regions.
+ */
+class PackingCanvas(val width: Float, val height: Float, cellSize: Float = 2.5f) {
+    val grid = OccupancyGrid(0f, 0f, width, height, cellSize)
+
+    /** Who-must-leave-first graph; an arrow is only accepted if it stays acyclic. */
+    val dependencies = DependencyTracker(width, height)
+}
+
+/**
  * Uniform spatial hash over arrow polylines so escape-ray marching stays O(1)
  * per step instead of scanning every arrow on the board.
  */
