@@ -1,9 +1,12 @@
 package com.example.arrowescape.ui.settings
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -14,76 +17,50 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.milestone.MilestoneData
 import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
+/**
+ * Global settings. Note what is *not* here: the game mode. That is a choice you
+ * make on the way into a game, so it lives on Home, next to the level you are
+ * about to play.
+ */
 @Composable
 fun SettingsScreen(
     prefs: GamePreferences.Prefs,
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
-    onCurvedModeToggle: (Boolean) -> Unit = {},
     onDevModeToggle: (Boolean) -> Unit = {},
     onThemeSelect: (AppTheme) -> Unit = {},
     onBackClick: () -> Unit,
-    onUnlockAllLevels: () -> Unit = {},
-    onResetProgress: () -> Unit = {},
+    onUnlockAllLevels: (GameMode) -> Unit = {},
+    onResetProgress: (GameMode) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
+    var debugExpanded by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 2.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Text(
-                        text = "\u2190",
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.offset(y = (-3).dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
+        SettingsHeader(onBackClick = onBackClick)
 
         Column(
             modifier = Modifier
@@ -91,7 +68,6 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // Appearance
             SettingsSection(title = "Appearance") {
                 ThemePicker(
                     selected = AppTheme.resolve(prefs.themeId, isSystemInDarkTheme()),
@@ -99,18 +75,9 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // Game Settings Section
             SettingsSection(title = "Game") {
-                SettingsToggleItem(
-                    icon = "",
-                    title = "Curved Arrows",
-                    subtitle = "Smooth bezier curves (new engine)",
-                    checked = prefs.curvedMode,
-                    onCheckedChange = onCurvedModeToggle
-                )
-
                 SettingsToggleItem(
                     icon = "\uD83D\uDD0A",
                     title = "Sound Effects",
@@ -128,9 +95,25 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // About Section
+            // One card per mode: progress is per-mode, so the stats must be too.
+            SettingsSection(title = "Progress") {
+                GameMode.entries.forEachIndexed { index, mode ->
+                    if (index > 0) {
+                        Divider(color = gameColors.divider)
+                    }
+                    ModeStatsRow(
+                        mode = mode,
+                        progress = prefs.progressOf(mode),
+                        totalLevels = MilestoneData.forMode(mode).totalLevels,
+                        isActive = mode == prefs.mode
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
             SettingsSection(title = "About") {
                 SettingsClickableItem(
                     icon = "\uD83D\uDCDC",
@@ -147,45 +130,51 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // Statistics Section
-            SettingsSection(title = "Statistics") {
-                StatisticsCard(
-                    currentLevel = prefs.currentLevel,
-                    highestLevel = prefs.highestLevel,
-                    totalCompleted = prefs.totalLevelsCompleted
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Debug Section (for testing)
+            // Collapsed by default: destructive tools should take deliberate effort.
             SettingsSection(title = "Debug") {
-                SettingsToggleItem(
-                    icon = "\uD83D\uDEE0",
-                    title = "Developer Mode",
-                    subtitle = "Open any level from Home; play never changes your progress",
-                    checked = prefs.devMode,
-                    onCheckedChange = onDevModeToggle
+                ExpanderRow(
+                    title = "Developer Tools",
+                    subtitle = if (debugExpanded) "Tap to hide" else "Tap to show",
+                    expanded = debugExpanded,
+                    onToggle = { debugExpanded = !debugExpanded }
                 )
-                SettingsClickableItem(
-                    icon = "\uD83D\uDD13",
-                    title = "Unlock All Levels",
-                    subtitle = "Set progress to level ${MilestoneData.forMode(prefs.curvedMode).totalLevels}",
-                    onClick = onUnlockAllLevels
-                )
-                SettingsClickableItem(
-                    icon = "\uD83D\uDD04",
-                    title = "Reset Progress",
-                    subtitle = "Start from level 1",
-                    onClick = onResetProgress
-                )
+
+                AnimatedVisibility(
+                    visible = debugExpanded,
+                    enter = expandVertically(tween(220)) + fadeIn(tween(220)),
+                    exit = shrinkVertically(tween(180)) + fadeOut(tween(180))
+                ) {
+                    Column {
+                        SettingsToggleItem(
+                            icon = "\uD83D\uDEE0",
+                            title = "Developer Mode",
+                            subtitle = "Open any level from Home; play never changes your progress",
+                            checked = prefs.devMode,
+                            onCheckedChange = onDevModeToggle
+                        )
+                        GameMode.entries.forEach { mode ->
+                            SettingsClickableItem(
+                                icon = "\uD83D\uDD13",
+                                title = "Unlock All: ${mode.label}",
+                                subtitle = "Set ${mode.label} progress to level " +
+                                    "${MilestoneData.forMode(mode).totalLevels}",
+                                onClick = { onUnlockAllLevels(mode) }
+                            )
+                            SettingsClickableItem(
+                                icon = "\uD83D\uDD04",
+                                title = "Reset: ${mode.label}",
+                                subtitle = "Start ${mode.label} from level 1",
+                                onClick = { onResetProgress(mode) }
+                            )
+                        }
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(Modifier.height(32.dp))
 
-            // Footer
             Text(
                 text = "Made with \u2764 for puzzle lovers",
                 style = MaterialTheme.typography.bodySmall,
@@ -193,72 +182,73 @@ fun SettingsScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-private fun SettingsSection(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    val gameColors = ArrowEscapeTheme.gameColors
-
-    Column {
-        Text(
-            text = title.uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = gameColors.textSecondary,
-            letterSpacing = 1.sp,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
-        )
-
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 1.dp
+private fun SettingsHeader(onBackClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                content()
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Text(
+                    text = "\u2190",
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.offset(y = (-3).dp)
+                )
             }
+            Spacer(Modifier.width(16.dp))
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
 
+/** A header row whose chevron spins to show what the tap will do. */
 @Composable
-private fun SettingsToggleItem(
-    icon: String,
+private fun ExpanderRow(
     title: String,
     subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    expanded: Boolean,
+    onToggle: () -> Unit
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
+    val chevronTurn by animateFloatAsState(
+        targetValue = if (expanded) 90f else 0f,
+        animationSpec = tween(220),
+        label = "chevron"
+    )
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
+            .clickable(role = Role.Button, onClick = onToggle)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = icon, fontSize = 20.sp)
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Text
-        Column(modifier = Modifier.weight(1f)) {
+        Column(Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
@@ -271,142 +261,71 @@ private fun SettingsToggleItem(
                 color = gameColors.textSecondary
             )
         }
-
-        // Custom toggle switch
-        CustomSwitch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
-    }
-}
-
-@Composable
-private fun CustomSwitch(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    val thumbOffset by animateFloatAsState(
-        targetValue = if (checked) 1f else 0f,
-        animationSpec = tween(200),
-        label = "thumbOffset"
-    )
-
-    val trackColor by animateColorAsState(
-        targetValue = if (checked) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        },
-        animationSpec = tween(200),
-        label = "trackColor"
-    )
-
-    Box(
-        modifier = Modifier
-            .width(52.dp)
-            .height(28.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(trackColor)
-            .clickable { onCheckedChange(!checked) }
-            .padding(2.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Box(
-            modifier = Modifier
-                .offset(x = (24.dp * thumbOffset))
-                .size(24.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-        )
-    }
-}
-
-@Composable
-private fun SettingsClickableItem(
-    icon: String,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) {
-    val gameColors = ArrowEscapeTheme.gameColors
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Icon
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = icon, fontSize = 20.sp)
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Text
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = gameColors.textSecondary
-            )
-        }
-
-        // Arrow
         Text(
             text = "\u203A",
             fontSize = 24.sp,
-            color = gameColors.textSecondary
+            color = gameColors.textSecondary,
+            modifier = Modifier.rotate(chevronTurn)
         )
     }
 }
 
+/** One mode's standing: current, best, cleared. */
 @Composable
-private fun StatisticsCard(
-    currentLevel: Int,
-    highestLevel: Int,
-    totalCompleted: Int
+private fun ModeStatsRow(
+    mode: GameMode,
+    progress: GamePreferences.ModeProgress,
+    totalLevels: Int,
+    isActive: Boolean
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = mode.emoji, fontSize = 16.sp)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = mode.label,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (isActive) {
+                Spacer(Modifier.width(8.dp))
+                Badge(text = "PLAYING")
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+            StatItem("${progress.currentLevel}", "Current", MaterialTheme.colorScheme.primary)
+            StatItem("${progress.highestLevel}", "Best", gameColors.success)
             StatItem(
-                value = "$currentLevel",
-                label = "Current",
-                color = MaterialTheme.colorScheme.primary
-            )
-            StatItem(
-                value = "$highestLevel",
-                label = "Best",
-                color = gameColors.success
-            )
-            StatItem(
-                value = "$totalCompleted",
-                label = "Completed",
-                color = gameColors.arrowRight
+                "${progress.clearedOutOf(totalLevels)}/$totalLevels",
+                "Cleared",
+                gameColors.arrowRight
             )
         }
+    }
+}
+
+@Composable
+private fun Badge(text: String) {
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+        )
     }
 }
 
@@ -416,12 +335,10 @@ private fun StatItem(
     label: String,
     color: Color
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = color
         )
@@ -435,18 +352,22 @@ private fun StatItem(
 
 // ======================= PREVIEWS =======================
 
+private fun previewPrefs(sound: Boolean, haptics: Boolean) = GamePreferences.Prefs(
+    mode = GameMode.CURVED,
+    progress = mapOf(
+        GameMode.CURVED to GamePreferences.ModeProgress(15, 23, 22),
+        GameMode.CLASSIC to GamePreferences.ModeProgress(4, 7, 6)
+    ),
+    soundEnabled = sound,
+    hapticsEnabled = haptics
+)
+
 @Preview(showBackground = true, name = "Settings - Light")
 @Composable
 private fun SettingsScreenPreviewLight() {
     ArrowEscapeTheme(darkTheme = false) {
         SettingsScreen(
-            prefs = GamePreferences.Prefs(
-                currentLevel = 15,
-                highestLevel = 23,
-                totalLevelsCompleted = 22,
-                soundEnabled = true,
-                hapticsEnabled = false
-            ),
+            prefs = previewPrefs(sound = true, haptics = false),
             onSoundToggle = {},
             onHapticsToggle = {},
             onBackClick = {}
@@ -459,13 +380,7 @@ private fun SettingsScreenPreviewLight() {
 private fun SettingsScreenPreviewDark() {
     ArrowEscapeTheme(darkTheme = true) {
         SettingsScreen(
-            prefs = GamePreferences.Prefs(
-                currentLevel = 42,
-                highestLevel = 42,
-                totalLevelsCompleted = 41,
-                soundEnabled = false,
-                hapticsEnabled = true
-            ),
+            prefs = previewPrefs(sound = false, haptics = true),
             onSoundToggle = {},
             onHapticsToggle = {},
             onBackClick = {}

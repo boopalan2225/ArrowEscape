@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.analytics.AnalyticsTracker
+import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.game.curve.*
 import com.example.arrowescape.game.model.GameStatus
@@ -61,6 +62,9 @@ class CurvedGameViewModel(
 ) : ViewModel() {
 
     companion object {
+        /** This ViewModel owns the curved mode's progress, and only that. */
+        private val MODE = GameMode.CURVED
+
         private const val INTERSTITIAL_FREQUENCY = 4
         private const val ANIMATION_FRAME_MS = 16L
         private const val DEFAULT_LIVES = 3
@@ -160,7 +164,7 @@ class CurvedGameViewModel(
 
     fun setPendingLevel(level: Int) {
         pendingLevel = level
-        viewModelScope.launch { preferences.setCurrentLevel(level) }
+        viewModelScope.launch { preferences.setCurrentLevel(MODE, level) }
     }
 
     fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
@@ -383,9 +387,9 @@ class CurvedGameViewModel(
                 state.mistakes <= 2 -> 2
                 else -> 1
             }
-            preferences.saveLevelStars(state.level, stars)
-            preferences.setCurrentLevel(state.level + 1)
-            preferences.incrementTotalLevelsCompleted()
+            preferences.saveLevelStars(MODE, state.level, stars)
+            preferences.setCurrentLevel(MODE, state.level + 1)
+            preferences.incrementTotalLevelsCompleted(MODE)
             preferences.incrementLevelsSinceInterstitial()
             preferences.clearSavedGame()
 
@@ -466,7 +470,7 @@ class CurvedGameViewModel(
     fun onSkipStuckLevel() {
         val nextLevel = _gameState.value.level + 1
         if (!prefs.value.devMode) {
-            viewModelScope.launch { preferences.setCurrentLevel(nextLevel) }
+            viewModelScope.launch { preferences.setCurrentLevel(MODE, nextLevel) }
         }
         startLevel(nextLevel)
     }

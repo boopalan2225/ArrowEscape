@@ -1,5 +1,6 @@
 package com.example.arrowescape.ui.milestone
 
+import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.game.curve.CurvedJourney
 import com.example.arrowescape.game.curve.DifficultyTuning
 import com.example.arrowescape.game.curve.ShapeCatalog
@@ -98,7 +99,10 @@ object MilestoneData {
         )
     }
 
-    fun forMode(curved: Boolean): Journey = if (curved) curvedJourney else gridJourney
+    fun forMode(mode: GameMode): Journey = when (mode) {
+        GameMode.CURVED -> curvedJourney
+        GameMode.CLASSIC -> gridJourney
+    }
 
     // Flavour only; an unknown (future) shape just gets a puzzle piece.
     private val EMOJI = mapOf(

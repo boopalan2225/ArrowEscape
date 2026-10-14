@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import kotlinx.coroutines.launch
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,6 +21,7 @@ import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.ads.AdManagerImpl
 import com.example.arrowescape.analytics.AnalyticsTracker
 import com.example.arrowescape.analytics.DebugAnalyticsTracker
+import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.dev.DevLevelScreen
 import com.example.arrowescape.ui.game.CurvedGameScreen
@@ -58,6 +60,9 @@ class MainActivity : ComponentActivity() {
             // null until preferences load, so a saved theme never flashes the default first.
             val loaded by preferences.prefsFlow.collectAsState(initial = null)
             val theme = AppTheme.resolve(loaded?.themeId, isSystemInDarkTheme())
+
+            // One-time move of a pre-per-mode save into its owning mode.
+            LaunchedEffect(Unit) { preferences.migrateLegacyProgress() }
 
             ArrowEscapeTheme(theme) {
                 Surface(
@@ -104,11 +109,15 @@ fun ArrowEscapeApp(
         startDestination = "home"
     ) {
         composable("home") {
+            val scope = rememberCoroutineScope()
             HomeScreen(
                 prefs = prefs,
                 onPlayClick = {
                     analytics.trackGameStarted(prefs.currentLevel)
                     navController.navigate("game")
+                },
+                onModeSelect = { mode ->
+                    scope.launch { preferences.setGameMode(mode) }
                 },
                 onJourneyClick = {
                     navController.navigate("milestones")
@@ -145,82 +154,24 @@ fun ArrowEscapeApp(
             route = "game/{level}",
             arguments = listOf(navArgument("level") { type = NavType.IntType })
         ) { backStackEntry ->
-            val level = backStackEntry.arguments?.getInt("level") ?: prefs.currentLevel
-            
-            if (prefs.curvedMode) {
-                // Use curved arrow game (Option 2)
-                LaunchedEffect(level) {
-                    curvedGameViewModel.startLevel(level)
-                }
-                
-                CurvedGameScreen(
-                    viewModel = curvedGameViewModel,
-                    onBackClick = {
-                        curvedGameViewModel.saveGameState()
-                        navController.popBackStack()
-                    },
-                    onHomeClick = {
-                        curvedGameViewModel.saveGameState()
-                        navController.popBackStack("home", inclusive = false)
-                    }
-                )
-            } else {
-                // Use legacy grid-based game
-                LaunchedEffect(level) {
-                    gameViewModel.startLevel(level)
-                }
-                
-                GameScreen(
-                    viewModel = gameViewModel,
-                    onBackClick = {
-                        gameViewModel.saveGameState()
-                        navController.popBackStack()
-                    },
-                    onHomeClick = {
-                        gameViewModel.saveGameState()
-                        navController.popBackStack("home", inclusive = false)
-                    }
-                )
-            }
+            GameRoute(
+                mode = prefs.mode,
+                level = backStackEntry.arguments?.getInt("level") ?: prefs.currentLevel,
+                navController = navController,
+                gameViewModel = gameViewModel,
+                curvedGameViewModel = curvedGameViewModel
+            )
         }
 
         // Game route WITHOUT level argument (from Home Play button)
         composable("game") {
-            if (prefs.curvedMode) {
-                // Use curved arrow game (Option 2)
-                LaunchedEffect(prefs.currentLevel) {
-                    curvedGameViewModel.startLevel(prefs.currentLevel)
-                }
-                
-                CurvedGameScreen(
-                    viewModel = curvedGameViewModel,
-                    onBackClick = {
-                        curvedGameViewModel.saveGameState()
-                        navController.popBackStack()
-                    },
-                    onHomeClick = {
-                        curvedGameViewModel.saveGameState()
-                        navController.popBackStack("home", inclusive = false)
-                    }
-                )
-            } else {
-                // Use legacy grid-based game
-                LaunchedEffect(prefs.currentLevel) {
-                    gameViewModel.startLevel(prefs.currentLevel)
-                }
-                
-                GameScreen(
-                    viewModel = gameViewModel,
-                    onBackClick = {
-                        gameViewModel.saveGameState()
-                        navController.popBackStack()
-                    },
-                    onHomeClick = {
-                        gameViewModel.saveGameState()
-                        navController.popBackStack("home", inclusive = false)
-                    }
-                )
-            }
+            GameRoute(
+                mode = prefs.mode,
+                level = prefs.currentLevel,
+                navController = navController,
+                gameViewModel = gameViewModel,
+                curvedGameViewModel = curvedGameViewModel
+            )
         }
 
         composable("settings") {
@@ -233,9 +184,6 @@ fun ArrowEscapeApp(
                 onHapticsToggle = { enabled ->
                     gameViewModel.setHapticsEnabled(enabled)
                 },
-                onCurvedModeToggle = { enabled ->
-                    scope.launch { preferences.setCurvedMode(enabled) }
-                },
                 onDevModeToggle = { enabled ->
                     scope.launch { preferences.setDevMode(enabled) }
                 },
@@ -245,13 +193,61 @@ fun ArrowEscapeApp(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onUnlockAllLevels = {
+                onUnlockAllLevels = { mode ->
                     scope.launch {
-                        preferences.unlockAllLevels(MilestoneData.forMode(prefs.curvedMode).totalLevels)
+                        preferences.unlockAllLevels(mode, MilestoneData.forMode(mode).totalLevels)
                     }
                 },
-                onResetProgress = {
-                    scope.launch { preferences.resetProgress() }
+                onResetProgress = { mode ->
+                    scope.launch { preferences.resetProgress(mode) }
+                }
+            )
+        }
+    }
+}
+
+/**
+ * Plays [level] in [mode]. The two engines have identical navigation needs, so
+ * the only thing that differs is which screen and ViewModel get used.
+ */
+@Composable
+private fun GameRoute(
+    mode: GameMode,
+    level: Int,
+    navController: NavHostController,
+    gameViewModel: GameViewModel,
+    curvedGameViewModel: CurvedGameViewModel
+) {
+    val leaveToPreviousScreen = { navController.popBackStack(); Unit }
+    val leaveToHome = { navController.popBackStack("home", inclusive = false); Unit }
+
+    when (mode) {
+        GameMode.CURVED -> {
+            LaunchedEffect(level) { curvedGameViewModel.startLevel(level) }
+            CurvedGameScreen(
+                viewModel = curvedGameViewModel,
+                onBackClick = {
+                    curvedGameViewModel.saveGameState()
+                    leaveToPreviousScreen()
+                },
+                onHomeClick = {
+                    curvedGameViewModel.saveGameState()
+                    leaveToHome()
+                }
+            )
+        }
+
+        GameMode.CLASSIC -> {
+            LaunchedEffect(level) { gameViewModel.startLevel(level) }
+            GameScreen(
+                viewModel = gameViewModel,
+                onBackClick = {
+                    gameViewModel.saveGameState()
+                    leaveToPreviousScreen()
+                },
+                onHomeClick = {
+                    gameViewModel.saveGameState()
+                    leaveToHome()
                 }
             )
         }

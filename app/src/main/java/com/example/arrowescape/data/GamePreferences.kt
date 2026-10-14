@@ -13,20 +13,40 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 /**
  * Handles all persistent game data using DataStore.
+ *
+ * Progress is stored *per [GameMode]*: each mode has its own level, best level,
+ * completion count and stars, so a player can hop between modes and always pick
+ * up where they left off. Settings (sound, haptics, theme, dev mode) stay global.
  */
 class GamePreferences(private val context: Context) {
 
     companion object {
-        private val KEY_CURRENT_LEVEL = intPreferencesKey("current_level")
-        private val KEY_HIGHEST_LEVEL = intPreferencesKey("highest_level")
+        // ── Global settings ──────────────────────────────────────────────
         private val KEY_SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
         private val KEY_HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
         private val KEY_LEVELS_SINCE_INTERSTITIAL = intPreferencesKey("levels_since_interstitial")
-        private val KEY_TOTAL_LEVELS_COMPLETED = intPreferencesKey("total_levels_completed")
-        private val KEY_LEVEL_STARS = stringPreferencesKey("level_stars") // JSON: "1:3,2:2,3:3"
-        private val KEY_CURVED_MODE = booleanPreferencesKey("curved_mode") // Use curved arrows
         private val KEY_DEV_MODE = booleanPreferencesKey("dev_mode") // Open any level, no progress changes
         private val KEY_THEME = stringPreferencesKey("theme") // AppTheme.id; absent = match the phone
+        private val KEY_GAME_MODE = stringPreferencesKey("game_mode") // GameMode.id the player last chose
+        private val KEY_MIGRATED = booleanPreferencesKey("progress_migrated_to_per_mode")
+
+        // ── Per-mode progress (suffixed with GameMode.id) ────────────────
+        private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
+        private fun keyHighestLevel(mode: GameMode) = intPreferencesKey("highest_level_${mode.id}")
+        private fun keyTotalCompleted(mode: GameMode) = intPreferencesKey("total_completed_${mode.id}")
+        private fun keyLevelStars(mode: GameMode) = stringPreferencesKey("level_stars_${mode.id}")
+
+        /**
+         * Pre-per-mode keys. Progress used to be global - one set of numbers
+         * shared by whichever mode was switched on - so on upgrade it is
+         * inherited by the mode the player was last in, and only until that
+         * mode's own keys get written. Read-only: nothing writes these now.
+         */
+        private val LEGACY_CURRENT_LEVEL = intPreferencesKey("current_level")
+        private val LEGACY_HIGHEST_LEVEL = intPreferencesKey("highest_level")
+        private val LEGACY_TOTAL_COMPLETED = intPreferencesKey("total_levels_completed")
+        private val LEGACY_LEVEL_STARS = stringPreferencesKey("level_stars")
+        private val LEGACY_CURVED_MODE = booleanPreferencesKey("curved_mode")
 
         // Saved game state
         private val KEY_SAVED_LEVEL = intPreferencesKey("saved_level")
@@ -34,23 +54,47 @@ class GamePreferences(private val context: Context) {
         private val KEY_SAVED_ARROWS = stringPreferencesKey("saved_arrows") // JSON encoded
     }
 
-    /**
-     * Data class representing all preferences.
-     */
-    data class Prefs(
+    /** One mode's standing: where the player is, and how well they did. */
+    data class ModeProgress(
         val currentLevel: Int = 1,
         val highestLevel: Int = 1,
+        val totalLevelsCompleted: Int = 0,
+        val levelStars: Map<Int, Int> = emptyMap() // level -> stars (1-3)
+    ) {
+        /**
+         * Levels cleared, never more than [totalLevels]. A journey can be
+         * shorter than an old save (shapes get reworked, levels wrap), and
+         * "370 of 150 cleared" helps nobody.
+         */
+        fun clearedOutOf(totalLevels: Int): Int =
+            totalLevelsCompleted.coerceAtMost(totalLevels)
+    }
+
+    /**
+     * Data class representing all preferences.
+     *
+     * [currentLevel] and friends are conveniences that read the *active* mode's
+     * progress, so callers that do not care about modes need not know they exist.
+     */
+    data class Prefs(
+        val mode: GameMode = GameMode.DEFAULT,
+        val progress: Map<GameMode, ModeProgress> = emptyMap(),
         val soundEnabled: Boolean = true,
         val hapticsEnabled: Boolean = true,
         val levelsSinceInterstitial: Int = 0,
-        val totalLevelsCompleted: Int = 0,
-        val levelStars: Map<Int, Int> = emptyMap(), // level -> stars (1-3)
-        val curvedMode: Boolean = true, // Use curved arrows by default (Option 2)
         /** Developer mode: level picker, prev/next, and play never touches saved progress. */
         val devMode: Boolean = false,
         /** [com.example.arrowescape.ui.theme.AppTheme.id] the player picked; null = never chose. */
         val themeId: String? = null
-    )
+    ) {
+        fun progressOf(mode: GameMode): ModeProgress = progress[mode] ?: ModeProgress()
+
+        val activeProgress: ModeProgress get() = progressOf(mode)
+        val currentLevel: Int get() = activeProgress.currentLevel
+        val highestLevel: Int get() = activeProgress.highestLevel
+        val totalLevelsCompleted: Int get() = activeProgress.totalLevelsCompleted
+        val levelStars: Map<Int, Int> get() = activeProgress.levelStars
+    }
 
     /**
      * Flow of all preferences.
@@ -63,41 +107,79 @@ class GamePreferences(private val context: Context) {
                 throw exception
             }
         }
-        .map { prefs ->
-            // Parse level stars from "1:3,2:2,3:3" format
-            val starsString = prefs[KEY_LEVEL_STARS] ?: ""
-            val levelStars = starsString.split(",")
-                .filter { it.contains(":") }
-                .mapNotNull { entry ->
-                    val parts = entry.split(":")
-                    if (parts.size == 2) {
-                        val level = parts[0].toIntOrNull()
-                        val stars = parts[1].toIntOrNull()
-                        if (level != null && stars != null) level to stars else null
-                    } else null
-                }
-                .toMap()
-            
+        .map { stored ->
             Prefs(
-                currentLevel = prefs[KEY_CURRENT_LEVEL] ?: 1,
-                highestLevel = prefs[KEY_HIGHEST_LEVEL] ?: 1,
-                soundEnabled = prefs[KEY_SOUND_ENABLED] ?: true,
-                hapticsEnabled = prefs[KEY_HAPTICS_ENABLED] ?: true,
-                levelsSinceInterstitial = prefs[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
-                totalLevelsCompleted = prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0,
-                levelStars = levelStars,
-                curvedMode = prefs[KEY_CURVED_MODE] ?: true, // Default to curved mode
-                devMode = prefs[KEY_DEV_MODE] ?: false,
-                themeId = prefs[KEY_THEME]
+                mode = resolveMode(stored),
+                progress = GameMode.entries.associateWith { stored.progressOf(it) },
+                soundEnabled = stored[KEY_SOUND_ENABLED] ?: true,
+                hapticsEnabled = stored[KEY_HAPTICS_ENABLED] ?: true,
+                levelsSinceInterstitial = stored[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
+                devMode = stored[KEY_DEV_MODE] ?: false,
+                themeId = stored[KEY_THEME]
             )
         }
 
-    suspend fun setCurrentLevel(level: Int) {
+    /** The chosen mode, honouring the legacy `curved_mode` flag for upgraders. */
+    private fun resolveMode(stored: Preferences): GameMode {
+        stored[KEY_GAME_MODE]?.let { return GameMode.fromId(it) }
+        val legacyCurved = stored[LEGACY_CURVED_MODE] ?: return GameMode.DEFAULT
+        return if (legacyCurved) GameMode.CURVED else GameMode.CLASSIC
+    }
+
+    private fun Preferences.progressOf(mode: GameMode): ModeProgress = ModeProgress(
+        currentLevel = this[keyCurrentLevel(mode)] ?: 1,
+        highestLevel = this[keyHighestLevel(mode)] ?: 1,
+        totalLevelsCompleted = this[keyTotalCompleted(mode)] ?: 0,
+        levelStars = parseStars(this[keyLevelStars(mode)])
+    )
+
+    /**
+     * Moves a pre-per-mode save into its owning mode, exactly once.
+     *
+     * Progress used to be global - one set of numbers shared by whichever mode
+     * was switched on - so it belongs to the mode the player was last in.
+     * Deciding this lazily at read time would be wrong: the answer would change
+     * the moment they switched modes, dragging the old save along with them.
+     */
+    suspend fun migrateLegacyProgress() {
         context.dataStore.edit { prefs ->
-            prefs[KEY_CURRENT_LEVEL] = level
-            if (level > (prefs[KEY_HIGHEST_LEVEL] ?: 1)) {
-                prefs[KEY_HIGHEST_LEVEL] = level
+            if (prefs[KEY_MIGRATED] == true) return@edit
+            prefs[KEY_MIGRATED] = true
+
+            val owner = resolveMode(prefs)
+            prefs[keyCurrentLevel(owner)] = prefs[LEGACY_CURRENT_LEVEL] ?: return@edit
+            prefs[keyHighestLevel(owner)] = prefs[LEGACY_HIGHEST_LEVEL] ?: 1
+            prefs[keyTotalCompleted(owner)] = prefs[LEGACY_TOTAL_COMPLETED] ?: 0
+            prefs[keyLevelStars(owner)] = prefs[LEGACY_LEVEL_STARS] ?: ""
+            prefs[KEY_GAME_MODE] = owner.id
+        }
+    }
+
+    /** Stars are stored compactly as "1:3,2:2,3:3". */
+    private fun parseStars(encoded: String?): Map<Int, Int> =
+        encoded.orEmpty().split(",")
+            .mapNotNull { entry ->
+                val parts = entry.split(":")
+                val level = parts.getOrNull(0)?.toIntOrNull()
+                val stars = parts.getOrNull(1)?.toIntOrNull()
+                if (level != null && stars != null) level to stars else null
             }
+            .toMap()
+
+    private fun encodeStars(stars: Map<Int, Int>): String =
+        stars.entries.joinToString(",") { "${it.key}:${it.value}" }
+
+    suspend fun setCurrentLevel(mode: GameMode, level: Int) {
+        context.dataStore.edit { prefs ->
+            val best = prefs.progressOf(mode).highestLevel
+            prefs[keyCurrentLevel(mode)] = level
+            prefs[keyHighestLevel(mode)] = maxOf(level, best)
+        }
+    }
+
+    suspend fun setGameMode(mode: GameMode) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_GAME_MODE] = mode.id
         }
     }
 
@@ -113,40 +195,20 @@ class GamePreferences(private val context: Context) {
         }
     }
 
-    suspend fun incrementTotalLevelsCompleted() {
+    suspend fun incrementTotalLevelsCompleted(mode: GameMode) {
         context.dataStore.edit { prefs ->
-            prefs[KEY_TOTAL_LEVELS_COMPLETED] = (prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0) + 1
+            prefs[keyTotalCompleted(mode)] = prefs.progressOf(mode).totalLevelsCompleted + 1
         }
     }
 
-    suspend fun saveLevelStars(level: Int, stars: Int) {
+    suspend fun saveLevelStars(mode: GameMode, level: Int, stars: Int) {
         context.dataStore.edit { prefs ->
-            val existing = prefs[KEY_LEVEL_STARS] ?: ""
-            val starsMap = mutableMapOf<Int, Int>()
-            
-            // Parse existing stars
-            if (existing.isNotBlank()) {
-                existing.split(",").forEach { entry ->
-                    if (entry.contains(":")) {
-                        val parts = entry.split(":")
-                        val l = parts[0].toIntOrNull()
-                        val s = parts[1].toIntOrNull()
-                        if (l != null && s != null) {
-                            starsMap[l] = s
-                        }
-                    }
-                }
-            }
-            
+            val starsMap = prefs.progressOf(mode).levelStars.toMutableMap()
             // Only update if new stars are better than existing
-            val currentStars = starsMap[level] ?: 0
-            if (stars > currentStars) {
+            if (stars > (starsMap[level] ?: 0)) {
                 starsMap[level] = stars
             }
-            
-            // Convert back to string
-            val starsString = starsMap.entries.map { entry -> "${entry.key}:${entry.value}" }.joinToString(",")
-            prefs[KEY_LEVEL_STARS] = starsString
+            prefs[keyLevelStars(mode)] = encodeStars(starsMap)
         }
     }
 
@@ -159,12 +221,6 @@ class GamePreferences(private val context: Context) {
     suspend fun setHapticsEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_HAPTICS_ENABLED] = enabled
-        }
-    }
-
-    suspend fun setCurvedMode(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_CURVED_MODE] = enabled
         }
     }
 
@@ -181,28 +237,27 @@ class GamePreferences(private val context: Context) {
     }
 
     /**
-     * DEBUG: Unlock all levels for testing.
+     * DEBUG: Unlock all levels of one mode for testing.
      */
-    suspend fun unlockAllLevels(maxLevel: Int) {
+    suspend fun unlockAllLevels(mode: GameMode, maxLevel: Int) {
         context.dataStore.edit { prefs ->
-            prefs[KEY_HIGHEST_LEVEL] = maxLevel
-            prefs[KEY_CURRENT_LEVEL] = maxLevel
-            prefs[KEY_TOTAL_LEVELS_COMPLETED] = maxLevel - 1
+            prefs[keyHighestLevel(mode)] = maxLevel
+            prefs[keyCurrentLevel(mode)] = maxLevel
+            prefs[keyTotalCompleted(mode)] = maxLevel - 1
             // Give 2 stars to all levels for testing
-            val starsString = (1 until maxLevel).joinToString(",") { "$it:2" }
-            prefs[KEY_LEVEL_STARS] = starsString
+            prefs[keyLevelStars(mode)] = encodeStars((1 until maxLevel).associateWith { 2 })
         }
     }
 
     /**
-     * DEBUG: Reset progress to level 1.
+     * DEBUG: Reset one mode's progress to level 1.
      */
-    suspend fun resetProgress() {
+    suspend fun resetProgress(mode: GameMode) {
         context.dataStore.edit { prefs ->
-            prefs[KEY_HIGHEST_LEVEL] = 1
-            prefs[KEY_CURRENT_LEVEL] = 1
-            prefs[KEY_TOTAL_LEVELS_COMPLETED] = 0
-            prefs[KEY_LEVEL_STARS] = ""
+            prefs[keyHighestLevel(mode)] = 1
+            prefs[keyCurrentLevel(mode)] = 1
+            prefs[keyTotalCompleted(mode)] = 0
+            prefs[keyLevelStars(mode)] = ""
         }
     }
 

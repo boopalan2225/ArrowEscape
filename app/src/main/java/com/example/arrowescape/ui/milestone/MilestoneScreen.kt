@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.milestone.MilestoneData.LevelState
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
@@ -47,7 +48,7 @@ fun MilestoneScreen(
     val levelStars = prefs.levelStars
     val listState = rememberLazyListState()
     // The map shows whichever game the player is actually playing.
-    val journey = MilestoneData.forMode(prefs.curvedMode)
+    val journey = MilestoneData.forMode(prefs.mode)
 
     // Auto-scroll to the current chapter.
     LaunchedEffect(journey) {
@@ -304,16 +305,25 @@ private fun LevelBubble(
 
 // ======================= PREVIEWS =======================
 
+private fun previewPrefs(best: Int, done: Int, stars: Map<Int, Int>) =
+    GamePreferences.Prefs(
+        mode = GameMode.CURVED,
+        progress = mapOf(
+            GameMode.CURVED to GamePreferences.ModeProgress(
+                currentLevel = best,
+                highestLevel = best,
+                totalLevelsCompleted = done,
+                levelStars = stars
+            )
+        )
+    )
+
 @Preview(showBackground = true, name = "Journey - Light")
 @Composable
 private fun MilestoneScreenPreviewLight() {
     ArrowEscapeTheme(darkTheme = false) {
         MilestoneScreen(
-            prefs = GamePreferences.Prefs(
-                highestLevel = 25,
-                totalLevelsCompleted = 24,
-                levelStars = mapOf(1 to 3, 2 to 2, 3 to 3, 4 to 1, 5 to 2)
-            ),
+            prefs = previewPrefs(25, 24, mapOf(1 to 3, 2 to 2, 3 to 3, 4 to 1, 5 to 2)),
             onBackClick = {},
             onPlayLevel = {}
         )
@@ -325,11 +335,7 @@ private fun MilestoneScreenPreviewLight() {
 private fun MilestoneScreenPreviewDark() {
     ArrowEscapeTheme(darkTheme = true) {
         MilestoneScreen(
-            prefs = GamePreferences.Prefs(
-                highestLevel = 105,
-                totalLevelsCompleted = 104,
-                levelStars = (1..104).associateWith { (it % 3) + 1 }
-            ),
+            prefs = previewPrefs(105, 104, (1..104).associateWith { (it % 3) + 1 }),
             onBackClick = {},
             onPlayLevel = {}
         )

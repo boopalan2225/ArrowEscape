@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.analytics.AnalyticsTracker
+import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.game.engine.GameEngine
 import com.example.arrowescape.game.level.LevelGenerator
@@ -34,6 +35,9 @@ class GameViewModel(
 ) : ViewModel() {
 
     companion object {
+        /** This ViewModel owns the classic grid mode's progress, and only that. */
+        private val MODE = GameMode.CLASSIC
+
         private const val INTERSTITIAL_FREQUENCY = 4 // Show ad every N completed levels
         private const val ESCAPE_ANIMATION_DURATION_MS = 530L
         private const val SHAKE_ANIMATION_DURATION_MS = 300L
@@ -84,7 +88,7 @@ class GameViewModel(
      */
     fun setPendingLevel(level: Int) {
         pendingLevel = level
-        viewModelScope.launch { preferences.setCurrentLevel(level) }
+        viewModelScope.launch { preferences.setCurrentLevel(MODE, level) }
     }
 
     /**
@@ -306,10 +310,10 @@ class GameViewModel(
                 state.mistakes <= 2 -> 2
                 else -> 1
             }
-            preferences.saveLevelStars(state.level, stars)
+            preferences.saveLevelStars(MODE, state.level, stars)
 
-            preferences.setCurrentLevel(state.level + 1)
-            preferences.incrementTotalLevelsCompleted()
+            preferences.setCurrentLevel(MODE, state.level + 1)
+            preferences.incrementTotalLevelsCompleted(MODE)
             preferences.incrementLevelsSinceInterstitial()
             preferences.clearSavedGame()
 
