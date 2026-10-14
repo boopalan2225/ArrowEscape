@@ -2,12 +2,6 @@ package com.example.arrowescape.ui.game
 
 import android.app.Activity
 import android.content.Context
-import android.media.AudioAttributes
-import android.media.SoundPool
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -97,38 +91,11 @@ class GameViewModel(
      */
     fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
 
-    // Haptics
-    private val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
-    } else {
-        @Suppress("DEPRECATION")
-        context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-    }
-
-    // Sound pool for effects
-    private var soundPool: SoundPool? = null
-    private var successSoundId: Int = 0
-    private var errorSoundId: Int = 0
-    private var completeSoundId: Int = 0
+    // Haptics & sound - shared implementation, see GameFeedback.
+    private val feedback = GameFeedback(context)
 
     init {
-        initSounds()
         preloadAds()
-    }
-
-    private fun initSounds() {
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_GAME)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(3)
-            .setAudioAttributes(audioAttributes)
-            .build()
-
-        // We'll use programmatic sounds for now (tone generation would need more setup)
-        // In production, load actual .ogg files from res/raw
     }
 
     private fun preloadAds() {
@@ -250,8 +217,8 @@ class GameViewModel(
         _combo.value = _combo.value + 1
 
         // Play sound and haptic
-        if (prefs.value.soundEnabled) playSuccessSound()
-        if (prefs.value.hapticsEnabled) playSuccessHaptic()
+        if (prefs.value.soundEnabled) feedback.playSuccessSound()
+        if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()
 
         analytics.trackValidMove(newState.level, newState.remainingCount)
 
@@ -291,8 +258,8 @@ class GameViewModel(
         _combo.value = 0
 
         // Play error sound and haptic
-        if (prefs.value.soundEnabled) playErrorSound()
-        if (prefs.value.hapticsEnabled) playErrorHaptic()
+        if (prefs.value.soundEnabled) feedback.playErrorSound()
+        if (prefs.value.hapticsEnabled) feedback.playErrorHaptic()
 
         _gameState.value = newState
         analytics.trackInvalidMove(newState.level, newState.lives)
@@ -332,8 +299,8 @@ class GameViewModel(
             preferences.incrementLevelsSinceInterstitial()
             preferences.clearSavedGame()
 
-            if (prefs.value.soundEnabled) playCompleteSound()
-            if (prefs.value.hapticsEnabled) playSuccessHaptic()
+            if (prefs.value.soundEnabled) feedback.playCompleteSound()
+            if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()
         }
     }
 
@@ -406,45 +373,9 @@ class GameViewModel(
         }
     }
 
-    // Sound effects (simplified - in production, use actual audio files)
-    private fun playSuccessSound() {
-        // Would play a short "whoosh" sound
-    }
-
-    private fun playErrorSound() {
-        // Would play a short "bonk" sound
-    }
-
-    private fun playCompleteSound() {
-        // Would play a celebratory chime
-    }
-
-    // Haptic feedback
-    private fun playSuccessHaptic() {
-        vibrator?.let { vib ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
-            } else {
-                @Suppress("DEPRECATION")
-                vib.vibrate(10)
-            }
-        }
-    }
-
-    private fun playErrorHaptic() {
-        vibrator?.let { vib ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK))
-            } else {
-                @Suppress("DEPRECATION")
-                vib.vibrate(longArrayOf(0, 30, 50, 30), -1)
-            }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
-        soundPool?.release()
+        feedback.release()
     }
 
     // Settings

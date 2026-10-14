@@ -96,7 +96,7 @@ class PlayGamesCloudSave : CloudSave {
         if (_account.value == null) return null
         return runCatching {
             val snapshot = openResolved(act)
-            val bytes = snapshot.snapshotContents.readFully() ?: return@runCatching null
+            val bytes = snapshot.snapshotContents.readFully()
             ProgressSnapshot.decode(String(bytes, Charsets.UTF_8))
         }.onFailure {
             Log.w(TAG, "Cloud pull failed - continuing with local progress only", it)
@@ -129,7 +129,7 @@ class PlayGamesCloudSave : CloudSave {
         while (result.isConflict) {
             val conflict = checkNotNull(result.conflict)
             val merged = mergeConflict(conflict.snapshot, conflict.conflictingSnapshot)
-            val keep = conflict.snapshot ?: conflict.conflictingSnapshot!!
+            val keep = conflict.snapshot
             keep.snapshotContents.writeBytes(merged)
             result = client.resolveConflict(conflict.conflictId, keep).await()
         }

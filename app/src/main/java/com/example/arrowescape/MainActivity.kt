@@ -129,7 +129,7 @@ fun ArrowEscapeApp(
                 prefs = prefs,
                 onPlayClick = {
                     analytics.trackGameStarted(prefs.currentLevel)
-                    navController.navigate("game")
+                    navController.navigate("game/${prefs.currentLevel}")
                 },
                 onModeSelect = { mode ->
                     scope.launch { preferences.setGameMode(mode) }
@@ -164,7 +164,14 @@ fun ArrowEscapeApp(
             )
         }
 
-        // Game route WITH level argument (from Journey screen)
+        // The only game route. Level always comes from a fixed nav
+        // argument, never from a live-recomposing prefs value. There used
+        // to be a second route with no argument for the Home Play button,
+        // reading prefs.currentLevel directly - the moment a level
+        // completed and bumped that value, this screen own LaunchedEffect
+        // on level saw a new key and silently restarted into the next
+        // level, skipping the completion dialog entirely. One route,
+        // always a captured argument, removes the trap.
         composable(
             route = "game/{level}",
             arguments = listOf(navArgument("level") { type = NavType.IntType })
@@ -172,17 +179,6 @@ fun ArrowEscapeApp(
             GameRoute(
                 mode = prefs.mode,
                 level = backStackEntry.arguments?.getInt("level") ?: prefs.currentLevel,
-                navController = navController,
-                gameViewModel = gameViewModel,
-                curvedGameViewModel = curvedGameViewModel
-            )
-        }
-
-        // Game route WITHOUT level argument (from Home Play button)
-        composable("game") {
-            GameRoute(
-                mode = prefs.mode,
-                level = prefs.currentLevel,
                 navController = navController,
                 gameViewModel = gameViewModel,
                 curvedGameViewModel = curvedGameViewModel
