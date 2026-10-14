@@ -194,7 +194,7 @@ private fun ProgressCard(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "$completed of $totalLevels cleared  \u00B7  best ${progress.highestLevel}",
+                text = "$completed of $totalLevels cleared  \u00B7  best ${progress.bestOutOf(totalLevels)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = gameColors.textSecondary,
                 textAlign = TextAlign.Center

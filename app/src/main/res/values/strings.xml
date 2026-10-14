@@ -20,4 +20,14 @@
     <string name="ad_unavailable">Reward unavailable right now</string>
     <string name="back">Back</string>
     <string name="time_format">%d:%02d</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

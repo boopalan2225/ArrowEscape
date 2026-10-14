@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import kotlinx.coroutines.launch
@@ -21,6 +22,9 @@ import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.ads.AdManagerImpl
 import com.example.arrowescape.analytics.AnalyticsTracker
 import com.example.arrowescape.analytics.DebugAnalyticsTracker
+import com.example.arrowescape.cloud.CloudSave
+import com.example.arrowescape.cloud.CloudSyncCoordinator
+import com.example.arrowescape.cloud.PlayGamesCloudSave
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.dev.DevLevelScreen
@@ -42,6 +46,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var preferences: GamePreferences
     private lateinit var adManager: AdManager
     private lateinit var analytics: AnalyticsTracker
+    private lateinit var cloudSave: CloudSave
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +55,17 @@ class MainActivity : ComponentActivity() {
         preferences = GamePreferences(applicationContext)
         adManager = AdManagerImpl()
         analytics = DebugAnalyticsTracker() // Use NoOpAnalyticsTracker for production
+        cloudSave = PlayGamesCloudSave()
 
         // Initialize ads
         adManager.initialize(applicationContext)
+
+        // Play Games sign-in is best-effort and silent on launch - a player who
+        // has never connected this app to Play Games just plays locally, same
+        // as before this existed. See Settings for the explicit sign-in button.
+        cloudSave.initialize(this)
+        cloudSave.signInSilently()
+        CloudSyncCoordinator(cloudSave, preferences).start(lifecycleScope)
 
         analytics.trackAppOpen()
 
@@ -73,7 +86,8 @@ class MainActivity : ComponentActivity() {
                         ArrowEscapeApp(
                             preferences = preferences,
                             adManager = adManager,
-                            analytics = analytics
+                            analytics = analytics,
+                            cloudSave = cloudSave
                         )
                     }
                 }
@@ -86,7 +100,8 @@ class MainActivity : ComponentActivity() {
 fun ArrowEscapeApp(
     preferences: GamePreferences,
     adManager: AdManager,
-    analytics: AnalyticsTracker
+    analytics: AnalyticsTracker,
+    cloudSave: CloudSave
 ) {
     val navController = rememberNavController()
     val prefs by preferences.prefsFlow.collectAsState(initial = GamePreferences.Prefs())
@@ -176,8 +191,13 @@ fun ArrowEscapeApp(
 
         composable("settings") {
             val scope = rememberCoroutineScope()
+            val account by cloudSave.account.collectAsState()
+            val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
             SettingsScreen(
                 prefs = prefs,
+                account = account,
+                onSignInClick = { activity?.let(cloudSave::signIn) },
+                onSignOutClick = { cloudSave.signOut() },
                 onSoundToggle = { enabled ->
                     gameViewModel.setSoundEnabled(enabled)
                 },

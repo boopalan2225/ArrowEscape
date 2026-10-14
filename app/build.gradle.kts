@@ -29,6 +29,8 @@ android {
 
         // AdMob App ID - Replace with your production ID before release
         manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713" // Test ID
+        // Play Games Services App ID lives in res/values/strings.xml, not here -
+        // see game_services_app_id for why.
     }
 
     buildTypes {
@@ -103,6 +105,10 @@ dependencies {
 
     // Google Mobile Ads (AdMob)
     implementation("com.google.android.gms:play-services-ads:22.6.0")
+
+    // Google Play Games Services (cloud save / sign-in)
+    implementation("com.google.android.gms:play-services-games-v2:22.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

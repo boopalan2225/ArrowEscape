@@ -68,6 +68,19 @@ class GamePreferences(private val context: Context) {
          */
         fun clearedOutOf(totalLevels: Int): Int =
             totalLevelsCompleted.coerceAtMost(totalLevels)
+
+        /**
+         * Best level ever reached, never more than [totalLevels].
+         *
+         * A stray value above a mode's own ceiling can happen - a historical
+         * global save migrated into the wrong mode, a debug unlock, a journey
+         * that got shorter - and showing it verbatim ("Best: 370" in a game
+         * that only has 150 levels) is just confusing. Clamp the display
+         * without touching the stored number, so a later legitimate fix to the
+         * data is not fighting a UI that already lied about it.
+         */
+        fun bestOutOf(totalLevels: Int): Int =
+            highestLevel.coerceAtMost(totalLevels)
     }
 
     /**
@@ -180,6 +193,26 @@ class GamePreferences(private val context: Context) {
     suspend fun setGameMode(mode: GameMode) {
         context.dataStore.edit { prefs ->
             prefs[KEY_GAME_MODE] = mode.id
+        }
+    }
+
+    /**
+     * Overwrites every mode's progress verbatim with [progress].
+     *
+     * Used only by cloud sync, which has already decided what the right
+     * numbers are (see `cloud.ProgressSnapshot.merge`) - this is a plain
+     * writer, not a merge, so GamePreferences does not need to know cloud
+     * save exists.
+     */
+    suspend fun applySnapshot(progress: Map<GameMode, ModeProgress>) {
+        context.dataStore.edit { prefs ->
+            for (mode in GameMode.entries) {
+                val p = progress[mode] ?: continue
+                prefs[keyCurrentLevel(mode)] = p.currentLevel
+                prefs[keyHighestLevel(mode)] = p.highestLevel
+                prefs[keyTotalCompleted(mode)] = p.totalLevelsCompleted
+                prefs[keyLevelStars(mode)] = encodeStars(p.levelStars)
+            }
         }
     }
 

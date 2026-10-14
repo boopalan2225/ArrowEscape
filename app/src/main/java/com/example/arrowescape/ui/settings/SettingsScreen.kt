@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.arrowescape.cloud.CloudAccount
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.milestone.MilestoneData
@@ -43,6 +44,9 @@ import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 @Composable
 fun SettingsScreen(
     prefs: GamePreferences.Prefs,
+    account: CloudAccount? = null,
+    onSignInClick: () -> Unit = {},
+    onSignOutClick: () -> Unit = {},
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
     onDevModeToggle: (Boolean) -> Unit = {},
@@ -74,6 +78,14 @@ fun SettingsScreen(
                     onSelect = onThemeSelect
                 )
             }
+
+            Spacer(Modifier.height(24.dp))
+
+            AccountSection(
+                account = account,
+                onSignInClick = onSignInClick,
+                onSignOutClick = onSignOutClick
+            )
 
             Spacer(Modifier.height(24.dp))
 
@@ -303,7 +315,7 @@ private fun ModeStatsRow(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             StatItem("${progress.currentLevel}", "Current", MaterialTheme.colorScheme.primary)
-            StatItem("${progress.highestLevel}", "Best", gameColors.success)
+            StatItem("${progress.bestOutOf(totalLevels)}", "Best", gameColors.success)
             StatItem(
                 "${progress.clearedOutOf(totalLevels)}/$totalLevels",
                 "Cleared",
