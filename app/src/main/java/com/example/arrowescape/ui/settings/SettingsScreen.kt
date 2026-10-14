@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GamePreferences
+import com.example.arrowescape.ui.milestone.MilestoneData
+import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 @Composable
@@ -32,6 +35,7 @@ fun SettingsScreen(
     onHapticsToggle: (Boolean) -> Unit,
     onCurvedModeToggle: (Boolean) -> Unit = {},
     onDevModeToggle: (Boolean) -> Unit = {},
+    onThemeSelect: (AppTheme) -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: () -> Unit = {},
     onResetProgress: () -> Unit = {},
@@ -87,6 +91,16 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+            // Appearance
+            SettingsSection(title = "Appearance") {
+                ThemePicker(
+                    selected = AppTheme.resolve(prefs.themeId, isSystemInDarkTheme()),
+                    onSelect = onThemeSelect
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Game Settings Section
             SettingsSection(title = "Game") {
                 SettingsToggleItem(
@@ -158,7 +172,7 @@ fun SettingsScreen(
                 SettingsClickableItem(
                     icon = "\uD83D\uDD13",
                     title = "Unlock All Levels",
-                    subtitle = "Set progress to level 150",
+                    subtitle = "Set progress to level ${MilestoneData.forMode(prefs.curvedMode).totalLevels}",
                     onClick = onUnlockAllLevels
                 )
                 SettingsClickableItem(

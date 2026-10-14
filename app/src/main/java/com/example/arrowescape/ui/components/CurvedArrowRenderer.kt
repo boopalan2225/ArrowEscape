@@ -27,7 +27,9 @@ internal data class ArrowRenderState(
     val escapeProgress: Float = 0f,
     val bump: ArrowMotion.Bump? = null,
     val isHinted: Boolean = false,
-    val hintGlow: Float = 0f
+    val hintGlow: Float = 0f,
+    /** Board colour, drawn as a thin rim round the head so it reads on top of neighbours. */
+    val haloColor: Color = Color.Transparent
 )
 
 /** Flashed over an arrow that was tapped while blocked. */
@@ -57,13 +59,13 @@ internal fun DrawScope.drawArrow(
             val runway = (size.width + size.height) / ((scaleX + scaleY) / 2f)
             // Stay solid while visible; fade only as the tail leaves the board.
             val alpha = (1f - eased * eased).coerceIn(0f, 1f)
-            drawSlid(arrow, eased * (arrow.length + runway), color.copy(alpha = alpha), strokePx, project)
+            drawSlid(arrow, eased * (arrow.length + runway), color.copy(alpha = alpha), state.haloColor.copy(alpha = alpha), strokePx, project)
         }
 
         bump != null -> {
             val shape = ArrowMotion.bumpProfile(bump.progress)
             val tinted = lerp(color, BLOCKED_TINT, shape * BLOCKED_TINT_STRENGTH)
-            drawSlid(arrow, shape * bump.distance, tinted, strokePx, project)
+            drawSlid(arrow, shape * bump.distance, tinted, state.haloColor, strokePx, project)
         }
 
         else -> drawResting(arrow, color, strokePx, state, project)
@@ -81,6 +83,7 @@ private fun DrawScope.drawSlid(
     arrow: CurvedArrow,
     travelled: Float,
     color: Color,
+    halo: Color,
     strokePx: Float,
     project: (Point2D) -> Offset
 ) {
@@ -93,6 +96,9 @@ private fun DrawScope.drawSlid(
         arrow.pointAtDistance(arrow.length + travelled - behindHead, arrow.direction)
     }
 
+    val head = headPath(arrow, slid, project)
+    drawHeadHalo(head, halo, strokePx)
+
     if (slid.size >= 2) {
         val path = Path()
         project(slid.first()).let { path.moveTo(it.x, it.y) }
@@ -100,7 +106,7 @@ private fun DrawScope.drawSlid(
         drawPath(path, color, style = bodyStroke(strokePx))
     }
 
-    drawHead(arrow, slid, color, project)
+    head?.let { drawPath(it, color) }
 }
 
 /** Resting render: the arrow sits exactly on its bezier path. */
@@ -123,34 +129,48 @@ private fun DrawScope.drawResting(
     if (state.isHinted) {
         drawPath(path, color.copy(alpha = state.hintGlow), style = bodyStroke(strokePx * HINT_GLOW_WIDTH))
     }
-    drawPath(path, color, style = bodyStroke(strokePx))
 
-    drawHead(arrow, arrow.polyline, color, project)
+    val head = headPath(arrow, arrow.polyline, project)
+    drawHeadHalo(head, state.haloColor, strokePx)
+    drawPath(path, color, style = bodyStroke(strokePx))
+    head?.let { drawPath(it, color) }
 }
 
 private const val HINT_GLOW_WIDTH = 2.5f
 
+/** Rim width round a head, as a fraction of the body stroke (half shows outside the edge). */
+private const val HEAD_HALO_WIDTH = 0.8f
+
 /**
  * Solid triangular head, flush on the end of [body] and aimed along the way
- * the body is genuinely travelling (see [ArrowHeadGeometry]).
+ * the body is genuinely travelling (see [ArrowHeadGeometry]). Null for an
+ * empty body.
  */
-private fun DrawScope.drawHead(
+private fun headPath(
     arrow: CurvedArrow,
     body: List<Point2D>,
-    color: Color,
     project: (Point2D) -> Offset
-) {
-    val anchor = body.lastOrNull() ?: return
+): Path? {
+    val anchor = body.lastOrNull() ?: return null
     val heading = ArrowHeadGeometry.headingOf(body, arrow.strokeWidth, arrow.direction)
     val tri = ArrowHeadGeometry.triangle(anchor, heading, arrow.strokeWidth)
 
-    val path = Path().apply {
+    return Path().apply {
         project(tri.backLeft).let { moveTo(it.x, it.y) }
         project(tri.tip).let { lineTo(it.x, it.y) }
         project(tri.backRight).let { lineTo(it.x, it.y) }
         close()
     }
-    drawPath(path, color)
+}
+
+/**
+ * A rim of [halo] colour round the head, separating it from whatever it
+ * overlaps. Painted BEFORE the arrow's own body and head: drawn after the
+ * body it cut a visible notch out of it and the head looked detached.
+ */
+private fun DrawScope.drawHeadHalo(head: Path?, halo: Color, strokePx: Float) {
+    if (head == null || halo.alpha <= 0f) return
+    drawPath(head, halo, style = Stroke(width = strokePx * HEAD_HALO_WIDTH, join = StrokeJoin.Round))
 }
 
 /**

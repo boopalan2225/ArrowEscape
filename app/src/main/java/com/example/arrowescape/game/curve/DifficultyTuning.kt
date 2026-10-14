@@ -19,11 +19,13 @@ data class DifficultyTuning(
 ) {
     companion object {
 
-        // Last level of each difficulty tier; Master is everything after.
-        const val EASY_MAX = 10
-        const val NORMAL_MAX = 30
-        const val HARD_MAX = 60
-        const val EXPERT_MAX = 100
+        // Last level of each difficulty tier; Master is everything after. Sized for
+        // the curved journey (one 10-level chapter per shape): 4 / 7 / 8 / 9 chapters,
+        // then Master for the rest, so every shape is met at a fitting difficulty.
+        const val EASY_MAX = 40
+        const val NORMAL_MAX = 110
+        const val HARD_MAX = 190
+        const val EXPERT_MAX = 280
 
         /** First level of each tier, in order - for tools that jump between tiers. */
         val TIER_STARTS: List<Pair<String, Int>> = listOf(
@@ -33,6 +35,10 @@ data class DifficultyTuning(
             "Expert" to HARD_MAX + 1,
             "Master" to EXPERT_MAX + 1
         )
+
+        /** Name of the tier a level falls in. */
+        fun tierOf(level: Int): String =
+            TIER_STARTS.last { (_, start) -> level >= start }.first
 
         /**
          * Reference artwork always flows along the silhouette - that is what

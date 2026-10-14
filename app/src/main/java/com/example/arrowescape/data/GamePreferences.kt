@@ -26,6 +26,7 @@ class GamePreferences(private val context: Context) {
         private val KEY_LEVEL_STARS = stringPreferencesKey("level_stars") // JSON: "1:3,2:2,3:3"
         private val KEY_CURVED_MODE = booleanPreferencesKey("curved_mode") // Use curved arrows
         private val KEY_DEV_MODE = booleanPreferencesKey("dev_mode") // Open any level, no progress changes
+        private val KEY_THEME = stringPreferencesKey("theme") // AppTheme.id; absent = match the phone
 
         // Saved game state
         private val KEY_SAVED_LEVEL = intPreferencesKey("saved_level")
@@ -46,7 +47,9 @@ class GamePreferences(private val context: Context) {
         val levelStars: Map<Int, Int> = emptyMap(), // level -> stars (1-3)
         val curvedMode: Boolean = true, // Use curved arrows by default (Option 2)
         /** Developer mode: level picker, prev/next, and play never touches saved progress. */
-        val devMode: Boolean = false
+        val devMode: Boolean = false,
+        /** [com.example.arrowescape.ui.theme.AppTheme.id] the player picked; null = never chose. */
+        val themeId: String? = null
     )
 
     /**
@@ -84,7 +87,8 @@ class GamePreferences(private val context: Context) {
                 totalLevelsCompleted = prefs[KEY_TOTAL_LEVELS_COMPLETED] ?: 0,
                 levelStars = levelStars,
                 curvedMode = prefs[KEY_CURVED_MODE] ?: true, // Default to curved mode
-                devMode = prefs[KEY_DEV_MODE] ?: false
+                devMode = prefs[KEY_DEV_MODE] ?: false,
+                themeId = prefs[KEY_THEME]
             )
         }
 
@@ -164,6 +168,12 @@ class GamePreferences(private val context: Context) {
         }
     }
 
+    suspend fun setTheme(themeId: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_THEME] = themeId
+        }
+    }
+
     suspend fun setDevMode(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_DEV_MODE] = enabled
@@ -173,7 +183,7 @@ class GamePreferences(private val context: Context) {
     /**
      * DEBUG: Unlock all levels for testing.
      */
-    suspend fun unlockAllLevels(maxLevel: Int = 150) {
+    suspend fun unlockAllLevels(maxLevel: Int) {
         context.dataStore.edit { prefs ->
             prefs[KEY_HIGHEST_LEVEL] = maxLevel
             prefs[KEY_CURRENT_LEVEL] = maxLevel

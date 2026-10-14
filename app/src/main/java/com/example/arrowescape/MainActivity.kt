@@ -3,6 +3,7 @@ package com.example.arrowescape
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,8 +29,10 @@ import com.example.arrowescape.ui.game.GameScreen
 import com.example.arrowescape.ui.game.GameViewModel
 import com.example.arrowescape.ui.game.GameViewModelFactory
 import com.example.arrowescape.ui.home.HomeScreen
+import com.example.arrowescape.ui.milestone.MilestoneData
 import com.example.arrowescape.ui.milestone.MilestoneScreen
 import com.example.arrowescape.ui.settings.SettingsScreen
+import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,16 +55,22 @@ class MainActivity : ComponentActivity() {
         analytics.trackAppOpen()
 
         setContent {
-            ArrowEscapeTheme {
+            // null until preferences load, so a saved theme never flashes the default first.
+            val loaded by preferences.prefsFlow.collectAsState(initial = null)
+            val theme = AppTheme.resolve(loaded?.themeId, isSystemInDarkTheme())
+
+            ArrowEscapeTheme(theme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ArrowEscapeApp(
-                        preferences = preferences,
-                        adManager = adManager,
-                        analytics = analytics
-                    )
+                    if (loaded != null) {
+                        ArrowEscapeApp(
+                            preferences = preferences,
+                            adManager = adManager,
+                            analytics = analytics
+                        )
+                    }
                 }
             }
         }
@@ -230,11 +239,16 @@ fun ArrowEscapeApp(
                 onDevModeToggle = { enabled ->
                     scope.launch { preferences.setDevMode(enabled) }
                 },
+                onThemeSelect = { theme ->
+                    scope.launch { preferences.setTheme(theme.id) }
+                },
                 onBackClick = {
                     navController.popBackStack()
                 },
                 onUnlockAllLevels = {
-                    scope.launch { preferences.unlockAllLevels() }
+                    scope.launch {
+                        preferences.unlockAllLevels(MilestoneData.forMode(prefs.curvedMode).totalLevels)
+                    }
                 },
                 onResetProgress = {
                     scope.launch { preferences.resetProgress() }

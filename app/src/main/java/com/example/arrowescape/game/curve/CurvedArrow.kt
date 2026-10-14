@@ -179,9 +179,20 @@ data class CurvedArrow(
     val endPoint: Point2D get() = segments.last().p3
     
     /**
-     * Direction the arrow is pointing (tangent at the tip).
+     * Direction the arrow is pointing and will escape along.
+     *
+     * Deliberately the same heading the arrowhead is *drawn* with, not the
+     * raw bezier tangent at the last point: on a curled tip the two differ by
+     * tens of degrees, which made the head point one way while the arrow
+     * escaped another. One definition, so the picture is the rule.
      */
-    val direction: Point2D get() = segments.last().tangentAt(1f)
+    val direction: Point2D by lazy {
+        if (segments.isEmpty()) {
+            Point2D.ZERO
+        } else {
+            ArrowHeadGeometry.headingOf(polyline, strokeWidth, segments.last().tangentAt(1f))
+        }
+    }
     
     /**
      * Get a point along the entire arrow path at parameter t (0..1).

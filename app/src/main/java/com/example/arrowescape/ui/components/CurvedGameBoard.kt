@@ -233,7 +233,11 @@ fun CurvedGameBoard(
                     val hinted = arrow.id == hintArrowId
                     drawArrow(
                         arrow, scaleX, scaleY,
-                        ArrowRenderState(isHinted = hinted, hintGlow = if (hinted) hintGlow.value else 0f)
+                        ArrowRenderState(
+                            isHinted = hinted,
+                            hintGlow = if (hinted) hintGlow.value else 0f,
+                            haloColor = gameColors.boardBackground
+                        )
                     )
                 }
                 moving.forEach { arrow ->
@@ -241,7 +245,8 @@ fun CurvedGameBoard(
                         arrow, scaleX, scaleY,
                         ArrowRenderState(
                             escapeProgress = escapingArrows[arrow.id] ?: 0f,
-                            bump = bumpingArrows[arrow.id]
+                            bump = bumpingArrows[arrow.id],
+                            haloColor = gameColors.boardBackground
                         )
                     )
                 }

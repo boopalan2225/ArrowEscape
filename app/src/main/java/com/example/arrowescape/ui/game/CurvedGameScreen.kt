@@ -48,7 +48,8 @@ fun CurvedGameScreen(
     }
 
     val shouldBlur = gameState.status == GameStatus.OUT_OF_LIVES ||
-            gameState.status == GameStatus.LEVEL_COMPLETE
+            gameState.status == GameStatus.LEVEL_COMPLETE ||
+            gameState.isStuck
 
     Box(
         modifier = modifier
@@ -158,6 +159,25 @@ fun CurvedGameScreen(
                     isAdAvailable = viewModel.isRewardedAdAvailable(),
                     onContinueClick = { activity?.let { viewModel.onContinueWithAd(it) } },
                     onRestartClick = { viewModel.onRestartLevel() }
+                )
+            }
+        }
+
+        // Stuck-puzzle overlay: no remaining arrow can ever escape.
+        AnimatedVisibility(
+            visible = gameState.isStuck,
+            enter = fadeIn(tween(200)) + scaleIn(initialScale = 0.9f, animationSpec = tween(200)),
+            exit = fadeOut(tween(150)) + scaleOut(targetScale = 0.9f, animationSpec = tween(150))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                PuzzleStuckModal(
+                    onSkipClick = { viewModel.onSkipStuckLevel() },
+                    onRetryClick = { viewModel.onRestartLevel() }
                 )
             }
         }

@@ -36,7 +36,9 @@ data class CurvedGameState(
     val status: GameStatus = GameStatus.PLAYING,
     val hintArrowId: Int? = null,
     val startTimeMillis: Long = System.currentTimeMillis(),
-    val colorPalette: List<Long> = emptyList()
+    val colorPalette: List<Long> = emptyList(),
+    /** No remaining arrow can ever escape - the level cannot be finished. */
+    val isStuck: Boolean = false
 ) {
     val activeArrows: List<CurvedArrow> get() = arrows.filter { it.isActive }
     val remainingCount: Int get() = activeArrows.size
@@ -184,8 +186,14 @@ class CurvedGameViewModel(
                 status = GameStatus.PLAYING,
                 hintArrowId = null,
                 startTimeMillis = System.currentTimeMillis(),
-                colorPalette = curvedLevel.colorPalette
+                colorPalette = curvedLevel.colorPalette,
+                // The generator promises a solvable level; verify rather than trust.
+                isStuck = !CurvedGameEngine.isSolvable(graph, curvedLevel.arrows.map { it.id }.toSet())
             )
+
+            if (_gameState.value.isStuck) {
+                android.util.Log.e("CurvedGame", "Level $level was generated unsolvable")
+            }
 
             _escapingArrows.value = emptyMap()
             _bumpingArrows.value = emptyMap()
@@ -220,7 +228,7 @@ class CurvedGameViewModel(
         lastTappedArrowId = arrow.id
 
         val currentState = _gameState.value
-        if (currentState.status != GameStatus.PLAYING) return
+        if (currentState.status != GameStatus.PLAYING || currentState.isStuck) return
 
         // Skip if already animating
         if (_escapingArrows.value.containsKey(arrow.id) || _bumpingArrows.value.containsKey(arrow.id)) {
@@ -263,7 +271,7 @@ class CurvedGameViewModel(
         val updatedArrows = currentState.arrows.map {
             if (it.id == arrow.id) it.withActive(false) else it
         }
-        _gameState.value = currentState.copy(arrows = updatedArrows)
+        _gameState.value = checkSolvable(currentState.copy(arrows = updatedArrows))
 
         val arrowId = arrow.id
 
@@ -448,6 +456,35 @@ class CurvedGameViewModel(
     fun onNextLevel() {
         val nextLevel = _gameState.value.level + 1
         startLevel(nextLevel)
+    }
+
+    /**
+     * Way out of a board that cannot be finished. It counts as passed - the
+     * player did nothing wrong, so they must not lose their place - except in
+     * developer mode, which never touches saved progress.
+     */
+    fun onSkipStuckLevel() {
+        val nextLevel = _gameState.value.level + 1
+        if (!prefs.value.devMode) {
+            viewModelScope.launch { preferences.setCurrentLevel(nextLevel) }
+        }
+        startLevel(nextLevel)
+    }
+
+    /**
+     * Re-verifies that the arrows still on the board can all be cleared.
+     *
+     * Removing an arrow can only unblock others, so a solvable board stays
+     * solvable under any legal move and this should never fire mid-game. It is
+     * a safety net against a bad level (or a future engine bug) leaving the
+     * player in a dead end with no explanation. Cheap: one pass over the
+     * cached blocking graph.
+     */
+    private fun checkSolvable(state: CurvedGameState): CurvedGameState {
+        val live = state.activeArrows.map { it.id }.toSet()
+        val stuck = live.isNotEmpty() && !CurvedGameEngine.isSolvable(requireGraph(state), live)
+        if (stuck) android.util.Log.e("CurvedGame", "Level ${state.level} reached an unsolvable state")
+        return if (stuck == state.isStuck) state else state.copy(isStuck = stuck)
     }
 
     /** Developer mode: step to the previous (-1) or next (+1) level without touching progress. */

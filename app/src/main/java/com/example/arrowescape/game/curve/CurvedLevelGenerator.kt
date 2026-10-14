@@ -58,7 +58,7 @@ object CurvedLevelGenerator {
     fun generateLevel(levelNumber: Int, boardWidth: Float = 400f, boardHeight: Float = 600f): CurvedLevel {
         val random = Random(levelNumber.toLong() * 31337 + 42)
         val tuning = DifficultyTuning.forLevel(levelNumber, random)
-        val design = ShapeCatalog.ALL[levelNumber % ShapeCatalog.ALL.size]
+        val design = CurvedJourney.designFor(levelNumber)
 
         // Solvability must be judged against the BOARD, not the artwork.
         // Arrows escape off-screen; the shape is only a container.
@@ -144,8 +144,11 @@ object CurvedLevelGenerator {
      * shape's *declared* size, which is only correct for shapes drawn from the
      * origin - the circle, star and others were drawn around their own centre
      * and so ended up visibly off-centre.
+     *
+     * Public so previews (journey icons) show exactly the shapes the generator
+     * fills. Returned back-to-front.
      */
-    private fun layOutRegions(
+    fun layOutRegions(
         design: ShapeDesign,
         boardWidth: Float,
         boardHeight: Float

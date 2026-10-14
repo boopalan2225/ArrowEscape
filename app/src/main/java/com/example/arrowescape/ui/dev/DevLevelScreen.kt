@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.arrowescape.game.curve.CurvedJourney
 import com.example.arrowescape.game.curve.DifficultyTuning
 import com.example.arrowescape.game.curve.ShapeCatalog
 
@@ -90,7 +91,7 @@ fun DevLevelScreen(
         }
 
         Text(
-            text = "OR PICK A SHAPE AT A DIFFICULTY",
+            text = "OR JUMP TO A SHAPE'S CHAPTER",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -102,19 +103,20 @@ fun DevLevelScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            itemsIndexed(ShapeCatalog.ALL) { index, design ->
-                ShapeRow(
-                    index = index,
-                    name = design.name,
-                    onPlayLevel = onPlayLevel
-                )
+            itemsIndexed(ShapeCatalog.ALL) { chapter, design ->
+                ChapterRow(chapter = chapter, name = design.name, onPlayLevel = onPlayLevel)
             }
         }
     }
 }
 
+/** One shape's chapter: where it lives in the journey, and jump-in buttons. */
 @Composable
-private fun ShapeRow(index: Int, name: String, onPlayLevel: (Int) -> Unit) {
+private fun ChapterRow(chapter: Int, name: String, onPlayLevel: (Int) -> Unit) {
+    val first = CurvedJourney.firstLevelOf(chapter)
+    val last = CurvedJourney.lastLevelOf(chapter)
+    val master = DevLevels.masterReplay(chapter)
+
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -122,29 +124,42 @@ private fun ShapeRow(index: Int, name: String, onPlayLevel: (Int) -> Unit) {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
-                text = "$name  ·  #$index",
+                text = "$name  \u00B7  chapter ${chapter + 1}",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            Text(
+                text = "Levels $first\u2013$last  \u00B7  ${DifficultyTuning.tierOf(first)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                DifficultyTuning.TIER_STARTS.forEachIndexed { tierIndex, (tier, _) ->
-                    // Null when this tier is too short for the shape to come round.
-                    val level = DevLevels.levelInTier(index, tierIndex)
-                    FilledTonalButton(
-                        onClick = { level?.let(onPlayLevel) },
-                        enabled = level != null,
-                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(tier, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                            Text(level?.let { "L$it" } ?: "\u2014", fontSize = 10.sp)
-                        }
-                    }
-                }
+                LevelButton("First", first, onPlayLevel, Modifier.weight(1f))
+                LevelButton("Last", last, onPlayLevel, Modifier.weight(1f))
+                // Same shape, one lap later - always the hardest tier.
+                LevelButton("Master", master, onPlayLevel, Modifier.weight(1f))
             }
+        }
+    }
+}
+
+@Composable
+private fun LevelButton(
+    label: String,
+    level: Int,
+    onPlayLevel: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilledTonalButton(
+        onClick = { onPlayLevel(level) },
+        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp),
+        modifier = modifier
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            Text("L$level", fontSize = 10.sp)
         }
     }
 }

@@ -289,4 +289,17 @@ object CurvedGameEngine {
         shapeWidth: Float,
         shapeHeight: Float
     ): Boolean = analyze(arrows, Board(shapeWidth, shapeHeight)).solved
+
+    /**
+     * Whether every arrow in [remaining] can still escape, in some order.
+     *
+     * This is the live-board version of the check the generator runs: same
+     * rule, same cached [graph], but only over the arrows still in play.
+     * Blockers that have already left are simply ignored. O(arrows + edges),
+     * so it is cheap enough to run after every move.
+     */
+    fun isSolvable(graph: BlockingGraph, remaining: Set<Int>): Boolean {
+        val ids = graph.ids.filter { it in remaining }
+        return greedyClear(ids) { slot -> graph.blockersOf(ids[slot]) }.solved
+    }
 }

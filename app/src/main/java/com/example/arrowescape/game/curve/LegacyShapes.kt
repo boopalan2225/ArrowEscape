@@ -28,12 +28,12 @@ object LegacyShapes {
         legacy("Star", Hues.GOLD) { w, h ->
             ShapePath.star(w / 2, h / 2, minOf(w, h) * 0.4f, minOf(w, h) * 0.2f, 5)
         },
-        legacy("Cat", Hues.ORANGE) { w, h -> ShapePath.cat(w * 0.8f, h * 0.9f) },
-        legacy("Owl", Hues.BROWN) { w, h -> ShapePath.owl(w * 0.7f, h * 0.9f) },
+        legacy("Kitten", Hues.ORANGE) { w, h -> ShapePath.cat(w * 0.8f, h * 0.9f) },
+        legacy("Barn Owl", Hues.BROWN) { w, h -> ShapePath.owl(w * 0.7f, h * 0.9f) },
         legacy("Fish", Hues.ORANGE) { w, h -> ShapePath.fish(w * 0.9f, h * 0.6f) },
         legacy("Butterfly", Hues.PURPLE) { w, h -> ShapePath.butterfly(w * 0.85f, h * 0.85f) },
         legacy("Frog", Hues.GREEN) { w, h -> ShapePath.frog(w * 0.85f, h * 0.8f) },
-        legacy("Deer", Hues.LIGHT_BROWN) { w, h -> ShapePath.deer(w * 0.9f, h * 0.9f) },
+        legacy("Fawn", Hues.LIGHT_BROWN) { w, h -> ShapePath.deer(w * 0.9f, h * 0.9f) },
         legacy("Snail", Hues.BROWN) { w, h -> ShapePath.snail(w * 0.9f, h * 0.7f) },
         legacy("Moon", Hues.GOLD) { w, h -> ShapePath.moon(w * 0.7f, h * 0.85f) },
         legacy("Leaf", Hues.GREEN) { w, h -> ShapePath.leaf(w * 0.7f, h * 0.9f) },

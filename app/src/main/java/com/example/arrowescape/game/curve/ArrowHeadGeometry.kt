@@ -9,21 +9,35 @@ package com.example.arrowescape.game.curve
  * a triangle whose base butts onto the end of the body, aimed along the
  * direction the body is genuinely travelling.
  *
+ * The heading computed here is also what [CurvedArrow.direction] returns, so
+ * the way the head points and the way the arrow escapes can never disagree.
+ *
  * Pure math, no drawing, so placement is unit-testable.
  */
 object ArrowHeadGeometry {
 
     /** Triangle length along the heading, in stroke widths. */
-    const val DEPTH = 2.2f
+    const val DEPTH = 2.6f
 
     /** Triangle half-width across the heading, in stroke widths. */
-    const val HALF_WIDTH = 1.7f
+    const val HALF_WIDTH = 2.0f
+
+    /**
+     * Floors for the two sizes above, in board units. Dense late-game levels
+     * use hair-thin strokes, and a head scaled purely off stroke width shrank
+     * to a speck that could not be read as a direction.
+     */
+    private const val MIN_DEPTH = 9f
+    private const val MIN_HALF_WIDTH = 4.5f
 
     /** Base tucks this far back into the body so no seam shows on curves. */
     private const val OVERLAP = 0.25f
 
-    /** How far behind the head to look when measuring heading, in stroke widths. */
-    private const val LOOKBACK = 1.5f
+    /** Triangle length for a body of [strokeWidth], in board units. */
+    fun depth(strokeWidth: Float): Float = maxOf(strokeWidth * DEPTH, MIN_DEPTH)
+
+    /** Triangle half-width for a body of [strokeWidth], in board units. */
+    fun halfWidth(strokeWidth: Float): Float = maxOf(strokeWidth * HALF_WIDTH, MIN_HALF_WIDTH)
 
     /** Corners of the head triangle: [back-left, tip, back-right]. */
     data class Triangle(val backLeft: Point2D, val tip: Point2D, val backRight: Point2D)
@@ -36,22 +50,22 @@ object ArrowHeadGeometry {
         val dir = heading.normalize()
         val side = dir.perpendicular()
         val baseCentre = anchor - dir * (strokeWidth * OVERLAP)
-        val tip = baseCentre + dir * (strokeWidth * DEPTH)
-        val half = side * (strokeWidth * HALF_WIDTH)
+        val tip = baseCentre + dir * depth(strokeWidth)
+        val half = side * halfWidth(strokeWidth)
         return Triangle(baseCentre + half, tip, baseCentre - half)
     }
 
     /**
      * Heading at the end of a tail-to-head [body] polyline.
      *
-     * Measured against a point about [LOOKBACK] stroke widths back rather than
-     * the immediately previous sample - neighbouring samples are close enough
-     * that float noise (or a sharp bend) made the head twitch.  Falls back to
-     * [fallback] for a degenerate body.
+     * Measured against a point one head-length back - the stretch of body the
+     * triangle actually sits on - rather than the immediately previous sample,
+     * which is close enough that float noise (or a sharp bend) made the head
+     * twitch.  Falls back to [fallback] for a degenerate body.
      */
     fun headingOf(body: List<Point2D>, strokeWidth: Float, fallback: Point2D): Point2D {
         val head = body.lastOrNull() ?: return fallback
-        val reach = strokeWidth * LOOKBACK
+        val reach = depth(strokeWidth)
         val behind = body.asReversed().drop(1).firstOrNull { it.distanceTo(head) >= reach }
             ?: body.firstOrNull { it != head }
             ?: return fallback

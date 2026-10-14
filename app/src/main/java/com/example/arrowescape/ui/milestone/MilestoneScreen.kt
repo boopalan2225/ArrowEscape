@@ -46,12 +46,12 @@ fun MilestoneScreen(
     val highestLevel = prefs.highestLevel
     val levelStars = prefs.levelStars
     val listState = rememberLazyListState()
+    // The map shows whichever game the player is actually playing.
+    val journey = MilestoneData.forMode(prefs.curvedMode)
 
     // Auto-scroll to the current chapter.
-    LaunchedEffect(Unit) {
-        val chapterIdx = ((highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE)
-            .coerceIn(0, MilestoneData.milestones.lastIndex)
-        listState.scrollToItem((chapterIdx + 1).coerceAtLeast(0)) // +1 for header item
+    LaunchedEffect(journey) {
+        listState.scrollToItem(journey.chapterIndexOf(highestLevel))
     }
 
     Box(
@@ -60,7 +60,7 @@ fun MilestoneScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column(Modifier.fillMaxSize()) {
-            JourneyTopBar(highestLevel, prefs.totalLevelsCompleted, onBackClick)
+            JourneyTopBar(highestLevel, journey.totalLevels, prefs.totalLevelsCompleted, onBackClick)
 
             LazyColumn(
                 state = listState,
@@ -68,7 +68,7 @@ fun MilestoneScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                itemsIndexed(MilestoneData.milestones) { _, milestone ->
+                itemsIndexed(journey.milestones) { _, milestone ->
                     ChapterCard(
                         milestone = milestone,
                         color = ChapterColors[milestone.index % ChapterColors.size],
@@ -83,10 +83,15 @@ fun MilestoneScreen(
 }
 
 @Composable
-private fun JourneyTopBar(highestLevel: Int, completed: Int, onBackClick: () -> Unit) {
+private fun JourneyTopBar(
+    highestLevel: Int,
+    totalLevels: Int,
+    completed: Int,
+    onBackClick: () -> Unit
+) {
     val gameColors = ArrowEscapeTheme.gameColors
-    val progress = (highestLevel - 1).coerceIn(0, MilestoneData.TOTAL_LEVELS) /
-            MilestoneData.TOTAL_LEVELS.toFloat()
+    val progress = (highestLevel - 1).coerceIn(0, totalLevels) /
+            totalLevels.toFloat()
     val animated by animateFloatAsState(progress, tween(800), label = "prog")
 
     Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 3.dp) {
@@ -108,7 +113,7 @@ private fun JourneyTopBar(highestLevel: Int, completed: Int, onBackClick: () -> 
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        "Level ${highestLevel.coerceAtMost(MilestoneData.TOTAL_LEVELS)} / ${MilestoneData.TOTAL_LEVELS}  \u2022  $completed cleared",
+                        "Level ${highestLevel.coerceAtMost(totalLevels)} / $totalLevels  \u2022  $completed cleared",
                         style = MaterialTheme.typography.bodySmall,
                         color = gameColors.textSecondary
                     )
@@ -171,7 +176,7 @@ private fun ChapterCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (unlocked) ShapeIcon(milestone.shape, color, Modifier.size(30.dp))
+                    if (unlocked) MilestoneIconView(milestone.icon, color, Modifier.size(30.dp))
                     else Text("\uD83D\uDD12", fontSize = 18.sp)
                 }
                 Spacer(Modifier.width(12.dp))
@@ -188,7 +193,7 @@ private fun ChapterCard(
                         )
                     }
                     Text(
-                        "Levels ${milestone.levelRange}  \u2022  ${milestone.shape.displayName}",
+                        "Levels ${milestone.levelRange}  \u2022  ${milestone.subtitle}",
                         style = MaterialTheme.typography.bodySmall,
                         color = gameColors.textSecondary
                     )
