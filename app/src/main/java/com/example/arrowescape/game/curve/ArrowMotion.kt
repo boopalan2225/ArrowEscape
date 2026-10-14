@@ -54,10 +54,16 @@ object ArrowMotion {
      *
      * [runway] is the free space between the tip and the blocker. The drawn
      * head reaches [ArrowHeadGeometry.depth] past the tip, so that comes off
-     * the lunge or the head would visibly bury itself in the blocker.
+     * the lunge or the head would visibly bury itself in the blocker. Head
+     * size depends on the arrow's own [bodyLength], so that is needed here too
+     * - subtracting a head bigger than the one drawn would short the lunge.
      */
-    fun bumpDistance(runway: Float, strokeWidth: Float): Float {
-        val headRoom = runway - ArrowHeadGeometry.depth(strokeWidth)
+    fun bumpDistance(
+        runway: Float,
+        strokeWidth: Float,
+        bodyLength: Float = ArrowHeadGeometry.UNBOUNDED
+    ): Float {
+        val headRoom = runway - ArrowHeadGeometry.depth(strokeWidth, bodyLength)
         return headRoom.coerceIn(strokeWidth * MIN_BUMP_STROKES, strokeWidth * MAX_BUMP_STROKES)
     }
 

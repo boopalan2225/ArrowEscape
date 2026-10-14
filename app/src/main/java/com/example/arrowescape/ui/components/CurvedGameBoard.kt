@@ -70,7 +70,9 @@ private data class ExitPreview(
         fun of(arrow: CurvedArrow, isClear: Boolean, exit: Point2D): ExitPreview {
             // Start at the visible tip so the glow never smears over the head itself.
             val heading = ArrowHeadGeometry.headingOf(arrow.polyline, arrow.strokeWidth, arrow.direction)
-            val tip = ArrowHeadGeometry.triangle(arrow.endPoint, heading, arrow.strokeWidth).tip
+            val tip = ArrowHeadGeometry
+                .triangle(arrow.endPoint, heading, arrow.strokeWidth, arrow.length)
+                .tip
             return ExitPreview(arrow, isClear, tip, exit)
         }
     }

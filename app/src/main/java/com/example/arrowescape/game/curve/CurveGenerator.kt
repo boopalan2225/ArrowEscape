@@ -112,9 +112,16 @@ object CurveGenerator {
         // fill the gaps those leave. Every arrow is admitted only if it keeps
         // the dependency graph acyclic, so extra passes cannot break
         // solvability, they only add ink.
+        // Later passes accept shorter arrows to fill gaps, but never shorter
+        // than one that can carry a readable head: a stub whose head is most
+        // of its length conveys no direction, which is the whole point of an
+        // arrow. This floor is what keeps tight corners legible.
         for (minLengthFactor in PASS_MIN_LENGTH_FACTORS) {
             val passCfg = cfg.copy(
-                arrowMinLength = maxOf(cfg.arrowMinLength * minLengthFactor, cfg.strokeWidth * 5f)
+                arrowMinLength = maxOf(
+                    cfg.arrowMinLength * minLengthFactor,
+                    ArrowHeadGeometry.minBodyLength(cfg.strokeWidth)
+                )
             )
 
             for (seed in seeds) {
