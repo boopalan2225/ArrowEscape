@@ -495,9 +495,18 @@ class CurvedGameViewModel(
         return if (stuck == state.isStuck) state else state.copy(isStuck = stuck)
     }
 
-    /** Developer mode: step to the previous (-1) or next (+1) level without touching progress. */
+    /**
+     * Developer mode: step to the previous (-1) or next (+1) level without
+     * touching progress.
+     *
+     * Clamped to [CurvedJourney.totalLevels] - that bound exists so the dev
+     * bar can hide Next at the edge; stepping past it here would silently
+     * reopen the dead button.
+     */
     fun devStepLevel(delta: Int) {
-        startLevel((_gameState.value.level + delta).coerceAtLeast(1))
+        val target = (_gameState.value.level + delta)
+            .coerceIn(1, CurvedJourney.totalLevels)
+        startLevel(target)
     }
 
     fun showInterstitialIfNeeded(activity: Activity, onComplete: () -> Unit) {

@@ -17,12 +17,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.arrowescape.game.level.DifficultyConfig
 import com.example.arrowescape.game.level.LevelShape
 import com.example.arrowescape.game.model.Arrow
 import com.example.arrowescape.game.model.Cell
 import com.example.arrowescape.game.model.Direction
 import com.example.arrowescape.game.model.GameStatus
 import com.example.arrowescape.ui.components.*
+import com.example.arrowescape.ui.dev.DevLevelBar
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 @Composable
@@ -114,6 +116,19 @@ fun GameScreen(
                     shakingArrows = shakingArrows,
                     hintArrowId = gameState.hintArrowId,
                     onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
+                )
+            }
+
+            if (prefs.devMode) {
+                DevLevelBar(
+                    level = gameState.level,
+                    shapeName = shapeName,
+                    difficulty = gameState.difficultyLabel,
+                    arrowCount = gameState.arrows.size,
+                    canGoPrevious = gameState.level > 1,
+                    canGoNext = gameState.level < DifficultyConfig.TOTAL_LEVELS,
+                    onPrevious = { viewModel.devStepLevel(-1) },
+                    onNext = { viewModel.devStepLevel(+1) }
                 )
             }
 

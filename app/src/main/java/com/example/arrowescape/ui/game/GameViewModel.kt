@@ -16,6 +16,7 @@ import com.example.arrowescape.analytics.AnalyticsTracker
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.game.engine.GameEngine
+import com.example.arrowescape.game.level.DifficultyConfig
 import com.example.arrowescape.game.level.LevelGenerator
 import com.example.arrowescape.game.model.Arrow
 import com.example.arrowescape.game.model.Direction
@@ -166,6 +167,20 @@ class GameViewModel(
 
             analytics.trackLevelStarted(level, generated.arrows.size)
         }
+    }
+
+    /**
+     * Developer mode: step to the previous (-1) or next (+1) level without
+     * touching progress.
+     *
+     * Clamped to [DifficultyConfig.TOTAL_LEVELS] - that bound exists so the
+     * dev bar can hide Next at the edge; stepping past it here would silently
+     * reopen the dead button.
+     */
+    fun devStepLevel(delta: Int) {
+        val target = (_gameState.value.level + delta)
+            .coerceIn(1, DifficultyConfig.TOTAL_LEVELS)
+        startLevel(target)
     }
 
     /**

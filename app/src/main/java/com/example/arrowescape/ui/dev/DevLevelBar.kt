@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -19,6 +21,10 @@ import androidx.compose.ui.unit.dp
 /**
  * In-game strip shown only in developer mode: what level/shape/tier this is,
  * how many arrows it has, and previous/next buttons to flip through levels.
+ *
+ * A side with nowhere to go is left BLANK rather than greyed out - at level 1
+ * only Next shows, at the last defined level only Prev shows - so the bar
+ * never implies a destination that does not exist.
  */
 @Composable
 fun DevLevelBar(
@@ -26,6 +32,8 @@ fun DevLevelBar(
     shapeName: String,
     difficulty: String,
     arrowCount: Int,
+    canGoPrevious: Boolean,
+    canGoNext: Boolean,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier
@@ -37,12 +45,15 @@ fun DevLevelBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        OutlinedButton(
-            onClick = onPrevious,
-            enabled = level > 1,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-        ) {
-            Text("\u25C0 Prev")
+        if (canGoPrevious) {
+            OutlinedButton(
+                onClick = onPrevious,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text("\u25C0 Prev")
+            }
+        } else {
+            NavSlotSpacer()
         }
 
         Column(
@@ -64,11 +75,21 @@ fun DevLevelBar(
             )
         }
 
-        OutlinedButton(
-            onClick = onNext,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-        ) {
-            Text("Next \u25B6")
+        if (canGoNext) {
+            OutlinedButton(
+                onClick = onNext,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text("Next \u25B6")
+            }
+        } else {
+            NavSlotSpacer()
         }
     }
+}
+
+/** Keeps the centre label centred when one side's button is hidden. */
+@Composable
+private fun NavSlotSpacer() {
+    Spacer(Modifier.width(1.dp))
 }
