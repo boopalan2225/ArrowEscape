@@ -127,22 +127,38 @@ def midnight():
     }
 
 
-def forest():
-    """Woody plucks and a bird-ish lift - warm, organic, dry."""
+def pirate():
+    """Creaking wood, a gold-coin chime and a shanty cadence."""
     return {
-        "success": voice("E5", 0.22, (1.0, 0.7, 0.45, 0.2), attack=0.002, decay=0.055),
-        "error": voice("G2", 0.26, (1.0, 0.8, 0.5), attack=0.002, decay=0.05),
+        "success": voice("D4", 0.26, (1.0, 0.8, 0.55, 0.3), attack=0.002, decay=0.06, detune=0.01),
+        "error": voice("A2", 0.36, (1.0, 0.9, 0.6, 0.35), attack=0.004, decay=0.09, vibrato_hz=9, vibrato_depth=0.05),
         "complete": sequence(
             [
-                voice("G4", 0.3, (1.0, 0.6, 0.3), decay=0.1),
-                voice("B4", 0.3, (1.0, 0.6, 0.3), decay=0.1),
-                voice("D5", 0.3, (1.0, 0.6, 0.3), decay=0.1),
+                voice("D4", 0.45, (1.0, 0.6, 0.4), decay=0.14, detune=0.006),
+                voice("F4", 0.45, (1.0, 0.6, 0.4), decay=0.14, detune=0.006),
+                voice("A4", 0.45, (1.0, 0.6, 0.4), decay=0.14, detune=0.006),
                 mix(
-                    voice("G5", 0.65, (1.0, 0.5, 0.25), decay=0.2, vibrato_hz=7, vibrato_depth=0.012),
-                    voice("B5", 0.65, (0.5, 0.25), decay=0.18),
+                    voice("D5", 0.8, (1.0, 0.5, 0.3), decay=0.24, vibrato_hz=6, vibrato_depth=0.015),
+                    voice("A4", 0.8, (0.6, 0.3), decay=0.22, detune=0.008),
                 ),
             ],
-            gap=-0.2,
+            gap=-0.3,
+        ),
+    }
+
+
+def mono():
+    """Pure sine clicks - nothing but the note, for the ink-and-paper theme."""
+    return {
+        "success": voice("B5", 0.14, (1.0,), attack=0.001, decay=0.03),
+        "error": voice("B3", 0.18, (1.0, 0.3), attack=0.001, decay=0.04),
+        "complete": sequence(
+            [
+                voice("B4", 0.22, (1.0,), decay=0.06),
+                voice("F#5", 0.22, (1.0,), decay=0.06),
+                voice("B5", 0.5, (1.0, 0.25), decay=0.16),
+            ],
+            gap=-0.1,
         ),
     }
 
@@ -167,7 +183,7 @@ def sunset():
     }
 
 
-PACKS = {"midnight": midnight, "forest": forest, "sunset": sunset}
+PACKS = {"midnight": midnight, "sunset": sunset, "pirate": pirate, "mono": mono}
 CLIP_FILES = {
     "success": "{theme}_tap_success.wav",
     "error": "{theme}_tap_error.wav",

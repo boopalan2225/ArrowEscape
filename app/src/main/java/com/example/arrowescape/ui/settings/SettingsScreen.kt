@@ -15,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,6 +35,7 @@ import com.example.arrowescape.cloud.CloudAccount
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.milestone.MilestoneData
+import com.example.arrowescape.ui.components.GlyphIcon
 import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -52,6 +55,8 @@ fun SettingsScreen(
     onDevModeToggle: (Boolean) -> Unit = {},
     /** Receives an [AppTheme] id, or [AppTheme.SYSTEM_ID] to follow the phone. */
     onThemeSelect: (String) -> Unit = {},
+    onAboutClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: (GameMode) -> Unit = {},
     onResetProgress: (GameMode) -> Unit = {},
@@ -132,15 +137,15 @@ fun SettingsScreen(
                 SettingsClickableItem(
                     icon = "\uD83D\uDCDC",
                     title = "Privacy Policy",
-                    subtitle = "View our privacy policy",
-                    onClick = { /* TODO: Open privacy policy URL */ }
+                    subtitle = "What we keep, and what we do not",
+                    onClick = onPrivacyClick
                 )
 
                 SettingsClickableItem(
                     icon = "\u2139\uFE0F",
                     title = "About Arrow Escape",
-                    subtitle = "Version 1.0.0",
-                    onClick = { /* TODO: Show about dialog */ }
+                    subtitle = "The idea, the rules and the looks",
+                    onClick = onAboutClick
                 )
             }
 
@@ -221,13 +226,11 @@ private fun SettingsHeader(onBackClick: () -> Unit) {
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
-                Text(
-                    text = "\u2190",
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.offset(y = (-3).dp)
-                )
+                Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
             }
             Spacer(Modifier.width(16.dp))
             Text(

@@ -32,11 +32,14 @@ import com.example.arrowescape.ui.game.CurvedGameScreen
 import com.example.arrowescape.ui.game.CurvedGameViewModel
 import com.example.arrowescape.ui.game.CurvedGameViewModelFactory
 import com.example.arrowescape.ui.game.GameScreen
+import com.example.arrowescape.ui.game.GameFeedback
 import com.example.arrowescape.ui.game.GameViewModel
 import com.example.arrowescape.ui.game.GameViewModelFactory
 import com.example.arrowescape.ui.home.HomeScreen
 import com.example.arrowescape.ui.milestone.MilestoneData
 import com.example.arrowescape.ui.milestone.MilestoneScreen
+import com.example.arrowescape.ui.settings.AboutScreen
+import com.example.arrowescape.ui.settings.PrivacyPolicyScreen
 import com.example.arrowescape.ui.settings.SettingsScreen
 import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
@@ -153,6 +156,14 @@ fun ArrowEscapeApp(
             )
         }
 
+        composable("about") {
+            AboutScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable("privacy") {
+            PrivacyPolicyScreen(onBackClick = { navController.popBackStack() })
+        }
+
         composable("milestones") {
             MilestoneScreen(
                 prefs = prefs,
@@ -189,6 +200,7 @@ fun ArrowEscapeApp(
             val scope = rememberCoroutineScope()
             val account by cloudSave.account.collectAsState()
             val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
+            val auditionTheme = rememberThemeAudition(context)
             SettingsScreen(
                 prefs = prefs,
                 account = account,
@@ -204,8 +216,11 @@ fun ArrowEscapeApp(
                     scope.launch { preferences.setDevMode(enabled) }
                 },
                 onThemeSelect = { themeId ->
+                    auditionTheme(themeId, prefs.soundEnabled)
                     scope.launch { preferences.setTheme(themeId) }
                 },
+                onAboutClick = { navController.navigate("about") },
+                onPrivacyClick = { navController.navigate("privacy") },
                 onBackClick = {
                     navController.popBackStack()
                 },
@@ -219,6 +234,22 @@ fun ArrowEscapeApp(
                 }
             )
         }
+    }
+}
+
+/**
+ * Plays whichever look you just tapped in Settings, so a theme is heard as
+ * well as seen. Released with the screen that asked for it.
+ */
+@Composable
+private fun rememberThemeAudition(context: android.content.Context): (String, Boolean) -> Unit {
+    val systemDark = isSystemInDarkTheme()
+    val feedback = remember { GameFeedback(context.applicationContext) }
+    DisposableEffect(feedback) { onDispose { feedback.release() } }
+
+    return { themeId, soundEnabled ->
+        feedback.useTheme(AppTheme.resolve(themeId, systemDark))
+        if (soundEnabled) feedback.playSuccessSound()
     }
 }
 

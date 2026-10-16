@@ -9,16 +9,18 @@ import androidx.compose.ui.graphics.Color
 fun AppTheme.colorScheme(): ColorScheme = when (this) {
     AppTheme.CLASSIC -> ClassicColorScheme
     AppTheme.MIDNIGHT -> MidnightColorScheme
-    AppTheme.FOREST -> ForestColorScheme
     AppTheme.SUNSET -> SunsetColorScheme
+    AppTheme.PIRATE -> PirateColorScheme
+    AppTheme.MONO -> MonoColorScheme
 }
 
 /** Game-specific colours (board, cards, arrows) for each theme. */
 fun AppTheme.gameColors(): GameColors = when (this) {
     AppTheme.CLASSIC -> ClassicGameColors
     AppTheme.MIDNIGHT -> MidnightGameColors
-    AppTheme.FOREST -> ForestGameColors
     AppTheme.SUNSET -> SunsetGameColors
+    AppTheme.PIRATE -> PirateGameColors
+    AppTheme.MONO -> MonoGameColors
 }
 
 // ── Classic: the original light look ────────────────────────────────────
@@ -105,36 +107,80 @@ private val MidnightGameColors = GameColors(
     warning = WarningDark
 )
 
-// ── Forest: soft mint and leaf green ────────────────────────────────────
+// ── Pirate: parchment, deep sea and gold ────────────────────────────────
 
-private val ForestColorScheme = lightColorScheme(
-    primary = Color(0xFF2E7D32),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFC8E6C9),
-    onPrimaryContainer = Color(0xFF0B2E10),
-    secondary = Color(0xFF558B2F),
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFC8E6C9),
-    onSecondaryContainer = Color(0xFF0B2E10),
-    background = Color(0xFFF1F7F1),
-    onBackground = Color(0xFF15251A),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF15251A),
-    surfaceVariant = Color(0xFFE1EEE2),
-    error = ErrorLight,
+private val PirateColorScheme = lightColorScheme(
+    primary = Color(0xFF0E5055),
+    onPrimary = Color(0xFFF7ECD2),
+    primaryContainer = Color(0xFFE2CCA0),
+    onPrimaryContainer = Color(0xFF2B1E12),
+    secondary = Color(0xFFB07B13),
+    onSecondary = Color(0xFFFFF8E8),
+    secondaryContainer = Color(0xFFE2CCA0),
+    onSecondaryContainer = Color(0xFF2B1E12),
+    background = Color(0xFFF5E7C8),
+    onBackground = Color(0xFF2B1E12),
+    surface = Color(0xFFFCF3DF),
+    onSurface = Color(0xFF2B1E12),
+    surfaceVariant = Color(0xFFEADCBB),
+    error = Color(0xFF9B2226),
     onError = Color.White,
-    outline = Color(0xFFC5D8C7),
-    outlineVariant = Color(0xFFC5D8C7),
+    outline = Color(0xFFC9B088),
+    outlineVariant = Color(0xFFC9B088),
     scrim = ScrimLight
 )
 
-private val ForestGameColors = ClassicGameColors.copy(
-    arrowPrimary = Color(0xFF2E7D32),
-    arrowSecondary = Color(0xFF66BB6A),
-    boardBackground = Color(0xFFE6F2E7),
-    gridLine = Color(0xFFCFE3D1),
-    textSecondary = Color(0xFF4F6B55),
-    divider = Color(0xFFC5D8C7)
+private val PirateGameColors = ClassicGameColors.copy(
+    arrowPrimary = Color(0xFF0E5055),
+    arrowSecondary = Color(0xFFB07B13),
+    boardBackground = Color(0xFFEFDFBC),
+    gridLine = Color(0xFFD9C097),
+    textSecondary = Color(0xFF6B5636),
+    cardBackground = Color(0xFFFCF3DF),
+    divider = Color(0xFFC9B088),
+    warning = Color(0xFFB07B13)
+)
+
+// ── Ink: pure black on white, nothing else ──────────────────────────────
+
+private val MonoColorScheme = lightColorScheme(
+    primary = Color(0xFF14110F),
+    onPrimary = Color(0xFFFBFAF7),
+    primaryContainer = Color(0xFFE7E4DD),
+    onPrimaryContainer = Color(0xFF14110F),
+    secondary = Color(0xFF4A4642),
+    onSecondary = Color(0xFFFBFAF7),
+    secondaryContainer = Color(0xFFE7E4DD),
+    onSecondaryContainer = Color(0xFF14110F),
+    background = Color(0xFFFBFAF7),
+    onBackground = Color(0xFF14110F),
+    surface = Color(0xFFFFFFFE),
+    onSurface = Color(0xFF14110F),
+    surfaceVariant = Color(0xFFEFEDE7),
+    error = Color(0xFF14110F),
+    onError = Color(0xFFFBFAF7),
+    outline = Color(0xFFD4D0C8),
+    outlineVariant = Color(0xFFD4D0C8),
+    scrim = ScrimLight
+)
+
+private val MonoGameColors = GameColors(
+    arrowUp = Color(0xFF14110F),
+    arrowDown = Color(0xFF454039),
+    arrowLeft = Color(0xFF75706A),
+    arrowRight = Color(0xFFA8A49C),
+    arrowPrimary = Color(0xFF14110F),
+    arrowSecondary = Color(0xFF6B665F),
+    arrowHint = Color(0xFF8F8A82),
+    heartFull = Color(0xFF14110F),
+    heartEmpty = Color(0xFFDDD9D1),
+    boardBackground = Color(0xFFF4F2EC),
+    gridLine = Color(0xFFDDD9D1),
+    textSecondary = Color(0xFF6B665F),
+    cardBackground = Color(0xFFFFFFFE),
+    divider = Color(0xFFDDD9D1),
+    success = Color(0xFF14110F),
+    warning = Color(0xFF4A4642)
 )
 
 // ── Sunset: warm cream and burnt orange ─────────────────────────────────

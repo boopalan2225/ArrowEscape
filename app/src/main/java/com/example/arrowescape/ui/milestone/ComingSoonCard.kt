@@ -50,7 +50,6 @@ import kotlin.math.sin
  */
 @Composable
 fun ComingSoonCard(
-    nextChapter: Int,
     teasers: List<String>,
     modifier: Modifier = Modifier
 ) {
@@ -81,7 +80,7 @@ fun ComingSoonCard(
                     Spacer(Modifier.height(14.dp))
 
                     Text(
-                        text = "Chapter $nextChapter is in the workshop",
+                        text = "More chapters are in the workshop",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,

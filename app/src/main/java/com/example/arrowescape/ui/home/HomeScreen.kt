@@ -9,8 +9,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,10 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
+import com.example.arrowescape.ui.components.GlyphIcon
 import com.example.arrowescape.ui.milestone.MilestoneData
 import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
@@ -53,21 +52,24 @@ fun HomeScreen(
     val journey = MilestoneData.forMode(prefs.mode)
 
     HomeBackdrop(modifier = modifier) {
+        // heightIn(min = viewport) lets the column centre itself when the
+        // content is short and still scroll when it is not.
+        val viewportHeight = maxHeight
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp, vertical = 24.dp)
+                .heightIn(min = viewportHeight)
+                .systemBarsPadding()
+                .padding(horizontal = 28.dp, vertical = 20.dp)
                 .entranceAnimation(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            AnimatedLogo()
-
-            Spacer(Modifier.height(16.dp))
-
             GameTitle()
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
 
             ModeSwitcher(selected = prefs.mode, onSelect = onModeSelect)
 
@@ -89,13 +91,40 @@ fun HomeScreen(
             Spacer(Modifier.height(20.dp))
 
             HomeActions(
-                devMode = prefs.devMode,
                 onJourneyClick = onJourneyClick,
-                onSettingsClick = onSettingsClick,
-                onDevClick = onDevClick
+                onSettingsClick = onSettingsClick
             )
+        }
 
-            Spacer(Modifier.height(16.dp))
+        // Developer door: parked in a corner so it never shifts the layout,
+        // and absent entirely unless developer mode is on.
+        if (prefs.devMode && onDevClick != null) {
+            DevCornerButton(
+                onClick = onDevClick,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .systemBarsPadding()
+                    .padding(12.dp)
+            )
+        }
+    }
+}
+
+/** Small, unobtrusive and out of the way - a trapdoor, not a feature. */
+@Composable
+private fun DevCornerButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+        modifier = modifier.size(40.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            GlyphIcon(
+                glyph = "\u2692",
+                fontSize = 18.sp,
+                color = ArrowEscapeTheme.gameColors.textSecondary
+            )
         }
     }
 }
@@ -114,17 +143,20 @@ private fun Modifier.entranceAnimation(): Modifier {
 private fun GameTitle() {
     Text(
         text = "ARROW",
-        style = MaterialTheme.typography.displayMedium,
+        style = MaterialTheme.typography.displayLarge.copy(
+            brush = Brush.horizontalGradient(
+                listOf(MaterialTheme.colorScheme.primary, ArrowEscapeTheme.persona.glow)
+            )
+        ),
         fontWeight = FontWeight.Black,
-        color = MaterialTheme.colorScheme.primary,
-        letterSpacing = 4.sp
+        letterSpacing = 6.sp
     )
     Text(
         text = "ESCAPE",
-        style = MaterialTheme.typography.displayMedium,
+        style = MaterialTheme.typography.displayLarge,
         fontWeight = FontWeight.Black,
         color = MaterialTheme.colorScheme.onBackground,
-        letterSpacing = 4.sp
+        letterSpacing = 6.sp
     )
     Spacer(Modifier.height(6.dp))
     // Each look has its own motto, so the words change with the scenery.
@@ -207,13 +239,11 @@ private fun ProgressCard(
     }
 }
 
-/** Secondary navigation: the map, the dev door, and settings. */
+/** Secondary navigation: the map and settings. */
 @Composable
 private fun HomeActions(
-    devMode: Boolean,
     onJourneyClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onDevClick: (() -> Unit)?
+    onSettingsClick: () -> Unit
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
@@ -233,24 +263,6 @@ private fun HomeActions(
         )
     }
 
-    // Developer entry point - only while developer mode is on.
-    if (devMode && onDevClick != null) {
-        Spacer(Modifier.height(12.dp))
-        FilledTonalButton(
-            onClick = onDevClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = MaterialTheme.shapes.large
-        ) {
-            Text(
-                text = "\uD83D\uDEE0  Dev: Open any level",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-
     Spacer(Modifier.height(8.dp))
 
     TextButton(onClick = onSettingsClick) {
@@ -261,95 +273,6 @@ private fun HomeActions(
             style = MaterialTheme.typography.bodyLarge,
             color = gameColors.textSecondary
         )
-    }
-}
-
-/**
- * The mark: four arrows orbiting a breathing core. Decorative only - it carries
- * no information, so it needs no content description.
- */
-@Composable
-private fun AnimatedLogo() {
-    val gameColors = ArrowEscapeTheme.gameColors
-    val infinite = rememberInfiniteTransition(label = "logo")
-
-    val orbit by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(9000, easing = LinearEasing)),
-        label = "orbit"
-    )
-    val breathe by infinite.animateFloat(
-        initialValue = 0.94f,
-        targetValue = 1.06f,
-        animationSpec = infiniteRepeatable(
-            tween(2200, easing = EaseInOutCubic),
-            RepeatMode.Reverse
-        ),
-        label = "breathe"
-    )
-
-    Box(
-        modifier = Modifier.size(132.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Halo behind everything, pulsing in counter-phase with the core.
-        Box(
-            Modifier
-                .size(118.dp)
-                .scale(2f - breathe)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-        )
-
-        Box(Modifier.rotate(orbit)) {
-            val orbiters = listOf(
-                0f to gameColors.arrowUp,
-                90f to gameColors.arrowRight,
-                180f to gameColors.arrowDown,
-                270f to gameColors.arrowLeft
-            )
-            orbiters.forEach { (angle, color) ->
-                Box(
-                    Modifier
-                        .align(Alignment.Center)
-                        .rotate(angle)
-                        .offset(y = (-48).dp)
-                ) {
-                    Text(
-                        text = "\u2191",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = color
-                    )
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .size(66.dp)
-                .scale(breathe)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = ArrowEscapeTheme.persona.crest,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.offset(x = 1.dp, y = (-5).dp) // Optical centering
-            )
-        }
     }
 }
 
@@ -444,10 +367,14 @@ private fun HomeScreenPreviewClassic() = HomePreview(AppTheme.CLASSIC, GameMode.
 @Composable
 private fun HomeScreenPreviewMidnight() = HomePreview(AppTheme.MIDNIGHT, GameMode.CLASSIC, level = 42)
 
-@Preview(showBackground = true, name = "Home - Forest")
+@Preview(showBackground = true, name = "Home - Pirate")
 @Composable
-private fun HomeScreenPreviewForest() = HomePreview(AppTheme.FOREST, GameMode.CURVED, level = 17)
+private fun HomeScreenPreviewPirate() = HomePreview(AppTheme.PIRATE, GameMode.CURVED, level = 17)
 
 @Preview(showBackground = true, name = "Home - Sunset")
 @Composable
 private fun HomeScreenPreviewSunset() = HomePreview(AppTheme.SUNSET, GameMode.CLASSIC, level = 88)
+
+@Preview(showBackground = true, name = "Home - Ink")
+@Composable
+private fun HomeScreenPreviewMono() = HomePreview(AppTheme.MONO, GameMode.CURVED, level = 7)

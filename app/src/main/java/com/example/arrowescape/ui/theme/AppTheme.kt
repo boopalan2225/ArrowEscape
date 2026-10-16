@@ -14,8 +14,9 @@ enum class AppTheme(
 ) {
     CLASSIC("classic", "Classic", isDark = false),
     MIDNIGHT("midnight", "Midnight", isDark = true),
-    FOREST("forest", "Forest", isDark = false),
-    SUNSET("sunset", "Sunset", isDark = false);
+    SUNSET("sunset", "Sunset", isDark = false),
+    PIRATE("pirate", "Pirate", isDark = false),
+    MONO("mono", "Ink", isDark = false);
 
     companion object {
         /**

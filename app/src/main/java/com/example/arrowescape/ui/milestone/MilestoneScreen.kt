@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
+import com.example.arrowescape.ui.components.GlyphIcon
+import com.example.arrowescape.ui.components.ThemedProgressTrack
 import com.example.arrowescape.ui.milestone.MilestoneData.LevelState
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -84,10 +88,7 @@ fun MilestoneScreen(
 
                 // The map never ends on a locked door - it ends on a promise.
                 item {
-                    ComingSoonCard(
-                        nextChapter = journey.milestones.size + 1,
-                        teasers = TEASER_GLYPHS
-                    )
+                    ComingSoonCard(teasers = TEASER_GLYPHS)
                 }
             }
         }
@@ -114,7 +115,11 @@ private fun JourneyTopBar(
                     modifier = Modifier.size(40.dp).clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Text("\u2190", fontSize = 20.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
                 Spacer(Modifier.width(16.dp))
                 Column {
@@ -132,19 +137,7 @@ private fun JourneyTopBar(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Box(
-                Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                Box(
-                    Modifier.fillMaxWidth(animated).fillMaxHeight().clip(RoundedCornerShape(5.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(MaterialTheme.colorScheme.primary, gameColors.arrowHint)
-                            )
-                        )
-                )
-            }
+            ThemedProgressTrack(animated)
         }
     }
 }

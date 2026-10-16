@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GameMode
+import com.example.arrowescape.ui.components.ThemedProgressTrack
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 /**
@@ -164,7 +165,6 @@ fun JourneyProgressBar(
     total: Int,
     modifier: Modifier = Modifier
 ) {
-    val gameColors = ArrowEscapeTheme.gameColors
     val target = if (total <= 0) 0f else (completed.toFloat() / total).coerceIn(0f, 1f)
     val fraction by animateFloatAsState(
         targetValue = target,
@@ -172,19 +172,5 @@ fun JourneyProgressBar(
         label = "journeyProgress"
     )
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(8.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .background(gameColors.divider)
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth(fraction)
-                .fillMaxHeight()
-                .clip(RoundedCornerShape(4.dp))
-                .background(MaterialTheme.colorScheme.primary)
-        )
-    }
+    ThemedProgressTrack(fraction = fraction, modifier = modifier, height = 8.dp)
 }
