@@ -22,12 +22,13 @@ import androidx.compose.ui.unit.sp
 import com.arrowescape.ui.theme.AppTheme
 import com.arrowescape.ui.theme.ArrowEscapeTheme
 
-const val APP_VERSION = "1.0.0"
-
-/** The story of the game, how to play it, and what the looks are. */
+/** The story of the game, how to play it, and the small print. */
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
+    onTermsClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
+    onLicensesClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -51,15 +52,21 @@ fun AboutScreen(
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = "Arrow Escape",
+            text = AppInfo.NAME,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Version $APP_VERSION",
+            text = "Version ${AppInfo.VERSION}",
             style = MaterialTheme.typography.bodySmall,
             color = gameColors.textSecondary
+        )
+        Text(
+            text = AppInfo.COPYRIGHT,
+            style = MaterialTheme.typography.bodySmall,
+            color = gameColors.textSecondary,
+            textAlign = TextAlign.Center
         )
 
         Spacer(Modifier.height(24.dp))
@@ -108,6 +115,16 @@ fun AboutScreen(
                 "Everything is stored on your device and plays offline. Sign in with " +
                     "Play Games and your journey rides along to your next phone."
             )
+        }
+
+        Spacer(Modifier.height(14.dp))
+
+        // The small print the store asks for, one tap away from the app's
+        // own identity card - which is exactly where reviewers look for it.
+        DocumentLinkGroup {
+            DocumentLinkRow("Terms of Service", onTermsClick)
+            DocumentLinkRow("Privacy Policy", onPrivacyClick, showDivider = true)
+            DocumentLinkRow("Licenses", onLicensesClick, showDivider = true)
         }
 
         Spacer(Modifier.height(24.dp))

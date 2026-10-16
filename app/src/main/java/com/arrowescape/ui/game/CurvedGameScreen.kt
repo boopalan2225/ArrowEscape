@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.arrowescape.game.curve.CurvedJourney
 import com.arrowescape.game.model.GameStatus
 import com.arrowescape.ui.components.*
+import com.arrowescape.review.ReviewPromptEffect
 import com.arrowescape.ui.dev.DevLevelBar
 import com.arrowescape.ui.tutorial.SpotlightTarget
 import com.arrowescape.ui.tutorial.spotlightTarget
@@ -224,5 +225,15 @@ fun CurvedGameScreen(
                 )
             }
         }
+
+        // Same celebration as the grid mode, same reason it lives out here:
+        // the scrim's scale-in must not touch the falling paper.
+        ConfettiBurst(
+            active = gameState.status == GameStatus.LEVEL_COMPLETE,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Asks for a store review when the player is clearly having fun.
+        ReviewPromptEffect(viewModel.reviewPrompter)
     }
 }

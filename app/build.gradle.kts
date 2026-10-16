@@ -193,6 +193,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-games-v2:22.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
+    // Google Play In-App Review (the "rate this game" sheet)
+    implementation("com.google.android.play:review-ktx:2.0.1")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")

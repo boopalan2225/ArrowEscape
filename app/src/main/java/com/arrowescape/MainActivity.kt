@@ -43,7 +43,9 @@ import com.arrowescape.ui.home.HomeScreen
 import com.arrowescape.ui.milestone.MilestoneData
 import com.arrowescape.ui.milestone.MilestoneScreen
 import com.arrowescape.ui.settings.AboutScreen
+import com.arrowescape.ui.settings.LicensesScreen
 import com.arrowescape.ui.settings.PrivacyPolicyScreen
+import com.arrowescape.ui.settings.TermsOfServiceScreen
 import com.arrowescape.ui.settings.SettingsScreen
 import com.arrowescape.ui.theme.AppTheme
 import com.arrowescape.ui.theme.ArrowEscapeTheme
@@ -203,7 +205,20 @@ fun ArrowEscapeApp(
         }
 
         composable("about") {
-            AboutScreen(onBackClick = { navController.popBackStack() })
+            AboutScreen(
+                onBackClick = { navController.popBackStack() },
+                onTermsClick = { navController.navigate("terms") },
+                onPrivacyClick = { navController.navigate("privacy") },
+                onLicensesClick = { navController.navigate("licenses") }
+            )
+        }
+
+        composable("terms") {
+            TermsOfServiceScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable("licenses") {
+            LicensesScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable("privacy") {

@@ -13,9 +13,6 @@ import androidx.compose.ui.unit.dp
 import com.arrowescape.ui.theme.AppTheme
 import com.arrowescape.ui.theme.ArrowEscapeTheme
 
-private const val LAST_UPDATED = "October 2025"
-private const val CONTACT_EMAIL = "support@arrowescape.app"
-
 /**
  * What the store requires us to disclose, in plain words: what the game keeps,
  * what the ads see, and what you can do about it.
@@ -29,13 +26,13 @@ fun PrivacyPolicyScreen(
 
     DocumentScaffold(title = "Privacy Policy", onBackClick = onBackClick, modifier = modifier) {
         Text(
-            text = "Arrow Escape",
+            text = AppInfo.NAME,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Last updated $LAST_UPDATED",
+            text = "Last updated ${AppInfo.LEGAL_LAST_UPDATED}",
             style = MaterialTheme.typography.bodySmall,
             color = gameColors.textSecondary,
             textAlign = TextAlign.Center
@@ -130,8 +127,8 @@ fun PrivacyPolicyScreen(
 
         DocumentCard(title = "Contact") {
             DocumentParagraph(
-                "Questions, or want your cloud save deleted? Write to $CONTACT_EMAIL " +
-                    "and we will answer within 30 days."
+                "Questions, or want your cloud save deleted? Write to " +
+                    "${AppInfo.SUPPORT_EMAIL} and we will answer within 30 days."
             )
         }
 

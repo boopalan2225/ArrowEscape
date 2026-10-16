@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.arrowescape.review.ReviewState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -31,6 +32,12 @@ class GamePreferences(private val context: Context) {
         private val KEY_MIGRATED = booleanPreferencesKey("progress_migrated_to_per_mode")
         private val KEY_TUTORIAL_DONE = booleanPreferencesKey("tutorial_done") // Absent = never onboarded
         private val KEY_GAME_TOUR_DONE = booleanPreferencesKey("game_tour_done") // The in-game walkthrough
+
+        // ── Store review prompt (see review.ReviewPolicy) ────────────────
+        private val KEY_REVIEW_STREAK = intPreferencesKey("review_win_streak")
+        private val KEY_REVIEW_ASKS = intPreferencesKey("review_times_asked")
+        private val KEY_REVIEW_LAST_ASK = intPreferencesKey("review_levels_at_last_ask")
+        private val KEY_REVIEW_RATED = booleanPreferencesKey("review_rated")
 
         // ── Per-mode progress (suffixed with GameMode.id) ────────────────
         private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
@@ -104,7 +111,9 @@ class GamePreferences(private val context: Context) {
         /** False until the player has walked through (or skipped) the tutorial. */
         val tutorialDone: Boolean = false,
         /** False until the guided first moves inside a level are done with. */
-        val gameTourDone: Boolean = false
+        val gameTourDone: Boolean = false,
+        /** Everything we remember about asking for a store review. */
+        val review: ReviewState = ReviewState()
     ) {
         fun progressOf(mode: GameMode): ModeProgress = progress[mode] ?: ModeProgress()
 
@@ -136,7 +145,13 @@ class GamePreferences(private val context: Context) {
                 devMode = stored[KEY_DEV_MODE] ?: false,
                 themeId = stored[KEY_THEME],
                 tutorialDone = stored[KEY_TUTORIAL_DONE] ?: false,
-                gameTourDone = stored[KEY_GAME_TOUR_DONE] ?: false
+                gameTourDone = stored[KEY_GAME_TOUR_DONE] ?: false,
+                review = ReviewState(
+                    winStreak = stored[KEY_REVIEW_STREAK] ?: 0,
+                    timesAsked = stored[KEY_REVIEW_ASKS] ?: 0,
+                    levelsAtLastAsk = stored[KEY_REVIEW_LAST_ASK] ?: 0,
+                    rated = stored[KEY_REVIEW_RATED] ?: false
+                )
             )
         }
 
@@ -291,8 +306,23 @@ class GamePreferences(private val context: Context) {
         }
     }
 
-    suspend fun setDevMode(enabled: Boolean) {
+    /**
+     * Stores the review bookkeeping as one value.
+     *
+     * The four numbers only ever change together (see
+     * [com.arrowescape.review.ReviewPolicy]), so one writer beats four
+     * setters that could leave half a decision on disk.
+     */
+    suspend fun saveReviewState(state: ReviewState) {
         context.dataStore.edit { prefs ->
+            prefs[KEY_REVIEW_STREAK] = state.winStreak
+            prefs[KEY_REVIEW_ASKS] = state.timesAsked
+            prefs[KEY_REVIEW_LAST_ASK] = state.levelsAtLastAsk
+            prefs[KEY_REVIEW_RATED] = state.rated
+        }
+    }
+
+    suspend fun setDevMode(enabled: Boolean) {        context.dataStore.edit { prefs ->
             prefs[KEY_DEV_MODE] = enabled
         }
     }

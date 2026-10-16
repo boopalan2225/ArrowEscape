@@ -34,6 +34,8 @@ object Params {
     const val MISTAKES = "mistakes"
     const val CONTINUE_USED = "continue_used"
     const val CLEARED_PCT = "cleared_pct"
+    const val LEVELS_CLEARED = "levels_cleared"
+    const val WIN_STREAK = "win_streak"
     const val AD_FORMAT = "ad_format"
     const val ERROR_CODE = "error_code"
     const val ERROR_MESSAGE = "error_message"
@@ -87,6 +89,19 @@ object Events {
         AnalyticsEvent(
             "lives_exhausted",
             mapOf(Params.LEVEL to level, Params.CLEARED_PCT to clearedPercentage)
+        )
+
+    // ---- Store review ----------------------------------------------------
+
+    /**
+     * We decided to show the in-app review flow. Play never tells us what the
+     * player did next - by design - so this is the only reviewable moment
+     * analytics will ever see.
+     */
+    fun reviewPromptRequested(levelsCleared: Int, winStreak: Int) =
+        AnalyticsEvent(
+            "review_prompt_requested",
+            mapOf(Params.LEVELS_CLEARED to levelsCleared, Params.WIN_STREAK to winStreak)
         )
 
     // ---- Ad funnel, as seen by the game ---------------------------------

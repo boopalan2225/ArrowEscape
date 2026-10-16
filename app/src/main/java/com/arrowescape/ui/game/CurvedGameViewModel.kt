@@ -12,6 +12,7 @@ import com.arrowescape.data.GameMode
 import com.arrowescape.data.GamePreferences
 import com.arrowescape.game.curve.*
 import com.arrowescape.game.model.GameStatus
+import com.arrowescape.review.ReviewPrompter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -94,6 +95,9 @@ class CurvedGameViewModel(
         SharingStarted.WhileSubscribed(5000),
         GamePreferences.Prefs()
     )
+
+    /** Decides when a happy player gets asked for a store review. */
+    val reviewPrompter = ReviewPrompter(preferences, analytics)
 
     // Board dimensions for rendering
     private val _boardWidth = MutableStateFlow(BOARD_WIDTH)
@@ -247,7 +251,7 @@ class CurvedGameViewModel(
         if (prefs.value.soundEnabled) feedback.playSuccessSound()
         if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()
 
-        analytics.log(Events.validMove(currentState.level, currentState.remainingCount - 1))
+//        analytics.log(Events.validMove(currentState.level, currentState.remainingCount - 1))
 
         // Mark arrow as inactive immediately (so other taps see it as gone)
         val updatedArrows = currentState.arrows.map {
@@ -312,6 +316,7 @@ class CurvedGameViewModel(
             if (newStatus == GameStatus.OUT_OF_LIVES) {
                 analytics.log(Events.livesExhausted(currentState.level, currentState.clearedPercentage))
                 analytics.log(Events.rewardedAdOffered(currentState.level))
+                reviewPrompter.onLevelFailed(prefs.value.review)
             }
         }
     }
@@ -374,6 +379,13 @@ class CurvedGameViewModel(
             preferences.incrementTotalLevelsCompleted(MODE)
             preferences.incrementLevelsSinceInterstitial()
             preferences.clearSavedGame()
+
+            // The streak is judged against the total that includes this very
+            // win, which the flow above has not emitted yet - hence the +1.
+            reviewPrompter.onLevelCleared(
+                prefs.value.review,
+                prefs.value.totalLevelsCompleted + 1
+            )
 
             if (prefs.value.soundEnabled) feedback.playCompleteSound()
             if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()

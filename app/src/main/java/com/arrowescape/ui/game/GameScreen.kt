@@ -24,6 +24,7 @@ import com.arrowescape.game.model.Cell
 import com.arrowescape.game.model.Direction
 import com.arrowescape.game.model.GameStatus
 import com.arrowescape.ui.components.*
+import com.arrowescape.review.ReviewPromptEffect
 import com.arrowescape.ui.dev.DevLevelBar
 import com.arrowescape.ui.theme.ArrowEscapeTheme
 import com.arrowescape.ui.tutorial.SpotlightTarget
@@ -207,6 +208,17 @@ fun GameScreen(
                 )
             }
         }
+
+        // Celebration rains over everything, including the overlay card, and
+        // sits outside the AnimatedVisibility so the scrim's scale-in does
+        // not squeeze the paper on its way down.
+        ConfettiBurst(
+            active = gameState.status == GameStatus.LEVEL_COMPLETE,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Asks for a store review when the player is clearly having fun.
+        ReviewPromptEffect(viewModel.reviewPrompter)
     }
 }
 

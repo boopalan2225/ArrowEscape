@@ -23,6 +23,9 @@ Clear all arrows to complete the level. But be careful - tap a blocked arrow and
 - Offline gameplay
 - No login required
 - Sound and haptic feedback
+- Confetti celebration on every level cleared
+- In-app review asked for only after a run of wins (see Store review below)
+- Terms of Service, Privacy Policy and open-source Licenses in About
 - Clean, minimal UI
 - Five appearances: Classic, Midnight, Forest, Sunset, plus **System** (follows the phone)
 - Each theme is a whole mood: its own animated home scenery, motto, corner style **and sound pack**
@@ -75,6 +78,7 @@ com.arrowescape/            # namespace (code root)
   - cloud/         # Play Games cloud save
   - crash/         # CrashReporter abstraction
   - data/          # GamePreferences (DataStore)
+  - review/        # When and how to ask for a store review
   - MainActivity.kt
 ```
 
@@ -134,7 +138,10 @@ Anything that matches on applicationId must use the suffixed form - notably
 
 ### Privacy Policy
 
-Before publishing, create a privacy policy and update the Settings screen URL.
+The in-app Privacy Policy, Terms of Service and Licenses screens live under
+`ui/settings` and are reachable from About. Play also wants the privacy
+policy at a public URL - publish the same text and paste the link into the
+Play Console listing.
 
 ## Release Signing
 
@@ -164,6 +171,31 @@ what Android verifies, and v4 is on for incremental install on API 30+.
 > **Back up the `.jks` and its passwords offline.** The upload key cannot be
 > rotated after publishing without Google's key-reset process, and losing it
 > means losing the ability to update the app.
+
+## Store review
+
+The in-app review sheet is offered on timing alone - never on sentiment.
+Play's In-App Review guidelines forbid screening players ("do you like the
+game?", then sending only the happy ones to the store) and forbid custom star
+UI that triggers the flow, so there is no pre-prompt dialog here on purpose.
+
+`review/ReviewPolicy` is pure Kotlin and holds every rule:
+
+| Rule | Default |
+| --- | --- |
+| Levels cleared back to back | 3 |
+| Minimum levels ever cleared | 6 |
+| Levels of quiet between asks | 30 |
+| Maximum asks, ever | 3 |
+
+`ReviewPrompter` keeps the streak in DataStore and raises a flag;
+`ReviewPromptEffect` - one line in each game screen - waits out the
+celebration, then launches Play's flow. Play reports success even when it
+shows nothing (quota spent, already reviewed), so only a genuine error falls
+back to opening the store listing.
+
+Nothing appears on a sideloaded build: the flow needs an app installed by
+Play. Test it with an internal-testing track or Play's FakeReviewManager.
 
 ## Telemetry
 
@@ -226,7 +258,8 @@ Firebase collection disabled.
 
 - [ ] Replace AdMob test IDs with production IDs
 - [ ] Replace placeholder `google-services.json` and enable `FIREBASE_ENABLED`
-- [ ] Create privacy policy
+- [ ] Host the Privacy Policy at a public URL and link it in the Play Console
+- [ ] Review the Terms, Privacy Policy and Licenses copy with a human lawyer
 - [ ] Create store listing assets (screenshots, icon, feature graphic)
 - [ ] Create signed release keystore (see Release Signing) and back it up
 - [ ] Confirm `applicationId` is `com.arrowescape.game` - it cannot change later

@@ -1,6 +1,7 @@
 package com.arrowescape.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -118,6 +121,58 @@ fun DocumentParagraph(text: String) {
         style = MaterialTheme.typography.bodyMedium,
         color = ArrowEscapeTheme.gameColors.textSecondary
     )
+}
+
+/**
+ * One card holding a run of [DocumentLinkRow]s - divided, but not boxed apart.
+ *
+ * Legal links travel in packs, and a card each would read as five unrelated
+ * things rather than one "the small print lives here" block.
+ */
+@Composable
+fun DocumentLinkGroup(content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = ArrowEscapeTheme.gameColors.cardBackground,
+        shadowElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(content = content)
+    }
+}
+
+/** A tappable row inside a [DocumentLinkGroup] that opens another screen. */
+@Composable
+fun DocumentLinkRow(
+    title: String,
+    onClick: () -> Unit,
+    showDivider: Boolean = false
+) {
+    if (showDivider) {
+        Divider(
+            modifier = Modifier.padding(start = 16.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 18.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = ArrowEscapeTheme.gameColors.textSecondary
+        )
+    }
 }
 
 @Composable
