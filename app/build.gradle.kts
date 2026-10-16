@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -8,6 +10,11 @@ android {
     compileSdk = 34
 
     testOptions {
+        unitTests {
+            // Analytics sinks fall back to android.util.Log, which is a stub on
+            // the JVM. Returning defaults keeps that from throwing in tests.
+            isReturnDefaultValues = true
+        }
         unitTests.all {
             it.testLogging {
                 showStandardStreams = true
@@ -39,6 +46,17 @@ android {
             buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/5224354917\"")
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "true")
+            // Placeholder google-services.json is checked in, so nothing is
+            // sent anywhere until a real Firebase project replaces it. Flip
+            // both of these to true once it does.
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "false")
+
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                // Debug builds have no symbols worth uploading; skipping keeps
+                // the edit-run loop fast.
+                mappingFileUploadEnabled = false
+                nativeSymbolUploadEnabled = false
+            }
         }
         release {
             isMinifyEnabled = true
@@ -51,6 +69,17 @@ android {
             buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"YOUR_PRODUCTION_REWARDED_AD_UNIT_ID\"")
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"YOUR_PRODUCTION_INTERSTITIAL_AD_UNIT_ID\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "false")
+            // Set to true together with a real google-services.json.
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "false")
+
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                // R8 is on below, so Crashlytics needs the mapping file to
+                // produce readable stack traces - but uploading it talks to
+                // Firebase, which the placeholder credentials cannot do.
+                // Turn this on in the same commit that adds the real
+                // google-services.json.
+                mappingFileUploadEnabled = false
+            }
         }
     }
 
@@ -102,6 +131,11 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Firebase - BOM pins every Firebase artifact to one compatible set
+    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     // Google Mobile Ads (AdMob)
     implementation("com.google.android.gms:play-services-ads:22.6.0")

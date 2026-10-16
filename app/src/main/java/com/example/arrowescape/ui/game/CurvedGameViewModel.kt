@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.analytics.AnalyticsTracker
+import com.example.arrowescape.analytics.Events
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.game.curve.*
@@ -184,7 +185,7 @@ class CurvedGameViewModel(
             blockingGraph = graph
             // Developer sessions are for looking at levels, not for metrics.
             if (!prefs.value.devMode) {
-                analytics.trackLevelStarted(level, curvedLevel.arrows.size)
+                analytics.log(Events.levelStarted(level, curvedLevel.arrows.size))
             }
         }
     }
@@ -246,7 +247,7 @@ class CurvedGameViewModel(
         if (prefs.value.soundEnabled) feedback.playSuccessSound()
         if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()
 
-        analytics.trackValidMove(currentState.level, currentState.remainingCount - 1)
+        analytics.log(Events.validMove(currentState.level, currentState.remainingCount - 1))
 
         // Mark arrow as inactive immediately (so other taps see it as gone)
         val updatedArrows = currentState.arrows.map {
@@ -294,7 +295,7 @@ class CurvedGameViewModel(
             status = newStatus
         )
 
-        analytics.trackInvalidMove(currentState.level, newLives)
+        analytics.log(Events.invalidMove(currentState.level, newLives))
 
         // Lunge toward whatever is in the way, touch it, and pull back.
         val distance = ArrowMotion.bumpDistance(
@@ -309,8 +310,8 @@ class CurvedGameViewModel(
             _bumpingArrows.value = _bumpingArrows.value - arrow.id
 
             if (newStatus == GameStatus.OUT_OF_LIVES) {
-                analytics.trackLivesExhausted(currentState.level, currentState.clearedPercentage)
-                analytics.trackRewardedAdOffered(currentState.level)
+                analytics.log(Events.livesExhausted(currentState.level, currentState.clearedPercentage))
+                analytics.log(Events.rewardedAdOffered(currentState.level))
             }
         }
     }
@@ -355,12 +356,12 @@ class CurvedGameViewModel(
 
         viewModelScope.launch {
             val timeSeconds = ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
-            analytics.trackLevelCompleted(
+            analytics.log(Events.levelCompleted(
                 state.level,
                 timeSeconds,
                 state.mistakes,
                 continueUsedThisLevel
-            )
+            ))
 
             // Calculate stars
             val stars = when {
@@ -414,17 +415,17 @@ class CurvedGameViewModel(
      */
     fun onWatchAdForHints(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.trackRewardedAdStarted(currentLevel)
+        analytics.log(Events.rewardedAdStarted(currentLevel))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.trackRewardedAdCompleted(currentLevel)
+                analytics.log(Events.rewardedAdCompleted(currentLevel))
                 _hintsRemaining.value = HINTS_PER_LEVEL
                 adManager.loadRewardedAd(context)
             },
             onFailed = {
-                analytics.trackRewardedAdFailed(currentLevel)
+                analytics.log(Events.rewardedAdFailed(currentLevel))
             }
         )
     }
@@ -435,12 +436,12 @@ class CurvedGameViewModel(
 
     fun onContinueWithAd(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.trackRewardedAdStarted(currentLevel)
+        analytics.log(Events.rewardedAdStarted(currentLevel))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.trackRewardedAdCompleted(currentLevel)
+                analytics.log(Events.rewardedAdCompleted(currentLevel))
                 continueUsedThisLevel = true
                 _gameState.value = _gameState.value.copy(
                     lives = DEFAULT_LIVES,
@@ -449,14 +450,14 @@ class CurvedGameViewModel(
                 adManager.loadRewardedAd(context)
             },
             onFailed = {
-                analytics.trackRewardedAdFailed(currentLevel)
+                analytics.log(Events.rewardedAdFailed(currentLevel))
             }
         )
     }
 
     fun onRestartLevel() {
         val currentLevel = _gameState.value.level
-        analytics.trackLevelRestarted(currentLevel)
+        analytics.log(Events.levelRestarted(currentLevel))
         startLevel(currentLevel)
     }
 
@@ -514,7 +515,7 @@ class CurvedGameViewModel(
                 !continueUsedThisLevel &&
                 adManager.isInterstitialAdReady()
             ) {
-                analytics.trackInterstitialShown(_gameState.value.level)
+                analytics.log(Events.interstitialShown(_gameState.value.level))
                 preferences.resetLevelsSinceInterstitial()
                 adManager.showInterstitialAd(activity, onComplete)
             } else {

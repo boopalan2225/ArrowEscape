@@ -1,70 +1,47 @@
 package com.example.arrowescape.analytics
 
 /**
- * Abstraction for analytics tracking.
- * Allows easy swapping between Firebase, custom analytics, or no-op.
+ * A sink for [AnalyticsEvent]s.
+ *
+ * Deliberately one method. The event vocabulary lives in [Events], so adding
+ * an event never forces every implementation to grow another override - which
+ * is exactly what the previous one-method-per-event interface did.
+ *
+ * Implementations must be cheap and must never throw: callers log from hot
+ * paths and from ad SDK callbacks.
  */
-interface AnalyticsTracker {
-    fun trackAppOpen()
-    fun trackGameStarted(level: Int)
-    fun trackLevelStarted(level: Int, arrowCount: Int)
-    fun trackValidMove(level: Int, remainingArrows: Int)
-    fun trackInvalidMove(level: Int, remainingLives: Int)
-    fun trackLevelCompleted(level: Int, timeSeconds: Int, mistakes: Int, continueUsed: Boolean)
-    fun trackLevelRestarted(level: Int)
-    fun trackLivesExhausted(level: Int, clearedPercentage: Int)
-    fun trackRewardedAdOffered(level: Int)
-    fun trackRewardedAdStarted(level: Int)
-    fun trackRewardedAdCompleted(level: Int)
-    fun trackRewardedAdFailed(level: Int)
-    fun trackInterstitialShown(level: Int)
+fun interface AnalyticsTracker {
+    fun log(event: AnalyticsEvent)
 }
 
-/**
- * No-op implementation - logs nothing but satisfies the interface.
- * Replace with Firebase Analytics or custom solution when ready.
- */
-class NoOpAnalyticsTracker : AnalyticsTracker {
-    override fun trackAppOpen() {}
-    override fun trackGameStarted(level: Int) {}
-    override fun trackLevelStarted(level: Int, arrowCount: Int) {}
-    override fun trackValidMove(level: Int, remainingArrows: Int) {}
-    override fun trackInvalidMove(level: Int, remainingLives: Int) {}
-    override fun trackLevelCompleted(level: Int, timeSeconds: Int, mistakes: Int, continueUsed: Boolean) {}
-    override fun trackLevelRestarted(level: Int) {}
-    override fun trackLivesExhausted(level: Int, clearedPercentage: Int) {}
-    override fun trackRewardedAdOffered(level: Int) {}
-    override fun trackRewardedAdStarted(level: Int) {}
-    override fun trackRewardedAdCompleted(level: Int) {}
-    override fun trackRewardedAdFailed(level: Int) {}
-    override fun trackInterstitialShown(level: Int) {}
+/** Drops everything. Used in tests, previews, and ad-free builds. */
+object NoOpAnalyticsTracker : AnalyticsTracker {
+    override fun log(event: AnalyticsEvent) = Unit
 }
 
-/**
- * Debug implementation that logs to Logcat.
- */
-class DebugAnalyticsTracker : AnalyticsTracker {
-    private fun log(event: String, params: Map<String, Any> = emptyMap()) {
-        val paramsStr = if (params.isNotEmpty()) " | $params" else ""
-        android.util.Log.d("Analytics", "EVENT: $event$paramsStr")
+/** Prints to Logcat. Debug builds only - it is noisy by design. */
+class DebugAnalyticsTracker(private val tag: String = "Analytics") : AnalyticsTracker {
+    override fun log(event: AnalyticsEvent) {
+        val params = if (event.params.isEmpty()) "" else " | ${event.params}"
+        android.util.Log.d(tag, "EVENT: ${event.name}$params")
     }
+}
 
-    override fun trackAppOpen() = log("app_open")
-    override fun trackGameStarted(level: Int) = log("game_started", mapOf("level" to level))
-    override fun trackLevelStarted(level: Int, arrowCount: Int) = 
-        log("level_started", mapOf("level" to level, "arrows" to arrowCount))
-    override fun trackValidMove(level: Int, remainingArrows: Int) = 
-        log("valid_move", mapOf("level" to level, "remaining" to remainingArrows))
-    override fun trackInvalidMove(level: Int, remainingLives: Int) = 
-        log("invalid_move", mapOf("level" to level, "lives" to remainingLives))
-    override fun trackLevelCompleted(level: Int, timeSeconds: Int, mistakes: Int, continueUsed: Boolean) = 
-        log("level_completed", mapOf("level" to level, "time" to timeSeconds, "mistakes" to mistakes, "continue" to continueUsed))
-    override fun trackLevelRestarted(level: Int) = log("level_restarted", mapOf("level" to level))
-    override fun trackLivesExhausted(level: Int, clearedPercentage: Int) = 
-        log("lives_exhausted", mapOf("level" to level, "cleared" to clearedPercentage))
-    override fun trackRewardedAdOffered(level: Int) = log("rewarded_ad_offered", mapOf("level" to level))
-    override fun trackRewardedAdStarted(level: Int) = log("rewarded_ad_started", mapOf("level" to level))
-    override fun trackRewardedAdCompleted(level: Int) = log("rewarded_ad_completed", mapOf("level" to level))
-    override fun trackRewardedAdFailed(level: Int) = log("rewarded_ad_failed", mapOf("level" to level))
-    override fun trackInterstitialShown(level: Int) = log("interstitial_shown", mapOf("level" to level))
+/**
+ * Fans one event out to several sinks.
+ *
+ * A failing sink must not silence the others, so each delivery is isolated.
+ */
+class CompositeAnalyticsTracker(
+    private val sinks: List<AnalyticsTracker>
+) : AnalyticsTracker {
+
+    constructor(vararg sinks: AnalyticsTracker) : this(sinks.toList())
+
+    override fun log(event: AnalyticsEvent) {
+        sinks.forEach { sink ->
+            runCatching { sink.log(event) }
+                .onFailure { android.util.Log.w("Analytics", "Sink ${sink.javaClass.simpleName} failed", it) }
+        }
+    }
 }

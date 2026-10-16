@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.analytics.AnalyticsTracker
+import com.example.arrowescape.analytics.Events
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.game.engine.GameEngine
@@ -135,7 +136,7 @@ class GameViewModel(
             _combo.value = 0
             continueUsedThisLevel = false
 
-            analytics.trackLevelStarted(level, generated.arrows.size)
+            analytics.log(Events.levelStarted(level, generated.arrows.size))
         }
     }
 
@@ -182,17 +183,17 @@ class GameViewModel(
      */
     fun onWatchAdForHints(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.trackRewardedAdStarted(currentLevel)
+        analytics.log(Events.rewardedAdStarted(currentLevel))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.trackRewardedAdCompleted(currentLevel)
+                analytics.log(Events.rewardedAdCompleted(currentLevel))
                 _hintsRemaining.value = HINTS_PER_LEVEL
                 adManager.loadRewardedAd(context)
             },
             onFailed = {
-                analytics.trackRewardedAdFailed(currentLevel)
+                analytics.log(Events.rewardedAdFailed(currentLevel))
             }
         )
     }
@@ -245,7 +246,7 @@ class GameViewModel(
         if (prefs.value.soundEnabled) feedback.playSuccessSound()
         if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()
 
-        analytics.trackValidMove(newState.level, newState.remainingCount)
+        analytics.log(Events.validMove(newState.level, newState.remainingCount))
 
         // Commit the arrow list RIGHT NOW so other arrows immediately know
         // this one is gone (fixes a bug where a blocked arrow tapped during
@@ -287,7 +288,7 @@ class GameViewModel(
         if (prefs.value.hapticsEnabled) feedback.playErrorHaptic()
 
         _gameState.value = newState
-        analytics.trackInvalidMove(newState.level, newState.lives)
+        analytics.log(Events.invalidMove(newState.level, newState.lives))
 
         viewModelScope.launch {
             delay(SHAKE_ANIMATION_DURATION_MS)
@@ -295,8 +296,8 @@ class GameViewModel(
 
             // Check for out of lives
             if (newState.status == GameStatus.OUT_OF_LIVES) {
-                analytics.trackLivesExhausted(newState.level, newState.clearedPercentage)
-                analytics.trackRewardedAdOffered(newState.level)
+                analytics.log(Events.livesExhausted(newState.level, newState.clearedPercentage))
+                analytics.log(Events.rewardedAdOffered(newState.level))
             }
         }
     }
@@ -304,12 +305,12 @@ class GameViewModel(
     private fun handleLevelComplete(state: GameState) {
         viewModelScope.launch {
             val timeSeconds = gameEngine.getCompletionTimeSeconds(state)
-            analytics.trackLevelCompleted(
+            analytics.log(Events.levelCompleted(
                 state.level,
                 timeSeconds,
                 state.mistakes,
                 continueUsedThisLevel
-            )
+            ))
 
             // Calculate and save stars
             val stars = when {
@@ -331,25 +332,25 @@ class GameViewModel(
 
     fun onContinueWithAd(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.trackRewardedAdStarted(currentLevel)
+        analytics.log(Events.rewardedAdStarted(currentLevel))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.trackRewardedAdCompleted(currentLevel)
+                analytics.log(Events.rewardedAdCompleted(currentLevel))
                 continueUsedThisLevel = true
                 _gameState.value = gameEngine.restoreLives(_gameState.value)
                 adManager.loadRewardedAd(context) // Preload next
             },
             onFailed = {
-                analytics.trackRewardedAdFailed(currentLevel)
+                analytics.log(Events.rewardedAdFailed(currentLevel))
             }
         )
     }
 
     fun onRestartLevel() {
         val currentLevel = _gameState.value.level
-        analytics.trackLevelRestarted(currentLevel)
+        analytics.log(Events.levelRestarted(currentLevel))
         startLevel(currentLevel)
     }
 
@@ -361,7 +362,7 @@ class GameViewModel(
             if (prefs.value.levelsSinceInterstitial >= INTERSTITIAL_FREQUENCY) {
                 // Don't show interstitial right after a rewarded ad
                 if (!continueUsedThisLevel && adManager.isInterstitialAdReady()) {
-                    analytics.trackInterstitialShown(nextLevel)
+                    analytics.log(Events.interstitialShown(nextLevel))
                     // We'd need Activity reference here - for now just reset counter
                     preferences.resetLevelsSinceInterstitial()
                 }
@@ -377,7 +378,7 @@ class GameViewModel(
                 !continueUsedThisLevel &&
                 adManager.isInterstitialAdReady()
             ) {
-                analytics.trackInterstitialShown(_gameState.value.level)
+                analytics.log(Events.interstitialShown(_gameState.value.level))
                 preferences.resetLevelsSinceInterstitial()
                 adManager.showInterstitialAd(activity, onComplete)
             } else {

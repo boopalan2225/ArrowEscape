@@ -22,7 +22,10 @@ import androidx.navigation.navArgument
 import com.example.arrowescape.ads.AdManager
 import com.example.arrowescape.ads.AdManagerImpl
 import com.example.arrowescape.analytics.AnalyticsTracker
-import com.example.arrowescape.analytics.DebugAnalyticsTracker
+import com.example.arrowescape.analytics.Events
+import com.example.arrowescape.analytics.Telemetry
+import com.example.arrowescape.crash.CrashKeys
+import com.example.arrowescape.crash.CrashReporter
 import com.example.arrowescape.cloud.CloudSave
 import com.example.arrowescape.cloud.CloudSyncCoordinator
 import com.example.arrowescape.cloud.PlayGamesCloudSave
@@ -55,15 +58,20 @@ class MainActivity : ComponentActivity() {
     private lateinit var preferences: GamePreferences
     private lateinit var adManager: AdManager
     private lateinit var analytics: AnalyticsTracker
+    private lateinit var crashReporter: CrashReporter
     private lateinit var cloudSave: CloudSave
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize dependencies
+        // Telemetry comes first: everything built after it can be reported on.
+        val telemetry = Telemetry.create(applicationContext)
+        analytics = telemetry.analytics
+        crashReporter = telemetry.crashReporter
+
         preferences = GamePreferences(applicationContext)
-        adManager = AdManagerImpl()
-        analytics = DebugAnalyticsTracker() // Use NoOpAnalyticsTracker for production
+        adManager = AdManagerImpl(analytics)
         cloudSave = PlayGamesCloudSave()
 
         // Initialize ads
@@ -76,7 +84,16 @@ class MainActivity : ComponentActivity() {
         cloudSave.signInSilently()
         CloudSyncCoordinator(cloudSave, preferences).start(lifecycleScope)
 
-        analytics.trackAppOpen()
+        analytics.log(Events.appOpen())
+
+        // Crash reports are far easier to triage with the player's mode and
+        // level attached, so keep those keys current for the whole session.
+        lifecycleScope.launch {
+            preferences.prefsFlow.collect { prefs ->
+                crashReporter.setKey(CrashKeys.GAME_MODE, prefs.mode.name)
+                crashReporter.setKey(CrashKeys.CURRENT_LEVEL, prefs.currentLevel)
+            }
+        }
 
         setContent {
             // null until preferences load, so a saved theme never flashes the default first.
@@ -148,7 +165,7 @@ fun ArrowEscapeApp(
                     HomeScreen(
                 prefs = prefs,
                 onPlayClick = {
-                    analytics.trackGameStarted(prefs.currentLevel)
+                    analytics.log(Events.gameStarted(prefs.currentLevel))
                     navController.navigate("game/${prefs.currentLevel}")
                 },
                 onModeSelect = { mode ->
@@ -198,7 +215,7 @@ fun ArrowEscapeApp(
                 prefs = prefs,
                 onBackClick = { navController.popBackStack() },
                 onPlayLevel = { level ->
-                    analytics.trackGameStarted(level)
+                    analytics.log(Events.gameStarted(level))
                     navController.navigate("game/$level")
                 }
             )

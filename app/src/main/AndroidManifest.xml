@@ -23,6 +23,17 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${ADMOB_APP_ID}" />
 
+        <!-- Firebase collection is off at startup and switched on at runtime by
+             Telemetry, but only when BuildConfig.FIREBASE_ENABLED is set. While
+             the placeholder google-services.json is checked in that stays false,
+             so the app never talks to a Firebase project it does not own. -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
+
         <!-- Play Games Services App ID - see strings.xml game_services_app_id comment -->
         <meta-data
             android:name="com.google.android.gms.games.APP_ID"

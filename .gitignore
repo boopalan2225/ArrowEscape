@@ -47,8 +47,11 @@ captures/
 .externalNativeBuild
 .cxx/
 
-# Google Services (we don't use Firebase)
-google-services.json
+# Google Services (Firebase Analytics + Crashlytics)
+# google-services.json is intentionally NOT ignored: the google-services
+# Gradle plugin refuses to build without it, and the file ships inside every
+# published APK anyway, so it is config rather than a secret. What is checked
+# in is a placeholder - see README before shipping.
 
 # Version control
 vcs.xml

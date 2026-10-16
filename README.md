@@ -52,6 +52,7 @@ python3 tools/generate_sfx.py
 - **ViewModel + Flow** - State management
 - **DataStore** - Persistence
 - **Google Mobile Ads SDK** - Monetization
+- **Firebase Analytics + Crashlytics** - Product telemetry and crash reporting
 - **JUnit** - Unit testing
 
 ## Project Structure
@@ -69,7 +70,8 @@ com.example.arrowescape/
     - components/  # Reusable UI components
     - theme/       # Colors, typography
   - ads/           # AdManager abstraction
-  - analytics/     # Analytics abstraction
+  - analytics/     # Event catalog + tracker sinks (Logcat/Firebase/Crashlytics)
+  - crash/         # CrashReporter abstraction
   - data/          # GamePreferences (DataStore)
   - MainActivity.kt
 ```
@@ -114,9 +116,67 @@ com.example.arrowescape/
 
 Before publishing, create a privacy policy and update the Settings screen URL.
 
+## Telemetry
+
+Firebase Analytics and Crashlytics are wired up but **switched off**. The
+checkedin `app/google-services.json` is a placeholder, so nothing is sent
+anywhere until a real project replaces it.
+
+### How it fits together
+
+```
+call site -> AnalyticsTracker.log(Events.foo(...))
+                 |
+      RateLimitedAnalyticsTracker     <- drops chatty events
+                 |
+      CompositeAnalyticsTracker       <- fans out, one bad sink cannot break the rest
+         /          |         \
+    Logcat    Firebase    Crashlytics breadcrumbs
+```
+
+- Event names and parameter keys live in **one** place: `analytics/Events`.
+  Adding an event is a single factory function; no sink changes.
+- `AnalyticsTracker` has exactly one method, so a new backend is one class.
+- `Telemetry.create()` is the only place that decides which sinks exist.
+
+### Rate limiting
+
+`RateLimitedAnalyticsTracker` caps events that would otherwise burn the
+Firebase quota (see `AnalyticsLimits`):
+
+| Event | Cap | Why |
+| --- | --- | --- |
+| `valid_move`, `invalid_move` | 200/session, 1/sec | Fires on every tap |
+| `ad_load_failed`, `ad_show_failed`, `ad_not_ready` | 20/session, 1/5sec | Arrives in retry bursts |
+| `ad_load_requested` | 100/session, 1/sec | Funnel denominator only |
+
+Impressions, rewards and revenue are **never** limited - that is the money.
+
+### Ad callbacks
+
+Every AdMob callback is logged, so the funnel is visible end to end:
+`ad_load_requested` -> `ad_loaded` / `ad_load_failed` -> `ad_show_requested` ->
+`ad_impression` -> `ad_clicked` -> `ad_reward_earned` -> `ad_dismissed`, plus
+`ad_revenue` from the paid-event listener and `ad_not_ready` / `ad_show_failed`
+on the sad paths. All carry an `ad_format` of `rewarded` or `interstitial`.
+
+### Going live
+
+1. Create a Firebase project and register `com.example.arrowescape`.
+2. Replace `app/google-services.json` with the downloaded file.
+3. Set `FIREBASE_ENABLED` to `true` in both buildTypes in `app/build.gradle.kts`.
+4. Set `mappingFileUploadEnabled = true` in the `release` buildType so
+   Crashlytics can deobfuscate R8 stack traces.
+5. Disclose analytics collection in the privacy policy and the Play Console
+   Data Safety form.
+
+Until step 3, `Telemetry` falls back to Logcat-only and the manifest keeps
+Firebase collection disabled.
+
 ## Play Store Checklist
 
 - [ ] Replace AdMob test IDs with production IDs
+- [ ] Replace placeholder `google-services.json` and enable `FIREBASE_ENABLED`
 - [ ] Create privacy policy
 - [ ] Create store listing assets (screenshots, icon, feature graphic)
 - [ ] Create signed release keystore
