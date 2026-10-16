@@ -260,6 +260,7 @@ fun GameBottomBar(
     shapeName: String,
     hintsRemaining: Int,
     onHintClick: () -> Unit,
+    isHintAdAvailable: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -287,11 +288,14 @@ fun GameBottomBar(
             )
         }
 
-        // Hint button with badge
+        // Hint button with badge. Once hints run out it stays tappable -
+        // tapping now offers a rewarded ad instead of doing nothing, same
+        // idea as "Continue" on the out-of-lives screen.
+        val hintsExhausted = hintsRemaining <= 0
         Box(contentAlignment = Alignment.TopEnd) {
             FilledIconButton(
                 onClick = onHintClick,
-                enabled = hintsRemaining > 0,
+                enabled = !hintsExhausted || isHintAdAvailable,
                 modifier = Modifier.size(56.dp),
                 shape = CircleShape,
                 colors = IconButtonDefaults.filledIconButtonColors(
@@ -302,7 +306,7 @@ fun GameBottomBar(
                 Text(text = "\uD83D\uDCA1", fontSize = 22.sp)
             }
 
-            if (hintsRemaining > 0) {
+            if (!hintsExhausted) {
                 Box(
                     modifier = Modifier
                         .size(22.dp)
@@ -315,6 +319,20 @@ fun GameBottomBar(
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            } else if (isHintAdAvailable) {
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(gameColors.warning),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "\u25B6",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

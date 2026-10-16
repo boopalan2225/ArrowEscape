@@ -135,7 +135,14 @@ fun GameScreen(
             GameBottomBar(
                 shapeName = shapeName,
                 hintsRemaining = hintsRemaining,
-                onHintClick = { viewModel.useHint() }
+                isHintAdAvailable = viewModel.isRewardedAdAvailable(),
+                onHintClick = {
+                    if (hintsRemaining > 0) {
+                        viewModel.useHint()
+                    } else {
+                        activity?.let { viewModel.onWatchAdForHints(it) }
+                    }
+                }
             )
         }
 

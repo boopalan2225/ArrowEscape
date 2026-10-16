@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.Build
+import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -21,6 +22,42 @@ class GameFeedback(context: Context) {
     } else {
         @Suppress("DEPRECATION")
         context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
+
+    // Vibrating without telling the system *why* leaves it to classify the
+    // call itself, and on at least one real device that classification
+    // landed somewhere that gets silently scaled to nothing - the effect
+    // dispatches, the OS reports it as finished, and you feel zero. Tagging
+    // it USAGE_TOUCH puts it in the same bucket as keyboard taps and other
+    // UI feedback, which is reliably audible^Wfeelable everywhere.
+    // VibrationAttributes the class exists on-device from API 30, but the
+    // Vibrator.vibrate(VibrationEffect, VibrationAttributes) overload isn't
+    // added until API 33 - gating on R builds a valid attributes object on
+    // API 30-32 and then throws NoSuchMethodError the moment it's actually
+    // passed to vibrate(). Below 33 we fall back to the older
+    // vibrate(VibrationEffect, AudioAttributes) overload (API 26+, our
+    // minSdk) so taps still get classified instead of silently using the
+    // no-attributes call.
+    private val touchAttributes: VibrationAttributes? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            VibrationAttributes.Builder()
+                .setUsage(VibrationAttributes.USAGE_TOUCH)
+                .build()
+        } else null
+
+    private val touchAudioAttributes: AudioAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+
+    private fun vibrate(effect: VibrationEffect) {
+        val vib = vibrator ?: return
+        val attrs = touchAttributes
+        if (attrs != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            vib.vibrate(effect, attrs)
+        } else {
+            vib.vibrate(effect, touchAudioAttributes)
+        }
     }
 
     private val soundPool: SoundPool = SoundPool.Builder()
@@ -59,25 +96,21 @@ class GameFeedback(context: Context) {
     }
 
     fun playSuccessHaptic() {
-        vibrator?.let { vib ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
-            } else {
-                @Suppress("DEPRECATION")
-                vib.vibrate(10)
-            }
+        val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
+        } else {
+            VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
         }
+        vibrate(effect)
     }
 
     fun playErrorHaptic() {
-        vibrator?.let { vib ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vib.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK))
-            } else {
-                @Suppress("DEPRECATION")
-                vib.vibrate(longArrayOf(0, 30, 50, 30), -1)
-            }
+        val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK)
+        } else {
+            VibrationEffect.createWaveform(longArrayOf(0, 30, 50, 30), -1)
         }
+        vibrate(effect)
     }
 
     /** Call from the owning ViewModel's onCleared(). */

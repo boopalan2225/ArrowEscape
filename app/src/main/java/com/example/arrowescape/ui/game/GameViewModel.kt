@@ -36,6 +36,7 @@ class GameViewModel(
         private const val INTERSTITIAL_FREQUENCY = 4 // Show ad every N completed levels
         private const val ESCAPE_ANIMATION_DURATION_MS = 530L
         private const val SHAKE_ANIMATION_DURATION_MS = 300L
+        private const val HINTS_PER_LEVEL = 2
     }
 
     private val gameEngine = GameEngine()
@@ -61,7 +62,7 @@ class GameViewModel(
     private val _shapeName = MutableStateFlow("Square")
     val shapeName: StateFlow<String> = _shapeName.asStateFlow()
 
-    private val _hintsRemaining = MutableStateFlow(2)
+    private val _hintsRemaining = MutableStateFlow(HINTS_PER_LEVEL)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
 
     private val _combo = MutableStateFlow(0)
@@ -128,7 +129,7 @@ class GameViewModel(
             )
             _escapingArrows.value = emptyMap()
             _shakingArrows.value = emptySet()
-            _hintsRemaining.value = 2
+            _hintsRemaining.value = HINTS_PER_LEVEL
             _combo.value = 0
             continueUsedThisLevel = false
 
@@ -170,6 +171,28 @@ class GameViewModel(
                 _gameState.value = _gameState.value.copy(hintArrowId = null)
             }
         }
+    }
+
+    /**
+     * Hints work like lives: run out, watch an ad, get the full allowance
+     * back. One rewarded-ad pool covers both - a player who just watched one
+     * for lives shouldn't be asked to sit through a second to keep hinting.
+     */
+    fun onWatchAdForHints(activity: Activity) {
+        val currentLevel = _gameState.value.level
+        analytics.trackRewardedAdStarted(currentLevel)
+
+        adManager.showRewardedAd(
+            activity = activity,
+            onRewarded = {
+                analytics.trackRewardedAdCompleted(currentLevel)
+                _hintsRemaining.value = HINTS_PER_LEVEL
+                adManager.loadRewardedAd(context)
+            },
+            onFailed = {
+                analytics.trackRewardedAdFailed(currentLevel)
+            }
+        )
     }
 
     // Debounce guard to prevent duplicate tap processing

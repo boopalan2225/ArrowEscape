@@ -62,6 +62,7 @@ class CurvedGameViewModel(
         private const val INTERSTITIAL_FREQUENCY = 4
         private const val ANIMATION_FRAME_MS = 16L
         private const val DEFAULT_LIVES = 3
+        private const val HINTS_PER_LEVEL = 2
         private const val BOARD_WIDTH = 400f
         private const val BOARD_HEIGHT = 600f
     }
@@ -81,7 +82,7 @@ class CurvedGameViewModel(
     private val _bumpingArrows = MutableStateFlow<Map<Int, ArrowMotion.Bump>>(emptyMap())
     val bumpingArrows: StateFlow<Map<Int, ArrowMotion.Bump>> = _bumpingArrows.asStateFlow()
 
-    private val _hintsRemaining = MutableStateFlow(2)
+    private val _hintsRemaining = MutableStateFlow(HINTS_PER_LEVEL)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
 
     private val _combo = MutableStateFlow(0)
@@ -175,7 +176,7 @@ class CurvedGameViewModel(
 
             _escapingArrows.value = emptyMap()
             _bumpingArrows.value = emptyMap()
-            _hintsRemaining.value = 2
+            _hintsRemaining.value = HINTS_PER_LEVEL
             _combo.value = 0
             continueUsedThisLevel = false
             blockingGraph = graph
@@ -402,6 +403,28 @@ class CurvedGameViewModel(
                 _gameState.value = _gameState.value.copy(hintArrowId = null)
             }
         }
+    }
+
+    /**
+     * Hints work like lives: run out, watch an ad, get the full allowance
+     * back. One rewarded-ad pool covers both - a player who just watched one
+     * for lives shouldn't be asked to sit through a second to keep hinting.
+     */
+    fun onWatchAdForHints(activity: Activity) {
+        val currentLevel = _gameState.value.level
+        analytics.trackRewardedAdStarted(currentLevel)
+
+        adManager.showRewardedAd(
+            activity = activity,
+            onRewarded = {
+                analytics.trackRewardedAdCompleted(currentLevel)
+                _hintsRemaining.value = HINTS_PER_LEVEL
+                adManager.loadRewardedAd(context)
+            },
+            onFailed = {
+                analytics.trackRewardedAdFailed(currentLevel)
+            }
+        )
     }
 
     // ─────────────────────────────────────────────────────────────────────
