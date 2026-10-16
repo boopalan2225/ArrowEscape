@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -43,6 +44,11 @@ import com.example.arrowescape.ui.settings.PrivacyPolicyScreen
 import com.example.arrowescape.ui.settings.SettingsScreen
 import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
+import com.example.arrowescape.ui.tutorial.GameTour
+import com.example.arrowescape.ui.tutorial.HomeTour
+import com.example.arrowescape.ui.tutorial.LocalSpotlight
+import com.example.arrowescape.ui.tutorial.SpotlightOverlay
+import com.example.arrowescape.ui.tutorial.SpotlightState
 
 class MainActivity : ComponentActivity() {
 
@@ -85,12 +91,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (loaded != null) {
+                    // Seeding with the loaded value matters: a default Prefs
+                    // would claim the tutorial was never seen, and returning
+                    // players would get a flash of coach marks.
+                    loaded?.let { initial ->
                         ArrowEscapeApp(
                             preferences = preferences,
                             adManager = adManager,
                             analytics = analytics,
-                            cloudSave = cloudSave
+                            cloudSave = cloudSave,
+                            initialPrefs = initial
                         )
                     }
                 }
@@ -104,10 +114,11 @@ fun ArrowEscapeApp(
     preferences: GamePreferences,
     adManager: AdManager,
     analytics: AnalyticsTracker,
-    cloudSave: CloudSave
+    cloudSave: CloudSave,
+    initialPrefs: GamePreferences.Prefs
 ) {
     val navController = rememberNavController()
-    val prefs by preferences.prefsFlow.collectAsState(initial = GamePreferences.Prefs())
+    val prefs by preferences.prefsFlow.collectAsState(initial = initialPrefs)
 
     // Shared ViewModels for game state
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -128,7 +139,13 @@ fun ArrowEscapeApp(
     ) {
         composable("home") {
             val scope = rememberCoroutineScope()
-            HomeScreen(
+            // The controls report where they are, the tour reads it; Home
+            // itself knows nothing about being toured.
+            val spotlight = remember { SpotlightState() }
+
+            CompositionLocalProvider(LocalSpotlight provides spotlight) {
+                Box(Modifier.fillMaxSize()) {
+                    HomeScreen(
                 prefs = prefs,
                 onPlayClick = {
                     analytics.trackGameStarted(prefs.currentLevel)
@@ -143,10 +160,22 @@ fun ArrowEscapeApp(
                 onSettingsClick = {
                     navController.navigate("settings")
                 },
-                onDevClick = {
-                    navController.navigate("dev")
+                        onDevClick = {
+                            navController.navigate("dev")
+                        }
+                    )
+
+                    if (!prefs.tutorialDone) {
+                        SpotlightOverlay(
+                            state = spotlight,
+                            steps = HomeTour.steps,
+                            onFinish = {
+                                scope.launch { preferences.setTutorialDone(true) }
+                            }
+                        )
+                    }
                 }
-            )
+            }
         }
 
         composable("dev") {
@@ -187,13 +216,40 @@ fun ArrowEscapeApp(
             route = "game/{level}",
             arguments = listOf(navArgument("level") { type = NavType.IntType })
         ) { backStackEntry ->
-            GameRoute(
-                mode = prefs.mode,
-                level = backStackEntry.arguments?.getInt("level") ?: prefs.currentLevel,
-                navController = navController,
-                gameViewModel = gameViewModel,
-                curvedGameViewModel = curvedGameViewModel
-            )
+            val scope = rememberCoroutineScope()
+            val spotlight = remember { SpotlightState() }
+
+            CompositionLocalProvider(LocalSpotlight provides spotlight) {
+                Box(Modifier.fillMaxSize()) {
+                    GameRoute(
+                        mode = prefs.mode,
+                        level = backStackEntry.arguments?.getInt("level") ?: prefs.currentLevel,
+                        navController = navController,
+                        gameViewModel = gameViewModel,
+                        curvedGameViewModel = curvedGameViewModel
+                    )
+
+                    if (!prefs.gameTourDone) {
+                        // Arrows left is the honest signal that a guided move
+                        // landed - no timers, no guessing.
+                        val classicState by gameViewModel.gameState.collectAsState()
+                        val curvedState by curvedGameViewModel.gameState.collectAsState()
+                        val arrowsLeft = when (prefs.mode) {
+                            GameMode.CLASSIC -> classicState.remainingCount
+                            GameMode.CURVED -> curvedState.remainingCount
+                        }
+
+                        SpotlightOverlay(
+                            state = spotlight,
+                            steps = GameTour.steps,
+                            progress = arrowsLeft,
+                            onFinish = {
+                                scope.launch { preferences.setGameTourDone(true) }
+                            }
+                        )
+                    }
+                }
+            }
         }
 
         composable("settings") {
@@ -220,6 +276,12 @@ fun ArrowEscapeApp(
                     scope.launch { preferences.setTheme(themeId) }
                 },
                 onAboutClick = { navController.navigate("about") },
+                onHowToPlayClick = {
+                    // Replaying means arming both tours and going back to Home;
+                    // the in-game half lights up again on the next level opened.
+                    scope.launch { preferences.setWalkthroughsDone(false) }
+                    navController.popBackStack("home", inclusive = false)
+                },
                 onPrivacyClick = { navController.navigate("privacy") },
                 onBackClick = {
                     navController.popBackStack()

@@ -20,6 +20,8 @@ import com.example.arrowescape.game.curve.CurvedJourney
 import com.example.arrowescape.game.model.GameStatus
 import com.example.arrowescape.ui.components.*
 import com.example.arrowescape.ui.dev.DevLevelBar
+import com.example.arrowescape.ui.tutorial.SpotlightTarget
+import com.example.arrowescape.ui.tutorial.spotlightTarget
 
 /**
  * Main game screen for curved arrow puzzles.
@@ -86,6 +88,7 @@ fun CurvedGameScreen(
                     )
 
                     GameStatsRow(
+                        modifier = Modifier.spotlightTarget(SpotlightTarget.LIVES),
                         remainingArrows = gameState.remainingCount,
                         lives = gameState.lives,
                         difficultyLabel = gameState.difficulty
@@ -100,7 +103,8 @@ fun CurvedGameScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .spotlightTarget(SpotlightTarget.BOARD),
                 contentAlignment = Alignment.Center
             ) {
                 CurvedGameBoard(
@@ -131,6 +135,7 @@ fun CurvedGameScreen(
             }
 
             GameBottomBar(
+                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
                 shapeName = gameState.shapeName,
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),

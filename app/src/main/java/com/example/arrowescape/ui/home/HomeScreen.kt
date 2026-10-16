@@ -31,6 +31,8 @@ import com.example.arrowescape.ui.components.GlyphIcon
 import com.example.arrowescape.ui.milestone.MilestoneData
 import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
+import com.example.arrowescape.ui.tutorial.SpotlightTarget
+import com.example.arrowescape.ui.tutorial.spotlightTarget
 
 /**
  * The front door: pick a mode, see where you are in it, and play.
@@ -71,21 +73,27 @@ fun HomeScreen(
 
             Spacer(Modifier.height(28.dp))
 
-            ModeSwitcher(selected = prefs.mode, onSelect = onModeSelect)
+            ModeSwitcher(
+                selected = prefs.mode,
+                onSelect = onModeSelect,
+                modifier = Modifier.spotlightTarget(SpotlightTarget.MODES)
+            )
 
             Spacer(Modifier.height(20.dp))
 
             ProgressCard(
                 mode = prefs.mode,
                 progress = progress,
-                totalLevels = journey.totalLevels
+                totalLevels = journey.totalLevels,
+                modifier = Modifier.spotlightTarget(SpotlightTarget.PROGRESS)
             )
 
             Spacer(Modifier.height(28.dp))
 
             PulsatingPlayButton(
                 label = if (progress.currentLevel > 1) "CONTINUE" else "PLAY",
-                onClick = onPlayClick
+                onClick = onPlayClick,
+                modifier = Modifier.spotlightTarget(SpotlightTarget.PLAY)
             )
 
             Spacer(Modifier.height(20.dp))
@@ -183,7 +191,8 @@ private fun GameTitle() {
 private fun ProgressCard(
     mode: GameMode,
     progress: GamePreferences.ModeProgress,
-    totalLevels: Int
+    totalLevels: Int,
+    modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
     val completed = progress.clearedOutOf(totalLevels)
@@ -192,7 +201,7 @@ private fun ProgressCard(
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 6.dp,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -251,7 +260,8 @@ private fun HomeActions(
         onClick = onJourneyClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .height(52.dp)
+            .spotlightTarget(SpotlightTarget.JOURNEY),
         shape = MaterialTheme.shapes.large
     ) {
         Text(text = "\uD83D\uDDFA", fontSize = 18.sp)
@@ -265,7 +275,10 @@ private fun HomeActions(
 
     Spacer(Modifier.height(8.dp))
 
-    TextButton(onClick = onSettingsClick) {
+    TextButton(
+        onClick = onSettingsClick,
+        modifier = Modifier.spotlightTarget(SpotlightTarget.SETTINGS)
+    ) {
         Text(text = "\u2699", fontSize = 20.sp, color = gameColors.textSecondary)
         Spacer(Modifier.width(8.dp))
         Text(
@@ -277,7 +290,11 @@ private fun HomeActions(
 }
 
 @Composable
-private fun PulsatingPlayButton(label: String, onClick: () -> Unit) {
+private fun PulsatingPlayButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val infinite = rememberInfiniteTransition(label = "play")
     val scale by infinite.animateFloat(
         initialValue = 1f,
@@ -292,7 +309,7 @@ private fun PulsatingPlayButton(label: String, onClick: () -> Unit) {
         label = "glow"
     )
 
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth()) {
         // Halo tracks the button's own box, so it never peeks out as a stray slab.
         Box(
             Modifier

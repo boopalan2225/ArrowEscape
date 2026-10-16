@@ -26,6 +26,8 @@ import com.example.arrowescape.game.model.GameStatus
 import com.example.arrowescape.ui.components.*
 import com.example.arrowescape.ui.dev.DevLevelBar
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
+import com.example.arrowescape.ui.tutorial.SpotlightTarget
+import com.example.arrowescape.ui.tutorial.spotlightTarget
 
 @Composable
 fun GameScreen(
@@ -91,6 +93,7 @@ fun GameScreen(
                     )
 
                     GameStatsRow(
+                        modifier = Modifier.spotlightTarget(SpotlightTarget.LIVES),
                         remainingArrows = gameState.remainingCount,
                         lives = gameState.lives,
                         difficultyLabel = gameState.difficultyLabel
@@ -105,7 +108,8 @@ fun GameScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .spotlightTarget(SpotlightTarget.BOARD),
                 contentAlignment = Alignment.Center
             ) {
                 GameBoard(
@@ -133,6 +137,7 @@ fun GameScreen(
             }
 
             GameBottomBar(
+                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
                 shapeName = shapeName,
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),

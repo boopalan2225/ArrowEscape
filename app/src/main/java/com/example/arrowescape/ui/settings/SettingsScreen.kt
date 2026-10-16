@@ -56,6 +56,7 @@ fun SettingsScreen(
     /** Receives an [AppTheme] id, or [AppTheme.SYSTEM_ID] to follow the phone. */
     onThemeSelect: (String) -> Unit = {},
     onAboutClick: () -> Unit = {},
+    onHowToPlayClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: (GameMode) -> Unit = {},
@@ -134,6 +135,13 @@ fun SettingsScreen(
             Spacer(Modifier.height(24.dp))
 
             SettingsSection(title = "About") {
+                SettingsClickableItem(
+                    icon = "\uD83C\uDFAF",
+                    title = "How to Play",
+                    subtitle = "Replay the walkthrough",
+                    onClick = onHowToPlayClick
+                )
+
                 SettingsClickableItem(
                     icon = "\uD83D\uDCDC",
                     title = "Privacy Policy",

@@ -29,6 +29,8 @@ class GamePreferences(private val context: Context) {
         private val KEY_THEME = stringPreferencesKey("theme") // AppTheme.id; absent = match the phone
         private val KEY_GAME_MODE = stringPreferencesKey("game_mode") // GameMode.id the player last chose
         private val KEY_MIGRATED = booleanPreferencesKey("progress_migrated_to_per_mode")
+        private val KEY_TUTORIAL_DONE = booleanPreferencesKey("tutorial_done") // Absent = never onboarded
+        private val KEY_GAME_TOUR_DONE = booleanPreferencesKey("game_tour_done") // The in-game walkthrough
 
         // ── Per-mode progress (suffixed with GameMode.id) ────────────────
         private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
@@ -98,7 +100,11 @@ class GamePreferences(private val context: Context) {
         /** Developer mode: level picker, prev/next, and play never touches saved progress. */
         val devMode: Boolean = false,
         /** [com.example.arrowescape.ui.theme.AppTheme.id] the player picked; null = never chose. */
-        val themeId: String? = null
+        val themeId: String? = null,
+        /** False until the player has walked through (or skipped) the tutorial. */
+        val tutorialDone: Boolean = false,
+        /** False until the guided first moves inside a level are done with. */
+        val gameTourDone: Boolean = false
     ) {
         fun progressOf(mode: GameMode): ModeProgress = progress[mode] ?: ModeProgress()
 
@@ -128,7 +134,9 @@ class GamePreferences(private val context: Context) {
                 hapticsEnabled = stored[KEY_HAPTICS_ENABLED] ?: true,
                 levelsSinceInterstitial = stored[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
                 devMode = stored[KEY_DEV_MODE] ?: false,
-                themeId = stored[KEY_THEME]
+                themeId = stored[KEY_THEME],
+                tutorialDone = stored[KEY_TUTORIAL_DONE] ?: false,
+                gameTourDone = stored[KEY_GAME_TOUR_DONE] ?: false
             )
         }
 
@@ -260,6 +268,26 @@ class GamePreferences(private val context: Context) {
     suspend fun setTheme(themeId: String) {
         context.dataStore.edit { prefs ->
             prefs[KEY_THEME] = themeId
+        }
+    }
+
+    /** Both walkthroughs at once: finished after onboarding, reset to replay. */
+    suspend fun setWalkthroughsDone(done: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_TUTORIAL_DONE] = done
+            prefs[KEY_GAME_TOUR_DONE] = done
+        }
+    }
+
+    suspend fun setTutorialDone(done: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_TUTORIAL_DONE] = done
+        }
+    }
+
+    suspend fun setGameTourDone(done: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_GAME_TOUR_DONE] = done
         }
     }
 
