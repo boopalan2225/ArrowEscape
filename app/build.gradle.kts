@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,8 +7,33 @@ plugins {
     id("com.google.firebase.crashlytics")
 }
 
+/**
+ * Release signing credentials.
+ *
+ * Secrets live in keystore.properties at the repo root, which is gitignored -
+ * see keystore.properties.template for the expected keys. A missing or
+ * incomplete file is not an error: the release build simply stays unsigned so
+ * that cloning the repo and running `assembleRelease` still works.
+ */
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use(::load)
+}
+
+/** Null unless every credential is present and the keystore really exists. */
+val releaseKeystore: File? = keystoreProperties.getProperty("storeFile")
+    ?.let(rootProject::file)
+    ?.takeIf { it.exists() }
+    ?.takeIf {
+        listOf("storePassword", "keyAlias", "keyPassword")
+            .all { key -> !keystoreProperties.getProperty(key).isNullOrBlank() }
+    }
+
 android {
-    namespace = "com.example.arrowescape"
+    // Code lives under com.arrowescape; the Play Store identity below adds the
+    // .game suffix. Keeping them separate avoids a redundant com.arrowescape
+    // .game.game.* tree, since the game logic already owns a `game` package.
+    namespace = "com.arrowescape"
     compileSdk = 34
 
     testOptions {
@@ -23,7 +50,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.arrowescape"
+        // Permanent once published - Play Store listings cannot change it.
+        applicationId = "com.arrowescape.game"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -38,6 +66,26 @@ android {
         manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713" // Test ID
         // Play Games Services App ID lives in res/values/strings.xml, not here -
         // see game_services_app_id for why.
+    }
+
+    signingConfigs {
+        // Only declared when usable; referencing a half-configured signing
+        // config fails the build in confusing ways at package time.
+        releaseKeystore?.let { keystore ->
+            create("release") {
+                storeFile = keystore
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+
+                // minSdk is 26, so v1 is dead weight. v2/v3 are what Android
+                // verifies; v4 enables incremental install on API 30+.
+                enableV1Signing = false
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
+        }
     }
 
     buildTypes {
@@ -59,6 +107,7 @@ android {
             }
         }
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -155,12 +204,25 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
+// An unsigned release APK installs nowhere and uploads nowhere, so say so
+// loudly at the moment it is produced rather than letting it look like success.
+tasks.matching { it.name == "packageRelease" }.configureEach {
+    doFirst {
+        if (releaseKeystore == null) {
+            logger.warn(
+                "\n*** Release build is UNSIGNED - no valid keystore.properties found. ***\n" +
+                "    Copy keystore.properties.template to keystore.properties and fill it in.\n"
+            )
+        }
+    }
+}
+
 // Dev-only: render generated levels to PNG for visual review.
 tasks.register<JavaExec>("renderShapes") {
     group = "verification"
     description = "Renders generated shapes to build/shape-preview for eyeballing."
     dependsOn("compileDebugKotlin")
-    mainClass.set("com.example.arrowescape.game.curve.ShapePreview")
+    mainClass.set("com.arrowescape.game.curve.ShapePreview")
     classpath = files(
         layout.buildDirectory.dir("tmp/kotlin-classes/debug"),
         configurations.getByName("debugRuntimeClasspath")

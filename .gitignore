@@ -39,9 +39,12 @@ captures/
 *.iml
 .idea/
 
-# Keystore files
+# Signing. The keystore and its passwords are the one secret in this repo:
+# whoever holds both can publish updates as us, and the key cannot be rotated
+# once the app is live. keystore.properties.template is the committed example.
 *.jks
 *.keystore
+keystore.properties
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild

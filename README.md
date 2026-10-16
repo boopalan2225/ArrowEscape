@@ -58,11 +58,12 @@ python3 tools/generate_sfx.py
 ## Project Structure
 
 ```
-com.example.arrowescape/
+com.arrowescape/            # namespace (code root)
   - game/
     - model/       # ArrowTile, Direction, GameState
     - engine/      # GameEngine, CollisionChecker, GameSolver
     - level/       # LevelGenerator, DifficultyConfig
+    - curve/       # Curved-arrow engine
   - ui/
     - home/        # Home screen
     - game/        # Game screen + ViewModel
@@ -71,10 +72,29 @@ com.example.arrowescape/
     - theme/       # Colors, typography
   - ads/           # AdManager abstraction
   - analytics/     # Event catalog + tracker sinks (Logcat/Firebase/Crashlytics)
+  - cloud/         # Play Games cloud save
   - crash/         # CrashReporter abstraction
   - data/          # GamePreferences (DataStore)
   - MainActivity.kt
 ```
+
+### Package naming
+
+`namespace` and `applicationId` differ on purpose:
+
+| Setting | Value | Role |
+| --- | --- | --- |
+| `namespace` | `com.arrowescape` | Kotlin package root, where `BuildConfig` is generated |
+| `applicationId` | `com.arrowescape.game` | Play Store identity, **permanent** once published |
+
+The game logic already lives in a `game` package, so making the code root
+`com.arrowescape.game` would produce `com.arrowescape.game.game.curve`.
+Splitting the two keeps the tree readable and costs nothing: relative manifest
+names such as `.MainActivity` resolve against the namespace, while the shipped
+APK still reports `com.arrowescape.game`.
+
+Anything that matches on applicationId must use the suffixed form - notably
+`package_name` in `google-services.json`.
 
 ## Building
 
@@ -115,6 +135,35 @@ com.example.arrowescape/
 ### Privacy Policy
 
 Before publishing, create a privacy policy and update the Settings screen URL.
+
+## Release Signing
+
+Release builds are signed from credentials in `keystore.properties` at the
+repo root. That file and every `*.jks` are gitignored; the committed
+`keystore.properties.template` documents the expected keys.
+
+Without a valid file the release build still succeeds but produces
+`app-release-unsigned.apk` and prints a warning - so CI never silently ships
+something unsigned, and a fresh clone still builds.
+
+### One-time setup
+
+```bash
+keytool -genkeypair -v \
+  -keystore arrowescape-release.jks \
+  -keyalg RSA -keysize 4096 -validity 10000 \
+  -alias arrowescape
+
+cp keystore.properties.template keystore.properties
+# then fill in storePassword / keyPassword
+```
+
+Signing schemes: v1 is off (minSdk is 26, so nothing needs it), v2 and v3 are
+what Android verifies, and v4 is on for incremental install on API 30+.
+
+> **Back up the `.jks` and its passwords offline.** The upload key cannot be
+> rotated after publishing without Google's key-reset process, and losing it
+> means losing the ability to update the app.
 
 ## Telemetry
 
@@ -162,7 +211,7 @@ on the sad paths. All carry an `ad_format` of `rewarded` or `interstitial`.
 
 ### Going live
 
-1. Create a Firebase project and register `com.example.arrowescape`.
+1. Create a Firebase project and register `com.arrowescape`.
 2. Replace `app/google-services.json` with the downloaded file.
 3. Set `FIREBASE_ENABLED` to `true` in both buildTypes in `app/build.gradle.kts`.
 4. Set `mappingFileUploadEnabled = true` in the `release` buildType so
@@ -179,7 +228,8 @@ Firebase collection disabled.
 - [ ] Replace placeholder `google-services.json` and enable `FIREBASE_ENABLED`
 - [ ] Create privacy policy
 - [ ] Create store listing assets (screenshots, icon, feature graphic)
-- [ ] Create signed release keystore
+- [ ] Create signed release keystore (see Release Signing) and back it up
+- [ ] Confirm `applicationId` is `com.arrowescape.game` - it cannot change later
 - [ ] Build release AAB: `./gradlew bundleRelease`
 - [ ] Test on multiple devices/screen sizes
 - [ ] Complete Play Console app setup
