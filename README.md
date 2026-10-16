@@ -24,6 +24,25 @@ Clear all arrows to complete the level. But be careful - tap a blocked arrow and
 - No login required
 - Sound and haptic feedback
 - Clean, minimal UI
+- Five appearances: Classic, Midnight, Forest, Sunset, plus **System** (follows the phone)
+- Each theme is a whole mood: its own animated home scenery, motto, corner style **and sound pack**
+- A "coming soon" banner closes the Journey map so finishing feels like being up to date
+
+## Themes
+
+A theme is two pieces of data and no screen-specific code:
+
+| Piece | File | Holds |
+| --- | --- | --- |
+| Palette | `ui/theme/ThemePalettes.kt` | Material scheme + game colours |
+| Persona | `ui/theme/ThemePersona.kt` | Tagline, crest, drifting scenery, corner radius, sound pack |
+
+The non-Classic sound packs are synthesised - re-tune them by editing the
+tables in `tools/generate_sfx.py` and running:
+
+```bash
+python3 tools/generate_sfx.py
+```
 
 ## Tech Stack
 

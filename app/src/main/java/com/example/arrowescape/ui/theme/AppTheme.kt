@@ -18,7 +18,18 @@ enum class AppTheme(
     SUNSET("sunset", "Sunset", isDark = false);
 
     companion object {
+        /**
+         * Saved when the player wants the app to follow the phone. It is
+         * deliberately *not* an enum entry: "system" is a rule for picking a
+         * look, not a look, and [resolve] already treats anything unknown as
+         * "match the phone".
+         */
+        const val SYSTEM_ID = "system"
+
         fun fromId(id: String?): AppTheme? = entries.firstOrNull { it.id == id }
+
+        /** True when [savedId] means "follow the phone" rather than a fixed look. */
+        fun followsSystem(savedId: String?): Boolean = fromId(savedId) == null
 
         /** What a player who never chose a theme gets: light or dark to match their phone. */
         fun defaultFor(systemDark: Boolean): AppTheme = if (systemDark) MIDNIGHT else CLASSIC

@@ -203,8 +203,8 @@ fun ArrowEscapeApp(
                 onDevModeToggle = { enabled ->
                     scope.launch { preferences.setDevMode(enabled) }
                 },
-                onThemeSelect = { theme ->
-                    scope.launch { preferences.setTheme(theme.id) }
+                onThemeSelect = { themeId ->
+                    scope.launch { preferences.setTheme(themeId) }
                 },
                 onBackClick = {
                     navController.popBackStack()

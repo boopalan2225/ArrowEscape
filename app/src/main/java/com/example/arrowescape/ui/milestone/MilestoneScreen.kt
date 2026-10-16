@@ -37,6 +37,9 @@ private val ChapterColors = listOf(
     Color(0xFFD500F9)
 )
 
+/** Deliberately vague shapes for the "more to come" card - no promises kept by accident. */
+private val TEASER_GLYPHS = listOf("\u2753", "\uD83E\uDDE9", "\u2728", "\uD83D\uDD2E")
+
 @Composable
 fun MilestoneScreen(
     prefs: GamePreferences.Prefs,
@@ -76,6 +79,14 @@ fun MilestoneScreen(
                         highestLevel = highestLevel,
                         levelStars = levelStars,
                         onPlayLevel = onPlayLevel
+                    )
+                }
+
+                // The map never ends on a locked door - it ends on a promise.
+                item {
+                    ComingSoonCard(
+                        nextChapter = journey.milestones.size + 1,
+                        teasers = TEASER_GLYPHS
                     )
                 }
             }

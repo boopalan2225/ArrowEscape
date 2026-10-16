@@ -1,6 +1,7 @@
 package com.example.arrowescape.ui.game
 
 import android.content.Context
+import android.content.res.Configuration
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.Build
@@ -8,14 +9,29 @@ import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import com.example.arrowescape.R
+import com.example.arrowescape.data.GamePreferences
+import com.example.arrowescape.ui.theme.AppTheme
+import com.example.arrowescape.ui.theme.SoundPack
+import com.example.arrowescape.ui.theme.soundPack
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 /**
  * Sound and haptic feedback for a tap. Shared by both game engines - the grid
  * and the curved board feel the same when you touch them, so there is no
  * reason for each ViewModel to carry its own copy of this plumbing.
+ *
+ * Which clips play depends on the chosen theme: every look has its own voice,
+ * and [followTheme] keeps that in step with the player's choice.
  */
 class GameFeedback(context: Context) {
+
+    // Application context only: this object outlives any one screen, and a
+    // SoundPool holding an Activity is a leak with a soundtrack.
+    private val appContext = context.applicationContext
 
     private val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
@@ -75,21 +91,52 @@ class GameFeedback(context: Context) {
     // load in a few milliseconds, but tracking completion properly means a
     // tap right as the screen opens never loses its sound to a race.
     private val loadedSoundIds = mutableSetOf<Int>()
-    private val successSoundId = soundPool.load(context, R.raw.tap_success, 1)
-    private val errorSoundId = soundPool.load(context, R.raw.tap_error, 1)
-    private val completeSoundId = soundPool.load(context, R.raw.level_complete, 1)
+
+    /** Raw resource -> SoundPool id, so a clip is never loaded twice. */
+    private val soundIds = mutableMapOf<Int, Int>()
+
+    private var activePack: SoundPack = AppTheme.CLASSIC.soundPack()
 
     init {
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status == 0) loadedSoundIds += sampleId
         }
+        load(activePack)
     }
 
-    fun playSuccessSound() = play(successSoundId)
-    fun playErrorSound() = play(errorSoundId)
-    fun playCompleteSound() = play(completeSoundId)
+    /**
+     * Plays the voice of whichever theme is selected, now and whenever that
+     * changes. One call per ViewModel beats a theme lookup at every tap.
+     */
+    fun followTheme(prefs: Flow<GamePreferences.Prefs>, scope: CoroutineScope) {
+        scope.launch {
+            prefs.map { it.themeId }.distinctUntilChanged().collect { themeId ->
+                useTheme(AppTheme.resolve(themeId, systemIsDark()))
+            }
+        }
+    }
 
-    private fun play(soundId: Int) {
+    fun useTheme(theme: AppTheme) {
+        activePack = theme.soundPack().also(::load)
+    }
+
+    private fun load(pack: SoundPack) {
+        listOf(pack.success, pack.error, pack.complete).forEach { resId ->
+            soundIds.getOrPut(resId) { soundPool.load(appContext, resId, 1) }
+        }
+    }
+
+    // A player on "System" has no theme saved, so the pack follows the phone.
+    private fun systemIsDark(): Boolean =
+        (appContext.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+
+    fun playSuccessSound() = play(activePack.success)
+    fun playErrorSound() = play(activePack.error)
+    fun playCompleteSound() = play(activePack.complete)
+
+    private fun play(resId: Int) {
+        val soundId = soundIds[resId] ?: return
         if (soundId in loadedSoundIds) {
             soundPool.play(soundId, 1f, 1f, /* priority = */ 1, /* loop = */ 0, /* rate = */ 1f)
         }

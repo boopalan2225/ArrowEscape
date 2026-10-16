@@ -50,7 +50,8 @@ fun SettingsScreen(
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
     onDevModeToggle: (Boolean) -> Unit = {},
-    onThemeSelect: (AppTheme) -> Unit = {},
+    /** Receives an [AppTheme] id, or [AppTheme.SYSTEM_ID] to follow the phone. */
+    onThemeSelect: (String) -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: (GameMode) -> Unit = {},
     onResetProgress: (GameMode) -> Unit = {},
@@ -74,8 +75,9 @@ fun SettingsScreen(
         ) {
             SettingsSection(title = "Appearance") {
                 ThemePicker(
-                    selected = AppTheme.resolve(prefs.themeId, isSystemInDarkTheme()),
-                    onSelect = onThemeSelect
+                    selectedId = prefs.themeId,
+                    onSelect = onThemeSelect,
+                    systemDark = isSystemInDarkTheme()
                 )
             }
 

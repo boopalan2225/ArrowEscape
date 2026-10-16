@@ -97,6 +97,8 @@ class GameViewModel(
 
     init {
         preloadAds()
+        // Every theme has its own voice; keep the board speaking the right one.
+        feedback.followTheme(prefs, viewModelScope)
     }
 
     private fun preloadAds() {

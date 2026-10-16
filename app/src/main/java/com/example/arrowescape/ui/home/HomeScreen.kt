@@ -11,7 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.arrowescape.data.GameMode
 import com.example.arrowescape.data.GamePreferences
 import com.example.arrowescape.ui.milestone.MilestoneData
+import com.example.arrowescape.ui.theme.AppTheme
 import com.example.arrowescape.ui.theme.ArrowEscapeTheme
 
 /**
@@ -52,16 +52,13 @@ fun HomeScreen(
     val progress = prefs.activeProgress
     val journey = MilestoneData.forMode(prefs.mode)
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(homeBackdrop())
-    ) {
+    HomeBackdrop(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp, vertical = 24.dp),
+                .padding(horizontal = 28.dp, vertical = 24.dp)
+                .entranceAnimation(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AnimatedLogo()
@@ -103,15 +100,15 @@ fun HomeScreen(
     }
 }
 
-/** A soft vertical wash so the screen is not a flat slab of one colour. */
+/** A soft rise-and-fade the first time Home appears. */
 @Composable
-private fun homeBackdrop(): Brush = Brush.verticalGradient(
-    listOf(
-        MaterialTheme.colorScheme.background,
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
-        MaterialTheme.colorScheme.background
-    )
-)
+private fun Modifier.entranceAnimation(): Modifier {
+    val shown = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { shown.animateTo(1f, tween(650, easing = EaseInOutCubic)) }
+    return this
+        .alpha(shown.value)
+        .offset(y = ((1f - shown.value) * 24).dp)
+}
 
 @Composable
 private fun GameTitle() {
@@ -130,13 +127,20 @@ private fun GameTitle() {
         letterSpacing = 4.sp
     )
     Spacer(Modifier.height(6.dp))
-    Text(
-        text = "TAP  \u00B7  VANISH  \u00B7  ESCAPE",
-        style = MaterialTheme.typography.labelMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        letterSpacing = 2.sp
-    )
+    // Each look has its own motto, so the words change with the scenery.
+    AnimatedContent(
+        targetState = ArrowEscapeTheme.persona.tagline,
+        transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(200)) },
+        label = "tagline"
+    ) { tagline ->
+        Text(
+            text = tagline,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            letterSpacing = 2.sp
+        )
+    }
 }
 
 /**
@@ -153,7 +157,7 @@ private fun ProgressCard(
     val completed = progress.clearedOutOf(totalLevels)
 
     Surface(
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 6.dp,
         modifier = Modifier.fillMaxWidth()
@@ -218,7 +222,7 @@ private fun HomeActions(
         modifier = Modifier
             .fillMaxWidth()
             .height(52.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = MaterialTheme.shapes.large
     ) {
         Text(text = "\uD83D\uDDFA", fontSize = 18.sp)
         Spacer(Modifier.width(8.dp))
@@ -237,7 +241,7 @@ private fun HomeActions(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            shape = RoundedCornerShape(16.dp)
+            shape = MaterialTheme.shapes.large
         ) {
             Text(
                 text = "\uD83D\uDEE0  Dev: Open any level",
@@ -338,7 +342,7 @@ private fun AnimatedLogo() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "\u2192",
+                text = ArrowEscapeTheme.persona.crest,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -372,7 +376,7 @@ private fun PulsatingPlayButton(label: String, onClick: () -> Unit) {
                 .matchParentSize()
                 .padding(vertical = 2.dp)
                 .scale(scale * 1.02f)
-                .clip(RoundedCornerShape(22.dp))
+                .clip(MaterialTheme.shapes.large)
                 .alpha(glow)
                 .background(MaterialTheme.colorScheme.primary)
         )
@@ -383,7 +387,7 @@ private fun PulsatingPlayButton(label: String, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .height(60.dp)
                 .scale(scale),
-            shape = RoundedCornerShape(18.dp),
+            shape = MaterialTheme.shapes.large,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             ),
@@ -418,12 +422,12 @@ private fun previewPrefs(mode: GameMode, level: Int, best: Int, done: Int) =
         )
     )
 
-@Preview(showBackground = true, name = "Home - Light")
+/** One preview body, four looks - the scenery is the point of the comparison. */
 @Composable
-private fun HomeScreenPreviewLight() {
-    ArrowEscapeTheme(darkTheme = false) {
+private fun HomePreview(theme: AppTheme, mode: GameMode, level: Int) {
+    ArrowEscapeTheme(theme) {
         HomeScreen(
-            prefs = previewPrefs(GameMode.CURVED, level = 1, best = 1, done = 0),
+            prefs = previewPrefs(mode, level = level, best = level, done = level - 1),
             onPlayClick = {},
             onModeSelect = {},
             onJourneyClick = {},
@@ -432,16 +436,18 @@ private fun HomeScreenPreviewLight() {
     }
 }
 
-@Preview(showBackground = true, name = "Home - Dark")
+@Preview(showBackground = true, name = "Home - Classic")
 @Composable
-private fun HomeScreenPreviewDark() {
-    ArrowEscapeTheme(darkTheme = true) {
-        HomeScreen(
-            prefs = previewPrefs(GameMode.CLASSIC, level = 42, best = 50, done = 49),
-            onPlayClick = {},
-            onModeSelect = {},
-            onJourneyClick = {},
-            onSettingsClick = {}
-        )
-    }
-}
+private fun HomeScreenPreviewClassic() = HomePreview(AppTheme.CLASSIC, GameMode.CURVED, level = 1)
+
+@Preview(showBackground = true, name = "Home - Midnight")
+@Composable
+private fun HomeScreenPreviewMidnight() = HomePreview(AppTheme.MIDNIGHT, GameMode.CLASSIC, level = 42)
+
+@Preview(showBackground = true, name = "Home - Forest")
+@Composable
+private fun HomeScreenPreviewForest() = HomePreview(AppTheme.FOREST, GameMode.CURVED, level = 17)
+
+@Preview(showBackground = true, name = "Home - Sunset")
+@Composable
+private fun HomeScreenPreviewSunset() = HomePreview(AppTheme.SUNSET, GameMode.CLASSIC, level = 88)
