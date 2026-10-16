@@ -1,7 +1,25 @@
 # Daily Mode - plain board, mean puzzles
 
-**Status:** proposal, nothing built yet.
-**Owner:** TBD · **Prereq:** none - sits on the existing curved engine.
+**Status:** playable slice built (steps 1-3 below). Calendar, Undo and
+notifications still open.
+**Owner:** TBD - **Prereq:** none - sits on the existing curved engine.
+
+## What exists today
+
+| Piece | Where |
+| --- | --- |
+| Date to puzzle, streak rules | `game/daily/DailyPuzzle.kt` (pure Kotlin) |
+| Solved days + streak storage | `GamePreferences.daily`, `markDailyCleared` |
+| Session switch in the engine | `CurvedGameViewModel.startDaily`, `CurvedSession` |
+| The bare screen | `ui/daily/DailyScreen.kt` |
+| Way in | Home - "Daily Puzzle", route `daily` |
+
+The deviation from the plan below: the first cut reuses the journey's
+generator and artwork, picking a *level seed inside the right difficulty
+band* for the weekday instead of a bespoke silhouette-free generator. Same
+determinism, same difficulty curve, none of the new generation code - and
+the board still arrives with no name, no stars and no decoration around it.
+The denser silhouette-free profile stays on the list.
 
 ## The idea in one line
 

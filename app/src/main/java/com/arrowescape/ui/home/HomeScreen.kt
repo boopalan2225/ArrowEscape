@@ -46,6 +46,7 @@ fun HomeScreen(
     onPlayClick: () -> Unit,
     onModeSelect: (GameMode) -> Unit,
     onJourneyClick: () -> Unit,
+    onDailyClick: () -> Unit = {},
     onSettingsClick: () -> Unit,
     onDevClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -100,6 +101,9 @@ fun HomeScreen(
 
             HomeActions(
                 onJourneyClick = onJourneyClick,
+                onDailyClick = onDailyClick,
+                dailySolved = prefs.daily.isCleared(java.time.LocalDate.now()),
+                dailyStreak = prefs.daily.streak,
                 onSettingsClick = onSettingsClick
             )
         }
@@ -252,6 +256,9 @@ private fun ProgressCard(
 @Composable
 private fun HomeActions(
     onJourneyClick: () -> Unit,
+    onDailyClick: () -> Unit,
+    dailySolved: Boolean,
+    dailyStreak: Int,
     onSettingsClick: () -> Unit
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -268,6 +275,30 @@ private fun HomeActions(
         Spacer(Modifier.width(8.dp))
         Text(
             text = "Journey Map",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // Today's puzzle, and whether it is still waiting. The label does the
+    // nagging so no notification has to.
+    OutlinedButton(
+        onClick = onDailyClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        shape = MaterialTheme.shapes.large
+    ) {
+        Text(text = "\uD83D\uDCC5", fontSize = 18.sp)
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = when {
+                dailySolved && dailyStreak > 1 -> "Daily done - $dailyStreak in a row"
+                dailySolved -> "Daily done"
+                else -> "Daily Puzzle"
+            },
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )

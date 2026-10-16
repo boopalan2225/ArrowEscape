@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.arrowescape.game.daily.DailyProgress
 import com.arrowescape.review.ReviewState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -38,6 +39,11 @@ class GamePreferences(private val context: Context) {
         private val KEY_REVIEW_ASKS = intPreferencesKey("review_times_asked")
         private val KEY_REVIEW_LAST_ASK = intPreferencesKey("review_levels_at_last_ask")
         private val KEY_REVIEW_RATED = booleanPreferencesKey("review_rated")
+
+        // ── Daily puzzle (one board a day, see game.daily) ───────────────
+        private val KEY_DAILY_CLEARED = stringPreferencesKey("daily_cleared") // "20251016,20251017"
+        private val KEY_DAILY_STREAK = intPreferencesKey("daily_streak")
+        private val KEY_DAILY_LAST = intPreferencesKey("daily_last_cleared")
 
         // ── Per-mode progress (suffixed with GameMode.id) ────────────────
         private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
@@ -113,7 +119,10 @@ class GamePreferences(private val context: Context) {
         /** False until the guided first moves inside a level are done with. */
         val gameTourDone: Boolean = false,
         /** Everything we remember about asking for a store review. */
-        val review: ReviewState = ReviewState()
+        val review: ReviewState = ReviewState(),
+        /** Solved days and the current run. Shared by every mode - there is
+         *  only ever one puzzle a day. */
+        val daily: DailyProgress = DailyProgress()
     ) {
         fun progressOf(mode: GameMode): ModeProgress = progress[mode] ?: ModeProgress()
 
@@ -151,6 +160,14 @@ class GamePreferences(private val context: Context) {
                     timesAsked = stored[KEY_REVIEW_ASKS] ?: 0,
                     levelsAtLastAsk = stored[KEY_REVIEW_LAST_ASK] ?: 0,
                     rated = stored[KEY_REVIEW_RATED] ?: false
+                ),
+                daily = DailyProgress(
+                    cleared = stored[KEY_DAILY_CLEARED].orEmpty()
+                        .split(",")
+                        .mapNotNull(String::toIntOrNull)
+                        .toSet(),
+                    streak = stored[KEY_DAILY_STREAK] ?: 0,
+                    lastCleared = stored[KEY_DAILY_LAST]
                 )
             )
         }
@@ -319,6 +336,28 @@ class GamePreferences(private val context: Context) {
             prefs[KEY_REVIEW_ASKS] = state.timesAsked
             prefs[KEY_REVIEW_LAST_ASK] = state.levelsAtLastAsk
             prefs[KEY_REVIEW_RATED] = state.rated
+        }
+    }
+
+    /**
+     * Marks [date]'s puzzle solved, letting [DailyProgress] decide what that
+     * does to the streak - the rule lives with the data, not with the writer.
+     */
+    suspend fun markDailyCleared(date: java.time.LocalDate) {
+        context.dataStore.edit { prefs ->
+            val current = DailyProgress(
+                cleared = prefs[KEY_DAILY_CLEARED].orEmpty()
+                    .split(",")
+                    .mapNotNull(String::toIntOrNull)
+                    .toSet(),
+                streak = prefs[KEY_DAILY_STREAK] ?: 0,
+                lastCleared = prefs[KEY_DAILY_LAST]
+            )
+            val updated = current.withCleared(date)
+
+            prefs[KEY_DAILY_CLEARED] = updated.cleared.sorted().joinToString(",")
+            prefs[KEY_DAILY_STREAK] = updated.streak
+            updated.lastCleared?.let { prefs[KEY_DAILY_LAST] = it }
         }
     }
 

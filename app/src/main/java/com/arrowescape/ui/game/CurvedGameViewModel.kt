@@ -11,6 +11,7 @@ import com.arrowescape.analytics.Events
 import com.arrowescape.data.GameMode
 import com.arrowescape.data.GamePreferences
 import com.arrowescape.game.curve.*
+import com.arrowescape.game.daily.DailyPuzzle
 import com.arrowescape.game.model.GameStatus
 import com.arrowescape.review.ReviewPrompter
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,15 @@ data class CurvedGameState(
         return ((total - remainingCount) * 100) / total
     }
 }
+
+/**
+ * Which kind of board is on screen.
+ *
+ * The tapping, animating and life-losing are identical either way - only the
+ * bookkeeping at the end differs - so one ViewModel serves both rather than a
+ * near-copy serving the daily.
+ */
+enum class CurvedSession { JOURNEY, DAILY }
 
 /**
  * ViewModel for curved arrow puzzle gameplay.
@@ -109,6 +119,11 @@ class CurvedGameViewModel(
     private var continueUsedThisLevel = false
     private var pendingLevel: Int? = null
 
+    private var session = CurvedSession.JOURNEY
+
+    /** Non-null only while a daily board is being played. */
+    private var dailyPuzzle: DailyPuzzle? = null
+
     /**
      * Precomputed blocking graph for the level. Built once - arrow geometry
      * never changes during play, only which arrows are still alive, so every
@@ -152,6 +167,22 @@ class CurvedGameViewModel(
     fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
 
     fun startLevel(level: Int) {
+        session = CurvedSession.JOURNEY
+        dailyPuzzle = null
+        loadBoard(level)
+    }
+
+    /**
+     * Plays today's (or any day's) puzzle. Same engine, same board, different
+     * ending: a daily marks a date solved instead of advancing the journey.
+     */
+    fun startDaily(puzzle: DailyPuzzle) {
+        session = CurvedSession.DAILY
+        dailyPuzzle = puzzle
+        loadBoard(puzzle.levelSeed)
+    }
+
+    private fun loadBoard(level: Int) {
         viewModelScope.launch {
             // Generate the level - and its blocking graph - off the main thread.
             // Dense levels have hundreds of arrows; building the graph lazily on
@@ -374,11 +405,18 @@ class CurvedGameViewModel(
                 state.mistakes <= 2 -> 2
                 else -> 1
             }
-            preferences.saveLevelStars(MODE, state.level, stars)
-            preferences.setCurrentLevel(MODE, state.level + 1)
-            preferences.incrementTotalLevelsCompleted(MODE)
-            preferences.incrementLevelsSinceInterstitial()
-            preferences.clearSavedGame()
+            val daily = dailyPuzzle
+            if (session == CurvedSession.DAILY && daily != null) {
+                // A daily owes the journey nothing: no stars, no level bump,
+                // no interstitial counter. One date goes from open to solved.
+                preferences.markDailyCleared(daily.date)
+            } else {
+                preferences.saveLevelStars(MODE, state.level, stars)
+                preferences.setCurrentLevel(MODE, state.level + 1)
+                preferences.incrementTotalLevelsCompleted(MODE)
+                preferences.incrementLevelsSinceInterstitial()
+                preferences.clearSavedGame()
+            }
 
             // The streak is judged against the total that includes this very
             // win, which the flow above has not emitted yet - hence the +1.
@@ -470,7 +508,12 @@ class CurvedGameViewModel(
     fun onRestartLevel() {
         val currentLevel = _gameState.value.level
         analytics.log(Events.levelRestarted(currentLevel))
-        startLevel(currentLevel)
+
+        // Retrying a daily must stay a daily - restarting through the journey
+        // path would quietly turn today's puzzle into a journey level.
+        val daily = dailyPuzzle
+        if (session == CurvedSession.DAILY && daily != null) startDaily(daily)
+        else startLevel(currentLevel)
     }
 
     fun onNextLevel() {

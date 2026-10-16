@@ -31,6 +31,8 @@ import com.arrowescape.cloud.CloudSyncCoordinator
 import com.arrowescape.cloud.PlayGamesCloudSave
 import com.arrowescape.data.GameMode
 import com.arrowescape.data.GamePreferences
+import com.arrowescape.game.daily.DailyCalendar
+import com.arrowescape.ui.daily.DailyScreen
 import com.arrowescape.ui.dev.DevLevelScreen
 import com.arrowescape.ui.game.CurvedGameScreen
 import com.arrowescape.ui.game.CurvedGameViewModel
@@ -54,6 +56,7 @@ import com.arrowescape.ui.tutorial.HomeTour
 import com.arrowescape.ui.tutorial.LocalSpotlight
 import com.arrowescape.ui.tutorial.SpotlightOverlay
 import com.arrowescape.ui.tutorial.SpotlightState
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
 
@@ -176,6 +179,9 @@ fun ArrowEscapeApp(
                 onJourneyClick = {
                     navController.navigate("milestones")
                 },
+                onDailyClick = {
+                    navController.navigate("daily")
+                },
                 onSettingsClick = {
                     navController.navigate("settings")
                 },
@@ -210,6 +216,17 @@ fun ArrowEscapeApp(
                 onTermsClick = { navController.navigate("terms") },
                 onPrivacyClick = { navController.navigate("privacy") },
                 onLicensesClick = { navController.navigate("licenses") }
+            )
+        }
+
+        // Today's puzzle. No level argument on purpose: the date is the
+        // argument, and it comes from the clock, not from the back stack.
+        composable("daily") {
+            DailyScreen(
+                puzzle = DailyCalendar.puzzleFor(LocalDate.now()),
+                prefs = prefs,
+                viewModel = curvedGameViewModel,
+                onBackClick = { navController.popBackStack() }
             )
         }
 
