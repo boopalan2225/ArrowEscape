@@ -14,9 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.R
 
 /**
  * In-game strip shown only in developer mode: what level/shape/tier this is,
@@ -50,7 +52,7 @@ fun DevLevelBar(
                 onClick = onPrevious,
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
             ) {
-                Text("\u25C0 Prev")
+                Text(stringResource(R.string.dev_nav_prev))
             }
         } else {
             NavSlotSpacer()
@@ -61,14 +63,14 @@ fun DevLevelBar(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "L$level · $shapeName",
+                text = stringResource(R.string.dev_level_shape, level, shapeName),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "$difficulty · $arrowCount arrows",
+                text = stringResource(R.string.dev_difficulty_arrows, difficulty, arrowCount),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -80,7 +82,7 @@ fun DevLevelBar(
                 onClick = onNext,
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
             ) {
-                Text("Next \u25B6")
+                Text(stringResource(R.string.dev_nav_next))
             }
         } else {
             NavSlotSpacer()

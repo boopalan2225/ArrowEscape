@@ -20,10 +20,12 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
@@ -172,7 +174,7 @@ private fun DailyTopBar(title: String, streak: Int, onBackClick: () -> Unit) {
         IconButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -257,7 +259,7 @@ private fun DailySolvedCard(title: String, streak: Int, onDone: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Solved",
+                text = stringResource(R.string.daily_solved_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
@@ -272,7 +274,7 @@ private fun DailySolvedCard(title: String, streak: Int, onDone: () -> Unit) {
             Spacer(Modifier.height(20.dp))
 
             Text(
-                text = if (streak > 1) "$streak days in a row" else "Come back tomorrow",
+                text = if (streak > 1) stringResource(R.string.daily_streak_days, streak) else stringResource(R.string.daily_come_back_tomorrow),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -288,7 +290,7 @@ private fun DailySolvedCard(title: String, streak: Int, onDone: () -> Unit) {
                     .height(52.dp),
                 shape = MaterialTheme.shapes.large
             ) {
-                Text("Done", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.daily_done_button), fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -30,11 +30,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.colorScheme
 import com.clevercorner.arrowescape.ui.theme.persona
@@ -86,7 +88,7 @@ fun ThemePicker(
 /** One card's worth of information - no theme-specific branching downstream. */
 private data class ThemeChoice(
     val id: String,
-    val label: String,
+    @androidx.annotation.StringRes val labelRes: Int,
     val crest: String,
     val backdrop: Brush,
     val outline: Color,
@@ -101,7 +103,7 @@ private fun themeOptions(systemDark: Boolean): List<ThemeChoice> {
     // "System" is a rule, not a look, so its card shows both halves of the rule.
     val system = ThemeChoice(
         id = AppTheme.SYSTEM_ID,
-        label = "System",
+        labelRes = R.string.theme_system_label,
         crest = "\u25D1",
         backdrop = Brush.horizontalGradient(
             0f to light.background,
@@ -117,7 +119,7 @@ private fun themeOptions(systemDark: Boolean): List<ThemeChoice> {
         val scheme = theme.colorScheme()
         ThemeChoice(
             id = theme.id,
-            label = theme.label,
+            labelRes = theme.labelRes,
             crest = theme.persona().crest,
             backdrop = Brush.verticalGradient(
                 listOf(scheme.background, theme.persona().glow.copy(alpha = 0.18f))
@@ -184,8 +186,9 @@ private fun ThemeOption(
             Spacer(Modifier.height(6.dp))
 
             // Selection is never colour alone: a tick and a bolder label too.
+            val label = stringResource(option.labelRes)
             Text(
-                text = if (isSelected) "\u2713 ${option.label}" else option.label,
+                text = if (isSelected) "\u2713 $label" else label,
                 style = MaterialTheme.typography.labelMedium,
                 fontSize = 11.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,

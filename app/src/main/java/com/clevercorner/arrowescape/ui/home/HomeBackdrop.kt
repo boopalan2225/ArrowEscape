@@ -327,7 +327,7 @@ private data class Mote(
 
 /** Fixed seed: the specks are scattered, but the same scatter every launch. */
 private fun motesFor(persona: ThemePersona): List<Mote> {
-    val random = Random(persona.tagline.hashCode())
+    val random = Random(persona.taglineRes)
     return List(persona.moteCount) { index ->
         Mote(
             glyph = persona.motes[index % persona.motes.size],

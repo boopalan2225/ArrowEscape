@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.cloud.CloudAccount
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -35,7 +37,7 @@ fun AccountSection(
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    SettingsSection(title = "Account") {
+    SettingsSection(title = stringResource(R.string.account_section_title)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -47,17 +49,15 @@ fun AccountSection(
 
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = if (account != null) account.displayName else "Not connected",
+                    text = if (account != null) account.displayName else stringResource(R.string.account_not_connected),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = if (account != null) {
-                        "Progress backs up to Google Play"
-                    } else {
-                        "Sign in to keep your levels if you reinstall"
-                    },
+                    text = stringResource(
+                        if (account != null) R.string.account_backed_up else R.string.account_sign_in_hint
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = gameColors.textSecondary
                 )
@@ -67,11 +67,11 @@ fun AccountSection(
 
             if (account != null) {
                 OutlinedButton(onClick = onSignOutClick, modifier = Modifier.height(36.dp)) {
-                    Text("Sign out")
+                    Text(stringResource(R.string.account_sign_out))
                 }
             } else {
                 Button(onClick = onSignInClick, modifier = Modifier.height(36.dp)) {
-                    Text("Sign in")
+                    Text(stringResource(R.string.account_sign_in))
                 }
             }
         }

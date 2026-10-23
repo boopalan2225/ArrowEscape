@@ -48,10 +48,12 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 import kotlinx.coroutines.delay
 
@@ -208,7 +210,7 @@ private fun TourCard(
     ) {
         Column(Modifier.padding(18.dp)) {
             Text(
-                text = "STEP ${index + 1} OF $total",
+                text = stringResource(R.string.tour_step_counter, index + 1, total),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 2.sp,
                 color = ArrowEscapeTheme.gameColors.textSecondary
@@ -217,7 +219,7 @@ private fun TourCard(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text = step.title,
+                text = stringResource(step.titleRes),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -226,7 +228,7 @@ private fun TourCard(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text = step.body,
+                text = stringResource(step.bodyRes),
                 style = MaterialTheme.typography.bodyMedium,
                 color = ArrowEscapeTheme.gameColors.textSecondary
             )
@@ -238,23 +240,25 @@ private fun TourCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TextButton(onClick = onSkip) { Text("Skip") }
+                TextButton(onClick = onSkip) { Text(stringResource(R.string.tour_skip)) }
 
                 Spacer(Modifier.weight(1f))
 
                 if (index > 0) {
-                    TextButton(onClick = onBack) { Text("Back") }
+                    TextButton(onClick = onBack) { Text(stringResource(R.string.back)) }
                 }
 
                 // An interactive step is finished by playing, not by tapping
                 // Next - but the way out is always there for anyone stuck.
                 Button(onClick = onNext, shape = MaterialTheme.shapes.large) {
                     Text(
-                        text = when {
-                            isLast -> "Got it"
-                            step.interactive -> "Skip move"
-                            else -> "Next"
-                        },
+                        text = stringResource(
+                            when {
+                                isLast -> R.string.tour_got_it
+                                step.interactive -> R.string.tour_skip_move
+                                else -> R.string.tour_next
+                            }
+                        ),
                         fontWeight = FontWeight.Bold
                     )
                 }

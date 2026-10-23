@@ -8,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -99,16 +101,16 @@ fun LicensesScreen(
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    DocumentScaffold(title = "Licenses", onBackClick = onBackClick, modifier = modifier) {
+    DocumentScaffold(title = stringResource(R.string.licenses_title), onBackClick = onBackClick, modifier = modifier) {
         Text(
-            text = "Open source notices",
+            text = stringResource(R.string.licenses_header),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "${AppInfo.NAME} stands on these shoulders.",
+            text = stringResource(R.string.licenses_subtitle, AppInfo.NAME),
             style = MaterialTheme.typography.bodySmall,
             color = gameColors.textSecondary,
             textAlign = TextAlign.Center
@@ -133,10 +135,9 @@ fun LicensesScreen(
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Everything else") {
+        DocumentCard(title = stringResource(R.string.licenses_card_other_title)) {
             DocumentParagraph(
-                "Level generation, artwork, sound packs and game code are " +
-                    "original work. ${AppInfo.COPYRIGHT}"
+                stringResource(R.string.licenses_other_body, AppInfo.COPYRIGHT)
             )
         }
 

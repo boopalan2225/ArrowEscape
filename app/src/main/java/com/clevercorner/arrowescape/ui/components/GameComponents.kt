@@ -16,10 +16,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
 /**
@@ -64,7 +66,7 @@ fun ComboBadge(
             ) {
                 Text(text = "\uD83D\uDD25", fontSize = 20.sp)
                 Text(
-                    text = "COMBO x$combo",
+                    text = stringResource(R.string.combo_label, combo),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
                     color = Color.White
@@ -161,7 +163,7 @@ fun GameTopBar(
         }
 
         Text(
-            text = "Level $level",
+            text = stringResource(R.string.level_number, level),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
@@ -275,7 +277,7 @@ fun GameBottomBar(
         // Shape label
         Column {
             Text(
-                text = "SHAPE",
+                text = stringResource(R.string.shape_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = gameColors.textSecondary,
                 letterSpacing = 1.5.sp
@@ -378,7 +380,7 @@ fun OutOfLivesModal(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Out of Lives!",
+                text = stringResource(R.string.out_of_lives_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -413,7 +415,7 @@ fun OutOfLivesModal(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "$clearedPercentage% cleared",
+                text = stringResource(R.string.cleared_percent, clearedPercentage),
                 style = MaterialTheme.typography.bodyMedium,
                 color = gameColors.textSecondary
             )
@@ -441,7 +443,7 @@ fun OutOfLivesModal(
                             fontSize = 14.sp
                         )
                         Text(
-                            text = "Watch Ad to Continue",
+                            text = stringResource(R.string.watch_ad_to_continue),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -451,7 +453,7 @@ fun OutOfLivesModal(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Restore all 3 lives",
+                    text = stringResource(R.string.restore_lives_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = gameColors.textSecondary
                 )
@@ -462,7 +464,7 @@ fun OutOfLivesModal(
                     color = gameColors.warning.copy(alpha = 0.1f)
                 ) {
                     Text(
-                        text = "Continue unavailable right now",
+                        text = stringResource(R.string.continue_unavailable),
                         modifier = Modifier.padding(12.dp),
                         style = MaterialTheme.typography.bodyMedium,
                         color = gameColors.warning,
@@ -485,7 +487,7 @@ fun OutOfLivesModal(
                 )
             ) {
                 Text(
-                    text = "Restart Level",
+                    text = stringResource(R.string.restart_level),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -626,7 +628,7 @@ fun LevelCompleteOverlay(
 
             // ESCAPED! title with gradient effect
             Text(
-                text = "ESCAPED!",
+                text = stringResource(R.string.escaped_title),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Black,
                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -638,7 +640,7 @@ fun LevelCompleteOverlay(
 
             // Level info subtitle
             Text(
-                text = "Level $level \u00b7 $shapeName \u00b7 $difficultyLabel",
+                text = stringResource(R.string.level_complete_subtitle, level, shapeName, difficultyLabel),
                 style = MaterialTheme.typography.bodyLarge,
                 color = textSecondary
             )
@@ -672,7 +674,7 @@ fun LevelCompleteOverlay(
                             color = accentBlue
                         )
                         Text(
-                            text = "SCORE",
+                            text = stringResource(R.string.score_label),
                             style = MaterialTheme.typography.labelMedium,
                             color = textSecondary,
                             letterSpacing = 2.sp
@@ -704,7 +706,7 @@ fun LevelCompleteOverlay(
                             )
                         }
                         Text(
-                            text = "STARS",
+                            text = stringResource(R.string.stars_label),
                             style = MaterialTheme.typography.labelMedium,
                             color = textSecondary,
                             letterSpacing = 2.sp
@@ -738,7 +740,7 @@ fun LevelCompleteOverlay(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Home",
+                        text = stringResource(R.string.home_button),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -767,7 +769,7 @@ fun LevelCompleteOverlay(
                     )
                 ) {
                     Text(
-                        text = "NEXT LEVEL",
+                        text = stringResource(R.string.next_level_button),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp

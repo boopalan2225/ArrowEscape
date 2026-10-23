@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.cloud.CloudAccount
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.ui.milestone.MilestoneData
@@ -79,7 +81,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            SettingsSection(title = "Appearance") {
+            SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
                 ThemePicker(
                     selectedId = prefs.themeId,
                     onSelect = onThemeSelect,
@@ -97,19 +99,19 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            SettingsSection(title = "Game") {
+            SettingsSection(title = stringResource(R.string.settings_section_game)) {
                 SettingsToggleItem(
                     icon = "\uD83D\uDD0A",
-                    title = "Sound Effects",
-                    subtitle = "Play sounds when tapping arrows",
+                    title = stringResource(R.string.settings_toggle_sound_title),
+                    subtitle = stringResource(R.string.settings_toggle_sound_subtitle),
                     checked = prefs.soundEnabled,
                     onCheckedChange = onSoundToggle
                 )
 
                 SettingsToggleItem(
                     icon = "\uD83D\uDCF3",
-                    title = "Haptic Feedback",
-                    subtitle = "Vibrate on interactions",
+                    title = stringResource(R.string.settings_toggle_haptics_title),
+                    subtitle = stringResource(R.string.settings_toggle_haptics_subtitle),
                     checked = prefs.hapticsEnabled,
                     onCheckedChange = onHapticsToggle
                 )
@@ -118,7 +120,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(24.dp))
 
             // One card per mode: progress is per-mode, so the stats must be too.
-            SettingsSection(title = "Progress") {
+            SettingsSection(title = stringResource(R.string.settings_section_progress)) {
                 GameMode.entries.forEachIndexed { index, mode ->
                     if (index > 0) {
                         Divider(color = gameColors.divider)
@@ -134,25 +136,25 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            SettingsSection(title = "About") {
+            SettingsSection(title = stringResource(R.string.settings_section_about)) {
                 SettingsClickableItem(
                     icon = "\uD83C\uDFAF",
-                    title = "How to Play",
-                    subtitle = "Replay the walkthrough",
+                    title = stringResource(R.string.settings_item_how_to_play_title),
+                    subtitle = stringResource(R.string.settings_item_how_to_play_subtitle),
                     onClick = onHowToPlayClick
                 )
 
                 SettingsClickableItem(
                     icon = "\uD83D\uDCDC",
-                    title = "Privacy Policy",
-                    subtitle = "What we keep, and what we do not",
+                    title = stringResource(R.string.privacy_policy_title),
+                    subtitle = stringResource(R.string.settings_item_privacy_subtitle),
                     onClick = onPrivacyClick
                 )
 
                 SettingsClickableItem(
                     icon = "\u2139\uFE0F",
-                    title = "About Arrow Escape",
-                    subtitle = "The idea, the rules and the looks",
+                    title = stringResource(R.string.settings_item_about_title),
+                    subtitle = stringResource(R.string.settings_item_about_subtitle),
                     onClick = onAboutClick
                 )
             }
@@ -160,10 +162,12 @@ fun SettingsScreen(
             Spacer(Modifier.height(24.dp))
 
             // Collapsed by default: destructive tools should take deliberate effort.
-            SettingsSection(title = "Debug") {
+            SettingsSection(title = stringResource(R.string.settings_section_debug)) {
                 ExpanderRow(
-                    title = "Developer Tools",
-                    subtitle = if (debugExpanded) "Tap to hide" else "Tap to show",
+                    title = stringResource(R.string.settings_debug_tools_title),
+                    subtitle = stringResource(
+                        if (debugExpanded) R.string.settings_debug_tap_to_hide else R.string.settings_debug_tap_to_show
+                    ),
                     expanded = debugExpanded,
                     onToggle = { debugExpanded = !debugExpanded }
                 )
@@ -176,23 +180,27 @@ fun SettingsScreen(
                     Column {
                         SettingsToggleItem(
                             icon = "\uD83D\uDEE0",
-                            title = "Developer Mode",
-                            subtitle = "Open any level from Home; play never changes your progress",
+                            title = stringResource(R.string.settings_debug_dev_mode_title),
+                            subtitle = stringResource(R.string.settings_debug_dev_mode_subtitle),
                             checked = prefs.devMode,
                             onCheckedChange = onDevModeToggle
                         )
                         GameMode.entries.forEach { mode ->
+                            val modeLabel = stringResource(mode.labelRes)
                             SettingsClickableItem(
                                 icon = "\uD83D\uDD13",
-                                title = "Unlock All: ${mode.label}",
-                                subtitle = "Set ${mode.label} progress to level " +
-                                    "${MilestoneData.forMode(mode).totalLevels}",
+                                title = stringResource(R.string.settings_debug_unlock_all_title, modeLabel),
+                                subtitle = stringResource(
+                                    R.string.settings_debug_unlock_all_subtitle,
+                                    modeLabel,
+                                    MilestoneData.forMode(mode).totalLevels
+                                ),
                                 onClick = { onUnlockAllLevels(mode) }
                             )
                             SettingsClickableItem(
                                 icon = "\uD83D\uDD04",
-                                title = "Reset: ${mode.label}",
-                                subtitle = "Start ${mode.label} from level 1",
+                                title = stringResource(R.string.settings_debug_reset_title, modeLabel),
+                                subtitle = stringResource(R.string.settings_debug_reset_subtitle, modeLabel),
                                 onClick = { onResetProgress(mode) }
                             )
                         }
@@ -203,7 +211,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(32.dp))
 
             Text(
-                text = "Made with \u2764 for puzzle lovers",
+                text = stringResource(R.string.settings_footer),
                 style = MaterialTheme.typography.bodySmall,
                 color = gameColors.textSecondary.copy(alpha = 0.6f),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -236,13 +244,13 @@ private fun SettingsHeader(onBackClick: () -> Unit) {
             ) {
                 Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
             }
             Spacer(Modifier.width(16.dp))
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_label),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -310,14 +318,14 @@ private fun ModeStatsRow(
             Text(text = mode.emoji, fontSize = 16.sp)
             Spacer(Modifier.width(8.dp))
             Text(
-                text = mode.label,
+                text = stringResource(mode.labelRes),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             if (isActive) {
                 Spacer(Modifier.width(8.dp))
-                Badge(text = "PLAYING")
+                Badge(text = stringResource(R.string.settings_badge_playing))
             }
         }
 
@@ -327,11 +335,11 @@ private fun ModeStatsRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem("${progress.currentLevel}", "Current", MaterialTheme.colorScheme.primary)
-            StatItem("${progress.bestOutOf(totalLevels)}", "Best", gameColors.success)
+            StatItem("${progress.currentLevel}", stringResource(R.string.settings_stat_current), MaterialTheme.colorScheme.primary)
+            StatItem("${progress.bestOutOf(totalLevels)}", stringResource(R.string.settings_stat_best), gameColors.success)
             StatItem(
                 "${progress.clearedOutOf(totalLevels)}/$totalLevels",
-                "Cleared",
+                stringResource(R.string.settings_stat_cleared),
                 gameColors.arrowRight
             )
         }

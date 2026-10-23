@@ -17,10 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
 /**
@@ -58,7 +60,7 @@ fun PuzzleStuckModal(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "This puzzle is stuck",
+                text = stringResource(R.string.puzzle_stuck_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -68,8 +70,7 @@ fun PuzzleStuckModal(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "No arrow can escape from here, so this level can't be finished. " +
-                    "That's our mistake, not yours.",
+                text = stringResource(R.string.puzzle_stuck_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = gameColors.textSecondary,
                 textAlign = TextAlign.Center
@@ -85,7 +86,7 @@ fun PuzzleStuckModal(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "Skip to next level",
+                    text = stringResource(R.string.puzzle_stuck_skip),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -100,7 +101,7 @@ fun PuzzleStuckModal(
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(text = "Retry level", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.puzzle_stuck_retry), style = MaterialTheme.typography.titleMedium)
             }
         }
     }

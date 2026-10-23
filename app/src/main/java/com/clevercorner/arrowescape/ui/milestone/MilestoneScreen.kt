@@ -20,10 +20,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.ui.components.GlyphIcon
@@ -117,20 +119,25 @@ private fun JourneyTopBar(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Spacer(Modifier.width(16.dp))
                 Column {
                     Text(
-                        "Journey",
+                        stringResource(R.string.journey_title),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        "Level ${highestLevel.coerceAtMost(totalLevels)} / $totalLevels  \u2022  $completed cleared",
+                        stringResource(
+                            R.string.journey_header_summary,
+                            highestLevel.coerceAtMost(totalLevels),
+                            totalLevels,
+                            completed
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = gameColors.textSecondary
                     )
@@ -190,7 +197,7 @@ private fun ChapterCard(
                         Text(milestone.emoji, fontSize = 14.sp)
                         Spacer(Modifier.width(5.dp))
                         Text(
-                            milestone.title,
+                            milestone.title.resolve(),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = if (unlocked) MaterialTheme.colorScheme.onSurface
@@ -198,7 +205,7 @@ private fun ChapterCard(
                         )
                     }
                     Text(
-                        "Levels ${milestone.levelRange}  \u2022  ${milestone.subtitle}",
+                        stringResource(R.string.journey_chapter_levels, milestone.levelRange, milestone.subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = gameColors.textSecondary
                     )
@@ -295,7 +302,7 @@ private fun LevelBubble(
             }
             LevelState.CURRENT -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("$level", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
-                Text("PLAY", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 7.sp)
+                Text(stringResource(R.string.play_button), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 7.sp)
             }
             LevelState.LOCKED -> Text(
                 "$level",

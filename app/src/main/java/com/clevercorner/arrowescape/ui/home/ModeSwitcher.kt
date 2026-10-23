@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -106,14 +107,14 @@ private fun ModeTab(
         Text(text = mode.emoji, fontSize = 18.sp)
         Spacer(Modifier.height(2.dp))
         Text(
-            text = mode.label,
+            text = stringResource(mode.labelRes),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
             color = labelColor,
             maxLines = 1
         )
         Text(
-            text = mode.tagline,
+            text = stringResource(mode.taglineRes),
             style = MaterialTheme.typography.labelSmall,
             color = taglineColor,
             textAlign = TextAlign.Center,

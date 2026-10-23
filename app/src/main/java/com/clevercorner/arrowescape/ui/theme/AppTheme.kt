@@ -1,5 +1,8 @@
 package com.clevercorner.arrowescape.ui.theme
 
+import androidx.annotation.StringRes
+import com.clevercorner.arrowescape.R
+
 /**
  * The app's selectable looks.
  *
@@ -9,14 +12,14 @@ package com.clevercorner.arrowescape.ui.theme
 enum class AppTheme(
     /** Stable key persisted in preferences - never rename once shipped. */
     val id: String,
-    val label: String,
+    @StringRes val labelRes: Int,
     val isDark: Boolean
 ) {
-    CLASSIC("classic", "Classic", isDark = false),
-    MIDNIGHT("midnight", "Midnight", isDark = true),
-    SUNSET("sunset", "Sunset", isDark = false),
-    PIRATE("pirate", "Pirate", isDark = false),
-    MONO("mono", "Ink", isDark = false);
+    CLASSIC("classic", R.string.theme_classic_label, isDark = false),
+    MIDNIGHT("midnight", R.string.theme_midnight_label, isDark = true),
+    SUNSET("sunset", R.string.theme_sunset_label, isDark = false),
+    PIRATE("pirate", R.string.theme_pirate_label, isDark = false),
+    MONO("mono", R.string.theme_mono_label, isDark = false);
 
     companion object {
         /**

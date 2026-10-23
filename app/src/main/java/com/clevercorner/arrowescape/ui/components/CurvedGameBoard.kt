@@ -39,9 +39,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.game.curve.ArrowHeadGeometry
 import com.clevercorner.arrowescape.game.curve.ArrowMotion
 import com.clevercorner.arrowescape.game.curve.ArrowPicker
@@ -105,6 +107,7 @@ fun CurvedGameBoard(
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
+    val boardDescription = stringResource(R.string.board_content_description)
 
     // Animated values are passed as State and only read while drawing, so a
     // pulsing hint repaints the canvas instead of recomposing the whole board.
@@ -154,8 +157,8 @@ fun CurvedGameBoard(
                 )
             )
     ) {
-        val canvasWidth = constraints.maxWidth.toFloat()
-        val canvasHeight = constraints.maxHeight.toFloat()
+        val canvasWidth = this.constraints.maxWidth.toFloat()
+        val canvasHeight = this.constraints.maxHeight.toFloat()
         val scaleX = canvasWidth / boardWidth
         val scaleY = canvasHeight / boardHeight
         val viewSize = Point2D(canvasWidth, canvasHeight)
@@ -175,9 +178,7 @@ fun CurvedGameBoard(
             modifier = Modifier
                 .fillMaxSize()
                 .semantics {
-                    contentDescription =
-                        "Arrow board. Tap an arrow to fire it, hold to preview its path, " +
-                            "pinch to zoom and drag to move around."
+                    contentDescription = boardDescription
                 }
                 // Slide around / pinch-zoom. Consumes events only once a drag
                 // passes touch slop, so plain taps fall through to the next modifier.
@@ -274,7 +275,7 @@ fun CurvedGameBoard(
                 .padding(12.dp)
         ) {
             Text(
-                text = "Pinch to zoom · drag to move",
+                text = stringResource(R.string.board_zoom_hint),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
@@ -296,7 +297,7 @@ fun CurvedGameBoard(
                 onClick = { viewport = BoardViewport.RESET },
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)
             ) {
-                Text("Reset view", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.board_reset_view), style = MaterialTheme.typography.labelMedium)
             }
         }
     }

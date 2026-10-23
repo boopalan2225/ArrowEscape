@@ -33,12 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.game.curve.CurvedJourney
 import com.clevercorner.arrowescape.game.curve.DifficultyTuning
 import com.clevercorner.arrowescape.game.curve.ShapeCatalog
@@ -73,7 +75,7 @@ fun DevLevelScreen(
             OutlinedTextField(
                 value = typed,
                 onValueChange = { typed = it.filter(Char::isDigit).take(4) },
-                label = { Text("Level (1-${DevLevels.MAX_LEVEL})") },
+                label = { Text(stringResource(R.string.dev_level_field_label, DevLevels.MAX_LEVEL)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -86,12 +88,12 @@ fun DevLevelScreen(
                 onClick = { parsed?.let(onPlayLevel) },
                 enabled = parsed != null
             ) {
-                Text("Open")
+                Text(stringResource(R.string.dev_open_button))
             }
         }
 
         Text(
-            text = "OR JUMP TO A SHAPE'S CHAPTER",
+            text = stringResource(R.string.dev_jump_to_shape_header),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -124,22 +126,22 @@ private fun ChapterRow(chapter: Int, name: String, onPlayLevel: (Int) -> Unit) {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
-                text = "$name  \u00B7  chapter ${chapter + 1}",
+                text = stringResource(R.string.dev_chapter_title, name, chapter + 1),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Levels $first\u2013$last  \u00B7  ${DifficultyTuning.tierOf(first)}",
+                text = stringResource(R.string.dev_chapter_levels, first, last, DifficultyTuning.tierOf(first)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                LevelButton("First", first, onPlayLevel, Modifier.weight(1f))
-                LevelButton("Last", last, onPlayLevel, Modifier.weight(1f))
+                LevelButton(stringResource(R.string.dev_level_button_first), first, onPlayLevel, Modifier.weight(1f))
+                LevelButton(stringResource(R.string.dev_level_button_last), last, onPlayLevel, Modifier.weight(1f))
                 // Same shape, one lap later - always the hardest tier.
-                LevelButton("Master", master, onPlayLevel, Modifier.weight(1f))
+                LevelButton(stringResource(R.string.dev_level_button_master), master, onPlayLevel, Modifier.weight(1f))
             }
         }
     }
@@ -193,7 +195,7 @@ private fun DevHeader(onBackClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Text(
-                text = "Developer · Levels",
+                text = stringResource(R.string.dev_header_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

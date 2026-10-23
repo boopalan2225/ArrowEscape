@@ -1,6 +1,7 @@
 package com.clevercorner.arrowescape.ui.theme
 
 import androidx.annotation.RawRes
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -14,7 +15,7 @@ enum class HomeMotif { ARROWS, MOON, SUN, SAILS, INK }
  * home screen's motif, its motto, its corners, and its voice.
  */
 data class ThemePersona(
-    val tagline: String,
+    @StringRes val taglineRes: Int,
     val crest: String,
     val motif: HomeMotif,
     /** Small glyphs drifting behind the motif. */
@@ -46,7 +47,7 @@ fun AppTheme.persona(): ThemePersona = when (this) {
 fun AppTheme.soundPack(): SoundPack = persona().sounds
 
 private val ClassicPersona = ThemePersona(
-    tagline = "TAP  \u00B7  VANISH  \u00B7  ESCAPE",
+    taglineRes = R.string.persona_classic_tagline,
     crest = "\u2192",
     motif = HomeMotif.ARROWS,
     motes = listOf("\u2191", "\u2192", "\u2193", "\u2190"),
@@ -59,7 +60,7 @@ private val ClassicPersona = ThemePersona(
 )
 
 private val MidnightPersona = ThemePersona(
-    tagline = "QUIET HOURS  \u00B7  CLEAR HEAD",
+    taglineRes = R.string.persona_midnight_tagline,
     crest = "\u263D",
     motif = HomeMotif.MOON,
     motes = listOf("\u00B7", "\u2726", "\u2727"),
@@ -76,7 +77,7 @@ private val MidnightPersona = ThemePersona(
 )
 
 private val SunsetPersona = ThemePersona(
-    tagline = "GOLDEN HOUR  \u00B7  LAST SHOT",
+    taglineRes = R.string.persona_sunset_tagline,
     crest = "\u2600",
     motif = HomeMotif.SUN,
     motes = listOf("\u25CF", "\u25CB"),
@@ -93,7 +94,7 @@ private val SunsetPersona = ThemePersona(
 )
 
 private val PiratePersona = ThemePersona(
-    tagline = "CHART IT  \u00B7  CLAIM IT  \u00B7  SAIL ON",
+    taglineRes = R.string.persona_pirate_tagline,
     crest = "\u2620",
     motes = listOf("\u2693", "\u2726", "\u25CF"),
     motif = HomeMotif.SAILS,
@@ -110,7 +111,7 @@ private val PiratePersona = ThemePersona(
 )
 
 private val MonoPersona = ThemePersona(
-    tagline = "INK  \u00B7  PAPER  \u00B7  PRECISION",
+    taglineRes = R.string.persona_mono_tagline,
     crest = "\u25C6",
     motif = HomeMotif.INK,
     motes = listOf("\u25C6", "\u25C7", "\u25CF", "\u25CB"),

@@ -8,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -24,7 +26,7 @@ fun PrivacyPolicyScreen(
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
 
-    DocumentScaffold(title = "Privacy Policy", onBackClick = onBackClick, modifier = modifier) {
+    DocumentScaffold(title = stringResource(R.string.privacy_policy_title), onBackClick = onBackClick, modifier = modifier) {
         Text(
             text = AppInfo.NAME,
             style = MaterialTheme.typography.titleLarge,
@@ -32,7 +34,7 @@ fun PrivacyPolicyScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Last updated ${AppInfo.LEGAL_LAST_UPDATED}",
+            text = stringResource(R.string.legal_last_updated, AppInfo.LEGAL_LAST_UPDATED),
             style = MaterialTheme.typography.bodySmall,
             color = gameColors.textSecondary,
             textAlign = TextAlign.Center
@@ -40,96 +42,63 @@ fun PrivacyPolicyScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        DocumentCard(title = "The short version") {
-            DocumentParagraph(
-                "We do not ask for your name, email or phone number, and we do not " +
-                    "sell anything about you. The game runs offline; the only data " +
-                    "that leaves your device is what ads and the optional Play Games " +
-                    "sign-in need."
-            )
+        DocumentCard(title = stringResource(R.string.doc_short_version_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_short_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "What stays on your device") {
-            DocumentBullet("\u25CF", "Current level, best level and stars, for each mode.")
-            DocumentBullet("\u25CF", "Your settings: theme, sound and haptics.")
-            DocumentParagraph(
-                "This lives in the app's private storage and is removed when you " +
-                    "uninstall the game."
-            )
+        DocumentCard(title = stringResource(R.string.privacy_card_device_title)) {
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_progress))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_settings))
+            DocumentParagraph(stringResource(R.string.privacy_device_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Advertising") {
-            DocumentParagraph(
-                "Rewarded and interstitial ads are served by Google AdMob. To show " +
-                    "and measure ads, AdMob may process your device's advertising ID, " +
-                    "coarse location derived from your IP address, and basic device " +
-                    "and app information. You can reset or delete the advertising ID " +
-                    "in Android Settings, under Privacy, Ads."
-            )
+        DocumentCard(title = stringResource(R.string.privacy_card_ads_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_ads_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Optional cloud save") {
-            DocumentParagraph(
-                "If you sign in with Google Play Games, your progress is stored in " +
-                    "your own Play Games saved-games space so it follows you to a new " +
-                    "device. We see only your Play Games display name and that saved " +
-                    "progress. Sign out any time in Settings; playing offline is always " +
-                    "an option."
-            )
+        DocumentCard(title = stringResource(R.string.privacy_card_cloud_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_cloud_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Children") {
-            DocumentParagraph(
-                "The game is suitable for all ages and collects no personal details. " +
-                    "Where required, ad requests are marked as child-directed so only " +
-                    "non-personalised ads are served."
-            )
+        DocumentCard(title = stringResource(R.string.privacy_card_children_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_children_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Your choices") {
-            DocumentBullet("\u25CF", "Reset progress any time from Settings.")
-            DocumentBullet("\u25CF", "Sign out of Play Games to stop cloud saves.")
-            DocumentBullet("\u25CF", "Uninstall to erase everything stored locally.")
+        DocumentCard(title = stringResource(R.string.privacy_card_choices_title)) {
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_reset))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_signout))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_uninstall))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Who else is involved") {
-            DocumentBullet("\u25CF", "Google AdMob - serves and measures the ads.")
-            DocumentBullet("\u25CF", "Google Play Games - optional sign-in and cloud save.")
-            DocumentBullet("\u25CF", "Google Play - distributes the app and its updates.")
-            DocumentParagraph(
-                "No other company receives data from this game, and we run no " +
-                    "analytics or tracking of our own."
-            )
+        DocumentCard(title = stringResource(R.string.privacy_card_others_title)) {
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_admob))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_playgames))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_playstore))
+            DocumentParagraph(stringResource(R.string.privacy_others_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Changes to this policy") {
-            DocumentParagraph(
-                "If this policy changes, the new version appears here with a fresh " +
-                    "date, and significant changes are called out in the release notes."
-            )
+        DocumentCard(title = stringResource(R.string.privacy_card_changes_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_changes_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Contact") {
-            DocumentParagraph(
-                "Questions, or want your cloud save deleted? Write to " +
-                    "${AppInfo.SUPPORT_EMAIL} and we will answer within 30 days."
-            )
+        DocumentCard(title = stringResource(R.string.doc_contact_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_contact_body, AppInfo.SUPPORT_EMAIL))
         }
 
         Spacer(Modifier.height(24.dp))

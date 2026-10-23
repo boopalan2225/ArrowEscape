@@ -1,5 +1,6 @@
 package com.clevercorner.arrowescape.ui.tutorial
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -8,6 +9,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import com.clevercorner.arrowescape.R
 
 /** The real controls a coach mark can point at. */
 enum class SpotlightTarget { MODES, PROGRESS, PLAY, JOURNEY, SETTINGS, BOARD, LIVES, HINT }
@@ -18,8 +20,8 @@ enum class SpotlightTarget { MODES, PROGRESS, PLAY, JOURNEY, SETTINGS, BOARD, LI
  */
 data class TutorialStep(
     val target: SpotlightTarget,
-    val title: String,
-    val body: String,
+    @StringRes val titleRes: Int,
+    @StringRes val bodyRes: Int,
     /** Interactive steps let taps through to the control underneath. */
     val interactive: Boolean = false
 )
@@ -54,33 +56,28 @@ object HomeTour {
     val steps = listOf(
         TutorialStep(
             target = SpotlightTarget.MODES,
-            title = "Pick your game",
-            body = "Classic lays arrows on a grid; Curved flows them around a drawn " +
-                "figure. Each mode keeps its own progress."
+            titleRes = R.string.tour_home_modes_title,
+            bodyRes = R.string.tour_home_modes_body
         ),
         TutorialStep(
             target = SpotlightTarget.PROGRESS,
-            title = "Your place in the story",
-            body = "The level you are on, how far through the journey you are, and " +
-                "your best run so far."
+            titleRes = R.string.tour_home_progress_title,
+            bodyRes = R.string.tour_home_progress_body
         ),
         TutorialStep(
             target = SpotlightTarget.PLAY,
-            title = "Start here",
-            body = "Tap an arrow and it escapes in the direction it points - but only " +
-                "if its path is clear. Three lives per level."
+            titleRes = R.string.tour_home_play_title,
+            bodyRes = R.string.tour_home_play_body
         ),
         TutorialStep(
             target = SpotlightTarget.JOURNEY,
-            title = "The Journey map",
-            body = "Chapters of ten levels, your stars on each, and a peek at what is " +
-                "still locked."
+            titleRes = R.string.tour_home_journey_title,
+            bodyRes = R.string.tour_home_journey_body
         ),
         TutorialStep(
             target = SpotlightTarget.SETTINGS,
-            title = "Make it yours",
-            body = "Five appearances, each with its own look and sound, plus sound and " +
-                "haptics switches and this walkthrough any time you want it."
+            titleRes = R.string.tour_home_settings_title,
+            bodyRes = R.string.tour_home_settings_body
         )
     )
 }
@@ -90,29 +87,25 @@ object GameTour {
     val steps = listOf(
         TutorialStep(
             target = SpotlightTarget.BOARD,
-            title = "Your first move",
-            body = "Find an arrow with a clear run to the edge it points at, and tap " +
-                "it. Go on - the board is live.",
+            titleRes = R.string.tour_game_board1_title,
+            bodyRes = R.string.tour_game_board1_body,
             interactive = true
         ),
         TutorialStep(
             target = SpotlightTarget.BOARD,
-            title = "Now one more",
-            body = "Every arrow that leaves opens a path for another. Tap a second " +
-                "one and watch the board loosen up.",
+            titleRes = R.string.tour_game_board2_title,
+            bodyRes = R.string.tour_game_board2_body,
             interactive = true
         ),
         TutorialStep(
             target = SpotlightTarget.LIVES,
-            title = "Arrows left, and lives",
-            body = "Tap a blocked arrow and it shakes instead of leaving - and costs " +
-                "one of these three hearts."
+            titleRes = R.string.tour_game_lives_title,
+            bodyRes = R.string.tour_game_lives_body
         ),
         TutorialStep(
             target = SpotlightTarget.HINT,
-            title = "Stuck? Take a hint",
-            body = "Two hints a level point out an arrow that can leave right now. " +
-                "Run out and you can watch an ad for more."
+            titleRes = R.string.tour_game_hint_title,
+            bodyRes = R.string.tour_game_hint_body
         )
     )
 }

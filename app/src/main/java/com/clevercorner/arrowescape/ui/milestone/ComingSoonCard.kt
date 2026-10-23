@@ -33,10 +33,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 import kotlin.math.sin
 
@@ -80,7 +82,7 @@ fun ComingSoonCard(
                     Spacer(Modifier.height(14.dp))
 
                     Text(
-                        text = "More chapters are in the workshop",
+                        text = stringResource(R.string.coming_soon_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -90,9 +92,7 @@ fun ComingSoonCard(
                     Spacer(Modifier.height(6.dp))
 
                     Text(
-                        text = "You have cleared everything we have built so far. " +
-                            "New shapes and trickier escapes are on the way - " +
-                            "keep the app updated so they land the day they ship.",
+                        text = stringResource(R.string.coming_soon_body),
                         style = MaterialTheme.typography.bodySmall,
                         color = gameColors.textSecondary,
                         textAlign = TextAlign.Center
@@ -141,7 +141,7 @@ private fun ComingSoonBadge(accent: Color) {
     ) {
         Text("\uD83D\uDEA7", fontSize = 13.sp)
         Text(
-            text = "COMING SOON",
+            text = stringResource(R.string.coming_soon_badge),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Black,
             letterSpacing = 2.sp,

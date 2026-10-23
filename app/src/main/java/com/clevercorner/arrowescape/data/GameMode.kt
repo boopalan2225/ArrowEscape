@@ -1,5 +1,8 @@
 package com.clevercorner.arrowescape.data
 
+import androidx.annotation.StringRes
+import com.clevercorner.arrowescape.R
+
 /**
  * The two games that ship in Arrow Escape.
  *
@@ -11,20 +14,20 @@ package com.clevercorner.arrowescape.data
 enum class GameMode(
     /** Stable key persisted in preferences - never rename once shipped. */
     val id: String,
-    val label: String,
-    val tagline: String,
+    @StringRes val labelRes: Int,
+    @StringRes val taglineRes: Int,
     val emoji: String
 ) {
     CURVED(
         id = "curved",
-        label = "Curved",
-        tagline = "Flowing bezier paths",
+        labelRes = R.string.mode_curved_label,
+        taglineRes = R.string.mode_curved_tagline,
         emoji = "\uD83C\uDF00"
     ),
     CLASSIC(
         id = "grid",
-        label = "Classic",
-        tagline = "Straight arrows on a grid",
+        labelRes = R.string.mode_classic_label,
+        taglineRes = R.string.mode_classic_tagline,
         emoji = "\u25A6"
     );
 

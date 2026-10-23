@@ -20,11 +20,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.ui.components.GlyphIcon
@@ -92,7 +94,9 @@ fun HomeScreen(
             Spacer(Modifier.height(28.dp))
 
             PulsatingPlayButton(
-                label = if (progress.currentLevel > 1) "CONTINUE" else "PLAY",
+                label = stringResource(
+                    if (progress.currentLevel > 1) R.string.continue_button else R.string.play_button
+                ),
                 onClick = onPlayClick,
                 modifier = Modifier.spotlightTarget(SpotlightTarget.PLAY)
             )
@@ -154,7 +158,7 @@ private fun Modifier.entranceAnimation(): Modifier {
 @Composable
 private fun GameTitle() {
     Text(
-        text = "ARROW",
+        text = stringResource(R.string.home_title_line1),
         style = MaterialTheme.typography.displayLarge.copy(
             brush = Brush.horizontalGradient(
                 listOf(MaterialTheme.colorScheme.primary, ArrowEscapeTheme.persona.glow)
@@ -164,7 +168,7 @@ private fun GameTitle() {
         letterSpacing = 6.sp
     )
     Text(
-        text = "ESCAPE",
+        text = stringResource(R.string.home_title_line2),
         style = MaterialTheme.typography.displayLarge,
         fontWeight = FontWeight.Black,
         color = MaterialTheme.colorScheme.onBackground,
@@ -173,7 +177,7 @@ private fun GameTitle() {
     Spacer(Modifier.height(6.dp))
     // Each look has its own motto, so the words change with the scenery.
     AnimatedContent(
-        targetState = ArrowEscapeTheme.persona.tagline,
+        targetState = stringResource(ArrowEscapeTheme.persona.taglineRes),
         transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(200)) },
         label = "tagline"
     ) { tagline ->
@@ -212,7 +216,7 @@ private fun ProgressCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "${mode.label.uppercase()}  \u00B7  LEVEL",
+                text = stringResource(R.string.home_progress_mode_level, stringResource(mode.labelRes).uppercase()),
                 style = MaterialTheme.typography.labelMedium,
                 color = gameColors.textSecondary,
                 letterSpacing = 2.sp
@@ -243,7 +247,12 @@ private fun ProgressCard(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "$completed of $totalLevels cleared  \u00B7  best ${progress.bestOutOf(totalLevels)}",
+                text = stringResource(
+                    R.string.home_progress_summary,
+                    completed,
+                    totalLevels,
+                    progress.bestOutOf(totalLevels)
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = gameColors.textSecondary,
                 textAlign = TextAlign.Center
@@ -274,7 +283,7 @@ private fun HomeActions(
         Text(text = "\uD83D\uDDFA", fontSize = 18.sp)
         Spacer(Modifier.width(8.dp))
         Text(
-            text = "Journey Map",
+            text = stringResource(R.string.home_journey_map),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -294,11 +303,14 @@ private fun HomeActions(
         Text(text = "\uD83D\uDCC5", fontSize = 18.sp)
         Spacer(Modifier.width(8.dp))
         Text(
-            text = when {
-                dailySolved && dailyStreak > 1 -> "Daily done - $dailyStreak in a row"
-                dailySolved -> "Daily done"
-                else -> "Daily Puzzle"
-            },
+            text = stringResource(
+                when {
+                    dailySolved && dailyStreak > 1 -> R.string.home_daily_done_streak
+                    dailySolved -> R.string.home_daily_done
+                    else -> R.string.home_daily_puzzle
+                },
+                dailyStreak
+            ),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -313,7 +325,7 @@ private fun HomeActions(
         Text(text = "\u2699", fontSize = 20.sp, color = gameColors.textSecondary)
         Spacer(Modifier.width(8.dp))
         Text(
-            text = "Settings",
+            text = stringResource(R.string.settings_label),
             style = MaterialTheme.typography.bodyLarge,
             color = gameColors.textSecondary
         )

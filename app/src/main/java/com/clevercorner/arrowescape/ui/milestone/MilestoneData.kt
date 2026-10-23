@@ -1,5 +1,9 @@
 package com.clevercorner.arrowescape.ui.milestone
 
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.curve.CurvedJourney
 import com.clevercorner.arrowescape.game.curve.DifficultyTuning
@@ -14,13 +18,30 @@ sealed interface MilestoneIcon {
 }
 
 /**
+ * A chapter's title either comes from a translatable resource (the
+ * hand-authored grid journey) or is a raw name (curved-mode shapes, whose
+ * names double as lookup keys elsewhere in the shape engine and are not
+ * independently translatable without a larger catalog rework).
+ */
+sealed interface MilestoneTitle {
+    data class Localized(@StringRes val resId: Int) : MilestoneTitle
+    data class Raw(val value: String) : MilestoneTitle
+}
+
+@Composable
+fun MilestoneTitle.resolve(): String = when (this) {
+    is MilestoneTitle.Localized -> stringResource(resId)
+    is MilestoneTitle.Raw -> value
+}
+
+/**
  * A chapter in the player's journey (every [MilestoneData.LEVELS_PER_MILESTONE] levels).
  */
 data class Milestone(
     val index: Int,
     val startLevel: Int,
     val endLevel: Int,
-    val title: String,
+    val title: MilestoneTitle,
     /** Second line under the title: the shape (grid mode) or the difficulty tier (curved). */
     val subtitle: String,
     val icon: MilestoneIcon,
@@ -49,14 +70,14 @@ object MilestoneData {
 
     private fun grid(
         index: Int,
-        title: String,
+        @StringRes titleRes: Int,
         shape: LevelShape,
         emoji: String
     ) = Milestone(
         index = index,
         startLevel = index * LEVELS_PER_MILESTONE + 1,
         endLevel = (index + 1) * LEVELS_PER_MILESTONE,
-        title = title,
+        title = MilestoneTitle.Localized(titleRes),
         subtitle = shape.displayName,
         icon = MilestoneIcon.Grid(shape),
         emoji = emoji
@@ -64,22 +85,22 @@ object MilestoneData {
 
     private val gridJourney = Journey(
         listOf(
-            grid(0, "First Steps", LevelShape.SQUARE, "\uD83C\uDF31"),
-            grid(1, "Rising Up", LevelShape.PYRAMID, "\u2B50"),
-            grid(2, "Sharp Turns", LevelShape.DIAMOND, "\uD83D\uDD37"),
-            grid(3, "Full Circle", LevelShape.CIRCLE, "\uD83D\uDD35"),
-            grid(4, "Heartfelt", LevelShape.HEART, "\u2764\uFE0F"),
-            grid(5, "Crossroads", LevelShape.CROSS, "\u271A"),
-            grid(6, "Hexa Hive", LevelShape.HEXAGON, "\u2B22"),
-            grid(7, "Star Power", LevelShape.STAR, "\uD83C\uDF1F"),
-            grid(8, "Eclipse", LevelShape.CRESCENT, "\uD83C\uDF19"),
-            grid(9, "X Marks It", LevelShape.LETTER_X, "\u2716\uFE0F"),
+            grid(0, R.string.milestone_title_first_steps, LevelShape.SQUARE, "\uD83C\uDF31"),
+            grid(1, R.string.milestone_title_rising_up, LevelShape.PYRAMID, "\u2B50"),
+            grid(2, R.string.milestone_title_sharp_turns, LevelShape.DIAMOND, "\uD83D\uDD37"),
+            grid(3, R.string.milestone_title_full_circle, LevelShape.CIRCLE, "\uD83D\uDD35"),
+            grid(4, R.string.milestone_title_heartfelt, LevelShape.HEART, "\u2764\uFE0F"),
+            grid(5, R.string.milestone_title_crossroads, LevelShape.CROSS, "\u271A"),
+            grid(6, R.string.milestone_title_hexa_hive, LevelShape.HEXAGON, "\u2B22"),
+            grid(7, R.string.milestone_title_star_power, LevelShape.STAR, "\uD83C\uDF1F"),
+            grid(8, R.string.milestone_title_eclipse, LevelShape.CRESCENT, "\uD83C\uDF19"),
+            grid(9, R.string.milestone_title_x_marks_it, LevelShape.LETTER_X, "\u2716\uFE0F"),
             // Hard category shapes
-            grid(10, "Spiral Madness", LevelShape.SPIRAL, "\uD83C\uDF00"),
-            grid(11, "Storm Surge", LevelShape.LIGHTNING, "\u26A1"),
-            grid(12, "Royal Challenge", LevelShape.CROWN, "\uD83D\uDC51"),
-            grid(13, "Ring Master", LevelShape.RING, "\uD83D\uDCAD"),
-            grid(14, "Grand Finale", LevelShape.BUTTERFLY, "\uD83E\uDD8B")
+            grid(10, R.string.milestone_title_spiral_madness, LevelShape.SPIRAL, "\uD83C\uDF00"),
+            grid(11, R.string.milestone_title_storm_surge, LevelShape.LIGHTNING, "\u26A1"),
+            grid(12, R.string.milestone_title_royal_challenge, LevelShape.CROWN, "\uD83D\uDC51"),
+            grid(13, R.string.milestone_title_ring_master, LevelShape.RING, "\uD83D\uDCAD"),
+            grid(14, R.string.milestone_title_grand_finale, LevelShape.BUTTERFLY, "\uD83E\uDD8B")
         )
     )
 
@@ -90,7 +111,7 @@ object MilestoneData {
                     index = chapter,
                     startLevel = CurvedJourney.firstLevelOf(chapter),
                     endLevel = CurvedJourney.lastLevelOf(chapter),
-                    title = design.name,
+                    title = MilestoneTitle.Raw(design.name),
                     subtitle = DifficultyTuning.tierOf(CurvedJourney.firstLevelOf(chapter)),
                     icon = MilestoneIcon.Curved(design),
                     emoji = emojiFor(design.name)

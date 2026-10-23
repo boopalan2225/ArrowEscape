@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +35,7 @@ fun AboutScreen(
     val gameColors = ArrowEscapeTheme.gameColors
     val persona = ArrowEscapeTheme.persona
 
-    DocumentScaffold(title = "About", onBackClick = onBackClick, modifier = modifier) {
+    DocumentScaffold(title = stringResource(R.string.about_title), onBackClick = onBackClick, modifier = modifier) {
         Box(
             modifier = Modifier
                 .size(96.dp)
@@ -58,7 +59,7 @@ fun AboutScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Version ${AppInfo.VERSION}",
+            text = stringResource(R.string.about_version, AppInfo.VERSION),
             style = MaterialTheme.typography.bodySmall,
             color = gameColors.textSecondary
         )
@@ -71,50 +72,37 @@ fun AboutScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        DocumentCard(title = "The idea") {
-            DocumentParagraph(
-                "Every arrow wants out. Tap one and it bolts in the direction it " +
-                    "points - but only if nothing stands in its way. Clear the board " +
-                    "and the shape it was hiding sets itself free."
-            )
+        DocumentCard(title = stringResource(R.string.about_card_idea_title)) {
+            DocumentParagraph(stringResource(R.string.about_card_idea_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "How to play") {
-            DocumentBullet("\u2191", "An arrow escapes only when its path to the edge is clear.")
-            DocumentBullet("\u2716", "Tap a blocked arrow and it costs a life. Three per level.")
-            DocumentBullet("\u2605", "Clear fast and clean for three stars.")
-            DocumentBullet("\u25CE", "Stuck? Two hints per level point out a safe tap.")
+        DocumentCard(title = stringResource(R.string.about_card_how_to_play_title)) {
+            DocumentBullet("\u2191", stringResource(R.string.about_bullet_escape))
+            DocumentBullet("\u2716", stringResource(R.string.about_bullet_blocked))
+            DocumentBullet("\u2605", stringResource(R.string.about_bullet_stars))
+            DocumentBullet("\u25CE", stringResource(R.string.about_bullet_hints))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Two ways to play") {
-            DocumentBullet("\u25A6", "Classic: arrows on a grid, shapes drawn in cells.")
-            DocumentBullet("\u25CF", "Curved: arrows flow along the lines of a drawn figure.")
-            DocumentParagraph(
-                "Each mode keeps its own progress, so switching never costs a level."
-            )
+        DocumentCard(title = stringResource(R.string.about_card_two_ways_title)) {
+            DocumentBullet("\u25A6", stringResource(R.string.about_bullet_classic))
+            DocumentBullet("\u25CF", stringResource(R.string.about_bullet_curved))
+            DocumentParagraph(stringResource(R.string.about_two_ways_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Make it yours") {
-            DocumentParagraph(
-                "Five appearances - Classic, Midnight, Sunset, Pirate and Ink - each " +
-                    "with its own home screen, motion and sound. Prefer to follow your " +
-                    "phone? Pick System in Settings."
-            )
+        DocumentCard(title = stringResource(R.string.about_card_make_it_yours_title)) {
+            DocumentParagraph(stringResource(R.string.about_make_it_yours_body))
         }
 
         Spacer(Modifier.height(14.dp))
 
-        DocumentCard(title = "Your progress is safe") {
-            DocumentParagraph(
-                "Everything is stored on your device and plays offline. Sign in with " +
-                    "Play Games and your journey rides along to your next phone."
-            )
+        DocumentCard(title = stringResource(R.string.about_card_progress_safe_title)) {
+            DocumentParagraph(stringResource(R.string.about_progress_safe_body))
         }
 
         Spacer(Modifier.height(14.dp))
@@ -122,15 +110,15 @@ fun AboutScreen(
         // The small print the store asks for, one tap away from the app's
         // own identity card - which is exactly where reviewers look for it.
         DocumentLinkGroup {
-            DocumentLinkRow("Terms of Service", onTermsClick)
-            DocumentLinkRow("Privacy Policy", onPrivacyClick, showDivider = true)
-            DocumentLinkRow("Licenses", onLicensesClick, showDivider = true)
+            DocumentLinkRow(stringResource(R.string.about_link_terms), onTermsClick)
+            DocumentLinkRow(stringResource(R.string.privacy_policy_title), onPrivacyClick, showDivider = true)
+            DocumentLinkRow(stringResource(R.string.about_link_licenses), onLicensesClick, showDivider = true)
         }
 
         Spacer(Modifier.height(24.dp))
 
         Text(
-            text = persona.tagline,
+            text = stringResource(persona.taglineRes),
             style = MaterialTheme.typography.labelMedium,
             color = gameColors.textSecondary,
             letterSpacing = 2.sp,
