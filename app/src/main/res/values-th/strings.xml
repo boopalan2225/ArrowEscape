@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Arrow Escape: แตะและแก้ไข</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">กลับ</string>
+    <string name="settings_label">การตั้งค่า</string>
+    <string name="play_button">เล่น</string>
+    <string name="continue_button">ดำเนินการต่อ</string>
+    <string name="restart_level">รีสตาร์ทระดับ</string>
+    <string name="next_level_button">ระดับต่อไป</string>
+    <string name="about_title">เกี่ยวกับ</string>
+    <string name="privacy_policy_title">นโยบายความเป็นส่วนตัว</string>
+    <string name="level_number">ระดับ %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">โค้ง</string>
+    <string name="mode_curved_tagline">เส้นทางเบซิเยร์ที่ไหลลื่น</string>
+    <string name="mode_classic_label">คลาสสิค</string>
+    <string name="mode_classic_tagline">ลูกศรตรงบนตาราง</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">คลาสสิค</string>
+    <string name="theme_midnight_label">เที่ยงคืน</string>
+    <string name="theme_sunset_label">พระอาทิตย์ตก</string>
+    <string name="theme_pirate_label">โจรสลัด</string>
+    <string name="theme_mono_label">หมึก</string>
+    <string name="theme_system_label">ระบบ</string>
+
+    <string name="persona_classic_tagline">แตะ \u00B7 หายไป \u00B7 หลบหนี</string>
+    <string name="persona_midnight_tagline">ชั่วโมงที่เงียบสงบ \u00B7 เคลียร์หัว</string>
+    <string name="persona_sunset_tagline">ชั่วโมงทอง \u00B7 ช็อตสุดท้าย</string>
+    <string name="persona_pirate_tagline">จัดทำแผนภูมิ \u00B7 อ้างสิทธิ์ \u00B7 แล่นต่อไป</string>
+    <string name="persona_mono_tagline">หมึก \u00B7 กระดาษ \u00B7 ความแม่นยำ</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">ขั้นตอนแรก</string>
+    <string name="milestone_title_rising_up">ลุกขึ้นมา</string>
+    <string name="milestone_title_sharp_turns">เลี้ยวคม</string>
+    <string name="milestone_title_full_circle">ครบวงจร</string>
+    <string name="milestone_title_heartfelt">จริงใจ</string>
+    <string name="milestone_title_crossroads">ทางแยก</string>
+    <string name="milestone_title_hexa_hive">เฮกซ่าไฮฟ์</string>
+    <string name="milestone_title_star_power">สตาร์พาวเวอร์</string>
+    <string name="milestone_title_eclipse">คราส</string>
+    <string name="milestone_title_x_marks_it">X ทำเครื่องหมายไว้</string>
+    <string name="milestone_title_spiral_madness">เกลียวบ้า</string>
+    <string name="milestone_title_storm_surge">พายุเซิร์จ</string>
+    <string name="milestone_title_royal_challenge">รอยัลท้าทาย</string>
+    <string name="milestone_title_ring_master">ริงมาสเตอร์</string>
+    <string name="milestone_title_grand_finale">รอบชิงชนะเลิศ</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">ลูกศร</string>
+    <string name="home_title_line2">หลบหนี</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 ระดับ</string>
+    <string name="home_progress_summary">%1$d จาก %2$d เคลียร์แล้ว \u00B7 ดีที่สุด %3$d</string>
+    <string name="home_journey_map">แผนที่การเดินทาง</string>
+    <string name="journey_title">การเดินทาง</string>
+    <string name="journey_header_summary">ระดับ %1$d / %2$d • %3$d เคลียร์แล้ว</string>
+    <string name="journey_chapter_levels">ระดับ %1$s • %2$s</string>
+    <string name="home_daily_puzzle">ปริศนารายวัน</string>
+    <string name="home_daily_done">ทำทุกวัน</string>
+    <string name="home_daily_done_streak">เสร็จทุกวัน - %1$d ติดต่อกัน</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">คอมโบ x%1$d</string>
+    <string name="shape_label">รูปร่าง</string>
+    <string name="out_of_lives_title">ออกไปจากชีวิต!</string>
+    <string name="cleared_percent">%1$d%% เคลียร์แล้ว</string>
+    <string name="watch_ad_to_continue">ดูโฆษณาเพื่อดำเนินการต่อ</string>
+    <string name="restore_lives_hint">ฟื้นฟูทั้ง 3 ชีวิต</string>
+    <string name="continue_unavailable">ไม่สามารถใช้งานต่อได้ในขณะนี้</string>
+    <string name="escaped_title">หลบหนี!</string>
+    <string name="level_complete_subtitle">ระดับ %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">คะแนน</string>
+    <string name="stars_label">สตาร์ส</string>
+    <string name="home_button">บ้าน</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">ปริศนานี้ติดอยู่</string>
+    <string name="puzzle_stuck_body">ไม่มีลูกศรใดสามารถหลบหนีไปจากที่นี่ได้ ดังนั้นระดับนี้จึงไม่สามารถจบได้ นั่นเป็นความผิดพลาดของเรา ไม่ใช่ของคุณ</string>
+    <string name="puzzle_stuck_skip">ข้ามไปยังระดับถัดไป</string>
+    <string name="puzzle_stuck_retry">ระดับลองอีกครั้ง</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">กระดานลูกศร. แตะลูกศรเพื่อยิง กดค้างไว้เพื่อดูตัวอย่างเส้นทาง บีบนิ้วเพื่อซูม และลากเพื่อเคลื่อนที่ไปรอบๆ</string>
+    <string name="board_zoom_hint">บีบนิ้วเพื่อซูม \u00B7 ลากเพื่อย้าย</string>
+    <string name="board_reset_view">รีเซ็ตมุมมอง</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">เวอร์ชัน %1$s</string>
+    <string name="about_card_idea_title">ความคิด</string>
+    <string name="about_card_idea_body">ลูกศรทุกอันต้องการออกไป แตะอันหนึ่งแล้วมันจะโบลต์ไปในทิศทางที่มันชี้ - แต่เฉพาะในกรณีที่ไม่มีอะไรมาขวางทางเท่านั้น เคลียร์กระดานและรูปร่างที่มันซ่อนอยู่ก็ทำให้ตัวเองเป็นอิสระ</string>
+    <string name="about_card_how_to_play_title">วิธีการเล่น</string>
+    <string name="about_bullet_escape">ลูกศรจะหลบหนีก็ต่อเมื่อเส้นทางไปยังขอบชัดเจนเท่านั้น</string>
+    <string name="about_bullet_blocked">แตะลูกศรที่ถูกบล็อกและเสียชีวิต สามต่อระดับ</string>
+    <string name="about_bullet_stars">ชัดเจนรวดเร็วและสะอาดให้สามดาวครับ</string>
+    <string name="about_bullet_hints">ติดอยู่? คำแนะนำสองรายการต่อระดับชี้ให้เห็นการแตะที่ปลอดภัย</string>
+    <string name="about_card_two_ways_title">สองวิธีในการเล่น</string>
+    <string name="about_bullet_classic">คลาสสิก: ลูกศรบนตาราง รูปร่างที่วาดในเซลล์</string>
+    <string name="about_bullet_curved">โค้ง: ลูกศรไหลไปตามเส้นของรูปที่วาด</string>
+    <string name="about_two_ways_body">แต่ละโหมดจะรักษาความก้าวหน้าของตัวเองไว้ ดังนั้นการสลับจะไม่เสียค่าใช้จ่ายแม้แต่ระดับเดียว</string>
+    <string name="about_card_make_it_yours_title">ทำให้มันเป็นของคุณ</string>
+    <string name="about_make_it_yours_body">การปรากฏตัวของห้าครั้ง - คลาสสิก, เที่ยงคืน, พระอาทิตย์ตก, โจรสลัดและหมึก - แต่ละรายการมีหน้าจอหลัก การเคลื่อนไหว และเสียงของตัวเอง ต้องการติดตามโทรศัพท์ของคุณหรือไม่? เลือกระบบในการตั้งค่า</string>
+    <string name="about_card_progress_safe_title">ความก้าวหน้าของคุณปลอดภัย</string>
+    <string name="about_progress_safe_body">ทุกอย่างจะถูกเก็บไว้ในอุปกรณ์ของคุณและเล่นแบบออฟไลน์ ลงชื่อเข้าใช้ด้วย Play Games แล้วการเดินทางของคุณก็จะล่องลอยไปตามโทรศัพท์เครื่องถัดไป</string>
+    <string name="about_link_terms">ข้อกำหนดในการให้บริการ</string>
+    <string name="about_link_licenses">ใบอนุญาต</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">อัปเดตล่าสุด %1$s</string>
+    <string name="doc_short_version_title">รุ่นสั้น</string>
+    <string name="doc_contact_title">ติดต่อ</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">เราไม่ขอชื่อ อีเมล หรือหมายเลขโทรศัพท์ของคุณ และเราจะไม่ขายสิ่งใดเกี่ยวกับคุณ เกมดังกล่าวดำเนินไปแบบออฟไลน์ ข้อมูลเดียวที่ออกจากอุปกรณ์ของคุณคือโฆษณาและการลงชื่อเข้าใช้ Play Games ที่เป็นตัวเลือก</string>
+    <string name="privacy_card_device_title">สิ่งที่ยังคงอยู่บนอุปกรณ์ของคุณ</string>
+    <string name="privacy_bullet_progress">ระดับปัจจุบัน ระดับที่ดีที่สุด และดาว สำหรับแต่ละโหมด</string>
+    <string name="privacy_bullet_settings">การตั้งค่าของคุณ: ธีม เสียง และการสัมผัส</string>
+    <string name="privacy_device_body">ข้อมูลนี้อยู่ในพื้นที่เก็บข้อมูลส่วนตัวของแอป และจะถูกลบออกเมื่อคุณถอนการติดตั้งเกม</string>
+    <string name="privacy_card_ads_title">การโฆษณา</string>
+    <string name="privacy_ads_body">โฆษณาที่มีการให้รางวัลและโฆษณาคั่นระหว่างหน้าให้บริการโดย Google AdMob เพื่อแสดงและวัดผลโฆษณา AdMob อาจประมวลผลรหัสโฆษณาของอุปกรณ์ ตำแหน่งคร่าวๆ ที่ได้รับจากที่อยู่ IP ของคุณ และข้อมูลอุปกรณ์และแอปพื้นฐาน คุณสามารถรีเซ็ตหรือลบรหัสโฆษณาได้ในการตั้งค่า Android ในส่วนความเป็นส่วนตัว โฆษณา</string>
+    <string name="privacy_card_cloud_title">บันทึกบนคลาวด์เสริม</string>
+    <string name="privacy_cloud_body">หากคุณลงชื่อเข้าใช้ด้วย Google Play Games ความคืบหน้าของคุณจะถูกจัดเก็บไว้ในพื้นที่เกมที่บันทึกไว้ของ Play Games ของคุณเอง ดังนั้นจึงติดตามคุณไปยังอุปกรณ์ใหม่ เราเห็นเฉพาะชื่อที่แสดงของ Play Games และความคืบหน้าที่บันทึกไว้ ออกจากระบบได้ตลอดเวลาในการตั้งค่า การเล่นแบบออฟไลน์เป็นทางเลือกเสมอ</string>
+    <string name="privacy_card_children_title">เด็กๆ</string>
+    <string name="privacy_children_body">เกมนี้เหมาะสำหรับทุกวัยและไม่มีการรวบรวมรายละเอียดส่วนบุคคล ในกรณีที่จำเป็น คำขอโฆษณาจะถูกทำเครื่องหมายเป็นแบบเด็กเป็นผู้กำหนดทิศทาง เพื่อแสดงเฉพาะโฆษณาที่ไม่ได้ปรับตามโปรไฟล์ของผู้ใช้เท่านั้น</string>
+    <string name="privacy_card_choices_title">ทางเลือกของคุณ</string>
+    <string name="privacy_bullet_reset">รีเซ็ตความคืบหน้าได้ตลอดเวลาจากการตั้งค่า</string>
+    <string name="privacy_bullet_signout">ออกจากระบบ Play Games เพื่อหยุดการบันทึกบนคลาวด์</string>
+    <string name="privacy_bullet_uninstall">ถอนการติดตั้งเพื่อลบทุกสิ่งที่จัดเก็บไว้ในเครื่อง</string>
+    <string name="privacy_card_others_title">มีใครเกี่ยวข้องอีกบ้าง</string>
+    <string name="privacy_bullet_admob">Google AdMob - ให้บริการและวัดผลโฆษณา</string>
+    <string name="privacy_bullet_playgames">Google Play Games - ตัวเลือกการลงชื่อเข้าใช้และการบันทึกบนคลาวด์</string>
+    <string name="privacy_bullet_playstore">Google Play - เผยแพร่แอปและการอัปเดต</string>
+    <string name="privacy_others_body">ไม่มีบริษัทอื่นใดได้รับข้อมูลจากเกมนี้ และเราไม่ได้ดำเนินการวิเคราะห์หรือติดตามของเราเอง</string>
+    <string name="privacy_card_changes_title">การเปลี่ยนแปลงนโยบายนี้</string>
+    <string name="privacy_changes_body">หากนโยบายนี้มีการเปลี่ยนแปลง เวอร์ชันใหม่จะปรากฏที่นี่พร้อมวันที่ใหม่ และจะมีการกล่าวถึงการเปลี่ยนแปลงที่สำคัญในบันทึกประจำรุ่น</string>
+    <string name="privacy_contact_body">มีคำถามหรือต้องการให้ลบบันทึกบนคลาวด์ของคุณ? เขียนถึง %1$s แล้วเราจะตอบกลับภายใน 30 วัน</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">เล่นเกม สนุกกับมัน อย่าพยายามทำลายมันหรือขายต่อ การติดตั้งหรือเล่น Arrow Escape หมายความว่าคุณยอมรับข้อกำหนดเหล่านี้</string>
+    <string name="terms_card_license_title">ใบอนุญาตของคุณในการเล่น</string>
+    <string name="terms_license_body">เราให้สิทธิ์ใช้งานส่วนบุคคล ไม่ผูกขาด และไม่สามารถถ่ายโอนได้แก่คุณในการติดตั้งและเล่น Arrow Escape บนอุปกรณ์ที่คุณควบคุม เพื่อความบันเทิงของคุณเอง เกม เลเวล อาร์ตเวิร์ก เสียง และโค้ดยังคงเป็นของเรา</string>
+    <string name="terms_card_not_allowed_title">สิ่งที่คุณตกลงจะไม่ทำ</string>
+    <string name="terms_bullet_reverse_engineer">ทำวิศวกรรมย้อนกลับ แยกส่วนหรือแก้ไขแอป</string>
+    <string name="terms_bullet_redistribute">แจกจ่าย ขาย หรือให้อนุญาตช่วงทั้งหมดหรือบางส่วน</string>
+    <string name="terms_bullet_cheats">ใช้กลโกง บอท หรือเครื่องมือที่ปลอมแปลงความคืบหน้าหรือการดูโฆษณา</string>
+    <string name="terms_bullet_ads">ตัด ซ่อน หรือแทรกแซงการโฆษณา</string>
+    <string name="terms_card_ads_title">โฆษณาและบุคคลที่สาม</string>
+    <string name="terms_ads_body">เกมดังกล่าวฟรีและชำระเงินด้วยโฆษณา การโฆษณาให้บริการโดย Google AdMob และอยู่ภายใต้ข้อกำหนด ตัวเลือกการบันทึกบนคลาวด์ทำงานบน Google Play Games สิ่งที่พวกเขาได้รับมีการระบุไว้ในนโยบายความเป็นส่วนตัว</string>
+    <string name="terms_card_progress_title">ความก้าวหน้าของคุณ</string>
+    <string name="terms_progress_body">ความคืบหน้าจะถูกจัดเก็บไว้ในอุปกรณ์ของคุณ และในพื้นที่เกมที่บันทึกไว้ของ Play Games หากคุณลงชื่อเข้าใช้ เราพยายามอย่างเต็มที่เพื่อรักษาความปลอดภัย แต่เราไม่สามารถรับประกันได้ในกรณีที่อุปกรณ์สูญหาย การถอนการติดตั้ง หรือการเปลี่ยนแปลงแพลตฟอร์ม</string>
+    <string name="terms_card_warranty_title">ไม่มีการรับประกัน</string>
+    <string name="terms_warranty_body">เกมดังกล่าวมีให้ \"ตามสภาพ\" ภายในขอบเขตที่กฎหมายอนุญาต เราจะไม่รับผิดชอบต่อการสูญเสียความคืบหน้า การสูญเสียเวลา หรือความเสียหายทางอ้อมใด ๆ ที่เกิดขึ้นจากการเล่น</string>
+    <string name="terms_card_changes_title">การเปลี่ยนแปลงและการสิ้นสุดข้อตกลง</string>
+    <string name="terms_changes_body">ข้อกำหนดเหล่านี้อาจมีการเปลี่ยนแปลง เวอร์ชันปัจจุบันจะอยู่ที่นี่พร้อมกับวันที่ใหม่เสมอ และการเล่นต่อหมายถึงการยอมรับ คุณสามารถยุติข้อตกลงนี้ได้ตลอดเวลาโดยการถอนการติดตั้งเกม</string>
+    <string name="terms_contact_body">คำถามเกี่ยวกับข้อกำหนดเหล่านี้? เขียนถึง %1$s</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">ใบอนุญาต</string>
+    <string name="licenses_header">ประกาศโอเพ่นซอร์ส</string>
+    <string name="licenses_subtitle">%1$s ยืนอยู่บนไหล่เหล่านี้</string>
+    <string name="licenses_card_other_title">ทุกอย่างอื่น</string>
+    <string name="licenses_other_body">การสร้างเลเวล อาร์ตเวิร์ค ชุดเสียง และโค้ดเกมเป็นผลงานต้นฉบับ %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">ลักษณะที่ปรากฏ</string>
+    <string name="settings_section_game">เกม</string>
+    <string name="settings_toggle_sound_title">เอฟเฟกต์เสียง</string>
+    <string name="settings_toggle_sound_subtitle">เล่นเสียงเมื่อแตะลูกศร</string>
+    <string name="settings_toggle_haptics_title">การตอบสนองแบบสัมผัส</string>
+    <string name="settings_toggle_haptics_subtitle">สั่นเมื่อมีปฏิสัมพันธ์</string>
+    <string name="settings_section_progress">ความคืบหน้า</string>
+    <string name="settings_badge_playing">กำลังเล่น</string>
+    <string name="settings_stat_current">ปัจจุบัน</string>
+    <string name="settings_stat_best">ดีที่สุด</string>
+    <string name="settings_stat_cleared">เคลียร์แล้ว</string>
+    <string name="settings_section_about">เกี่ยวกับ</string>
+    <string name="settings_item_how_to_play_title">วิธีการเล่น</string>
+    <string name="settings_item_how_to_play_subtitle">เล่นคำแนะนำซ้ำ</string>
+    <string name="settings_item_privacy_subtitle">สิ่งที่เราเก็บและสิ่งที่เราไม่ทำ</string>
+    <string name="settings_item_about_title">เกี่ยวกับ แอร์โรว์ หนี</string>
+    <string name="settings_item_about_subtitle">ความคิด กฎเกณฑ์ และรูปลักษณ์ภายนอก</string>
+    <string name="settings_section_debug">ดีบัก</string>
+    <string name="settings_debug_tools_title">เครื่องมือสำหรับนักพัฒนา</string>
+    <string name="settings_debug_tap_to_hide">แตะเพื่อซ่อน</string>
+    <string name="settings_debug_tap_to_show">แตะเพื่อแสดง</string>
+    <string name="settings_debug_dev_mode_title">โหมดนักพัฒนาซอฟต์แวร์</string>
+    <string name="settings_debug_dev_mode_subtitle">เปิดระดับใดก็ได้จากหน้าแรก การเล่นไม่เคยเปลี่ยนความก้าวหน้าของคุณ</string>
+    <string name="settings_debug_unlock_all_title">ปลดล็อคทั้งหมด: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">ตั้งค่า %1$s ความคืบหน้าเป็นระดับ %2$d</string>
+    <string name="settings_debug_reset_title">รีเซ็ต: %1$s</string>
+    <string name="settings_debug_reset_subtitle">เริ่ม %1$s จากระดับ 1</string>
+    <string name="settings_footer">สร้างด้วย \u2764 สำหรับผู้ชื่นชอบปริศนา</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">บัญชี</string>
+    <string name="account_not_connected">ไม่ได้เชื่อมต่อ</string>
+    <string name="account_backed_up">ความคืบหน้าสำรองข้อมูลไปยัง Google Play</string>
+    <string name="account_sign_in_hint">ลงชื่อเข้าใช้เพื่อรักษาระดับของคุณหากคุณติดตั้งใหม่</string>
+    <string name="account_sign_out">ออกจากระบบ</string>
+    <string name="account_sign_in">เข้าสู่ระบบ</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">แก้ไขแล้ว</string>
+    <string name="daily_streak_days">%1$d วันติดต่อกัน</string>
+    <string name="daily_come_back_tomorrow">พรุ่งนี้กลับมาใหม่</string>
+    <string name="daily_done_button">เสร็จแล้ว</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">มาเร็ว ๆ นี้</string>
+    <string name="coming_soon_title">มีบทอื่นๆ อยู่ในเวิร์กช็อป</string>
+    <string name="coming_soon_body">คุณได้เคลียร์ทุกสิ่งที่เราสร้างมาจนถึงตอนนี้แล้ว รูปร่างใหม่และการหลบหนีที่ซับซ้อนยิ่งขึ้นกำลังมาถึงแล้ว - อัปเดตแอปอยู่เสมอเพื่อให้มาถึงในวันที่จัดส่ง</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 ก่อนหน้า</string>
+    <string name="dev_nav_next">ถัดไป \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d ลูกศร</string>
+    <string name="dev_level_field_label">ระดับ (1-%1$d)</string>
+    <string name="dev_open_button">เปิด</string>
+    <string name="dev_jump_to_shape_header">หรือข้ามไปที่บทของรูปร่าง</string>
+    <string name="dev_chapter_title">%1$s \u00B7 บท %2$d</string>
+    <string name="dev_chapter_levels">ระดับ %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">อันดับแรก</string>
+    <string name="dev_level_button_last">สุดท้าย</string>
+    <string name="dev_level_button_master">อาจารย์</string>
+    <string name="dev_header_title">นักพัฒนา \u00B7 ระดับ</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">เลือกเกมของคุณ</string>
+    <string name="tour_home_modes_body">คลาสสิกวางลูกศรบนตาราง เส้นโค้งไหลไปรอบๆ รูปที่วาด แต่ละโหมดจะมีความก้าวหน้าของตัวเอง</string>
+    <string name="tour_home_progress_title">สถานที่ของคุณในเรื่องราว</string>
+    <string name="tour_home_progress_body">ระดับที่คุณอยู่ ระยะทางในการเดินทางของคุณ และการวิ่งที่ดีที่สุดของคุณจนถึงตอนนี้</string>
+    <string name="tour_home_play_title">เริ่มที่นี่</string>
+    <string name="tour_home_play_body">แตะที่ลูกศรและมันจะหลบหนีไปในทิศทางที่มันชี้ - แต่เฉพาะในกรณีที่เส้นทางของมันชัดเจนเท่านั้น สามชีวิตต่อระดับ</string>
+    <string name="tour_home_journey_title">แผนที่การเดินทาง</string>
+    <string name="tour_home_journey_body">บทมีสิบระดับ ดาวของคุณในแต่ละระดับ และดูสิ่งที่ยังคงล็อคอยู่</string>
+    <string name="tour_home_settings_title">ทำให้มันเป็นของคุณ</string>
+    <string name="tour_home_settings_body">รูปลักษณ์ห้าแบบ แต่ละแบบมีรูปลักษณ์และเสียงของตัวเอง พร้อมสวิตช์เสียงและระบบสัมผัส และคำแนะนำแบบทีละขั้นตอนนี้ทุกครั้งที่คุณต้องการ</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">การเคลื่อนไหวครั้งแรกของคุณ</string>
+    <string name="tour_game_board1_body">ค้นหาลูกศรที่มีระยะที่ชัดเจนจนถึงขอบที่มันชี้ไป แล้วแตะมัน ไปต่อ - บอร์ดถ่ายทอดสดแล้ว</string>
+    <string name="tour_game_board2_title">ตอนนี้อีกหนึ่ง</string>
+    <string name="tour_game_board2_body">ลูกธนูทุกลูกที่ออกไปจะเปิดทางให้อีกลูกหนึ่ง แตะอันที่สองแล้วดูกระดานคลายตัว</string>
+    <string name="tour_game_lives_title">ลูกศรซ้ายและชีวิต</string>
+    <string name="tour_game_lives_body">แตะลูกศรที่ถูกบล็อกแล้วมันจะสั่นแทนที่จะออกไป - และเสียหนึ่งในสามหัวใจนี้</string>
+    <string name="tour_game_hint_title">ติดอยู่? ใช้คำใบ้</string>
+    <string name="tour_game_hint_body">คำใบ้สองครั้งในระดับหนึ่งชี้ไปที่ลูกศรที่สามารถออกไปได้ในขณะนี้ หมดก็ดูโฆษณาได้อีก</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">ขั้นตอนที่ %1$d จาก %2$d</string>
+    <string name="tour_skip">ข้าม</string>
+    <string name="tour_got_it">เข้าใจแล้ว</string>
+    <string name="tour_skip_move">ข้ามการเคลื่อนไหว</string>
+    <string name="tour_next">ถัดไป</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

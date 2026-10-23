@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">الهروب من السهم: اضغط وحل</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">العودة</string>
+    <string name="settings_label">الإعدادات</string>
+    <string name="play_button">العب</string>
+    <string name="continue_button">متابعة</string>
+    <string name="restart_level">إعادة تشغيل المستوى</string>
+    <string name="next_level_button">المستوى التالي</string>
+    <string name="about_title">حول</string>
+    <string name="privacy_policy_title">سياسة الخصوصية</string>
+    <string name="level_number">المستوى %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">منحني</string>
+    <string name="mode_curved_tagline">تتدفق مسارات بيزير</string>
+    <string name="mode_classic_label">كلاسيكي</string>
+    <string name="mode_classic_tagline">أسهم مستقيمة على الشبكة</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">كلاسيكي</string>
+    <string name="theme_midnight_label">منتصف الليل</string>
+    <string name="theme_sunset_label">غروب الشمس</string>
+    <string name="theme_pirate_label">قرصان</string>
+    <string name="theme_mono_label">حبر</string>
+    <string name="theme_system_label">النظام</string>
+
+    <string name="persona_classic_tagline">اضغط على \u00B7 اختفاء \u00B7 هروب</string>
+    <string name="persona_midnight_tagline">ساعات هادئة \u00B7 رأس واضح</string>
+    <string name="persona_sunset_tagline">الساعة الذهبية \u00B7 اللقطة الأخيرة</string>
+    <string name="persona_pirate_tagline">قم بتخطيطها \u00B7 المطالبة بها \u00B7 أبحر</string>
+    <string name="persona_mono_tagline">الحبر \u00B7 الورق \u00B7 الدقة</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">الخطوات الأولى</string>
+    <string name="milestone_title_rising_up">صعود</string>
+    <string name="milestone_title_sharp_turns">المنعطفات الحادة</string>
+    <string name="milestone_title_full_circle">دائرة كاملة</string>
+    <string name="milestone_title_heartfelt">القلبية</string>
+    <string name="milestone_title_crossroads">مفترق طرق</string>
+    <string name="milestone_title_hexa_hive">خلية سداسية</string>
+    <string name="milestone_title_star_power">قوة النجم</string>
+    <string name="milestone_title_eclipse">كسوف</string>
+    <string name="milestone_title_x_marks_it">علامة X عليه</string>
+    <string name="milestone_title_spiral_madness">دوامة الجنون</string>
+    <string name="milestone_title_storm_surge">عرام العاصفة</string>
+    <string name="milestone_title_royal_challenge">التحدي الملكي</string>
+    <string name="milestone_title_ring_master">سيد الدائري</string>
+    <string name="milestone_title_grand_finale">النهاية الكبرى</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">سهم</string>
+    <string name="home_title_line2">الهروب</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 المستوى</string>
+    <string name="home_progress_summary">تم مسح %1$d من %2$d \u00B7 الأفضل %3$d</string>
+    <string name="home_journey_map">خريطة الرحلة</string>
+    <string name="journey_title">رحلة</string>
+    <string name="journey_header_summary">المستوى %1$d / %2$d • %3$d تم مسحه</string>
+    <string name="journey_chapter_levels">المستويات %1$s • %2$s</string>
+    <string name="home_daily_puzzle">اللغز اليومي</string>
+    <string name="home_daily_done">يتم يوميا</string>
+    <string name="home_daily_done_streak">تم إنجازه يوميًا - %1$d على التوالي</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">التحرير والسرد x%1$d</string>
+    <string name="shape_label">الشكل</string>
+    <string name="out_of_lives_title">خارج الحياة!</string>
+    <string name="cleared_percent">تم مسح %1$d%%</string>
+    <string name="watch_ad_to_continue">شاهد الإعلان للمتابعة</string>
+    <string name="restore_lives_hint">استعادة جميع الأرواح الثلاثة</string>
+    <string name="continue_unavailable">الاستمرار غير متاح الآن</string>
+    <string name="escaped_title">هرب!</string>
+    <string name="level_complete_subtitle">المستوى %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">النتيجة</string>
+    <string name="stars_label">نجوم</string>
+    <string name="home_button">الصفحة الرئيسية</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">هذا اللغز عالق</string>
+    <string name="puzzle_stuck_body">لا يمكن لأي سهم الهروب من هنا، لذلك لا يمكن إنهاء هذا المستوى. وهذا خطأنا، وليس خطأك.</string>
+    <string name="puzzle_stuck_skip">انتقل إلى المستوى التالي</string>
+    <string name="puzzle_stuck_retry">إعادة محاولة المستوى</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">لوحة السهم. اضغط على السهم لإطلاقه، واستمر في الضغط عليه لمعاينة مساره، ثم قم بضم إصبعيك للتكبير/التصغير، ثم اسحب للتنقل.</string>
+    <string name="board_zoom_hint">قرصة للتكبير \u00B7 اسحب للتحرك</string>
+    <string name="board_reset_view">إعادة ضبط العرض</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">الإصدار %1$s</string>
+    <string name="about_card_idea_title">الفكرة</string>
+    <string name="about_card_idea_body">كل سهم يريد الخروج اضغط على أحدها وسيتحرك في الاتجاه الذي يشير إليه - ولكن فقط إذا لم يكن هناك شيء يقف في طريقه. قم بمسح اللوحة والشكل الذي كانت تخفيه يحرر نفسه.</string>
+    <string name="about_card_how_to_play_title">كيف تلعب</string>
+    <string name="about_bullet_escape">لا يهرب السهم إلا عندما يكون طريقه إلى الحافة خاليًا.</string>
+    <string name="about_bullet_blocked">اضغط على السهم المحظور ويكلف حياة. ثلاثة لكل مستوى.</string>
+    <string name="about_bullet_stars">واضح سريع ونظيف لثلاث نجوم.</string>
+    <string name="about_bullet_hints">عالق؟ تشير تلميحتان لكل مستوى إلى وجود نقرة آمنة.</string>
+    <string name="about_card_two_ways_title">طريقتان للعب</string>
+    <string name="about_bullet_classic">الكلاسيكية: أسهم على الشبكة، وأشكال مرسومة في الخلايا.</string>
+    <string name="about_bullet_curved">منحني: الأسهم تتدفق على طول خطوط الشكل المرسوم.</string>
+    <string name="about_two_ways_body">يحتفظ كل وضع بتقدمه الخاص، لذا لا يكلف التبديل أي مستوى أبدًا.</string>
+    <string name="about_card_make_it_yours_title">اجعلها لك</string>
+    <string name="about_make_it_yours_body">خمس مظاهر - Classic، وMidnight، وSunset، وPirate، وInk - كل منها مزود بشاشته الرئيسية وحركته وصوته. هل تفضل متابعة هاتفك؟ اختر النظام في الإعدادات.</string>
+    <string name="about_card_progress_safe_title">تقدمك آمن</string>
+    <string name="about_progress_safe_body">يتم تخزين كل شيء على جهازك وتشغيله دون الاتصال بالإنترنت. قم بتسجيل الدخول باستخدام Play Games وستنتقل رحلتك إلى هاتفك التالي.</string>
+    <string name="about_link_terms">شروط الخدمة</string>
+    <string name="about_link_licenses">التراخيص</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">آخر تحديث %1$s</string>
+    <string name="doc_short_version_title">النسخة القصيرة</string>
+    <string name="doc_contact_title">الاتصال</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">نحن لا نطلب اسمك أو بريدك الإلكتروني أو رقم هاتفك، ولا نبيع أي شيء عنك. اللعبة تعمل دون اتصال بالإنترنت. البيانات الوحيدة التي تخرج من جهازك هي ما تحتاجه الإعلانات وتسجيل الدخول الاختياري لألعاب Play.</string>
+    <string name="privacy_card_device_title">ما يبقى على جهازك</string>
+    <string name="privacy_bullet_progress">المستوى الحالي وأفضل مستوى والنجوم لكل وضع.</string>
+    <string name="privacy_bullet_settings">إعداداتك: السمة والصوت والحس اللمسي.</string>
+    <string name="privacy_device_body">يوجد هذا في مساحة التخزين الخاصة بالتطبيق ويتم إزالته عند إلغاء تثبيت اللعبة.</string>
+    <string name="privacy_card_ads_title">الإعلان</string>
+    <string name="privacy_ads_body">يتم عرض الإعلانات بمكافأة والإعلانات البينية بواسطة Google AdMob. لعرض الإعلانات وقياسها، قد يقوم AdMob بمعالجة معرّف الإعلان الخاص بجهازك، والموقع التقريبي المشتق من عنوان IP الخاص بك، والمعلومات الأساسية للجهاز والتطبيق. يمكنك إعادة تعيين أو حذف معرف الإعلان في إعدادات Android، ضمن الخصوصية، الإعلانات.</string>
+    <string name="privacy_card_cloud_title">حفظ سحابي اختياري</string>
+    <string name="privacy_cloud_body">إذا قمت بتسجيل الدخول باستخدام ألعاب Google Play، فسيتم تخزين تقدمك في مساحة الألعاب المحفوظة الخاصة بـ Play Games بحيث يتم نقلك إلى جهاز جديد. لا نرى سوى الاسم المعروض لألعاب Play والتقدم المحفوظ. قم بتسجيل الخروج في أي وقت في الإعدادات؛ يعد اللعب دون اتصال بالإنترنت خيارًا دائمًا.</string>
+    <string name="privacy_card_children_title">الأطفال</string>
+    <string name="privacy_children_body">اللعبة مناسبة لجميع الأعمار ولا تجمع أي تفاصيل شخصية. عند الاقتضاء، يتم وضع علامة على طلبات الإعلان على أنها موجهة للأطفال بحيث يتم عرض الإعلانات غير المخصصة فقط.</string>
+    <string name="privacy_card_choices_title">اختياراتك</string>
+    <string name="privacy_bullet_reset">إعادة ضبط التقدم في أي وقت من الإعدادات.</string>
+    <string name="privacy_bullet_signout">قم بتسجيل الخروج من ألعاب Play لإيقاف عمليات الحفظ السحابية.</string>
+    <string name="privacy_bullet_uninstall">قم بإلغاء التثبيت لمسح كل شيء تم تخزينه محليًا.</string>
+    <string name="privacy_card_others_title">من آخر متورط</string>
+    <string name="privacy_bullet_admob">Google AdMob - يعرض الإعلانات ويقيسها.</string>
+    <string name="privacy_bullet_playgames">ألعاب Google Play - تسجيل دخول اختياري وحفظ سحابي.</string>
+    <string name="privacy_bullet_playstore">Google Play - يوزع التطبيق وتحديثاته.</string>
+    <string name="privacy_others_body">لا تتلقى أي شركة أخرى بيانات من هذه اللعبة، ولا نجري أي تحليلات أو تتبع خاص بنا.</string>
+    <string name="privacy_card_changes_title">التغييرات في هذه السياسة</string>
+    <string name="privacy_changes_body">إذا تغيرت هذه السياسة، فسيظهر الإصدار الجديد هنا بتاريخ جديد، وسيتم ذكر التغييرات المهمة في ملاحظات الإصدار.</string>
+    <string name="privacy_contact_body">هل لديك أسئلة، أو تريد حذف الحفظ السحابي الخاص بك؟ اكتب إلى %1$s وسنقوم بالرد خلال 30 يومًا.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">العب اللعبة واستمتع بها ولا تحاول كسرها أو إعادة بيعها. إن تثبيت لعبة Arrow Escape أو تشغيلها يعني قبولك لهذه الشروط.</string>
+    <string name="terms_card_license_title">الترخيص الخاص بك للعب</string>
+    <string name="terms_license_body">نمنحك ترخيصًا شخصيًا وغير حصري وغير قابل للتحويل لتثبيت لعبة Arrow Escape وتشغيلها على الأجهزة التي تتحكم فيها، من أجل الترفيه الخاص بك. تظل اللعبة ومستوياتها وأعمالها الفنية وأصواتها ورموزها ملكًا لنا.</string>
+    <string name="terms_card_not_allowed_title">ما وافقت على عدم القيام به</string>
+    <string name="terms_bullet_reverse_engineer">إجراء هندسة عكسية للتطبيق أو فك ترجمته أو تعديله.</string>
+    <string name="terms_bullet_redistribute">إعادة توزيعها أو بيعها أو ترخيصها من الباطن، كليًا أو جزئيًا.</string>
+    <string name="terms_bullet_cheats">استخدم الغش أو الروبوتات أو الأدوات التي تزييف التقدم أو مشاهدات الإعلان.</string>
+    <string name="terms_bullet_ads">تجريد أو إخفاء أو التدخل في الإعلانات.</string>
+    <string name="terms_card_ads_title">الإعلانات والجهات الخارجية</string>
+    <string name="terms_ads_body">اللعبة مجانية وتدفع ثمنها عن طريق الإعلانات. يتم تقديم الإعلانات بواسطة Google AdMob وتخضع لشروطها؛ يتم تشغيل الحفظ السحابي الاختياري على ألعاب Google Play. ما يتلقونه موضح في سياسة الخصوصية.</string>
+    <string name="terms_card_progress_title">التقدم المحرز الخاص بك</string>
+    <string name="terms_progress_body">يتم تخزين التقدم على جهازك، وفي مساحة الألعاب المحفوظة الخاصة بـ Play Games إذا قمت بتسجيل الدخول. ونحن نبذل قصارى جهدنا للحفاظ عليه آمنًا، ولكن لا يمكننا ضمان ذلك ضد فقدان الجهاز أو عمليات إلغاء التثبيت أو تغييرات النظام الأساسي.</string>
+    <string name="terms_card_warranty_title">لا يوجد ضمان</string>
+    <string name="terms_warranty_body">يتم توفير اللعبة \"كما هي\". إلى الحد الذي يسمح به القانون، نحن لسنا مسؤولين عن التقدم الضائع أو الوقت الضائع أو أي أضرار غير مباشرة تنشأ عن اللعب.</string>
+    <string name="terms_card_changes_title">التغييرات وإنهاء الصفقة</string>
+    <string name="terms_changes_body">قد تتغير هذه الشروط؛ الإصدار الحالي يعيش دائمًا هنا بتاريخ جديد، والاستمرار في اللعب يعني قبوله. يمكنك إنهاء هذه الاتفاقية في أي وقت عن طريق إلغاء تثبيت اللعبة.</string>
+    <string name="terms_contact_body">أسئلة حول هذه المصطلحات؟ اكتب إلى %1$s.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">التراخيص</string>
+    <string name="licenses_header">إشعارات مفتوحة المصدر</string>
+    <string name="licenses_subtitle">%1$s يقف على هذه الأكتاف.</string>
+    <string name="licenses_card_other_title">كل شيء آخر</string>
+    <string name="licenses_other_body">يعد إنشاء المستوى والأعمال الفنية وحزم الصوت ورمز اللعبة عملاً أصليًا. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">المظهر</string>
+    <string name="settings_section_game">لعبة</string>
+    <string name="settings_toggle_sound_title">المؤثرات الصوتية</string>
+    <string name="settings_toggle_sound_subtitle">تشغيل الأصوات عند النقر على الأسهم</string>
+    <string name="settings_toggle_haptics_title">ردود الفعل اللمسية</string>
+    <string name="settings_toggle_haptics_subtitle">يهتز على التفاعلات</string>
+    <string name="settings_section_progress">التقدم</string>
+    <string name="settings_badge_playing">اللعب</string>
+    <string name="settings_stat_current">الحالي</string>
+    <string name="settings_stat_best">الأفضل</string>
+    <string name="settings_stat_cleared">مسح</string>
+    <string name="settings_section_about">حول</string>
+    <string name="settings_item_how_to_play_title">كيفية اللعب</string>
+    <string name="settings_item_how_to_play_subtitle">أعد تشغيل الإرشادات التفصيلية</string>
+    <string name="settings_item_privacy_subtitle">ما نحتفظ به وما لا نحتفظ به</string>
+    <string name="settings_item_about_title">حول السهم الهروب</string>
+    <string name="settings_item_about_subtitle">الفكرة والقواعد والمظهر</string>
+    <string name="settings_section_debug">تصحيح</string>
+    <string name="settings_debug_tools_title">أدوات المطور</string>
+    <string name="settings_debug_tap_to_hide">انقر للإخفاء</string>
+    <string name="settings_debug_tap_to_show">انقر للإظهار</string>
+    <string name="settings_debug_dev_mode_title">وضع المطور</string>
+    <string name="settings_debug_dev_mode_subtitle">فتح أي مستوى من الصفحة الرئيسية؛ اللعب لا يغير تقدمك أبدًا</string>
+    <string name="settings_debug_unlock_all_title">فتح الكل: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">تعيين %1$s التقدم إلى المستوى %2$d</string>
+    <string name="settings_debug_reset_title">إعادة الضبط: %1$s</string>
+    <string name="settings_debug_reset_subtitle">ابدأ %1$s من المستوى 1</string>
+    <string name="settings_footer">مصنوعة باستخدام \u2764 لمحبي الألغاز</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">الحساب</string>
+    <string name="account_not_connected">غير متصل</string>
+    <string name="account_backed_up">يتم الاحتفاظ بنسخة احتياطية من التقدم في Google Play</string>
+    <string name="account_sign_in_hint">قم بتسجيل الدخول للحفاظ على مستوياتك إذا قمت بإعادة التثبيت</string>
+    <string name="account_sign_out">تسجيل الخروج</string>
+    <string name="account_sign_in">تسجيل الدخول</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">تم الحل</string>
+    <string name="daily_streak_days">%1$d أيام متتالية</string>
+    <string name="daily_come_back_tomorrow">أعود غدا</string>
+    <string name="daily_done_button">تم</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">قريبا</string>
+    <string name="coming_soon_title">المزيد من الفصول في ورشة العمل</string>
+    <string name="coming_soon_body">لقد قمت بمسح كل ما بنيناه حتى الآن. هناك أشكال جديدة وعمليات هروب أكثر تعقيدًا في الطريق - حافظ على تحديث التطبيق حتى يصلوا في يوم الشحن.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 السابق</string>
+    <string name="dev_nav_next">التالي \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d أسهم</string>
+    <string name="dev_level_field_label">المستوى (1-%1$d)</string>
+    <string name="dev_open_button">مفتوح</string>
+    <string name="dev_jump_to_shape_header">أو انتقل إلى فصل الشكل</string>
+    <string name="dev_chapter_title">%1$s \u00B7 الفصل %2$d</string>
+    <string name="dev_chapter_levels">المستويات %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">أولا</string>
+    <string name="dev_level_button_last">الاخير</string>
+    <string name="dev_level_button_master">سيد</string>
+    <string name="dev_header_title">المطور \u00B7 المستويات</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">اختر لعبتك</string>
+    <string name="tour_home_modes_body">الكلاسيكية تضع السهام على الشبكة؛ يتدفقهم المنحني حول شكل مرسوم. يحتفظ كل وضع بالتقدم الخاص به.</string>
+    <string name="tour_home_progress_title">مكانك في القصة</string>
+    <string name="tour_home_progress_body">المستوى الذي وصلت إليه، والمسافة التي قطعتها خلال الرحلة، وأفضل ما قمت به حتى الآن.</string>
+    <string name="tour_home_play_title">ابدأ هنا</string>
+    <string name="tour_home_play_body">اضغط على السهم وسيهرب في الاتجاه الذي يشير إليه - ولكن فقط إذا كان مساره واضحًا. ثلاثة أرواح لكل مستوى.</string>
+    <string name="tour_home_journey_title">خريطة الرحلة</string>
+    <string name="tour_home_journey_body">فصول من عشرة مستويات، ونجومك في كل منها، وإلقاء نظرة خاطفة على ما لا يزال مغلقًا.</string>
+    <string name="tour_home_settings_title">اجعلها لك</string>
+    <string name="tour_home_settings_body">خمس مظاهر، كل منها بمظهرها وصوتها الخاص، بالإضافة إلى مفاتيح الصوت والحس اللمسي وهذه الإرشادات في أي وقت تريده.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">خطوتك الأولى</string>
+    <string name="tour_game_board1_body">ابحث عن سهم بمدى واضح إلى الحافة التي يشير إليها، ثم اضغط عليه. استمر - اللوحة حية.</string>
+    <string name="tour_game_board2_title">الآن واحد آخر</string>
+    <string name="tour_game_board2_body">كل سهم يغادر يفتح طريقا لآخر. اضغط على واحدة ثانية وشاهد اللوحة ترتخي.</string>
+    <string name="tour_game_lives_title">السهام اليسار، ويعيش</string>
+    <string name="tour_game_lives_body">اضغط على السهم المحظور وسيهتز بدلاً من المغادرة - ويكلف واحدًا من هذه القلوب الثلاثة.</string>
+    <string name="tour_game_hint_title">عالق؟ خذ تلميحا</string>
+    <string name="tour_game_hint_body">هناك تلميحان للمستوى يشيران إلى سهم يمكن أن يغادر الآن. نفد ويمكنك مشاهدة إعلان للمزيد.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">الخطوة %1$d من %2$d</string>
+    <string name="tour_skip">تخطي</string>
+    <string name="tour_got_it">حصلت عليه</string>
+    <string name="tour_skip_move">تخطي التحرك</string>
+    <string name="tour_next">التالي</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

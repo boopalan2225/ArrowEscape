@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Arrow Escape: 탭 앤 해결</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">뒤로</string>
+    <string name="settings_label">설정</string>
+    <string name="play_button">플레이</string>
+    <string name="continue_button">계속</string>
+    <string name="restart_level">재시작 레벨</string>
+    <string name="next_level_button">다음 레벨</string>
+    <string name="about_title">소개</string>
+    <string name="privacy_policy_title">개인 정보 보호 정책</string>
+    <string name="level_number">레벨 %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">곡선</string>
+    <string name="mode_curved_tagline">흐르는 베지어 경로</string>
+    <string name="mode_classic_label">클래식</string>
+    <string name="mode_classic_tagline">그리드의 직선 화살표</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">클래식</string>
+    <string name="theme_midnight_label">자정</string>
+    <string name="theme_sunset_label">일몰</string>
+    <string name="theme_pirate_label">해적</string>
+    <string name="theme_mono_label">잉크</string>
+    <string name="theme_system_label">시스템</string>
+
+    <string name="persona_classic_tagline">탭 \u00B7 사라지기 \u00B7 탈출</string>
+    <string name="persona_midnight_tagline">조용한 시간 \u00B7 머리가 맑아집니다</string>
+    <string name="persona_sunset_tagline">골든 아워 \u00B7 마지막 샷</string>
+    <string name="persona_pirate_tagline">차트 작성 \u00B7 청구 \u00B7 항해</string>
+    <string name="persona_mono_tagline">잉크 \u00B7 종이 \u00B7 정밀도</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">첫 번째 단계</string>
+    <string name="milestone_title_rising_up">상승</string>
+    <string name="milestone_title_sharp_turns">급회전</string>
+    <string name="milestone_title_full_circle">풀 서클</string>
+    <string name="milestone_title_heartfelt">진심 어린</string>
+    <string name="milestone_title_crossroads">교차로</string>
+    <string name="milestone_title_hexa_hive">헥사 하이브</string>
+    <string name="milestone_title_star_power">스타파워</string>
+    <string name="milestone_title_eclipse">이클립스</string>
+    <string name="milestone_title_x_marks_it">X 표시</string>
+    <string name="milestone_title_spiral_madness">나선형 광기</string>
+    <string name="milestone_title_storm_surge">폭풍 해일</string>
+    <string name="milestone_title_royal_challenge">로얄 챌린지</string>
+    <string name="milestone_title_ring_master">링 마스터</string>
+    <string name="milestone_title_grand_finale">그랜드 피날레</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">화살표</string>
+    <string name="home_title_line2">탈출</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 레벨</string>
+    <string name="home_progress_summary">%2$d 중 %1$d이(가) \u00B7 최고 %3$d을(를) 삭제했습니다.</string>
+    <string name="home_journey_map">여행 지도</string>
+    <string name="journey_title">여행</string>
+    <string name="journey_header_summary">레벨 %1$d / %2$d • %3$d 삭제됨</string>
+    <string name="journey_chapter_levels">레벨 %1$s • %2$s</string>
+    <string name="home_daily_puzzle">일일 퍼즐</string>
+    <string name="home_daily_done">매일 완료</string>
+    <string name="home_daily_done_streak">매일 완료 - 연속으로 %1$d</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">콤보 x%1$d</string>
+    <string name="shape_label">모양</string>
+    <string name="out_of_lives_title">수명이 다했습니다!</string>
+    <string name="cleared_percent">%1$d%% 삭제됨</string>
+    <string name="watch_ad_to_continue">계속하려면 광고를 시청하세요</string>
+    <string name="restore_lives_hint">생명 3개 모두 복원</string>
+    <string name="continue_unavailable">지금은 계속 사용할 수 없습니다.</string>
+    <string name="escaped_title">탈출했습니다!</string>
+    <string name="level_complete_subtitle">레벨 %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">점수</string>
+    <string name="stars_label">별</string>
+    <string name="home_button">홈</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">이 퍼즐은 갇혔어요</string>
+    <string name="puzzle_stuck_body">어떤 화살도 여기서 벗어날 수 없으므로 이 레벨은 완료될 수 없습니다. 그건 우리의 실수이지 당신의 실수가 아닙니다.</string>
+    <string name="puzzle_stuck_skip">다음 레벨로 건너뛰기</string>
+    <string name="puzzle_stuck_retry">재시도 수준</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">화살표 보드. 화살표를 탭하여 발사하고, 길게 눌러 경로를 미리 보고, 핀치하여 확대/축소하고 드래그하여 이동할 수 있습니다.</string>
+    <string name="board_zoom_hint">핀치하여 확대/축소 \u00B7 드래그하여 이동</string>
+    <string name="board_reset_view">보기 재설정</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">버전 %1$s</string>
+    <string name="about_card_idea_title">아이디어</string>
+    <string name="about_card_idea_body">모든 화살은 나가기를 원합니다. 하나를 탭하면 가리키는 방향으로 볼트가 고정됩니다. 단, 장애물이 없는 경우에만 가능합니다. 보드를 치우면 숨겨져 있던 모양이 자유로워집니다.</string>
+    <string name="about_card_how_to_play_title">플레이 방법</string>
+    <string name="about_bullet_escape">화살표는 가장자리까지의 경로가 명확할 때만 탈출합니다.</string>
+    <string name="about_bullet_blocked">막힌 화살을 탭하면 생명이 소모됩니다. 레벨당 3개.</string>
+    <string name="about_bullet_stars">별 3개를 얻으려면 빠르고 깨끗하게 클리어하세요.</string>
+    <string name="about_bullet_hints">갇힌? 레벨당 두 개의 힌트가 안전한 탭을 나타냅니다.</string>
+    <string name="about_card_two_ways_title">두 가지 플레이 방법</string>
+    <string name="about_bullet_classic">클래식: 그리드 위의 화살표, 셀에 그려진 모양.</string>
+    <string name="about_bullet_curved">곡선: 화살표가 그려진 그림의 선을 따라 흐릅니다.</string>
+    <string name="about_two_ways_body">각 모드는 자체 진행 상황을 유지하므로 전환에 비용이 들지 않습니다.</string>
+    <string name="about_card_make_it_yours_title">당신의 것으로 만드세요</string>
+    <string name="about_make_it_yours_body">다섯 가지 모양(클래식, 자정, 일몰, 해적, 잉크)에는 각각 고유한 홈 화면, 모션 및 사운드가 있습니다. 휴대전화를 팔로우하는 것을 선호하시나요? 설정에서 시스템을 선택하세요.</string>
+    <string name="about_card_progress_safe_title">당신의 진행 상황은 안전합니다</string>
+    <string name="about_progress_safe_body">모든 것이 기기에 저장되어 오프라인으로 재생됩니다. Play Games에 로그인하면 다음 휴대전화로 여행을 이어갈 수 있습니다.</string>
+    <string name="about_link_terms">서비스 약관</string>
+    <string name="about_link_licenses">라이센스</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">마지막 업데이트 %1$s</string>
+    <string name="doc_short_version_title">짧은 버전</string>
+    <string name="doc_contact_title">연락처</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">우리는 귀하의 이름, 이메일 또는 전화번호를 요구하지 않으며 귀하에 관한 어떤 것도 판매하지 않습니다. 게임은 오프라인으로 실행됩니다. 기기에서 나가는 유일한 데이터는 광고와 선택적 Play 게임 로그인에 필요한 것입니다.</string>
+    <string name="privacy_card_device_title">기기에 남아 있는 내용</string>
+    <string name="privacy_bullet_progress">각 모드의 현재 레벨, 최고 레벨 및 별.</string>
+    <string name="privacy_bullet_settings">설정: 테마, 사운드, 햅틱.</string>
+    <string name="privacy_device_body">이는 앱의 개인 저장소에 있으며 게임을 제거하면 제거됩니다.</string>
+    <string name="privacy_card_ads_title">광고</string>
+    <string name="privacy_ads_body">보상형 광고와 전면 광고는 Google AdMob에서 게재됩니다. 광고를 표시하고 측정하기 위해 AdMob에서는 기기의 광고 ID, IP 주소에서 파생된 대략적인 위치, 기본 기기 및 앱 정보를 처리할 수 있습니다. Android 설정의 개인정보 보호, 광고에서 광고 ID를 재설정하거나 삭제할 수 있습니다.</string>
+    <string name="privacy_card_cloud_title">선택적 클라우드 저장</string>
+    <string name="privacy_cloud_body">Google Play 게임즈에 로그인하면 진행 상황이 Play 게임즈의 저장 게임 공간에 저장되어 새 기기에서도 계속 진행됩니다. Play 게임 표시 이름과 저장된 진행 상황만 표시됩니다. 언제든지 설정에서 로그아웃하세요. 오프라인으로 플레이하는 것은 항상 선택 사항입니다.</string>
+    <string name="privacy_card_children_title">어린이</string>
+    <string name="privacy_children_body">이 게임은 모든 연령대에 적합하며 개인 정보를 수집하지 않습니다. 필요한 경우 광고 요청은 아동 대상으로 표시되어 개인 맞춤이 아닌 광고만 게재됩니다.</string>
+    <string name="privacy_card_choices_title">당신의 선택</string>
+    <string name="privacy_bullet_reset">언제든지 설정에서 진행 상황을 재설정하세요.</string>
+    <string name="privacy_bullet_signout">클라우드 저장을 중지하려면 Play 게임에서 로그아웃하세요.</string>
+    <string name="privacy_bullet_uninstall">로컬에 저장된 모든 내용을 삭제하려면 제거하세요.</string>
+    <string name="privacy_card_others_title">또 누가 관련되어 있나요?</string>
+    <string name="privacy_bullet_admob">Google AdMob - 광고를 게재하고 측정합니다.</string>
+    <string name="privacy_bullet_playgames">Google Play 게임 - 선택적 로그인 및 클라우드 저장.</string>
+    <string name="privacy_bullet_playstore">Google Play - 앱과 업데이트를 배포합니다.</string>
+    <string name="privacy_others_body">다른 어떤 회사도 이 게임으로부터 데이터를 받지 않으며, 우리는 자체적으로 분석이나 추적을 실행하지 않습니다.</string>
+    <string name="privacy_card_changes_title">이 정책의 변경 사항</string>
+    <string name="privacy_changes_body">이 정책이 변경되면 새 버전이 새로운 날짜와 함께 여기에 표시되며 중요한 변경 사항은 출시 노트에 명시됩니다.</string>
+    <string name="privacy_contact_body">질문이 있거나 클라우드 저장을 삭제하고 싶으십니까? %1$s에 편지를 보내주시면 30일 이내에 답변해 드리겠습니다.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">게임을 플레이하고 즐기세요. 게임을 부수거나 재판매하려고 하지 마세요. Arrow Escape를 설치하거나 플레이하는 것은 본 약관에 동의하는 것을 의미합니다.</string>
+    <string name="terms_card_license_title">플레이 라이센스</string>
+    <string name="terms_license_body">당사는 귀하가 제어하는 장치에 Arrow Escape를 설치하고 플레이할 수 있는 개인적이고 비독점적이며 양도 불가능한 라이센스를 귀하에게 부여합니다. 게임, 레벨, 아트워크, 사운드 및 코드는 우리의 것입니다.</string>
+    <string name="terms_card_not_allowed_title">귀하가 하지 않기로 동의한 것</string>
+    <string name="terms_bullet_reverse_engineer">앱을 리버스 엔지니어링, 디컴파일 또는 수정합니다.</string>
+    <string name="terms_bullet_redistribute">전체 또는 일부를 재배포, 판매 또는 재라이센스합니다.</string>
+    <string name="terms_bullet_cheats">진행 상황이나 광고 조회수를 위조하는 치트, 봇 또는 도구를 사용하십시오.</string>
+    <string name="terms_bullet_ads">광고를 벗겨내거나 숨기거나 방해합니다.</string>
+    <string name="terms_card_ads_title">광고 및 제3자</string>
+    <string name="terms_ads_body">이 게임은 무료이며 광고로 비용을 지불합니다. 광고는 Google AdMob에서 제공하며 해당 약관의 적용을 받습니다. 선택적 클라우드 저장은 Google Play 게임에서 실행됩니다. 그들이 받는 내용은 개인정보 보호정책에 명시되어 있습니다.</string>
+    <string name="terms_card_progress_title">귀하의 진행 상황</string>
+    <string name="terms_progress_body">진행 상황은 귀하의 기기와 귀하가 로그인한 경우 귀하의 Play 게임 저장 게임 공간에 저장됩니다. 당사는 이를 안전하게 유지하기 위해 최선을 다하지만 기기 분실, 제거 또는 플랫폼 변경에 대해 보장할 수는 없습니다.</string>
+    <string name="terms_card_warranty_title">보증 없음</string>
+    <string name="terms_warranty_body">게임은 \"있는 그대로\" 제공됩니다. 법률이 허용하는 한도 내에서 당사는 진행 상황 손실, 시간 손실 또는 게임 플레이로 인해 발생하는 간접적 손해에 대해 책임을 지지 않습니다.</string>
+    <string name="terms_card_changes_title">거래 변경 및 종료</string>
+    <string name="terms_changes_body">본 약관은 변경될 수 있습니다. 현재 버전은 항상 새로운 날짜와 함께 여기에 있으며, 계속 플레이한다는 것은 이를 수락한다는 의미입니다. 귀하는 언제든지 게임을 제거하여 본 계약을 종료할 수 있습니다.</string>
+    <string name="terms_contact_body">이 용어에 대해 질문이 있으십니까? %1$s에 씁니다.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">라이센스</string>
+    <string name="licenses_header">오픈소스 공지</string>
+    <string name="licenses_subtitle">%1$s이 이 어깨 위에 서 있습니다.</string>
+    <string name="licenses_card_other_title">그 밖의 모든 것</string>
+    <string name="licenses_other_body">레벨 생성, 아트워크, 사운드 팩 및 게임 코드는 원본 작업입니다. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">외관</string>
+    <string name="settings_section_game">게임</string>
+    <string name="settings_toggle_sound_title">음향 효과</string>
+    <string name="settings_toggle_sound_subtitle">화살표를 탭할 때 소리 재생</string>
+    <string name="settings_toggle_haptics_title">햅틱 피드백</string>
+    <string name="settings_toggle_haptics_subtitle">상호작용 시 진동</string>
+    <string name="settings_section_progress">진행상황</string>
+    <string name="settings_badge_playing">재생 중</string>
+    <string name="settings_stat_current">현재</string>
+    <string name="settings_stat_best">최고</string>
+    <string name="settings_stat_cleared">삭제됨</string>
+    <string name="settings_section_about">소개</string>
+    <string name="settings_item_how_to_play_title">플레이 방법</string>
+    <string name="settings_item_how_to_play_subtitle">연습 다시 재생</string>
+    <string name="settings_item_privacy_subtitle">우리가 지키는 것과 지키지 않는 것</string>
+    <string name="settings_item_about_title">애로우 이스케이프 정보</string>
+    <string name="settings_item_about_subtitle">아이디어, 규칙 및 외모</string>
+    <string name="settings_section_debug">디버그</string>
+    <string name="settings_debug_tools_title">개발자 도구</string>
+    <string name="settings_debug_tap_to_hide">숨기려면 탭하세요.</string>
+    <string name="settings_debug_tap_to_show">표시하려면 탭하세요.</string>
+    <string name="settings_debug_dev_mode_title">개발자 모드</string>
+    <string name="settings_debug_dev_mode_subtitle">홈에서 원하는 레벨을 엽니다. 플레이는 진행 상황을 바꾸지 않습니다</string>
+    <string name="settings_debug_unlock_all_title">모두 잠금 해제: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">%1$s 진행률을 %2$d 수준으로 설정</string>
+    <string name="settings_debug_reset_title">재설정: %1$s</string>
+    <string name="settings_debug_reset_subtitle">레벨 1에서 %1$s을 시작하세요</string>
+    <string name="settings_footer">퍼즐 애호가를 위해 \u2764로 제작됨</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">계정</string>
+    <string name="account_not_connected">연결되지 않음</string>
+    <string name="account_backed_up">진행 상황은 Google Play에 백업됩니다.</string>
+    <string name="account_sign_in_hint">다시 설치하는 경우 로그인하여 레벨을 유지하세요.</string>
+    <string name="account_sign_out">로그아웃</string>
+    <string name="account_sign_in">로그인</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">해결됨</string>
+    <string name="daily_streak_days">%1$d일 연속</string>
+    <string name="daily_come_back_tomorrow">내일 다시 오세요</string>
+    <string name="daily_done_button">완료</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">출시 예정</string>
+    <string name="coming_soon_title">워크샵에는 더 많은 장이 있습니다.</string>
+    <string name="coming_soon_body">당신은 지금까지 우리가 쌓아온 모든 것을 정리했습니다. 새로운 모양과 더욱 까다로운 탈출 방법이 곧 출시됩니다. 배송 당일에 도착할 수 있도록 앱을 최신 상태로 유지하세요.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 이전</string>
+    <string name="dev_nav_next">다음 \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d 화살표</string>
+    <string name="dev_level_field_label">레벨(1-%1$d)</string>
+    <string name="dev_open_button">열기</string>
+    <string name="dev_jump_to_shape_header">또는 셰이프의 챕터로 이동</string>
+    <string name="dev_chapter_title">%1$s \u00B7 장 %2$d</string>
+    <string name="dev_chapter_levels">레벨 %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">첫 번째</string>
+    <string name="dev_level_button_last">마지막</string>
+    <string name="dev_level_button_master">마스터</string>
+    <string name="dev_header_title">개발자 \u00B7 레벨</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">게임을 선택하세요</string>
+    <string name="tour_home_modes_body">클래식은 그리드에 화살표를 배치합니다. 곡선은 그려진 그림 주위로 흐릅니다. 각 모드는 자체 진행 상황을 유지합니다.</string>
+    <string name="tour_home_progress_title">이야기 속의 당신의 위치</string>
+    <string name="tour_home_progress_body">현재 레벨, 여정의 진행 거리, 지금까지의 최고 기록.</string>
+    <string name="tour_home_play_title">여기서 시작하세요</string>
+    <string name="tour_home_play_body">화살표를 탭하면 화살표가 가리키는 방향으로 탈출합니다. 단, 경로가 명확한 경우에만 가능합니다. 레벨당 세 개의 생명이 있습니다.</string>
+    <string name="tour_home_journey_title">여행 지도</string>
+    <string name="tour_home_journey_body">10개 레벨로 구성된 챕터, 각 챕터에 별표가 표시되어 있으며 아직 잠겨 있는 내용을 엿볼 수 있습니다.</string>
+    <string name="tour_home_settings_title">당신의 것으로 만드세요</string>
+    <string name="tour_home_settings_body">각각 고유한 모양과 사운드, 사운드 및 햅틱 스위치가 있는 5가지 모양과 이 연습을 언제든지 원할 수 있습니다.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">첫 번째 움직임</string>
+    <string name="tour_game_board1_body">가리키는 가장자리까지 뚜렷한 화살표가 있는 화살표를 찾아서 누릅니다. 계속하세요 - 보드가 살아있습니다.</string>
+    <string name="tour_game_board2_title">이제 하나 더</string>
+    <string name="tour_game_board2_body">떠나는 모든 화살은 다른 화살의 길을 열어줍니다. 두 번째 것을 탭하고 보드가 느슨해지는 것을 지켜보세요.</string>
+    <string name="tour_game_lives_title">화살은 남았고, 살았다</string>
+    <string name="tour_game_lives_body">막힌 화살을 탭하면 떠나는 대신 흔들리고 하트 세 개 중 하나가 소모됩니다.</string>
+    <string name="tour_game_hint_title">갇힌? 힌트를 받아보세요</string>
+    <string name="tour_game_hint_body">두 개의 힌트는 레벨이 지금 당장 떠날 수 있는 화살표를 가리킵니다. 다 떨어지면 더 많은 광고를 볼 수 있습니다.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">%2$d의 %1$d 단계</string>
+    <string name="tour_skip">건너뛰기</string>
+    <string name="tour_got_it">알았어요</string>
+    <string name="tour_skip_move">이동 건너뛰기</string>
+    <string name="tour_next">다음</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

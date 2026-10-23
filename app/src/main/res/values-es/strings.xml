@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Escape de flecha: tocar y resolver</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">Atrás</string>
+    <string name="settings_label">Configuración</string>
+    <string name="play_button">JUGAR</string>
+    <string name="continue_button">CONTINUAR</string>
+    <string name="restart_level">Nivel de reinicio</string>
+    <string name="next_level_button">SIGUIENTE NIVEL</string>
+    <string name="about_title">Acerca de</string>
+    <string name="privacy_policy_title">Política de privacidad</string>
+    <string name="level_number">Nivel %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">Curvado</string>
+    <string name="mode_curved_tagline">Caminos de Bézier que fluyen</string>
+    <string name="mode_classic_label">Clásico</string>
+    <string name="mode_classic_tagline">Flechas rectas en una cuadrícula</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">Clásico</string>
+    <string name="theme_midnight_label">medianoche</string>
+    <string name="theme_sunset_label">puesta de sol</string>
+    <string name="theme_pirate_label">pirata</string>
+    <string name="theme_mono_label">tinta</string>
+    <string name="theme_system_label">Sistema</string>
+
+    <string name="persona_classic_tagline">TOQUE \u00B7 DESAPARECER \u00B7 ESCAPAR</string>
+    <string name="persona_midnight_tagline">HORAS DE SILENCIO \u00B7 CABEZA DEspejada</string>
+    <string name="persona_sunset_tagline">HORA DORADA \u00B7 ÚLTIMO DISPARO</string>
+    <string name="persona_pirate_tagline">TRÁFIQUELO \u00B7 RECLAME \u00B7 NAVEGUE EN</string>
+    <string name="persona_mono_tagline">TINTA \u00B7 PAPEL \u00B7 PRECISIÓN</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">Primeros pasos</string>
+    <string name="milestone_title_rising_up">Levantándose</string>
+    <string name="milestone_title_sharp_turns">Giros cerrados</string>
+    <string name="milestone_title_full_circle">Círculo completo</string>
+    <string name="milestone_title_heartfelt">Sincero</string>
+    <string name="milestone_title_crossroads">Encrucijada</string>
+    <string name="milestone_title_hexa_hive">Colmena hexagonal</string>
+    <string name="milestone_title_star_power">poder estelar</string>
+    <string name="milestone_title_eclipse">eclipse</string>
+    <string name="milestone_title_x_marks_it">X lo marca</string>
+    <string name="milestone_title_spiral_madness">Locura en espiral</string>
+    <string name="milestone_title_storm_surge">Marejada ciclónica</string>
+    <string name="milestone_title_royal_challenge">Desafío real</string>
+    <string name="milestone_title_ring_master">Maestro del anillo</string>
+    <string name="milestone_title_grand_finale">Gran final</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">FLECHA</string>
+    <string name="home_title_line2">ESCAPAR</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 NIVEL</string>
+    <string name="home_progress_summary">%1$d de %2$d superó \u00B7 mejor %3$d</string>
+    <string name="home_journey_map">Mapa de viaje</string>
+    <string name="journey_title">viaje</string>
+    <string name="journey_header_summary">Nivel %1$d / %2$d • %3$d borrado</string>
+    <string name="journey_chapter_levels">Niveles %1$s • %2$s</string>
+    <string name="home_daily_puzzle">Rompecabezas diario</string>
+    <string name="home_daily_done">Hecho diariamente</string>
+    <string name="home_daily_done_streak">Realizado diariamente: %1$d seguidos</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">COMBO x%1$d</string>
+    <string name="shape_label">FORMA</string>
+    <string name="out_of_lives_title">¡Fuera de vidas!</string>
+    <string name="cleared_percent">%1$d%% borrado</string>
+    <string name="watch_ad_to_continue">Ver anuncio para continuar</string>
+    <string name="restore_lives_hint">Restaura las 3 vidas</string>
+    <string name="continue_unavailable">Continuar no disponible ahora</string>
+    <string name="escaped_title">¡EScapado!</string>
+    <string name="level_complete_subtitle">Nivel %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">PUNTUACIÓN</string>
+    <string name="stars_label">ESTRELLAS</string>
+    <string name="home_button">Inicio</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">Este rompecabezas está atascado</string>
+    <string name="puzzle_stuck_body">Ninguna flecha puede escapar de aquí, por lo que este nivel no se puede terminar. Ese es nuestro error, no el tuyo.</string>
+    <string name="puzzle_stuck_skip">Saltar al siguiente nivel</string>
+    <string name="puzzle_stuck_retry">Nivel de reintento</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">Tablero de flechas. Toque una flecha para dispararla, manténgala presionada para obtener una vista previa de su ruta, pellizca para hacer zoom y arrastra para moverte.</string>
+    <string name="board_zoom_hint">Pellizcar para hacer zoom \u00B7 arrastrar para mover</string>
+    <string name="board_reset_view">Restablecer vista</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">Versión %1$s</string>
+    <string name="about_card_idea_title">la idea</string>
+    <string name="about_card_idea_body">Cada flecha quiere salir. Toca uno y se dispara en la dirección que apunta, pero sólo si nada se interpone en su camino. Despeja el tablero y la forma que estaba escondiendo se libera.</string>
+    <string name="about_card_how_to_play_title">como jugar</string>
+    <string name="about_bullet_escape">Una flecha escapa sólo cuando su camino hacia el borde está despejado.</string>
+    <string name="about_bullet_blocked">Toca una flecha bloqueada y te costará una vida. Tres por nivel.</string>
+    <string name="about_bullet_stars">Limpia rápido y limpio para tres estrellas.</string>
+    <string name="about_bullet_hints">¿Atascado? Dos pistas por nivel indican un toque seguro.</string>
+    <string name="about_card_two_ways_title">Dos formas de jugar</string>
+    <string name="about_bullet_classic">Clásico: flechas en una cuadrícula, formas dibujadas en celdas.</string>
+    <string name="about_bullet_curved">Curvado: las flechas fluyen a lo largo de las líneas de una figura dibujada.</string>
+    <string name="about_two_ways_body">Cada modo mantiene su propio progreso, por lo que cambiar nunca cuesta un nivel.</string>
+    <string name="about_card_make_it_yours_title">Hazlo tuyo</string>
+    <string name="about_make_it_yours_body">Cinco apariencias: Clásica, Medianoche, Atardecer, Pirata y Tinta, cada una con su propia pantalla de inicio, movimiento y sonido. ¿Prefieres seguir tu teléfono? Elija Sistema en Configuración.</string>
+    <string name="about_card_progress_safe_title">Tu progreso es seguro</string>
+    <string name="about_progress_safe_body">Todo se almacena en su dispositivo y se reproduce sin conexión. Inicia sesión con Play Games y tu viaje continúa hasta tu próximo teléfono.</string>
+    <string name="about_link_terms">Términos de servicio</string>
+    <string name="about_link_licenses">Licencias</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">Última actualización %1$s</string>
+    <string name="doc_short_version_title">La versión corta</string>
+    <string name="doc_contact_title">Contacto</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">No le pedimos su nombre, correo electrónico o número de teléfono, y no vendemos nada sobre usted. El juego se ejecuta sin conexión; los únicos datos que salen de su dispositivo son los anuncios y el inicio de sesión opcional de Play Games.</string>
+    <string name="privacy_card_device_title">Qué permanece en tu dispositivo</string>
+    <string name="privacy_bullet_progress">Nivel actual, mejor nivel y estrellas, para cada modo.</string>
+    <string name="privacy_bullet_settings">Tus configuraciones: tema, sonido y háptica.</string>
+    <string name="privacy_device_body">Esto reside en el almacenamiento privado de la aplicación y se elimina cuando desinstalas el juego.</string>
+    <string name="privacy_card_ads_title">Publicidad</string>
+    <string name="privacy_ads_body">Google AdMob publica anuncios bonificados e intersticiales. Para mostrar y medir anuncios, AdMob puede procesar el ID de publicidad de su dispositivo, la ubicación aproximada derivada de su dirección IP y la información básica del dispositivo y la aplicación. Puede restablecer o eliminar el ID de publicidad en Configuración de Android, en Privacidad, Anuncios.</string>
+    <string name="privacy_card_cloud_title">Guardar en la nube opcional</string>
+    <string name="privacy_cloud_body">Si inicias sesión en Google Play Games, tu progreso se almacena en tu propio espacio de juegos guardados de Play Games para que te siga hasta un nuevo dispositivo. Solo vemos tu nombre para mostrar de Play Juegos y el progreso guardado. Cierra sesión en cualquier momento en Configuración; Jugar sin conexión siempre es una opción.</string>
+    <string name="privacy_card_children_title">niños</string>
+    <string name="privacy_children_body">El juego es apto para todas las edades y no recopila datos personales. Cuando sea necesario, las solicitudes de anuncios se marcan como dirigidas a niños, por lo que solo se muestran anuncios no personalizados.</string>
+    <string name="privacy_card_choices_title">Tus elecciones</string>
+    <string name="privacy_bullet_reset">Restablezca el progreso en cualquier momento desde Configuración.</string>
+    <string name="privacy_bullet_signout">Cierra sesión en Play Games para detener el guardado en la nube.</string>
+    <string name="privacy_bullet_uninstall">Desinstalar para borrar todo lo almacenado localmente.</string>
+    <string name="privacy_card_others_title">¿Quién más está involucrado?</string>
+    <string name="privacy_bullet_admob">Google AdMob: sirve y mide los anuncios.</string>
+    <string name="privacy_bullet_playgames">Google Play Games: inicio de sesión opcional y guardado en la nube.</string>
+    <string name="privacy_bullet_playstore">Google Play: distribuye la aplicación y sus actualizaciones.</string>
+    <string name="privacy_others_body">Ninguna otra empresa recibe datos de este juego y no realizamos análisis ni seguimiento propios.</string>
+    <string name="privacy_card_changes_title">Cambios a esta política</string>
+    <string name="privacy_changes_body">Si esta política cambia, la nueva versión aparece aquí con una fecha nueva y los cambios significativos se indican en las notas de la versión.</string>
+    <string name="privacy_contact_body">¿Tienes preguntas o quieres que se elimine tu guardado en la nube? Escribe a %1$s y te responderemos dentro de los 30 días.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">Juega, disfrútalo, no intentes romperlo ni revenderlo. Instalar o jugar Arrow Escape significa que aceptas estos términos.</string>
+    <string name="terms_card_license_title">Tu licencia para jugar</string>
+    <string name="terms_license_body">Le otorgamos una licencia personal, no exclusiva e intransferible para instalar y jugar Arrow Escape en dispositivos que usted controle, para su propio entretenimiento. El juego, sus niveles, ilustraciones, sonidos y código siguen siendo nuestros.</string>
+    <string name="terms_card_not_allowed_title">Lo que aceptas no hacer</string>
+    <string name="terms_bullet_reverse_engineer">Realizar ingeniería inversa, descompilar o modificar la aplicación.</string>
+    <string name="terms_bullet_redistribute">Redistribuirlo, venderlo o sublicenciarlo, total o parcialmente.</string>
+    <string name="terms_bullet_cheats">Utilice trucos, bots o herramientas que falsifiquen el progreso o las visualizaciones de anuncios.</string>
+    <string name="terms_bullet_ads">Quitar, ocultar o interferir con la publicidad.</string>
+    <string name="terms_card_ads_title">Anuncios y terceros</string>
+    <string name="terms_ads_body">El juego es gratuito y se paga mediante anuncios. La publicidad es proporcionada por Google AdMob y se rige por sus términos; El guardado en la nube opcional se ejecuta en Google Play Games. Lo que reciben se detalla en la Política de Privacidad.</string>
+    <string name="terms_card_progress_title">Tu progreso</string>
+    <string name="terms_progress_body">El progreso se almacena en su dispositivo y en su propio espacio de juegos guardados de Play Games si inicia sesión. Hacemos todo lo posible para mantenerlo seguro, pero no podemos garantizarlo contra pérdida del dispositivo, desinstalaciones o cambios de plataforma.</string>
+    <string name="terms_card_warranty_title">Sin garantía</string>
+    <string name="terms_warranty_body">El juego se proporciona \"tal cual\". En la medida en que la ley lo permita, no somos responsables de la pérdida de progreso, tiempo perdido ni de ningún daño indirecto que surja de jugarlo.</string>
+    <string name="terms_card_changes_title">Cambios y finalización del trato.</string>
+    <string name="terms_changes_body">Estos términos pueden cambiar; la versión actual siempre vive aquí con una fecha nueva, y seguir jugando significa aceptarla. Puedes finalizar este acuerdo en cualquier momento desinstalando el juego.</string>
+    <string name="terms_contact_body">¿Preguntas sobre estos términos? Escribe a %1$s.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">Licencias</string>
+    <string name="licenses_header">Avisos de código abierto</string>
+    <string name="licenses_subtitle">%1$s se encuentra sobre estos hombros.</string>
+    <string name="licenses_card_other_title">Todo lo demás</string>
+    <string name="licenses_other_body">La generación de niveles, el arte, los paquetes de sonido y el código del juego son trabajos originales. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_section_game">juego</string>
+    <string name="settings_toggle_sound_title">Efectos de sonido</string>
+    <string name="settings_toggle_sound_subtitle">Reproducir sonidos al tocar las flechas</string>
+    <string name="settings_toggle_haptics_title">Retroalimentación háptica</string>
+    <string name="settings_toggle_haptics_subtitle">Vibrar en las interacciones</string>
+    <string name="settings_section_progress">Progreso</string>
+    <string name="settings_badge_playing">JUGANDO</string>
+    <string name="settings_stat_current">Actual</string>
+    <string name="settings_stat_best">mejor</string>
+    <string name="settings_stat_cleared">Borrado</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_item_how_to_play_title">Cómo jugar</string>
+    <string name="settings_item_how_to_play_subtitle">Reproducir el tutorial</string>
+    <string name="settings_item_privacy_subtitle">Lo que conservamos y lo que no</string>
+    <string name="settings_item_about_title">Acerca de Escape de flecha</string>
+    <string name="settings_item_about_subtitle">La idea, las reglas y las miradas.</string>
+    <string name="settings_section_debug">Depurar</string>
+    <string name="settings_debug_tools_title">Herramientas para desarrolladores</string>
+    <string name="settings_debug_tap_to_hide">Toca para ocultar</string>
+    <string name="settings_debug_tap_to_show">Toca para mostrar</string>
+    <string name="settings_debug_dev_mode_title">Modo desarrollador</string>
+    <string name="settings_debug_dev_mode_subtitle">Abra cualquier nivel desde Inicio; jugar nunca cambia tu progreso</string>
+    <string name="settings_debug_unlock_all_title">Desbloquear todo: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">Establecer el progreso de %1$s al nivel %2$d</string>
+    <string name="settings_debug_reset_title">Restablecer: %1$s</string>
+    <string name="settings_debug_reset_subtitle">Iniciar %1$s desde el nivel 1</string>
+    <string name="settings_footer">Hecho con \u2764 para los amantes de los rompecabezas.</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">cuenta</string>
+    <string name="account_not_connected">No conectado</string>
+    <string name="account_backed_up">El progreso se respalda en Google Play</string>
+    <string name="account_sign_in_hint">Inicia sesión para mantener tus niveles si reinstalas</string>
+    <string name="account_sign_out">Cerrar sesión</string>
+    <string name="account_sign_in">Iniciar sesión</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">Resuelto</string>
+    <string name="daily_streak_days">%1$d días seguidos</string>
+    <string name="daily_come_back_tomorrow">Vuelve mañana</string>
+    <string name="daily_done_button">hecho</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">PRÓXIMAMENTE</string>
+    <string name="coming_soon_title">Más capítulos están en el taller.</string>
+    <string name="coming_soon_body">Has limpiado todo lo que hemos construido hasta ahora. Nuevas formas y escapes más complicados están en camino: mantén la aplicación actualizada para que aterricen el día del envío.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 Anterior</string>
+    <string name="dev_nav_next">Siguiente \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d flechas</string>
+    <string name="dev_level_field_label">Nivel (1-%1$d)</string>
+    <string name="dev_open_button">Abierto</string>
+    <string name="dev_jump_to_shape_header">O SALTAR AL CAPÍTULO DE UNA FORMA</string>
+    <string name="dev_chapter_title">%1$s \u00B7 capítulo %2$d</string>
+    <string name="dev_chapter_levels">Niveles %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">primero</string>
+    <string name="dev_level_button_last">último</string>
+    <string name="dev_level_button_master">maestro</string>
+    <string name="dev_header_title">Niveles de desarrollador \u00B7</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">Elige tu juego</string>
+    <string name="tour_home_modes_body">Classic coloca flechas en una cuadrícula; Curvados los fluye alrededor de una figura dibujada. Cada modo mantiene su propio progreso.</string>
+    <string name="tour_home_progress_title">Tu lugar en la historia</string>
+    <string name="tour_home_progress_body">El nivel en el que te encuentras, qué tan lejos estás en el viaje y tu mejor carrera hasta el momento.</string>
+    <string name="tour_home_play_title">Empieza aquí</string>
+    <string name="tour_home_play_body">Toca una flecha y escapará en la dirección que señala, pero solo si su camino está despejado. Tres vidas por nivel.</string>
+    <string name="tour_home_journey_title">El mapa del viaje</string>
+    <string name="tour_home_journey_body">Capítulos de diez niveles, tus estrellas en cada uno y un vistazo a lo que aún está bloqueado.</string>
+    <string name="tour_home_settings_title">Hazlo tuyo</string>
+    <string name="tour_home_settings_body">Cinco apariencias, cada una con su propia apariencia y sonido, además de interruptores de sonido y hápticos y este tutorial cuando lo desees.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">Tu primer movimiento</string>
+    <string name="tour_game_board1_body">Busque una flecha que se dirija claramente hacia el borde al que apunta y tóquela. Continúe: el tablero está activo.</string>
+    <string name="tour_game_board2_title">ahora uno mas</string>
+    <string name="tour_game_board2_body">Cada flecha que sale abre un camino para otra. Toca un segundo y observa cómo el tablero se afloja.</string>
+    <string name="tour_game_lives_title">Flechas izquierdas y vidas.</string>
+    <string name="tour_game_lives_body">Toca una flecha bloqueada y se sacudirá en lugar de irse, y te costará uno de estos tres corazones.</string>
+    <string name="tour_game_hint_title">¿Atascado? toma una pista</string>
+    <string name="tour_game_hint_body">Dos pistas por nivel señalan una flecha que puede salir ahora mismo. Se acaba y podrás ver un anuncio para obtener más.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">PASO %1$d DE %2$d</string>
+    <string name="tour_skip">Saltar</string>
+    <string name="tour_got_it">Lo tengo</string>
+    <string name="tour_skip_move">Saltar movimiento</string>
+    <string name="tour_next">Siguiente</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

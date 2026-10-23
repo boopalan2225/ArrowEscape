@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Oktan Kaçış: Dokun ve Çöz</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">Geri</string>
+    <string name="settings_label">Ayarlar</string>
+    <string name="play_button">OYNA</string>
+    <string name="continue_button">DEVAM ET</string>
+    <string name="restart_level">Seviyeyi Yeniden Başlat</string>
+    <string name="next_level_button">SONRAKİ SEVİYE</string>
+    <string name="about_title">Hakkında</string>
+    <string name="privacy_policy_title">Gizlilik Politikası</string>
+    <string name="level_number">Seviye %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">Kavisli</string>
+    <string name="mode_curved_tagline">Akan Bezier yolları</string>
+    <string name="mode_classic_label">Klasik</string>
+    <string name="mode_classic_tagline">Bir ızgara üzerinde düz oklar</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">Klasik</string>
+    <string name="theme_midnight_label">Gece yarısı</string>
+    <string name="theme_sunset_label">Gün batımı</string>
+    <string name="theme_pirate_label">Korsan</string>
+    <string name="theme_mono_label">Mürekkep</string>
+    <string name="theme_system_label">Sistem</string>
+
+    <string name="persona_classic_tagline">TAP \u00B7 KAYIP \u00B7 KAÇIŞ</string>
+    <string name="persona_midnight_tagline">SESSİZ SAATLER \u00B7 Kafanı Temizle</string>
+    <string name="persona_sunset_tagline">ALTIN SAAT \u00B7 SON ÇEKİM</string>
+    <string name="persona_pirate_tagline">GRAFİK \u00B7 TALEP EDİN \u00B7 YELKENE DEVAM EDİN</string>
+    <string name="persona_mono_tagline">MÜREKKEP \u00B7 KAĞIT \u00B7 HASSASİYET</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">İlk Adımlar</string>
+    <string name="milestone_title_rising_up">Yükseliyor</string>
+    <string name="milestone_title_sharp_turns">Keskin Dönüşler</string>
+    <string name="milestone_title_full_circle">Tam Daire</string>
+    <string name="milestone_title_heartfelt">yürekten</string>
+    <string name="milestone_title_crossroads">Kavşak</string>
+    <string name="milestone_title_hexa_hive">Altılı Kovan</string>
+    <string name="milestone_title_star_power">Yıldız Gücü</string>
+    <string name="milestone_title_eclipse">Tutulma</string>
+    <string name="milestone_title_x_marks_it">X İşaretler</string>
+    <string name="milestone_title_spiral_madness">Sarmal Çılgınlık</string>
+    <string name="milestone_title_storm_surge">Fırtına Dalgası</string>
+    <string name="milestone_title_royal_challenge">Kraliyet Mücadelesi</string>
+    <string name="milestone_title_ring_master">Yüzük Ustası</string>
+    <string name="milestone_title_grand_finale">Büyük Final</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">OK</string>
+    <string name="home_title_line2">KAÇIŞ</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 SEVİYE</string>
+    <string name="home_progress_summary">%1$d / %2$d temizlendi \u00B7 en iyisi %3$d</string>
+    <string name="home_journey_map">Yolculuk Haritası</string>
+    <string name="journey_title">Yolculuk</string>
+    <string name="journey_header_summary">Seviye %1$d / %2$d • %3$d temizlendi</string>
+    <string name="journey_chapter_levels">Seviyeler %1$s • %2$s</string>
+    <string name="home_daily_puzzle">Günlük Bulmaca</string>
+    <string name="home_daily_done">Günlük yapılan</string>
+    <string name="home_daily_done_streak">Günlük yapılan - arka arkaya %1$d</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">KOMBO x%1$d</string>
+    <string name="shape_label">ŞEKİL</string>
+    <string name="out_of_lives_title">Hayat Dışı!</string>
+    <string name="cleared_percent">%1$d%% temizlendi</string>
+    <string name="watch_ad_to_continue">Devam Etmek İçin Reklamı İzleyin</string>
+    <string name="restore_lives_hint">3 canın tamamını geri yükle</string>
+    <string name="continue_unavailable">Devam şu anda kullanılamıyor</string>
+    <string name="escaped_title">KAÇTI!</string>
+    <string name="level_complete_subtitle">Seviye %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">PUAN</string>
+    <string name="stars_label">YILDIZLAR</string>
+    <string name="home_button">Ana sayfa</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">Bu bulmaca sıkışmış</string>
+    <string name="puzzle_stuck_body">Buradan hiçbir ok kaçamaz, dolayısıyla bu seviye bitirilemez. Bu bizim hatamız, sizin değil.</string>
+    <string name="puzzle_stuck_skip">Sonraki seviyeye atla</string>
+    <string name="puzzle_stuck_retry">Seviyeyi yeniden dene</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">Ok tahtası. Ateşlemek için bir oka dokunun, yolunu önizlemek için basılı tutun, yakınlaştırmak için sıkıştırın ve hareket etmek için sürükleyin.</string>
+    <string name="board_zoom_hint">Yakınlaştırmak için sıkıştırın \u00B7 taşımak için sürükleyin</string>
+    <string name="board_reset_view">Görünümü sıfırla</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">Sürüm %1$s</string>
+    <string name="about_card_idea_title">Fikir</string>
+    <string name="about_card_idea_body">Her ok dışarı çıkmak ister. Birine dokunduğunuzda işaret ettiği yöne doğru fırlar; ancak yalnızca önünde hiçbir şey kalmadığında. Tahtayı temizlediğinizde sakladığı şekil kendini serbest bırakır.</string>
+    <string name="about_card_how_to_play_title">Nasıl oynanır</string>
+    <string name="about_bullet_escape">Bir ok ancak kenara giden yolu açık olduğunda kaçar.</string>
+    <string name="about_bullet_blocked">Engellenen bir oka dokunduğunuzda bu bir cana mal olur. Seviye başına üç.</string>
+    <string name="about_bullet_stars">Üç yıldız karşılığında hızlı ve temiz bir şekilde temizleyin.</string>
+    <string name="about_bullet_hints">Sıkışmak? Seviye başına iki ipucu güvenli bir dokunuşa işaret eder.</string>
+    <string name="about_card_two_ways_title">Oynamanın iki yolu</string>
+    <string name="about_bullet_classic">Klasik: ızgara üzerindeki oklar, hücrelere çizilmiş şekiller.</string>
+    <string name="about_bullet_curved">Kavisli: oklar çizilen şeklin çizgileri boyunca akar.</string>
+    <string name="about_two_ways_body">Her mod kendi ilerlemesini korur, bu nedenle geçiş yapmak hiçbir zaman bir seviyeye mal olmaz.</string>
+    <string name="about_card_make_it_yours_title">Senin olsun</string>
+    <string name="about_make_it_yours_body">Beş görünüm - Klasik, Geceyarısı, Gün Batımı, Korsan ve Mürekkep - her birinin kendi ana ekranı, hareketi ve sesi var. Telefonunuzu takip etmeyi mi tercih ediyorsunuz? Ayarlar\'da Sistem\'i seçin.</string>
+    <string name="about_card_progress_safe_title">İlerlemeniz güvende</string>
+    <string name="about_progress_safe_body">Her şey cihazınızda saklanır ve çevrimdışı oynatılır. Play Games\'te oturum açın ve yolculuğunuz bir sonraki telefonunuza taşınsın.</string>
+    <string name="about_link_terms">Hizmet Şartları</string>
+    <string name="about_link_licenses">Lisanslar</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">Son güncelleme %1$s</string>
+    <string name="doc_short_version_title">Kısa versiyon</string>
+    <string name="doc_contact_title">İletişim</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">Adınızı, e-posta adresinizi veya telefon numaranızı istemiyoruz ve hakkınızda hiçbir şey satmıyoruz. Oyun çevrimdışı çalışır; Cihazınızdan çıkan tek veri, reklamların ve isteğe bağlı Play Oyunlar\'da oturum açmanın ihtiyaç duyduğu verilerdir.</string>
+    <string name="privacy_card_device_title">Cihazınızda neler kalır?</string>
+    <string name="privacy_bullet_progress">Her mod için mevcut seviye, en iyi seviye ve yıldızlar.</string>
+    <string name="privacy_bullet_settings">Ayarlarınız: tema, ses ve dokunma.</string>
+    <string name="privacy_device_body">Bu, uygulamanın özel deposunda bulunur ve oyunu kaldırdığınızda kaldırılır.</string>
+    <string name="privacy_card_ads_title">Reklam</string>
+    <string name="privacy_ads_body">Ödüllü ve geçiş reklamları Google AdMob tarafından sunulur. AdMob, reklamları göstermek ve ölçmek için cihazınızın reklam kimliğini, IP adresinizden elde edilen kaba konumu ve temel cihaz ve uygulama bilgilerini işleyebilir. Reklam kimliğini Android Ayarları\'nda Gizlilik, Reklamlar altında sıfırlayabilir veya silebilirsiniz.</string>
+    <string name="privacy_card_cloud_title">İsteğe bağlı bulut kaydı</string>
+    <string name="privacy_cloud_body">Google Play Oyunlar\'da oturum açarsanız ilerlemeniz kendi Play Oyunlar kayıtlı oyunlar alanınızda depolanır ve böylece sizi yeni bir cihaza kadar takip eder. Yalnızca Play Oyunlar görünen adınızı ve kaydedilen ilerlemeyi görüyoruz. Ayarlar\'da istediğiniz zaman oturumu kapatın; çevrimdışı oynamak her zaman bir seçenektir.</string>
+    <string name="privacy_card_children_title">Çocuklar</string>
+    <string name="privacy_children_body">Oyun her yaşa uygundur ve hiçbir kişisel bilgi toplamaz. Gerektiğinde reklam istekleri çocuklara yönelik olarak işaretlenir ve böylece yalnızca kişiselleştirilmemiş reklamlar sunulur.</string>
+    <string name="privacy_card_choices_title">Seçimleriniz</string>
+    <string name="privacy_bullet_reset">İlerlemeyi istediğiniz zaman Ayarlar\'dan sıfırlayabilirsiniz.</string>
+    <string name="privacy_bullet_signout">Buluta kaydetmeyi durdurmak için Play Oyunlar\'dan çıkış yapın.</string>
+    <string name="privacy_bullet_uninstall">Yerel olarak depolanan her şeyi silmek için yüklemeyi kaldırın.</string>
+    <string name="privacy_card_others_title">Başka kimler katılıyor</string>
+    <string name="privacy_bullet_admob">Google AdMob - reklamları sunar ve ölçer.</string>
+    <string name="privacy_bullet_playgames">Google Play Oyunlar - isteğe bağlı oturum açma ve buluta kaydetme.</string>
+    <string name="privacy_bullet_playstore">Google Play - uygulamayı ve güncellemelerini dağıtır.</string>
+    <string name="privacy_others_body">Başka hiçbir şirket bu oyundan veri almıyor ve kendi analiz veya izlememizi yapmıyoruz.</string>
+    <string name="privacy_card_changes_title">Bu politikadaki değişiklikler</string>
+    <string name="privacy_changes_body">Bu politika değişirse, yeni sürüm burada yeni bir tarihle görünür ve önemli değişiklikler sürüm notlarında duyurulur.</string>
+    <string name="privacy_contact_body">Sorularınız mı var veya bulut kaydınızın silinmesini mi istiyorsunuz? %1$s adresine yazın, 30 gün içinde yanıt vereceğiz.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">Oyunu oynayın, tadını çıkarın, kırmaya ya da yeniden satmaya çalışmayın. Arrow Escape\'i yüklemek veya oynamak bu şartları kabul ettiğiniz anlamına gelir.</string>
+    <string name="terms_card_license_title">Oynama lisansınız</string>
+    <string name="terms_license_body">Kendi eğlenceniz için Arrow Escape\'i kontrol ettiğiniz cihazlara kurmanız ve oynamanız için size kişisel, münhasır olmayan, devredilemez bir lisans veriyoruz. Oyun, seviyeleri, çizimleri, sesleri ve kodu bize aittir.</string>
+    <string name="terms_card_not_allowed_title">Yapmamayı kabul ettiğiniz şey</string>
+    <string name="terms_bullet_reverse_engineer">Uygulamayı tersine mühendislik yapın, kaynak koda dönüştürün veya değiştirin.</string>
+    <string name="terms_bullet_redistribute">Tamamen veya kısmen yeniden dağıtabilir, satabilir veya alt lisansını verebilirsiniz.</string>
+    <string name="terms_bullet_cheats">İlerlemeyi veya reklam görüntülemelerini taklit eden hileler, botlar veya araçlar kullanın.</string>
+    <string name="terms_bullet_ads">Reklamları soyun, gizleyin veya bunlara müdahale edin.</string>
+    <string name="terms_card_ads_title">Reklamlar ve üçüncü taraflar</string>
+    <string name="terms_ads_body">Oyun ücretsizdir ve reklamlarla ödenir. Reklamcılık, Google AdMob tarafından sunulur ve onların şartlarına tabidir; isteğe bağlı bulut kaydı Google Play Oyunlar\'da çalışır. Alacakları şey Gizlilik Politikasında belirtilmiştir.</string>
+    <string name="terms_card_progress_title">İlerlemeniz</string>
+    <string name="terms_progress_body">İlerleme durumu cihazınızda ve oturum açarsanız kendi Play Oyunlar kayıtlı oyun alanınızda saklanır. İlerlemenizi güvende tutmak için elimizden geleni yaparız ancak cihazın kaybolmasına, yüklemenin kaldırılmasına veya platform değişikliklerine karşı bunu garanti edemeyiz.</string>
+    <string name="terms_card_warranty_title">Garanti yok</string>
+    <string name="terms_warranty_body">Oyun \"olduğu gibi\" sunulmaktadır. Yasaların izin verdiği ölçüde, oyunun oynanmasından kaynaklanan ilerleme kaybı, zaman kaybı veya dolaylı zararlardan sorumlu değiliz.</string>
+    <string name="terms_card_changes_title">Değişiklikler ve anlaşmanın sona ermesi</string>
+    <string name="terms_changes_body">Bu şartlar değişebilir; güncel sürüm her zaman yeni bir tarihle burada yaşar ve oynamaya devam etmek onu kabul etmek anlamına gelir. Oyunu kaldırarak bu sözleşmeyi istediğiniz zaman sonlandırabilirsiniz.</string>
+    <string name="terms_contact_body">Bu terimlerle ilgili sorularınız mı var? %1$s\'a yazın.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">Lisanslar</string>
+    <string name="licenses_header">Açık kaynak bildirimleri</string>
+    <string name="licenses_subtitle">%1$s bu omuzların üzerinde duruyor.</string>
+    <string name="licenses_card_other_title">Diğer her şey</string>
+    <string name="licenses_other_body">Seviye oluşturma, çizimler, ses paketleri ve oyun kodları orijinal çalışmalardır. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">Görünüm</string>
+    <string name="settings_section_game">Oyun</string>
+    <string name="settings_toggle_sound_title">Ses Efektleri</string>
+    <string name="settings_toggle_sound_subtitle">Oklara dokunduğunuzda ses çalın</string>
+    <string name="settings_toggle_haptics_title">Dokunsal Geribildirim</string>
+    <string name="settings_toggle_haptics_subtitle">Etkileşimlerde titreşim</string>
+    <string name="settings_section_progress">İlerleme</string>
+    <string name="settings_badge_playing">OYNANIYOR</string>
+    <string name="settings_stat_current">Mevcut</string>
+    <string name="settings_stat_best">En iyi</string>
+    <string name="settings_stat_cleared">Temizlendi</string>
+    <string name="settings_section_about">Hakkında</string>
+    <string name="settings_item_how_to_play_title">Nasıl Oynanır</string>
+    <string name="settings_item_how_to_play_subtitle">İzlenecek yolu tekrar oynatın</string>
+    <string name="settings_item_privacy_subtitle">Neleri saklıyoruz ve neleri tutmuyoruz</string>
+    <string name="settings_item_about_title">Arrow Escape Hakkında</string>
+    <string name="settings_item_about_subtitle">Fikir, kurallar ve görünüm</string>
+    <string name="settings_section_debug">Hata ayıklama</string>
+    <string name="settings_debug_tools_title">Geliştirici Araçları</string>
+    <string name="settings_debug_tap_to_hide">Gizlemek için dokunun</string>
+    <string name="settings_debug_tap_to_show">Göstermek için dokunun</string>
+    <string name="settings_debug_dev_mode_title">Geliştirici Modu</string>
+    <string name="settings_debug_dev_mode_subtitle">Ana Sayfadan herhangi bir seviyeyi açın; oynamak ilerlemenizi asla değiştirmez</string>
+    <string name="settings_debug_unlock_all_title">Tümünün Kilidini Aç: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">%1$s ilerlemesini %2$d düzeyine ayarlayın</string>
+    <string name="settings_debug_reset_title">Sıfırla: %1$s</string>
+    <string name="settings_debug_reset_subtitle">%1$s\'yi 1. seviyeden başlatın</string>
+    <string name="settings_footer">Bulmaca severler için \u2764 ile yapıldı</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">Hesap</string>
+    <string name="account_not_connected">Bağlı değil</string>
+    <string name="account_backed_up">İlerleme durumu Google Play\'e yedekleniyor</string>
+    <string name="account_sign_in_hint">Yeniden yüklerseniz seviyenizi korumak için oturum açın</string>
+    <string name="account_sign_out">Oturumu kapat</string>
+    <string name="account_sign_in">Oturum aç</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">Çözüldü</string>
+    <string name="daily_streak_days">%1$d gün üst üste</string>
+    <string name="daily_come_back_tomorrow">yarın geri gel</string>
+    <string name="daily_done_button">Bitti</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">ÇOK YAKINDA</string>
+    <string name="coming_soon_title">Atölyede daha fazla bölüm var</string>
+    <string name="coming_soon_body">Şu ana kadar inşa ettiğimiz her şeyi temizledin. Yeni şekiller ve daha zorlu kaçışlar yolda; uygulamayı güncel tutun ki gönderildiği gün size ulaşsın.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 Önceki</string>
+    <string name="dev_nav_next">Sonraki \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d okları</string>
+    <string name="dev_level_field_label">Seviye (1-%1$d)</string>
+    <string name="dev_open_button">Açık</string>
+    <string name="dev_jump_to_shape_header">VEYA BİR ŞEKLİN BÖLÜMÜNE ATLAYIN</string>
+    <string name="dev_chapter_title">%1$s \u00B7 bölüm %2$d</string>
+    <string name="dev_chapter_levels">Seviyeler %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">İlk</string>
+    <string name="dev_level_button_last">Son</string>
+    <string name="dev_level_button_master">Usta</string>
+    <string name="dev_header_title">Geliştirici \u00B7 Seviyeleri</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">Oyununu seç</string>
+    <string name="tour_home_modes_body">Klasik, okları bir ızgaraya yerleştirir; Kavisli onları çizilmiş bir figürün etrafında akıtır. Her mod kendi ilerlemesini korur.</string>
+    <string name="tour_home_progress_title">Hikayedeki yeriniz</string>
+    <string name="tour_home_progress_body">Bulunduğunuz seviye, yolculuğun ne kadar ilerisinde olduğunuz ve şu ana kadarki en iyi koşunuz.</string>
+    <string name="tour_home_play_title">Buradan başlayın</string>
+    <string name="tour_home_play_body">Bir oka dokunduğunuzda ok işaret ettiği yöne doğru kaçar; ancak yalnızca yolu açıksa. Seviye başına üç can.</string>
+    <string name="tour_home_journey_title">Yolculuk haritası</string>
+    <string name="tour_home_journey_body">On seviyeden oluşan bölümler, her birinde yıldızlarınız ve hala kilitli olana bir göz atma.</string>
+    <string name="tour_home_settings_title">Senin olsun</string>
+    <string name="tour_home_settings_body">Her biri kendi görünümüne ve sesine sahip beş görünümün yanı sıra ses ve dokunsal anahtarlar ve istediğiniz zaman bu izlenecek yol.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">İlk hamleniz</string>
+    <string name="tour_game_board1_body">İşaret ettiği kenara kadar net bir çizgiye sahip bir ok bulun ve ona dokunun. Devam edin, pano yayında.</string>
+    <string name="tour_game_board2_title">Şimdi bir tane daha</string>
+    <string name="tour_game_board2_body">Dışarı çıkan her ok, bir başkasına yol açar. İkinciye dokunun ve tahtanın gevşemesini izleyin.</string>
+    <string name="tour_game_lives_title">Oklar sola ve yaşıyor</string>
+    <string name="tour_game_lives_body">Engellenen bir oka dokunduğunuzda ok ayrılmak yerine sallanır ve bu üç kalpten birine mal olur.</string>
+    <string name="tour_game_hint_title">Sıkışmak? Bir ipucu al</string>
+    <string name="tour_game_hint_body">Seviye başına iki ipucu, şu anda ayrılabilecek bir oku işaret ediyor. Bitince daha fazlası için reklamı izleyebilirsiniz.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">%2$d ADIMI %1$d</string>
+    <string name="tour_skip">Atla</string>
+    <string name="tour_got_it">Anladım</string>
+    <string name="tour_skip_move">Taşımayı atla</string>
+    <string name="tour_next">Sonraki</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

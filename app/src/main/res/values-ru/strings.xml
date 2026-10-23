@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Arrow Escape: коснись и реши</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">Назад</string>
+    <string name="settings_label">Настройки</string>
+    <string name="play_button">ИГРАТЬ</string>
+    <string name="continue_button">ПРОДОЛЖИТЬ</string>
+    <string name="restart_level">Уровень перезапуска</string>
+    <string name="next_level_button">СЛЕДУЮЩИЙ УРОВЕНЬ</string>
+    <string name="about_title">О</string>
+    <string name="privacy_policy_title">Политика конфиденциальности</string>
+    <string name="level_number">Уровень %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">изогнутый</string>
+    <string name="mode_curved_tagline">Плавные пути Безье</string>
+    <string name="mode_classic_label">Классический</string>
+    <string name="mode_classic_tagline">Прямые стрелки на сетке</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">Классический</string>
+    <string name="theme_midnight_label">Полночь</string>
+    <string name="theme_sunset_label">Закат</string>
+    <string name="theme_pirate_label">Пират</string>
+    <string name="theme_mono_label">Чернила</string>
+    <string name="theme_system_label">Система</string>
+
+    <string name="persona_classic_tagline">НАЖМИТЕ \u00B7 ИСКЛЮЧЕНИЕ \u00B7 ESCAPE</string>
+    <string name="persona_midnight_tagline">ТИХИЕ ЧАСЫ \u00B7 ЯСНАЯ ГОЛОВА</string>
+    <string name="persona_sunset_tagline">ЗОЛОТОЙ ЧАС \u00B7 ПОСЛЕДНИЙ КАДР</string>
+    <string name="persona_pirate_tagline">КАРТА ЭТОГО \u00B7 ЗАЯВЬТЕ ЭТО \u00B7 ПАРУСЬ НА</string>
+    <string name="persona_mono_tagline">ЧЕРНИЛА \u00B7 БУМАГА \u00B7 ТОЧНОСТЬ</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">Первые шаги</string>
+    <string name="milestone_title_rising_up">Восхождение</string>
+    <string name="milestone_title_sharp_turns">Резкие повороты</string>
+    <string name="milestone_title_full_circle">Полный круг</string>
+    <string name="milestone_title_heartfelt">Душевный</string>
+    <string name="milestone_title_crossroads">Перекресток</string>
+    <string name="milestone_title_hexa_hive">Шестиугольный улей</string>
+    <string name="milestone_title_star_power">Звездная сила</string>
+    <string name="milestone_title_eclipse">Затмение</string>
+    <string name="milestone_title_x_marks_it">X отмечает это</string>
+    <string name="milestone_title_spiral_madness">Спиральное безумие</string>
+    <string name="milestone_title_storm_surge">Штормовой нагон</string>
+    <string name="milestone_title_royal_challenge">Королевский вызов</string>
+    <string name="milestone_title_ring_master">Мастер Кольца</string>
+    <string name="milestone_title_grand_finale">Гранд Финал</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">СТРЕЛКА</string>
+    <string name="home_title_line2">ПОБЕГ</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 УРОВЕНЬ</string>
+    <string name="home_progress_summary">%1$d из %2$d очищен от \u00B7, лучший %3$d</string>
+    <string name="home_journey_map">Карта путешествия</string>
+    <string name="journey_title">Путешествие</string>
+    <string name="journey_header_summary">Уровень %1$d / %2$d • %3$d очищен</string>
+    <string name="journey_chapter_levels">Уровни %1$s • %2$s</string>
+    <string name="home_daily_puzzle">Ежедневная головоломка</string>
+    <string name="home_daily_done">Ежедневно сделано</string>
+    <string name="home_daily_done_streak">За день выполнено — %1$d подряд</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">КОМБО x%1$d</string>
+    <string name="shape_label">ФОРМА</string>
+    <string name="out_of_lives_title">Из жизни!</string>
+    <string name="cleared_percent">%1$d%% очищен</string>
+    <string name="watch_ad_to_continue">Посмотрите рекламу, чтобы продолжить</string>
+    <string name="restore_lives_hint">Восстановить все 3 жизни</string>
+    <string name="continue_unavailable">Продолжить сейчас недоступно</string>
+    <string name="escaped_title">Сбежал!</string>
+    <string name="level_complete_subtitle">Уровень %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">ОЦЕНКА</string>
+    <string name="stars_label">ЗВЕЗДЫ</string>
+    <string name="home_button">Главная</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">Эта головоломка застряла</string>
+    <string name="puzzle_stuck_body">Отсюда не сможет вырваться ни одна стрела, поэтому этот уровень невозможно пройти. Это наша ошибка, а не ваша.</string>
+    <string name="puzzle_stuck_skip">Перейти на следующий уровень</string>
+    <string name="puzzle_stuck_retry">Уровень повтора</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">Доска со стрелками. Нажмите стрелку, чтобы запустить ее, удерживайте, чтобы просмотреть ее путь, сведите пальцы, чтобы увеличить масштаб, и перетащите, чтобы передвигаться.</string>
+    <string name="board_zoom_hint">Сведите пальцы, чтобы увеличить масштаб. \u00B7 перетащите, чтобы переместить.</string>
+    <string name="board_reset_view">Сбросить вид</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_card_idea_title">Идея</string>
+    <string name="about_card_idea_body">Каждая стрела хочет выйти наружу. Нажмите на один из них, и он помчится в указанном направлении, но только если ничто не стоит на его пути. Очистите доску, и фигура, которую она скрывала, освободится.</string>
+    <string name="about_card_how_to_play_title">Как играть</string>
+    <string name="about_bullet_escape">Стрела ускользает только тогда, когда ее путь к краю свободен.</string>
+    <string name="about_bullet_blocked">Нажмите заблокированную стрелку, и это будет стоить жизни. Три на уровень.</string>
+    <string name="about_bullet_stars">Чисто быстро и чисто на три звезды.</string>
+    <string name="about_bullet_hints">Застрявший? Две подсказки на уровень указывают на безопасное нажатие.</string>
+    <string name="about_card_two_ways_title">Два способа игры</string>
+    <string name="about_bullet_classic">Классика: стрелки на сетке, фигуры, нарисованные в ячейках.</string>
+    <string name="about_bullet_curved">Изогнутая: стрелки текут по линиям нарисованной фигуры.</string>
+    <string name="about_two_ways_body">В каждом режиме сохраняется свой прогресс, поэтому переключение никогда не требует уровня.</string>
+    <string name="about_card_make_it_yours_title">Сделайте это своим</string>
+    <string name="about_make_it_yours_body">Пять обликов — «Классический», «Полночь», «Закат», «Пират» и «Чернила» — каждый со своим домашним экраном, движением и звуком. Предпочитаете следить за своим телефоном? Выберите «Система» в настройках.</string>
+    <string name="about_card_progress_safe_title">Ваш прогресс в безопасности</string>
+    <string name="about_progress_safe_body">Все хранится на вашем устройстве и воспроизводится в автономном режиме. Войдите в систему с помощью Play Games, и ваше путешествие продолжится и на вашем следующем телефоне.</string>
+    <string name="about_link_terms">Условия использования</string>
+    <string name="about_link_licenses">Лицензии</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">Последнее обновление %1$s</string>
+    <string name="doc_short_version_title">Краткая версия</string>
+    <string name="doc_contact_title">Контакт</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">Мы не запрашиваем ваше имя, адрес электронной почты или номер телефона и ничего о вас не продаем. Игра работает в автономном режиме; единственные данные, которые покидают ваше устройство, — это информация, необходимая для рекламы и дополнительного входа в Play Игры.</string>
+    <string name="privacy_card_device_title">Что остается на вашем устройстве</string>
+    <string name="privacy_bullet_progress">Текущий уровень, лучший уровень и звезды для каждого режима.</string>
+    <string name="privacy_bullet_settings">Ваши настройки: тема, звук и тактильность.</string>
+    <string name="privacy_device_body">Он находится в личном хранилище приложения и удаляется при удалении игры.</string>
+    <string name="privacy_card_ads_title">Реклама</string>
+    <string name="privacy_ads_body">Реклама с вознаграждением и межстраничная реклама обслуживаются Google AdMob. Чтобы показывать и оценивать рекламу, AdMob может обрабатывать рекламный идентификатор вашего устройства, приблизительное местоположение, полученное на основе вашего IP-адреса, а также основную информацию об устройстве и приложении. Вы можете сбросить или удалить рекламный идентификатор в настройках Android, в разделе «Конфиденциальность», «Реклама».</string>
+    <string name="privacy_card_cloud_title">Дополнительное сохранение в облаке</string>
+    <string name="privacy_cloud_body">Если вы входите в систему с помощью Google Play Games, ваш прогресс сохраняется в вашем собственном пространстве сохраненных игр Play Games, поэтому он следует за вами на новое устройство. Мы видим только ваше отображаемое имя в Play Играх и сохраненный прогресс. Выйдите в любое время в настройках; играть в автономном режиме всегда можно.</string>
+    <string name="privacy_card_children_title">Дети</string>
+    <string name="privacy_children_body">Игра подходит для всех возрастов и не собирает никаких личных данных. При необходимости запросы объявлений помечаются как предназначенные для детей, поэтому показывается только неперсонализированная реклама.</string>
+    <string name="privacy_card_choices_title">Ваш выбор</string>
+    <string name="privacy_bullet_reset">Сбросьте прогресс в любое время из настроек.</string>
+    <string name="privacy_bullet_signout">Выйдите из Play Games, чтобы остановить сохранение в облаке.</string>
+    <string name="privacy_bullet_uninstall">Удалите, чтобы стереть все, что хранится локально.</string>
+    <string name="privacy_card_others_title">Кто еще участвует</string>
+    <string name="privacy_bullet_admob">Google AdMob — обслуживает и измеряет рекламу.</string>
+    <string name="privacy_bullet_playgames">Google Play Games — дополнительный вход в систему и сохранение в облаке.</string>
+    <string name="privacy_bullet_playstore">Google Play – распространяет приложение и его обновления.</string>
+    <string name="privacy_others_body">Ни одна другая компания не получает данные из этой игры, и мы не проводим никакой собственной аналитики или отслеживания.</string>
+    <string name="privacy_card_changes_title">Изменения в этой политике</string>
+    <string name="privacy_changes_body">Если эта политика изменится, новая версия появится здесь с новой датой, а существенные изменения будут указаны в примечаниях к выпуску.</string>
+    <string name="privacy_contact_body">Есть вопросы или хотите удалить сохранение в облаке? Напишите на %1$s и мы ответим в течение 30 дней.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">Играйте в игру, наслаждайтесь ею, не пытайтесь ее сломать или перепродать. Установка Arrow Escape или игра в нее означает, что вы принимаете эти условия.</string>
+    <string name="terms_card_license_title">Ваша лицензия на игру</string>
+    <string name="terms_license_body">Мы предоставляем вам личную, неисключительную, непередаваемую лицензию на установку и игру Arrow Escape на устройствах, которыми вы управляете, для вашего собственного развлечения. Игра, ее уровни, оформление, звуки и код остаются нашими.</string>
+    <string name="terms_card_not_allowed_title">Чего вы соглашаетесь не делать</string>
+    <string name="terms_bullet_reverse_engineer">Перепроектируйте, декомпилируйте или измените приложение.</string>
+    <string name="terms_bullet_redistribute">Распространять, продавать или сублицензировать его полностью или частично.</string>
+    <string name="terms_bullet_cheats">Используйте читы, ботов или инструменты, которые имитируют прогресс или просмотры рекламы.</string>
+    <string name="terms_bullet_ads">Убрать, скрыть или помешать рекламе.</string>
+    <string name="terms_card_ads_title">Реклама и третьи лица</string>
+    <string name="terms_ads_body">Игра бесплатна и оплачивается за счет рекламы. Реклама обслуживается Google AdMob и регулируется их условиями; Дополнительное сохранение в облаке выполняется в Google Play Games. То, что они получают, прописано в Политике конфиденциальности.</string>
+    <string name="terms_card_progress_title">Ваш прогресс</string>
+    <string name="terms_progress_body">Прогресс сохраняется на вашем устройстве и в вашем собственном пространстве сохраненных игр Play Games, если вы войдете в систему. Мы делаем все возможное, чтобы обеспечить его безопасность, но не можем гарантировать его от потери устройства, удаления или изменения платформы.</string>
+    <string name="terms_card_warranty_title">Нет гарантии</string>
+    <string name="terms_warranty_body">Игра предоставляется «как есть». Насколько это позволяет закон, мы не несем ответственности за потерянный прогресс, потерянное время или любой косвенный ущерб, возникший в результате игры.</string>
+    <string name="terms_card_changes_title">Изменения и прекращение сделки</string>
+    <string name="terms_changes_body">Эти условия могут измениться; здесь всегда живет текущая версия со свежей датой, и продолжать играть — значит принять ее. Вы можете расторгнуть настоящее соглашение в любое время, удалив игру.</string>
+    <string name="terms_contact_body">Есть вопросы по поводу этих условий? Напишите %1$s.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">Лицензии</string>
+    <string name="licenses_header">Уведомления об открытом исходном коде</string>
+    <string name="licenses_subtitle">%1$s стоит на этих плечах.</string>
+    <string name="licenses_card_other_title">Все остальное</string>
+    <string name="licenses_other_body">Генерация уровней, оформление, звуковые пакеты и игровой код — это оригинальная работа. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">Внешний вид</string>
+    <string name="settings_section_game">Игра</string>
+    <string name="settings_toggle_sound_title">Звуковые эффекты</string>
+    <string name="settings_toggle_sound_subtitle">Воспроизводить звуки при нажатии стрелок</string>
+    <string name="settings_toggle_haptics_title">Тактильная обратная связь</string>
+    <string name="settings_toggle_haptics_subtitle">Вибрация при взаимодействии</string>
+    <string name="settings_section_progress">Прогресс</string>
+    <string name="settings_badge_playing">ИГРАЮ</string>
+    <string name="settings_stat_current">Текущий</string>
+    <string name="settings_stat_best">Лучший</string>
+    <string name="settings_stat_cleared">Очищено</string>
+    <string name="settings_section_about">О</string>
+    <string name="settings_item_how_to_play_title">Как играть</string>
+    <string name="settings_item_how_to_play_subtitle">Переиграть прохождение</string>
+    <string name="settings_item_privacy_subtitle">Что мы сохраняем, а что нет</string>
+    <string name="settings_item_about_title">О побеге со стрелкой</string>
+    <string name="settings_item_about_subtitle">Идея, правила и внешний вид</string>
+    <string name="settings_section_debug">Отладка</string>
+    <string name="settings_debug_tools_title">Инструменты разработчика</string>
+    <string name="settings_debug_tap_to_hide">Нажмите, чтобы скрыть</string>
+    <string name="settings_debug_tap_to_show">Нажмите, чтобы показать</string>
+    <string name="settings_debug_dev_mode_title">Режим разработчика</string>
+    <string name="settings_debug_dev_mode_subtitle">Откройте любой уровень из Дома; игра никогда не меняет вашего прогресса</string>
+    <string name="settings_debug_unlock_all_title">Разблокировать все: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">Установите прогресс %1$s на уровень %2$d.</string>
+    <string name="settings_debug_reset_title">Сброс: %1$s</string>
+    <string name="settings_debug_reset_subtitle">Запустите %1$s с уровня 1.</string>
+    <string name="settings_footer">Сделано с помощью \u2764 для любителей головоломок.</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">Аккаунт</string>
+    <string name="account_not_connected">Не подключено</string>
+    <string name="account_backed_up">Прогресс сохраняется в Google Play</string>
+    <string name="account_sign_in_hint">Войдите в систему, чтобы сохранить свои уровни при переустановке.</string>
+    <string name="account_sign_out">Выйти</string>
+    <string name="account_sign_in">Войти</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">Решено</string>
+    <string name="daily_streak_days">%1$d дней подряд</string>
+    <string name="daily_come_back_tomorrow">Вернись завтра</string>
+    <string name="daily_done_button">Готово</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">СКОРО</string>
+    <string name="coming_soon_title">Остальные главы в мастерской</string>
+    <string name="coming_soon_body">Вы очистили все, что мы построили до сих пор. Новые формы и более сложные побеги уже в пути — обновляйте приложение, чтобы они появились в день отправки.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 Предыдущий</string>
+    <string name="dev_nav_next">Следующий \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d стрелки</string>
+    <string name="dev_level_field_label">Уровень (1-%1$d)</string>
+    <string name="dev_open_button">Открыть</string>
+    <string name="dev_jump_to_shape_header">ИЛИ ПЕРЕХОДИТЕ К ГЛАВЕ ФОРМЫ</string>
+    <string name="dev_chapter_title">%1$s \u00B7 глава %2$d</string>
+    <string name="dev_chapter_levels">Уровни %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">Первый</string>
+    <string name="dev_level_button_last">Последний</string>
+    <string name="dev_level_button_master">Мастер</string>
+    <string name="dev_header_title">Уровни разработчика \u00B7</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">Выберите свою игру</string>
+    <string name="tour_home_modes_body">Классика раскладывает стрелки по сетке; Изогнутые обтекают ими нарисованную фигуру. В каждом режиме сохраняется свой прогресс.</string>
+    <string name="tour_home_progress_title">Ваше место в истории</string>
+    <string name="tour_home_progress_body">Уровень, на котором вы находитесь, пройденный вами путь и ваш лучший результат на данный момент.</string>
+    <string name="tour_home_play_title">Начните здесь</string>
+    <string name="tour_home_play_body">Нажмите на стрелку, и она ускользнет в указанном направлении, но только если ее путь свободен. Три жизни на уровень.</string>
+    <string name="tour_home_journey_title">Карта путешествия</string>
+    <string name="tour_home_journey_body">Главы по десять уровней, свои звезды на каждой и взгляд на то, что еще заперто.</string>
+    <string name="tour_home_settings_title">Сделайте это своим</string>
+    <string name="tour_home_settings_body">Пять обликов, каждый со своим внешним видом и звуком, а также переключатели звука и тактильных ощущений, а также это прохождение в любое время.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">Ваш первый шаг</string>
+    <string name="tour_game_board1_body">Найдите стрелку, четко идущую к краю, на который она указывает, и коснитесь ее. Продолжайте – доска жива.</string>
+    <string name="tour_game_board2_title">Теперь еще один</string>
+    <string name="tour_game_board2_body">Каждая улетающая стрела открывает путь для другой. Нажмите второй и наблюдайте, как доска ослабевает.</string>
+    <string name="tour_game_lives_title">Стрелы ушли, и живёт</string>
+    <string name="tour_game_lives_body">Нажмите на заблокированную стрелку, и она начнет трястись, а не уходить — и будет стоить одно из этих трех сердец.</string>
+    <string name="tour_game_hint_title">Застрявший? Возьмите подсказку</string>
+    <string name="tour_game_hint_body">Две подсказки на уровне указывают на стрелку, которая может уйти прямо сейчас. Закончитесь, и вы сможете посмотреть рекламу, чтобы узнать больше.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">ШАГ %1$d ИЗ %2$d</string>
+    <string name="tour_skip">Пропустить</string>
+    <string name="tour_got_it">понял</string>
+    <string name="tour_skip_move">Пропустить ход</string>
+    <string name="tour_next">Далее</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

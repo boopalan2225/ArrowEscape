@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">एरो एस्केप: टैप करें और हल करें</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">वापस</string>
+    <string name="settings_label">सेटिंग्स</string>
+    <string name="play_button">खेलें</string>
+    <string name="continue_button">जारी रखें</string>
+    <string name="restart_level">पुनरारंभ स्तर</string>
+    <string name="next_level_button">अगला स्तर</string>
+    <string name="about_title">के बारे में</string>
+    <string name="privacy_policy_title">गोपनीयता नीति</string>
+    <string name="level_number">स्तर %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">घुमावदार</string>
+    <string name="mode_curved_tagline">बहती हुई बेज़ियर राहें</string>
+    <string name="mode_classic_label">क्लासिक</string>
+    <string name="mode_classic_tagline">ग्रिड पर सीधे तीर</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">क्लासिक</string>
+    <string name="theme_midnight_label">आधी रात</string>
+    <string name="theme_sunset_label">सूर्यास्त</string>
+    <string name="theme_pirate_label">समुद्री डाकू</string>
+    <string name="theme_mono_label">स्याही</string>
+    <string name="theme_system_label">सिस्टम</string>
+
+    <string name="persona_classic_tagline">टैप करें \u00B7 गायब हो जाएं \u00B7 बच जाएं</string>
+    <string name="persona_midnight_tagline">शांत घंटे \u00B7 साफ़ सिर</string>
+    <string name="persona_sunset_tagline">सुनहरा घंटा \u00B7 आखिरी शॉट</string>
+    <string name="persona_pirate_tagline">इसे चार्ट करें \u00B7 इस पर दावा करें \u00B7 आगे बढ़ें</string>
+    <string name="persona_mono_tagline">स्याही \u00B7 पेपर \u00B7 परिशुद्धता</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">पहला कदम</string>
+    <string name="milestone_title_rising_up">ऊपर उठना</string>
+    <string name="milestone_title_sharp_turns">तीखे मोड़</string>
+    <string name="milestone_title_full_circle">पूर्ण वृत्त</string>
+    <string name="milestone_title_heartfelt">हार्दिक</string>
+    <string name="milestone_title_crossroads">चौराहा</string>
+    <string name="milestone_title_hexa_hive">हेक्सा हाइव</string>
+    <string name="milestone_title_star_power">स्टार पावर</string>
+    <string name="milestone_title_eclipse">ग्रहण</string>
+    <string name="milestone_title_x_marks_it">एक्स इसे चिह्नित करता है</string>
+    <string name="milestone_title_spiral_madness">सर्पिल पागलपन</string>
+    <string name="milestone_title_storm_surge">तूफ़ान का उभार</string>
+    <string name="milestone_title_royal_challenge">शाही चुनौती</string>
+    <string name="milestone_title_ring_master">रिंग मास्टर</string>
+    <string name="milestone_title_grand_finale">ग्रैंड फिनाले</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">तीर</string>
+    <string name="home_title_line2">भाग जाओ</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 स्तर</string>
+    <string name="home_progress_summary">%2$d में से %1$d उत्तीर्ण \u00B7 सर्वोत्तम %3$d</string>
+    <string name="home_journey_map">यात्रा मानचित्र</string>
+    <string name="journey_title">यात्रा</string>
+    <string name="journey_header_summary">स्तर %1$d / %2$d • %3$d साफ़ किया गया</string>
+    <string name="journey_chapter_levels">स्तर %1$s • %2$s</string>
+    <string name="home_daily_puzzle">दैनिक पहेली</string>
+    <string name="home_daily_done">दैनिक किया</string>
+    <string name="home_daily_done_streak">प्रतिदिन किया गया - %1$d एक पंक्ति में</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">कॉम्बो x%1$d</string>
+    <string name="shape_label">आकार</string>
+    <string name="out_of_lives_title">जीवन से बाहर!</string>
+    <string name="cleared_percent">%1$d%% साफ़ किया गया</string>
+    <string name="watch_ad_to_continue">जारी रखने के लिए विज्ञापन देखें</string>
+    <string name="restore_lives_hint">सभी 3 जीवन पुनर्स्थापित करें</string>
+    <string name="continue_unavailable">अभी अनुपलब्ध जारी रखें</string>
+    <string name="escaped_title">भाग गये!</string>
+    <string name="level_complete_subtitle">स्तर %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">स्कोर</string>
+    <string name="stars_label">सितारे</string>
+    <string name="home_button">घर</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">ये पहेली फंसी हुई है</string>
+    <string name="puzzle_stuck_body">कोई भी तीर यहां से भाग नहीं सकता, इसलिए यह स्तर समाप्त नहीं हो सकता। यह हमारी गलती है, आपकी नहीं।</string>
+    <string name="puzzle_stuck_skip">अगले स्तर पर जाएं</string>
+    <string name="puzzle_stuck_retry">पुनः प्रयास स्तर</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">तीर बोर्ड. किसी तीर को चलाने के लिए उसे टैप करें, उसके पथ का पूर्वावलोकन करने के लिए दबाए रखें, ज़ूम करने के लिए पिंच करें और चारों ओर घूमने के लिए खींचें।</string>
+    <string name="board_zoom_hint">ज़ूम करने के लिए पिंच करें \u00B7 स्थानांतरित करने के लिए खींचें</string>
+    <string name="board_reset_view">दृश्य रीसेट करें</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">संस्करण %1$s</string>
+    <string name="about_card_idea_title">विचार</string>
+    <string name="about_card_idea_body">हर तीर निकलना चाहता है. एक को टैप करें और यह जिस दिशा में इंगित करता है उस दिशा में बोल्ट हो जाता है - लेकिन केवल तभी जब इसके रास्ते में कुछ भी न खड़ा हो। बोर्ड को साफ़ करें और जो आकार वह छिपा रहा था वह स्वयं मुक्त हो जाता है।</string>
+    <string name="about_card_how_to_play_title">कैसे खेलें</string>
+    <string name="about_bullet_escape">तीर तभी बचता है जब किनारे तक उसका रास्ता साफ़ हो।</string>
+    <string name="about_bullet_blocked">एक अवरुद्ध तीर को टैप करें और इसकी कीमत एक जीवन है। प्रति स्तर तीन.</string>
+    <string name="about_bullet_stars">तीन सितारों के लिए तेज़ और साफ़ साफ़ करें।</string>
+    <string name="about_bullet_hints">अटक गया? प्रति स्तर दो संकेत एक सुरक्षित नल का संकेत देते हैं।</string>
+    <string name="about_card_two_ways_title">खेलने के दो तरीके</string>
+    <string name="about_bullet_classic">क्लासिक: ग्रिड पर तीर, कोशिकाओं में खींची गई आकृतियाँ।</string>
+    <string name="about_bullet_curved">घुमावदार: तीर खींची गई आकृति की रेखाओं के अनुदिश बहते हैं।</string>
+    <string name="about_two_ways_body">प्रत्येक मोड अपनी प्रगति रखता है, इसलिए स्विचिंग में कभी भी कोई स्तर खर्च नहीं होता है।</string>
+    <string name="about_card_make_it_yours_title">इसे अपना बनाओ</string>
+    <string name="about_make_it_yours_body">पाँच प्रस्तुतियाँ - क्लासिक, मिडनाइट, सनसेट, पाइरेट और इंक - प्रत्येक की अपनी होम स्क्रीन, गति और ध्वनि है। क्या आप अपने फ़ोन का अनुसरण करना पसंद करते हैं? सेटिंग्स में सिस्टम चुनें।</string>
+    <string name="about_card_progress_safe_title">आपकी प्रगति सुरक्षित है</string>
+    <string name="about_progress_safe_body">सब कुछ आपके डिवाइस पर संग्रहीत है और ऑफ़लाइन चलता है। प्ले गेम्स के साथ साइन इन करें और आपकी यात्रा आपके अगले फोन तक पहुंच जाएगी।</string>
+    <string name="about_link_terms">सेवा की शर्तें</string>
+    <string name="about_link_licenses">लाइसेंस</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">अंतिम अद्यतन %1$s</string>
+    <string name="doc_short_version_title">लघु संस्करण</string>
+    <string name="doc_contact_title">संपर्क करें</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">हम आपका नाम, ईमेल या फोन नंबर नहीं मांगते हैं और हम आपके बारे में कुछ भी नहीं बेचते हैं। गेम ऑफ़लाइन चलता है; आपके डिवाइस से निकलने वाला एकमात्र डेटा विज्ञापनों और वैकल्पिक प्ले गेम्स साइन-इन की आवश्यकता है।</string>
+    <string name="privacy_card_device_title">आपके डिवाइस पर क्या रहता है</string>
+    <string name="privacy_bullet_progress">प्रत्येक मोड के लिए वर्तमान स्तर, सर्वोत्तम स्तर और सितारे।</string>
+    <string name="privacy_bullet_settings">आपकी सेटिंग्स: थीम, ध्वनि और हैप्टिक्स।</string>
+    <string name="privacy_device_body">यह ऐप के निजी स्टोरेज में रहता है और जब आप गेम को अनइंस्टॉल करते हैं तो इसे हटा दिया जाता है।</string>
+    <string name="privacy_card_ads_title">विज्ञापन</string>
+    <string name="privacy_ads_body">पुरस्कृत और मध्यवर्ती विज्ञापन Google AdMob द्वारा प्रस्तुत किये जाते हैं। विज्ञापन दिखाने और मापने के लिए, AdMob आपके डिवाइस की विज्ञापन आईडी, आपके आईपी पते से प्राप्त मोटे स्थान और बुनियादी डिवाइस और ऐप जानकारी को संसाधित कर सकता है। आप Android सेटिंग्स में गोपनीयता, विज्ञापन के अंतर्गत विज्ञापन आईडी को रीसेट या हटा सकते हैं।</string>
+    <string name="privacy_card_cloud_title">वैकल्पिक क्लाउड सेव</string>
+    <string name="privacy_cloud_body">यदि आप Google Play गेम्स के साथ साइन इन करते हैं, तो आपकी प्रगति आपके अपने Play गेम्स सेव-गेम्स स्पेस में संग्रहीत होती है, इसलिए यह आपको एक नए डिवाइस तक ले जाती है। हम केवल आपके Play गेम्स का प्रदर्शन नाम और सहेजी गई प्रगति देखते हैं। सेटिंग्स में किसी भी समय साइन आउट करें; ऑफ़लाइन खेलना हमेशा एक विकल्प होता है.</string>
+    <string name="privacy_card_children_title">बच्चे</string>
+    <string name="privacy_children_body">यह गेम सभी उम्र के लोगों के लिए उपयुक्त है और कोई व्यक्तिगत विवरण एकत्र नहीं करता है। जहां आवश्यक हो, विज्ञापन अनुरोधों को बाल-निर्देशित के रूप में चिह्नित किया जाता है, इसलिए केवल गैर-वैयक्तिकृत विज्ञापन ही प्रस्तुत किए जाते हैं।</string>
+    <string name="privacy_card_choices_title">आपकी पसंद</string>
+    <string name="privacy_bullet_reset">किसी भी समय सेटिंग्स से प्रगति रीसेट करें।</string>
+    <string name="privacy_bullet_signout">क्लाउड सेव रोकने के लिए प्ले गेम्स से साइन आउट करें।</string>
+    <string name="privacy_bullet_uninstall">स्थानीय रूप से संग्रहीत सभी चीज़ों को मिटाने के लिए अनइंस्टॉल करें।</string>
+    <string name="privacy_card_others_title">और कौन शामिल है</string>
+    <string name="privacy_bullet_admob">Google AdMob - विज्ञापनों को प्रस्तुत और मापता है।</string>
+    <string name="privacy_bullet_playgames">Google Play गेम्स - वैकल्पिक साइन-इन और क्लाउड सेव।</string>
+    <string name="privacy_bullet_playstore">Google Play - ऐप और उसके अपडेट वितरित करता है।</string>
+    <string name="privacy_others_body">कोई अन्य कंपनी इस गेम से डेटा प्राप्त नहीं करती है, और हम अपना कोई विश्लेषण या ट्रैकिंग नहीं चलाते हैं।</string>
+    <string name="privacy_card_changes_title">इस नीति में परिवर्तन</string>
+    <string name="privacy_changes_body">यदि यह नीति बदलती है, तो नया संस्करण एक नई तारीख के साथ यहां दिखाई देता है, और रिलीज नोट्स में महत्वपूर्ण बदलाव बताए जाते हैं।</string>
+    <string name="privacy_contact_body">प्रश्न, या क्या आप चाहते हैं कि आपका क्लाउड सेव हटा दिया जाए? %1$s को लिखें और हम 30 दिनों के भीतर उत्तर देंगे।</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">गेम खेलें, इसका आनंद लें, इसे तोड़ने या दोबारा बेचने की कोशिश न करें। एरो एस्केप को इंस्टॉल करने या चलाने का मतलब है कि आप इन शर्तों को स्वीकार करते हैं।</string>
+    <string name="terms_card_license_title">खेलने का आपका लाइसेंस</string>
+    <string name="terms_license_body">हम आपको आपके मनोरंजन के लिए आपके नियंत्रण वाले उपकरणों पर एरो एस्केप स्थापित करने और चलाने के लिए एक व्यक्तिगत, गैर-विशिष्ट, गैर-हस्तांतरणीय लाइसेंस प्रदान करते हैं। खेल, उसके स्तर, कलाकृति, ध्वनियाँ और कोड हमारे ही बने रहते हैं।</string>
+    <string name="terms_card_not_allowed_title">आप क्या न करने के लिए सहमत हैं</string>
+    <string name="terms_bullet_reverse_engineer">रिवर्स इंजीनियर, ऐप को डिकंपाइल या संशोधित करें।</string>
+    <string name="terms_bullet_redistribute">इसे पूर्ण या आंशिक रूप से पुनर्वितरित करें, बेचें या उपलाइसेंस दें।</string>
+    <string name="terms_bullet_cheats">धोखाधड़ी, बॉट या टूलींग का उपयोग करें जो नकली प्रगति या विज्ञापन दृश्य।</string>
+    <string name="terms_bullet_ads">कपड़े उतारना, छिपाना या विज्ञापन में हस्तक्षेप करना।</string>
+    <string name="terms_card_ads_title">विज्ञापन और तृतीय पक्ष</string>
+    <string name="terms_ads_body">गेम मुफ़्त है और इसका भुगतान विज्ञापनों द्वारा किया जाता है। विज्ञापन Google AdMob द्वारा प्रस्तुत किया जाता है और उनकी शर्तों द्वारा शासित होता है; वैकल्पिक क्लाउड सेव Google Play गेम्स पर चलता है। उन्हें जो प्राप्त होता है उसे गोपनीयता नीति में वर्णित किया गया है।</string>
+    <string name="terms_card_progress_title">आपकी प्रगति</string>
+    <string name="terms_progress_body">यदि आप साइन इन करते हैं तो प्रगति आपके डिवाइस पर और आपके अपने प्ले गेम्स सेव्ड-गेम्स स्पेस में संग्रहीत होती है। हम इसे सुरक्षित रखने की पूरी कोशिश करते हैं, लेकिन हम डिवाइस के नुकसान, अनइंस्टॉल या प्लेटफ़ॉर्म परिवर्तनों के खिलाफ इसकी गारंटी नहीं दे सकते।</string>
+    <string name="terms_card_warranty_title">कोई वारंटी नहीं</string>
+    <string name="terms_warranty_body">खेल \"जैसा है\" प्रदान किया गया है। जहां तक ​​कानून अनुमति देता है, हम खोई हुई प्रगति, खोए हुए समय, या इसे खेलने से होने वाली किसी भी अप्रत्यक्ष क्षति के लिए उत्तरदायी नहीं हैं।</string>
+    <string name="terms_card_changes_title">परिवर्तन और सौदे को समाप्त करना</string>
+    <string name="terms_changes_body">ये शर्तें बदल सकती हैं; वर्तमान संस्करण हमेशा एक नई तारीख के साथ यहां रहता है, और खेलना जारी रखने का मतलब इसे स्वीकार करना है। आप किसी भी समय गेम को अनइंस्टॉल करके इस अनुबंध को समाप्त कर सकते हैं।</string>
+    <string name="terms_contact_body">इन शर्तों के बारे में प्रश्न? %1$s को लिखें.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">लाइसेंस</string>
+    <string name="licenses_header">ओपन सोर्स नोटिस</string>
+    <string name="licenses_subtitle">%1$s इन कंधों पर खड़ा है.</string>
+    <string name="licenses_card_other_title">बाकी सब कुछ</string>
+    <string name="licenses_other_body">लेवल जेनरेशन, कलाकृति, साउंड पैक और गेम कोड मूल कार्य हैं। %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">दिखावट</string>
+    <string name="settings_section_game">खेल</string>
+    <string name="settings_toggle_sound_title">ध्वनि प्रभाव</string>
+    <string name="settings_toggle_sound_subtitle">तीरों को टैप करते समय ध्वनियाँ बजाएँ</string>
+    <string name="settings_toggle_haptics_title">हैप्टिक फीडबैक</string>
+    <string name="settings_toggle_haptics_subtitle">बातचीत पर कंपन करें</string>
+    <string name="settings_section_progress">प्रगति</string>
+    <string name="settings_badge_playing">बजाना</string>
+    <string name="settings_stat_current">वर्तमान</string>
+    <string name="settings_stat_best">सर्वोत्तम</string>
+    <string name="settings_stat_cleared">साफ़ किया गया</string>
+    <string name="settings_section_about">के बारे में</string>
+    <string name="settings_item_how_to_play_title">कैसे खेलें</string>
+    <string name="settings_item_how_to_play_subtitle">पूर्वाभ्यास पुनः चलायें</string>
+    <string name="settings_item_privacy_subtitle">हम क्या रखते हैं और क्या नहीं रखते</string>
+    <string name="settings_item_about_title">एरो एस्केप के बारे में</string>
+    <string name="settings_item_about_subtitle">विचार, नियम और रूप</string>
+    <string name="settings_section_debug">डीबग करें</string>
+    <string name="settings_debug_tools_title">डेवलपर उपकरण</string>
+    <string name="settings_debug_tap_to_hide">छिपाने के लिए टैप करें</string>
+    <string name="settings_debug_tap_to_show">दिखाने के लिए टैप करें</string>
+    <string name="settings_debug_dev_mode_title">डेवलपर मोड</string>
+    <string name="settings_debug_dev_mode_subtitle">घर से कोई भी स्तर खोलें; खेल कभी भी आपकी प्रगति नहीं बदलता</string>
+    <string name="settings_debug_unlock_all_title">सभी को अनलॉक करें: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">%1$s प्रगति को %2$d स्तर पर सेट करें</string>
+    <string name="settings_debug_reset_title">रीसेट: %1$s</string>
+    <string name="settings_debug_reset_subtitle">स्तर 1 से %1$s प्रारंभ करें</string>
+    <string name="settings_footer">पहेली प्रेमियों के लिए \u2764 के साथ बनाया गया</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">खाता</string>
+    <string name="account_not_connected">जुड़ा नहीं</string>
+    <string name="account_backed_up">प्रगति Google Play पर बैकअप लेती है</string>
+    <string name="account_sign_in_hint">यदि आप पुनः स्थापित करते हैं तो अपने स्तर बनाए रखने के लिए साइन इन करें</string>
+    <string name="account_sign_out">साइन आउट करें</string>
+    <string name="account_sign_in">साइन इन करें</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">सुलझ गया</string>
+    <string name="daily_streak_days">%1$d लगातार दिन</string>
+    <string name="daily_come_back_tomorrow">कल वापस आना</string>
+    <string name="daily_done_button">हो गया</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">जल्द आ रहा है</string>
+    <string name="coming_soon_title">कार्यशाला में और भी अध्याय हैं</string>
+    <string name="coming_soon_body">हमने अब तक जो कुछ भी बनाया है, उसे आपने साफ़ कर दिया है। नए आकार और पेचीदा पलायन रास्ते में हैं - ऐप को अपडेट रखें ताकि वे जहाज वाले दिन ही उतर सकें।</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 पिछला</string>
+    <string name="dev_nav_next">अगला \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d तीर</string>
+    <string name="dev_level_field_label">स्तर (1-%1$d)</string>
+    <string name="dev_open_button">खुला</string>
+    <string name="dev_jump_to_shape_header">या किसी आकृति के अध्याय पर जाएं</string>
+    <string name="dev_chapter_title">%1$s \u00B7 अध्याय %2$d</string>
+    <string name="dev_chapter_levels">स्तर %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">पहला</string>
+    <string name="dev_level_button_last">अंतिम</string>
+    <string name="dev_level_button_master">मास्टर</string>
+    <string name="dev_header_title">डेवलपर \u00B7 स्तर</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">अपना खेल चुनें</string>
+    <string name="tour_home_modes_body">क्लासिक ग्रिड पर तीर लगाता है; घुमावदार उन्हें एक खींची गई आकृति के चारों ओर प्रवाहित करता है। प्रत्येक विधा अपनी प्रगति रखती है।</string>
+    <string name="tour_home_progress_title">कहानी में आपका स्थान</string>
+    <string name="tour_home_progress_body">आप किस स्तर पर हैं, आप यात्रा में कितनी दूर हैं और आपकी अब तक की सर्वश्रेष्ठ यात्रा है।</string>
+    <string name="tour_home_play_title">यहां से प्रारंभ करें</string>
+    <string name="tour_home_play_body">एक तीर को टैप करें और वह उस दिशा में भाग जाता है जिस दिशा में वह इशारा करता है - लेकिन केवल तभी जब उसका रास्ता साफ हो। प्रति स्तर तीन जीवन।</string>
+    <string name="tour_home_journey_title">यात्रा मानचित्र</string>
+    <string name="tour_home_journey_body">दस स्तरों के अध्याय, प्रत्येक पर आपके सितारे, और जो अभी भी बंद है उस पर एक नज़र।</string>
+    <string name="tour_home_settings_title">इसे अपना बनाओ</string>
+    <string name="tour_home_settings_body">पाँच प्रस्तुतियाँ, प्रत्येक का अपना रूप और ध्वनि, प्लस ध्वनि और हैप्टिक्स स्विच और यह वॉकथ्रू जब भी आप चाहें।</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">आपका पहला कदम</string>
+    <string name="tour_game_board1_body">उस किनारे तक स्पष्ट रूप से चलने वाला एक तीर ढूंढें, जिस पर वह इंगित करता है, और उसे टैप करें। आगे बढ़ें - बोर्ड लाइव है।</string>
+    <string name="tour_game_board2_title">अब एक और</string>
+    <string name="tour_game_board2_body">प्रत्येक तीर जो निकलता है वह दूसरे के लिए रास्ता खोलता है। दूसरा टैप करें और बोर्ड को ढीला होते हुए देखें।</string>
+    <string name="tour_game_lives_title">बाण छोड़े, और प्राण</string>
+    <string name="tour_game_lives_body">एक अवरुद्ध तीर को टैप करें और वह निकलने के बजाय हिल जाता है - और इन तीन दिलों में से एक की कीमत चुकानी पड़ती है।</string>
+    <string name="tour_game_hint_title">अटक गया? एक संकेत लीजिए</string>
+    <string name="tour_game_hint_body">एक स्तर पर दो संकेत एक तीर की ओर इशारा करते हैं जो अभी निकल सकता है। भागो और आप अधिक जानकारी के लिए विज्ञापन देख सकते हैं।</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">%2$d का चरण %1$d</string>
+    <string name="tour_skip">छोड़ें</string>
+    <string name="tour_got_it">समझ गया</string>
+    <string name="tour_skip_move">चाल छोड़ें</string>
+    <string name="tour_next">अगला</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

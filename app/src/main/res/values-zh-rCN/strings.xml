@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">箭头逃脱：点击并解决</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">返回</string>
+    <string name="settings_label">设置</string>
+    <string name="play_button">玩</string>
+    <string name="continue_button">继续</string>
+    <string name="restart_level">重启级别</string>
+    <string name="next_level_button">下一级别</string>
+    <string name="about_title">关于</string>
+    <string name="privacy_policy_title">隐私政策</string>
+    <string name="level_number">级别 %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">弯曲的</string>
+    <string name="mode_curved_tagline">流动的贝塞尔曲线路径</string>
+    <string name="mode_classic_label">经典</string>
+    <string name="mode_classic_tagline">网格上的直箭头</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">经典</string>
+    <string name="theme_midnight_label">午夜</string>
+    <string name="theme_sunset_label">日落</string>
+    <string name="theme_pirate_label">海盗</string>
+    <string name="theme_mono_label">墨水</string>
+    <string name="theme_system_label">系统</string>
+
+    <string name="persona_classic_tagline">点击 \u00B7 消失 \u00B7 退出</string>
+    <string name="persona_midnight_tagline">安静的时间 \u00B7 头脑清醒</string>
+    <string name="persona_sunset_tagline">黄金时刻 \u00B7 最后一枪</string>
+    <string name="persona_pirate_tagline">绘制图表 \u00B7 认领它 \u00B7 扬帆起航</string>
+    <string name="persona_mono_tagline">墨水 \u00B7 纸张 \u00B7 精度</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">第一步</string>
+    <string name="milestone_title_rising_up">崛起</string>
+    <string name="milestone_title_sharp_turns">急转弯</string>
+    <string name="milestone_title_full_circle">全圆</string>
+    <string name="milestone_title_heartfelt">衷心的</string>
+    <string name="milestone_title_crossroads">十字路口</string>
+    <string name="milestone_title_hexa_hive">六角蜂巢</string>
+    <string name="milestone_title_star_power">星力</string>
+    <string name="milestone_title_eclipse">日食</string>
+    <string name="milestone_title_x_marks_it">X 标记它</string>
+    <string name="milestone_title_spiral_madness">疯狂螺旋</string>
+    <string name="milestone_title_storm_surge">风暴潮</string>
+    <string name="milestone_title_royal_challenge">皇家挑战赛</string>
+    <string name="milestone_title_ring_master">指环大师</string>
+    <string name="milestone_title_grand_finale">大结局</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">箭头</string>
+    <string name="home_title_line2">逃生</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 级别</string>
+    <string name="home_progress_summary">%2$d 的 %1$d 已清除 \u00B7 最佳 %3$d</string>
+    <string name="home_journey_map">旅程地图</string>
+    <string name="journey_title">旅程</string>
+    <string name="journey_header_summary">级别 %1$d / %2$d • %3$d 已清除</string>
+    <string name="journey_chapter_levels">级别 %1$s • %2$s</string>
+    <string name="home_daily_puzzle">每日拼图</string>
+    <string name="home_daily_done">每日完成</string>
+    <string name="home_daily_done_streak">每日完成 - 连续 %1$d</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">组合 x%1$d</string>
+    <string name="shape_label">形状</string>
+    <string name="out_of_lives_title">没命了！</string>
+    <string name="cleared_percent">%1$d%% 已清除</string>
+    <string name="watch_ad_to_continue">观看广告以继续</string>
+    <string name="restore_lives_hint">恢复全部 3 条生命</string>
+    <string name="continue_unavailable">目前无法继续</string>
+    <string name="escaped_title">逃脱了！</string>
+    <string name="level_complete_subtitle">级别 %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">分数</string>
+    <string name="stars_label">星星</string>
+    <string name="home_button">首页</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">这个谜题卡住了</string>
+    <string name="puzzle_stuck_body">没有箭可以从这里逃脱，所以这一关无法完成。这是我们的错误，不是你的。</string>
+    <string name="puzzle_stuck_skip">跳到下一个级别</string>
+    <string name="puzzle_stuck_retry">重试级别</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">箭头板。点击箭头来发射它，按住以预览其路径，捏合以缩放并拖动以四处移动。</string>
+    <string name="board_zoom_hint">捏合缩放 \u00B7 拖动移动</string>
+    <string name="board_reset_view">重置视图</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">版本%1$s</string>
+    <string name="about_card_idea_title">这个想法</string>
+    <string name="about_card_idea_body">每支箭都想射出去。点击其中一个，它就会朝它指向的方向旋转——但前提是没有任何东西阻挡它。清除木板，它隐藏的形状就会自行释放。</string>
+    <string name="about_card_how_to_play_title">怎么玩</string>
+    <string name="about_bullet_escape">只有当到达边缘的路径畅通无阻时，箭头才会逃脱。</string>
+    <string name="about_bullet_blocked">点击被阻挡的箭头就会付出生命的代价。每级三个。</string>
+    <string name="about_bullet_stars">清理得又快又干净，三颗星。</string>
+    <string name="about_bullet_hints">卡住？每个级别有两个提示指出安全点击。</string>
+    <string name="about_card_two_ways_title">两种玩法</string>
+    <string name="about_bullet_classic">经典：网格上的箭头，单元格中绘制的形状。</string>
+    <string name="about_bullet_curved">弯曲：箭头沿着绘制图形的线条流动。</string>
+    <string name="about_two_ways_body">每种模式都有自己的进度，因此切换永远不会花费一个级别。</string>
+    <string name="about_card_make_it_yours_title">让它成为你的</string>
+    <string name="about_make_it_yours_body">五种外观 - 经典、午夜、日落、海盗和墨水 - 每个都有自己的主屏幕、动作和声音。想要关注您的手机？在设置中选择系统。</string>
+    <string name="about_card_progress_safe_title">你的进步是安全的</string>
+    <string name="about_progress_safe_body">所有内容都存储在您的设备上并离线播放。登录 Play 游戏，您的旅程就会延续到您的下一部手机。</string>
+    <string name="about_link_terms">服务条款</string>
+    <string name="about_link_licenses">许可证</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">最后更新%1$s</string>
+    <string name="doc_short_version_title">简短版本</string>
+    <string name="doc_contact_title">联系方式</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">我们不会询问您的姓名、电子邮件或电话号码，也不会出售有关您的任何信息。游戏离线运行；离开您设备的唯一数据是广告和可选的 Play 游戏登录所需的数据。</string>
+    <string name="privacy_card_device_title">您的设备上保留的内容</string>
+    <string name="privacy_bullet_progress">每种模式的当前等级、最佳等级和星星。</string>
+    <string name="privacy_bullet_settings">您的设置：主题、声音和触觉。</string>
+    <string name="privacy_device_body">它位于应用程序的私人存储中，并在您卸载游戏时被删除。</string>
+    <string name="privacy_card_ads_title">广告</string>
+    <string name="privacy_ads_body">激励广告和插页式广告由 Google AdMob 提供。为了展示和衡量广告，AdMob 可能会处理您设备的广告 ID、根据您的 IP 地址得出的粗略位置以及基本设备和应用信息。您可以在 Android 设置中的“隐私”、“广告”下重置或删除广告 ID。</string>
+    <string name="privacy_card_cloud_title">可选云保存</string>
+    <string name="privacy_cloud_body">如果您使用 Google Play 游戏登录，您的进度将存储在您自己的 Play 游戏已保存游戏空间中，以便它会跟随您到新设备。我们只能看到您的 Play 游戏显示名称和保存的进度。随时在“设置”中退出；离线玩始终是一种选择。</string>
+    <string name="privacy_card_children_title">儿童</string>
+    <string name="privacy_children_body">该游戏适合所有年龄段，并且不收集任何个人信息。如果需要，广告请求会被标记为面向儿童，因此仅投放非个性化广告。</string>
+    <string name="privacy_card_choices_title">您的选择</string>
+    <string name="privacy_bullet_reset">随时从“设置”重置进度。</string>
+    <string name="privacy_bullet_signout">退出 Play 游戏以停止云保存。</string>
+    <string name="privacy_bullet_uninstall">卸载以清除本地存储的所有内容。</string>
+    <string name="privacy_card_others_title">还有谁参与其中</string>
+    <string name="privacy_bullet_admob">Google AdMob - 提供并衡量广告。</string>
+    <string name="privacy_bullet_playgames">Google Play 游戏 - 可选登录和云保存。</string>
+    <string name="privacy_bullet_playstore">Google Play - 分发应用程序及其更新。</string>
+    <string name="privacy_others_body">没有其他公司接收来自该游戏的数据，我们自己也不进行分析或跟踪。</string>
+    <string name="privacy_card_changes_title">本政策的变更</string>
+    <string name="privacy_changes_body">如果此策略发生更改，新版本将在此处显示并带有新日期，并且发行说明中会指出重大更改。</string>
+    <string name="privacy_contact_body">有疑问，或者想要删除您的云保存吗？写信给 %1$s，我们将在 30 天内回复。</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">玩游戏，享受它，不要试图破坏它或转售它。安装或玩 Arrow Escape 意味着您接受这些条款。</string>
+    <string name="terms_card_license_title">您的游戏许可</string>
+    <string name="terms_license_body">我们授予您个人、非排他性、不可转让的许可，以在您控制的设备上安装和玩《Arrow Escape》，以供您自己娱乐。游戏、它的关卡、美术作品、声音和代码都属于我们。</string>
+    <string name="terms_card_not_allowed_title">您同意不做的事情</string>
+    <string name="terms_bullet_reverse_engineer">逆向工程、反编译或修改应用程序。</string>
+    <string name="terms_bullet_redistribute">全部或部分重新分发、出售或再许可。</string>
+    <string name="terms_bullet_cheats">使用作弊程序、机器人或工具来伪造进度或广告视图。</string>
+    <string name="terms_bullet_ads">剔除、隐藏或干扰广告。</string>
+    <string name="terms_card_ads_title">广告和第三方</string>
+    <string name="terms_ads_body">该游戏是免费的，并通过广告付费。广告由 Google AdMob 提供并受其条款约束；可选的云保存在 Google Play 游戏上运行。他们收到的内容在隐私政策中有详细说明。</string>
+    <string name="terms_card_progress_title">你的进步</string>
+    <string name="terms_progress_body">进度会存储在您的设备上，如果您登录，也会存储在您自己的 Play 游戏已保存游戏空间中。我们会尽力确保其安全，但无法保证不会发生设备丢失、卸载或平台更改的情况。</string>
+    <string name="terms_card_warranty_title">无保修</string>
+    <string name="terms_warranty_body">游戏按“原样”提供。在法律允许的范围内，我们对进度损失、时间损失或因玩游戏而造成的任何间接损害不承担任何责任。</string>
+    <string name="terms_card_changes_title">变更和终止交易</string>
+    <string name="terms_changes_body">这些条款可能会发生变化；当前版本总是以新的日期存在于此，继续玩就意味着接受它。您可以随时通过卸载游戏来终止本协议。</string>
+    <string name="terms_contact_body">对这些条款有疑问吗？写信给%1$s。</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">许可证</string>
+    <string name="licenses_header">开源声明</string>
+    <string name="licenses_subtitle">%1$s 站在这些肩膀上。</string>
+    <string name="licenses_card_other_title">其他一切</string>
+    <string name="licenses_other_body">关卡生成、美术作品、声音包和游戏代码均为原创作品。 %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">外观</string>
+    <string name="settings_section_game">游戏</string>
+    <string name="settings_toggle_sound_title">音效</string>
+    <string name="settings_toggle_sound_subtitle">点击箭头时播放声音</string>
+    <string name="settings_toggle_haptics_title">触觉反馈</string>
+    <string name="settings_toggle_haptics_subtitle">互动时振动</string>
+    <string name="settings_section_progress">进展</string>
+    <string name="settings_badge_playing">演奏</string>
+    <string name="settings_stat_current">当前</string>
+    <string name="settings_stat_best">最佳</string>
+    <string name="settings_stat_cleared">已清除</string>
+    <string name="settings_section_about">关于</string>
+    <string name="settings_item_how_to_play_title">怎么玩</string>
+    <string name="settings_item_how_to_play_subtitle">重播演练</string>
+    <string name="settings_item_privacy_subtitle">我们保留什么，不保留什么</string>
+    <string name="settings_item_about_title">关于密室逃脱</string>
+    <string name="settings_item_about_subtitle">想法、规则和外观</string>
+    <string name="settings_section_debug">调试</string>
+    <string name="settings_debug_tools_title">开发者工具</string>
+    <string name="settings_debug_tap_to_hide">点击隐藏</string>
+    <string name="settings_debug_tap_to_show">点按即可显示</string>
+    <string name="settings_debug_dev_mode_title">开发者模式</string>
+    <string name="settings_debug_dev_mode_subtitle">从主页打开任何级别；玩耍永远不会改变你的进步</string>
+    <string name="settings_debug_unlock_all_title">解锁全部：%1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">将 %1$s 进度设置为级别 %2$d</string>
+    <string name="settings_debug_reset_title">重置：%1$s</string>
+    <string name="settings_debug_reset_subtitle">从级别 1 开始 %1$s</string>
+    <string name="settings_footer">用 \u2764 为拼图爱好者制作</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">账户</string>
+    <string name="account_not_connected">未连接</string>
+    <string name="account_backed_up">进度会备份至 Google Play</string>
+    <string name="account_sign_in_hint">如果您重新安装，请登录以保留您的级别</string>
+    <string name="account_sign_out">退出</string>
+    <string name="account_sign_in">登录</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">解决了</string>
+    <string name="daily_streak_days">连续 %1$d 天</string>
+    <string name="daily_come_back_tomorrow">明天回来</string>
+    <string name="daily_done_button">完成</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">即将推出</string>
+    <string name="coming_soon_title">更多章节在研讨会中</string>
+    <string name="coming_soon_body">您已经清除了我们迄今为止构建的所有内容。新的形状和更棘手的逃脱即将到来 - 保持应用程序更新，以便它们在发货当天着陆。</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 上一页</string>
+    <string name="dev_nav_next">下一个 \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d 箭头</string>
+    <string name="dev_level_field_label">等级（1-%1$d）</string>
+    <string name="dev_open_button">打开</string>
+    <string name="dev_jump_to_shape_header">或跳至形状的章节</string>
+    <string name="dev_chapter_title">%1$s \u00B7 章 %2$d</string>
+    <string name="dev_chapter_levels">级别 %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">第一</string>
+    <string name="dev_level_button_last">最后</string>
+    <string name="dev_level_button_master">大师</string>
+    <string name="dev_header_title">开发人员 \u00B7 级别</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">选择你的游戏</string>
+    <string name="tour_home_modes_body">经典将箭头放置在网格上；它们沿着绘制的人物曲线流动。每种模式都有自己的进度。</string>
+    <string name="tour_home_progress_title">你在故事中的位置</string>
+    <string name="tour_home_progress_body">您所处的级别、您的旅程有多远以及您迄今为止的最好成绩。</string>
+    <string name="tour_home_play_title">从这里开始</string>
+    <string name="tour_home_play_body">点击箭头，它就会沿其指向的方向逃逸 - 但前提是其路径畅通无阻。每级三个生命。</string>
+    <string name="tour_home_journey_title">旅程地图</string>
+    <string name="tour_home_journey_body">十个级别的章节，每个级别都有您的星星，并且可以查看仍然锁定的内容。</string>
+    <string name="tour_home_settings_title">让它成为你的</string>
+    <string name="tour_home_settings_body">五种外观，每种都有自己的外观和声音，再加上声音和触觉开关，以及您随时需要的演练。</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">你的第一步</string>
+    <string name="tour_game_board1_body">找到一个明确指向其所指向边缘的箭头，然后点击它。继续 - 董事会已上线。</string>
+    <string name="tour_game_board2_title">现在还有一张</string>
+    <string name="tour_game_board2_body">每一支离开的箭都会为另一支箭开辟一条道路。点击第二个，观察木板松动。</string>
+    <string name="tour_game_lives_title">箭头向左，生命</string>
+    <string name="tour_game_lives_body">点击被阻挡的箭头，它会摇晃而不是离开 - 并花费这三颗心中的一颗。</string>
+    <string name="tour_game_hint_title">卡住？接受提示</string>
+    <string name="tour_game_hint_body">一个级别的两个提示指出了一个可以立即离开的箭头。用完后，您可以观看广告以获取更多信息。</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">%2$d 的步骤 %1$d</string>
+    <string name="tour_skip">跳过</string>
+    <string name="tour_got_it">明白了</string>
+    <string name="tour_skip_move">跳过移动</string>
+    <string name="tour_next">下一步</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

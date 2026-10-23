@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mũi tên thoát: Nhấn và giải</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">Quay lại</string>
+    <string name="settings_label">Cài đặt</string>
+    <string name="play_button">CHƠI</string>
+    <string name="continue_button">TIẾP TỤC</string>
+    <string name="restart_level">Khởi động lại cấp độ</string>
+    <string name="next_level_button">CẤP TIẾP THEO</string>
+    <string name="about_title">Giới thiệu</string>
+    <string name="privacy_policy_title">Chính sách bảo mật</string>
+    <string name="level_number">Cấp độ %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">cong</string>
+    <string name="mode_curved_tagline">Đường dẫn chảy bezier</string>
+    <string name="mode_classic_label">cổ điển</string>
+    <string name="mode_classic_tagline">Mũi tên thẳng trên lưới</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">cổ điển</string>
+    <string name="theme_midnight_label">Nửa đêm</string>
+    <string name="theme_sunset_label">Hoàng hôn</string>
+    <string name="theme_pirate_label">cướp biển</string>
+    <string name="theme_mono_label">Mực</string>
+    <string name="theme_system_label">Hệ thống</string>
+
+    <string name="persona_classic_tagline">TAP \u00B7 BIẾN MẤT \u00B7 THOÁT</string>
+    <string name="persona_midnight_tagline">GIỜ YÊN TĨNH \u00B7 ĐẦU SẠCH</string>
+    <string name="persona_sunset_tagline">GIỜ VÀNG \u00B7 PHÚT CUỐI CÙNG</string>
+    <string name="persona_pirate_tagline">BIỂU ĐỒ \u00B7 YÊU CẦU NÓ \u00B7 TIẾN HÀNH</string>
+    <string name="persona_mono_tagline">MỰC \u00B7 GIẤY \u00B7 CHÍNH XÁC</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">Những bước đầu tiên</string>
+    <string name="milestone_title_rising_up">Tăng lên</string>
+    <string name="milestone_title_sharp_turns">Những khúc cua gấp</string>
+    <string name="milestone_title_full_circle">Vòng tròn đầy đủ</string>
+    <string name="milestone_title_heartfelt">chân thành</string>
+    <string name="milestone_title_crossroads">Ngã Tư</string>
+    <string name="milestone_title_hexa_hive">Tổ Hexa</string>
+    <string name="milestone_title_star_power">Sức mạnh ngôi sao</string>
+    <string name="milestone_title_eclipse">nhật thực</string>
+    <string name="milestone_title_x_marks_it">X đánh dấu nó</string>
+    <string name="milestone_title_spiral_madness">sự điên rồ xoắn ốc</string>
+    <string name="milestone_title_storm_surge">Bão dâng</string>
+    <string name="milestone_title_royal_challenge">Thử thách hoàng gia</string>
+    <string name="milestone_title_ring_master">Bậc thầy nhẫn</string>
+    <string name="milestone_title_grand_finale">Đêm chung kết</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">MŨI TÊN</string>
+    <string name="home_title_line2">THOÁT</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 CẤP ĐỘ</string>
+    <string name="home_progress_summary">%1$d trong số %2$d đã xóa \u00B7 tốt nhất %3$d</string>
+    <string name="home_journey_map">Bản đồ hành trình</string>
+    <string name="journey_title">Hành trình</string>
+    <string name="journey_header_summary">Cấp độ %1$d / %2$d • %3$d đã xóa</string>
+    <string name="journey_chapter_levels">Cấp độ %1$s • %2$s</string>
+    <string name="home_daily_puzzle">Câu đố hàng ngày</string>
+    <string name="home_daily_done">thực hiện hàng ngày</string>
+    <string name="home_daily_done_streak">Thực hiện hàng ngày - %1$d liên tiếp</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">COMBO x%1$d</string>
+    <string name="shape_label">HÌNH DÁNG</string>
+    <string name="out_of_lives_title">Hết cuộc sống!</string>
+    <string name="cleared_percent">__V1_%% đã xóa</string>
+    <string name="watch_ad_to_continue">Xem quảng cáo để tiếp tục</string>
+    <string name="restore_lives_hint">Khôi phục cả 3 mạng sống</string>
+    <string name="continue_unavailable">Tiếp tục hiện không có sẵn</string>
+    <string name="escaped_title">TRỐN THOÁT!</string>
+    <string name="level_complete_subtitle">Cấp độ %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">ĐIỂM</string>
+    <string name="stars_label">SAO</string>
+    <string name="home_button">Trang chủ</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">Câu đố này bị mắc kẹt</string>
+    <string name="puzzle_stuck_body">Không có mũi tên nào có thể thoát khỏi đây nên không thể kết thúc màn này. Đó là lỗi của chúng tôi, không phải của bạn.</string>
+    <string name="puzzle_stuck_skip">Chuyển sang cấp độ tiếp theo</string>
+    <string name="puzzle_stuck_retry">Thử lại cấp độ</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">Bảng mũi tên. Nhấn vào một mũi tên để bắn nó, giữ để xem trước đường đi của nó, chụm để thu phóng và kéo để di chuyển xung quanh.</string>
+    <string name="board_zoom_hint">Chụm để thu phóng \u00B7 kéo để di chuyển</string>
+    <string name="board_reset_view">Đặt lại chế độ xem</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">Phiên bản %1$s</string>
+    <string name="about_card_idea_title">Ý tưởng</string>
+    <string name="about_card_idea_body">Mũi tên nào cũng muốn bắn ra. Nhấn vào một cái và nó sẽ lao theo hướng nó chỉ - nhưng chỉ khi không có gì cản đường nó. Xóa bảng và hình dạng nó đang ẩn sẽ tự giải phóng.</string>
+    <string name="about_card_how_to_play_title">Cách chơi</string>
+    <string name="about_bullet_escape">Một mũi tên chỉ thoát ra khi đường đi tới rìa của nó thông thoáng.</string>
+    <string name="about_bullet_blocked">Nhấn vào một mũi tên bị chặn và phải trả giá bằng mạng sống. Ba mỗi cấp độ.</string>
+    <string name="about_bullet_stars">Dọn dẹp nhanh và sạch cho ba sao.</string>
+    <string name="about_bullet_hints">Mắc kẹt? Hai gợi ý cho mỗi cấp độ chỉ ra một cú chạm an toàn.</string>
+    <string name="about_card_two_ways_title">Hai cách để chơi</string>
+    <string name="about_bullet_classic">Cổ điển: mũi tên trên lưới, hình dạng được vẽ trong ô.</string>
+    <string name="about_bullet_curved">Cong: mũi tên chảy dọc theo đường của hình vẽ.</string>
+    <string name="about_two_ways_body">Mỗi chế độ có tiến trình riêng nên việc chuyển đổi không bao giờ tốn một cấp độ.</string>
+    <string name="about_card_make_it_yours_title">Biến nó thành của bạn</string>
+    <string name="about_make_it_yours_body">Năm lần xuất hiện - Cổ điển, Nửa đêm, Hoàng hôn, Cướp biển và Mực - mỗi lần có màn hình chính, chuyển động và âm thanh riêng. Thích theo dõi điện thoại của bạn? Chọn Hệ thống trong Cài đặt.</string>
+    <string name="about_card_progress_safe_title">Tiến trình của bạn được an toàn</string>
+    <string name="about_progress_safe_body">Mọi thứ đều được lưu trữ trên thiết bị của bạn và phát ngoại tuyến. Đăng nhập bằng Play Trò chơi và hành trình của bạn sẽ tiếp tục đến chiếc điện thoại tiếp theo của bạn.</string>
+    <string name="about_link_terms">Điều khoản dịch vụ</string>
+    <string name="about_link_licenses">Giấy phép</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">Cập nhật lần cuối %1$s</string>
+    <string name="doc_short_version_title">Phiên bản ngắn</string>
+    <string name="doc_contact_title">Liên hệ</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">Chúng tôi không hỏi tên, email hoặc số điện thoại của bạn và chúng tôi không bán bất cứ điều gì về bạn. Trò chơi chạy ngoại tuyến; dữ liệu duy nhất rời khỏi thiết bị của bạn là quảng cáo và thông tin đăng nhập Play Trò chơi tùy chọn cần.</string>
+    <string name="privacy_card_device_title">Những gì còn lại trên thiết bị của bạn</string>
+    <string name="privacy_bullet_progress">Cấp độ hiện tại, cấp độ tốt nhất và số sao cho từng chế độ.</string>
+    <string name="privacy_bullet_settings">Cài đặt của bạn: chủ đề, âm thanh và xúc giác.</string>
+    <string name="privacy_device_body">Điều này nằm trong bộ nhớ riêng của ứng dụng và bị xóa khi bạn gỡ cài đặt trò chơi.</string>
+    <string name="privacy_card_ads_title">Quảng cáo</string>
+    <string name="privacy_ads_body">Quảng cáo có tặng thưởng và quảng cáo xen kẽ được phân phát bởi Google AdMob. Để hiển thị và đo lường quảng cáo, AdMob có thể xử lý ID quảng cáo trên thiết bị của bạn, vị trí thô được lấy từ địa chỉ IP của bạn cũng như thông tin cơ bản về thiết bị và ứng dụng. Bạn có thể đặt lại hoặc xóa ID quảng cáo trong Cài đặt Android, trong phần Bảo mật, Quảng cáo.</string>
+    <string name="privacy_card_cloud_title">Lưu đám mây tùy chọn</string>
+    <string name="privacy_cloud_body">Nếu bạn đăng nhập bằng Google Play Trò chơi, tiến trình của bạn sẽ được lưu trữ trong không gian trò chơi đã lưu trên Play Trò chơi của riêng bạn để tiến trình này sẽ theo bạn đến một thiết bị mới. Chúng tôi chỉ thấy tên hiển thị trên Play Trò chơi của bạn và tiến trình đã lưu đó. Đăng xuất bất kỳ lúc nào trong Cài đặt; chơi ngoại tuyến luôn là một lựa chọn.</string>
+    <string name="privacy_card_children_title">trẻ em</string>
+    <string name="privacy_children_body">Trò chơi phù hợp với mọi lứa tuổi và không thu thập thông tin cá nhân. Khi được yêu cầu, các yêu cầu quảng cáo sẽ được đánh dấu là hướng đến trẻ em nên chỉ phân phát những quảng cáo không được cá nhân hóa.</string>
+    <string name="privacy_card_choices_title">Lựa chọn của bạn</string>
+    <string name="privacy_bullet_reset">Đặt lại tiến trình bất kỳ lúc nào từ Cài đặt.</string>
+    <string name="privacy_bullet_signout">Đăng xuất khỏi Play Trò chơi để ngừng lưu vào đám mây.</string>
+    <string name="privacy_bullet_uninstall">Gỡ cài đặt để xóa mọi thứ được lưu trữ cục bộ.</string>
+    <string name="privacy_card_others_title">Ai khác có liên quan</string>
+    <string name="privacy_bullet_admob">Google AdMob - phân phát và đo lường quảng cáo.</string>
+    <string name="privacy_bullet_playgames">Trò chơi trên Google Play - đăng nhập tùy chọn và lưu vào đám mây.</string>
+    <string name="privacy_bullet_playstore">Google Play - phân phối ứng dụng và các bản cập nhật của nó.</string>
+    <string name="privacy_others_body">Không có công ty nào khác nhận được dữ liệu từ trò chơi này và chúng tôi không tiến hành phân tích hoặc theo dõi riêng.</string>
+    <string name="privacy_card_changes_title">Những thay đổi đối với chính sách này</string>
+    <string name="privacy_changes_body">Nếu chính sách này thay đổi, phiên bản mới sẽ xuất hiện ở đây với ngày mới và những thay đổi quan trọng sẽ được nêu rõ trong ghi chú phát hành.</string>
+    <string name="privacy_contact_body">Bạn có câu hỏi hoặc muốn xóa bản lưu trên đám mây của mình? Hãy viết thư cho %1$s và chúng tôi sẽ trả lời trong vòng 30 ngày.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">Chơi trò chơi, tận hưởng nó, đừng cố gắng phá vỡ nó hoặc bán lại nó. Cài đặt hoặc chơi Arrow Escape đồng nghĩa với việc bạn chấp nhận các điều khoản này.</string>
+    <string name="terms_card_license_title">Giấy phép chơi của bạn</string>
+    <string name="terms_license_body">Chúng tôi cấp cho bạn giấy phép cá nhân, không độc quyền, không thể chuyển nhượng để cài đặt và chơi Arrow Escape trên các thiết bị bạn điều khiển nhằm mục đích giải trí của riêng bạn. Trò chơi, các cấp độ, tác phẩm nghệ thuật, âm thanh và mã đều là của chúng tôi.</string>
+    <string name="terms_card_not_allowed_title">Những gì bạn đồng ý không làm</string>
+    <string name="terms_bullet_reverse_engineer">Kỹ sư đảo ngược, dịch ngược hoặc sửa đổi ứng dụng.</string>
+    <string name="terms_bullet_redistribute">Phân phối lại, bán hoặc cấp phép lại toàn bộ hoặc một phần.</string>
+    <string name="terms_bullet_cheats">Sử dụng mánh gian lận, bot hoặc công cụ giả mạo tiến trình hoặc lượt xem quảng cáo.</string>
+    <string name="terms_bullet_ads">Lột bỏ, che giấu hoặc can thiệp vào quảng cáo.</string>
+    <string name="terms_card_ads_title">Quảng cáo và bên thứ ba</string>
+    <string name="terms_ads_body">Trò chơi này miễn phí và được trả tiền bằng quảng cáo. Quảng cáo được Google AdMob phân phối và chịu sự điều chỉnh của các điều khoản của họ; tùy chọn lưu vào đám mây chạy trên Google Play Games. Những gì họ nhận được được nêu rõ trong Chính sách quyền riêng tư.</string>
+    <string name="terms_card_progress_title">Sự tiến bộ của bạn</string>
+    <string name="terms_progress_body">Tiến trình được lưu trữ trên thiết bị của bạn và trong không gian trò chơi đã lưu trên Play Games của riêng bạn nếu bạn đăng nhập. Chúng tôi cố gắng hết sức để giữ an toàn cho nó nhưng chúng tôi không thể đảm bảo nó sẽ chống lại việc mất thiết bị, gỡ cài đặt hoặc thay đổi nền tảng.</string>
+    <string name="terms_card_warranty_title">Không có bảo hành</string>
+    <string name="terms_warranty_body">Trò chơi được cung cấp \"nguyên trạng\". Trong phạm vi pháp luật cho phép, chúng tôi không chịu trách nhiệm về việc mất tiến độ, mất thời gian hoặc bất kỳ thiệt hại gián tiếp nào phát sinh từ việc chơi trò chơi đó.</string>
+    <string name="terms_card_changes_title">Thay đổi và kết thúc thỏa thuận</string>
+    <string name="terms_changes_body">Những điều khoản này có thể thay đổi; phiên bản hiện tại luôn tồn tại ở đây với một ngày mới và tiếp tục chơi có nghĩa là chấp nhận nó. Bạn có thể kết thúc thỏa thuận này bất kỳ lúc nào bằng cách gỡ cài đặt trò chơi.</string>
+    <string name="terms_contact_body">Câu hỏi về các điều khoản này? Viết thư cho %1$s.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">Giấy phép</string>
+    <string name="licenses_header">Thông báo nguồn mở</string>
+    <string name="licenses_subtitle">%1$s đứng trên đôi vai này.</string>
+    <string name="licenses_card_other_title">Mọi thứ khác</string>
+    <string name="licenses_other_body">Tạo cấp độ, tác phẩm nghệ thuật, gói âm thanh và mã trò chơi là tác phẩm gốc. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">Ngoại hình</string>
+    <string name="settings_section_game">trò chơi</string>
+    <string name="settings_toggle_sound_title">Hiệu ứng âm thanh</string>
+    <string name="settings_toggle_sound_subtitle">Phát âm thanh khi chạm vào mũi tên</string>
+    <string name="settings_toggle_haptics_title">Phản hồi xúc giác</string>
+    <string name="settings_toggle_haptics_subtitle">Rung khi tương tác</string>
+    <string name="settings_section_progress">Tiến độ</string>
+    <string name="settings_badge_playing">ĐANG CHƠI</string>
+    <string name="settings_stat_current">hiện tại</string>
+    <string name="settings_stat_best">Tốt nhất</string>
+    <string name="settings_stat_cleared">Đã xóa</string>
+    <string name="settings_section_about">Giới thiệu</string>
+    <string name="settings_item_how_to_play_title">Cách chơi</string>
+    <string name="settings_item_how_to_play_subtitle">Phát lại hướng dẫn</string>
+    <string name="settings_item_privacy_subtitle">Những gì chúng tôi giữ và những gì chúng tôi không</string>
+    <string name="settings_item_about_title">Giới thiệu về Mũi tên thoát</string>
+    <string name="settings_item_about_subtitle">Ý tưởng, quy tắc và vẻ ngoài</string>
+    <string name="settings_section_debug">Gỡ lỗi</string>
+    <string name="settings_debug_tools_title">Công cụ dành cho nhà phát triển</string>
+    <string name="settings_debug_tap_to_hide">Nhấn để ẩn</string>
+    <string name="settings_debug_tap_to_show">Nhấn để hiển thị</string>
+    <string name="settings_debug_dev_mode_title">Chế độ nhà phát triển</string>
+    <string name="settings_debug_dev_mode_subtitle">Mở bất kỳ cấp độ nào từ Trang chủ; chơi không bao giờ thay đổi sự tiến bộ của bạn</string>
+    <string name="settings_debug_unlock_all_title">Mở khóa tất cả: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">Đặt tiến trình %1$s lên cấp độ %2$d</string>
+    <string name="settings_debug_reset_title">Đặt lại: %1$s</string>
+    <string name="settings_debug_reset_subtitle">Bắt đầu %1$s từ cấp 1</string>
+    <string name="settings_footer">Được làm bằng \u2764 dành cho những người yêu thích câu đố</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">Tài khoản</string>
+    <string name="account_not_connected">Không được kết nối</string>
+    <string name="account_backed_up">Tiến trình được sao lưu vào Google Play</string>
+    <string name="account_sign_in_hint">Đăng nhập để duy trì cấp độ của bạn nếu bạn cài đặt lại</string>
+    <string name="account_sign_out">Đăng xuất</string>
+    <string name="account_sign_in">Đăng nhập</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">Đã giải quyết</string>
+    <string name="daily_streak_days">%1$d ngày liên tiếp</string>
+    <string name="daily_come_back_tomorrow">Hãy quay lại vào ngày mai</string>
+    <string name="daily_done_button">Xong</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">SẮP CÓ</string>
+    <string name="coming_soon_title">Nhiều chương hơn có trong hội thảo</string>
+    <string name="coming_soon_body">Bạn đã xóa mọi thứ chúng tôi đã xây dựng cho đến nay. Những hình dạng mới và những lối thoát phức tạp hơn đang được triển khai - hãy cập nhật ứng dụng để chúng cập bến vào ngày giao hàng.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 Trước đó</string>
+    <string name="dev_nav_next">Tiếp theo \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d mũi tên</string>
+    <string name="dev_level_field_label">Cấp độ (1-%1$d)</string>
+    <string name="dev_open_button">Mở</string>
+    <string name="dev_jump_to_shape_header">HOẶC CHUYỂN ĐẾN CHƯƠNG CỦA HÌNH DẠNG</string>
+    <string name="dev_chapter_title">%1$s \u00B7 chương %2$d</string>
+    <string name="dev_chapter_levels">Cấp độ %1$d_V3_%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">đầu tiên</string>
+    <string name="dev_level_button_last">Cuối cùng</string>
+    <string name="dev_level_button_master">Bậc thầy</string>
+    <string name="dev_header_title">Cấp độ nhà phát triển \u00B7</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">Chọn trò chơi của bạn</string>
+    <string name="tour_home_modes_body">Cổ điển đặt mũi tên trên lưới; Cong chảy chúng xung quanh một hình vẽ. Mỗi chế độ giữ tiến bộ riêng của mình.</string>
+    <string name="tour_home_progress_title">Vị trí của bạn trong câu chuyện</string>
+    <string name="tour_home_progress_body">Trình độ bạn đang đạt được, quãng đường bạn đã đi được bao xa và thành tích tốt nhất của bạn cho đến nay.</string>
+    <string name="tour_home_play_title">Bắt đầu ở đây</string>
+    <string name="tour_home_play_body">Nhấn vào một mũi tên và nó sẽ thoát theo hướng nó chỉ - nhưng chỉ khi đường đi của nó rõ ràng. Ba cuộc sống mỗi cấp độ.</string>
+    <string name="tour_home_journey_title">Bản đồ hành trình</string>
+    <string name="tour_home_journey_body">Các chương gồm mười cấp độ, các ngôi sao của bạn trên mỗi cấp độ và xem qua những gì vẫn bị khóa.</string>
+    <string name="tour_home_settings_title">Biến nó thành của bạn</string>
+    <string name="tour_home_settings_body">Năm lần xuất hiện, mỗi lần có giao diện và âm thanh riêng, cùng với các công tắc âm thanh và xúc giác cũng như hướng dẫn này bất kỳ lúc nào bạn muốn.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">Bước đi đầu tiên của bạn</string>
+    <string name="tour_game_board1_body">Tìm một mũi tên có đường chạy rõ ràng đến cạnh mà nó chỉ vào và nhấn vào mũi tên đó. Tiếp tục - bảng đang hoạt động.</string>
+    <string name="tour_game_board2_title">Bây giờ thêm một cái nữa</string>
+    <string name="tour_game_board2_body">Mỗi mũi tên rời đi sẽ mở ra một con đường cho người khác. Nhấn vào cái thứ hai và xem bảng nới lỏng.</string>
+    <string name="tour_game_lives_title">Mũi tên trái và sự sống</string>
+    <string name="tour_game_lives_body">Nhấn vào một mũi tên bị chặn và nó sẽ rung chuyển thay vì rời đi - và phải trả giá bằng một trong ba trái tim này.</string>
+    <string name="tour_game_hint_title">Mắc kẹt? Hãy gợi ý</string>
+    <string name="tour_game_hint_body">Hai gợi ý một cấp chỉ ra một mũi tên có thể rời đi ngay bây giờ. Chạy ra ngoài và bạn có thể xem một quảng cáo để biết thêm.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">BƯỚC %1$d CỦA %2$d</string>
+    <string name="tour_skip">Bỏ qua</string>
+    <string name="tour_got_it">Hiểu rồi</string>
+    <string name="tour_skip_move">Bỏ qua di chuyển</string>
+    <string name="tour_next">Tiếp theo</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

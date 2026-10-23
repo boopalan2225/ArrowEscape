@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Arrow Escape: Ketuk &amp; Selesaikan</string>
+
+    <!-- ======================= Shared / generic ======================= -->
+    <string name="back">Kembali</string>
+    <string name="settings_label">Pengaturan</string>
+    <string name="play_button">MAINKAN</string>
+    <string name="continue_button">LANJUTKAN</string>
+    <string name="restart_level">Mulai Ulang Tingkat</string>
+    <string name="next_level_button">TINGKAT BERIKUTNYA</string>
+    <string name="about_title">Tentang</string>
+    <string name="privacy_policy_title">Kebijakan Privasi</string>
+    <string name="level_number">Tingkat %1$d</string>
+
+    <!-- ======================= Game modes (data/GameMode.kt) ======================= -->
+    <string name="mode_curved_label">Melengkung</string>
+    <string name="mode_curved_tagline">Jalur bezier yang mengalir</string>
+    <string name="mode_classic_label">Klasik</string>
+    <string name="mode_classic_tagline">Panah lurus pada grid</string>
+
+    <!-- ======================= Themes (ui/theme/AppTheme.kt + ThemePersona.kt) ======================= -->
+    <string name="theme_classic_label">Klasik</string>
+    <string name="theme_midnight_label">Tengah malam</string>
+    <string name="theme_sunset_label">Matahari terbenam</string>
+    <string name="theme_pirate_label">Bajak laut</string>
+    <string name="theme_mono_label">Tinta</string>
+    <string name="theme_system_label">Sistem</string>
+
+    <string name="persona_classic_tagline">KETUK \u00B7 HILANG \u00B7 KELARIKAN</string>
+    <string name="persona_midnight_tagline">JAM TENANG \u00B7 KEPALA JELAS</string>
+    <string name="persona_sunset_tagline">JAM EMAS \u00B7 TEMBAKAN TERAKHIR</string>
+    <string name="persona_pirate_tagline">BAGAN ITU \u00B7 KLAIM ITU \u00B7 BERLAYAR</string>
+    <string name="persona_mono_tagline">TINTA \u00B7 KERTAS \u00B7 PRESISI</string>
+
+    <!-- ======================= Milestone chapter titles (grid journey) ======================= -->
+    <string name="milestone_title_first_steps">Langkah Pertama</string>
+    <string name="milestone_title_rising_up">Bangkit</string>
+    <string name="milestone_title_sharp_turns">Belokan Tajam</string>
+    <string name="milestone_title_full_circle">Lingkaran Penuh</string>
+    <string name="milestone_title_heartfelt">Sepenuh hati</string>
+    <string name="milestone_title_crossroads">Persimpangan jalan</string>
+    <string name="milestone_title_hexa_hive">Sarang Hexa</string>
+    <string name="milestone_title_star_power">Kekuatan Bintang</string>
+    <string name="milestone_title_eclipse">Gerhana</string>
+    <string name="milestone_title_x_marks_it">X Menandainya</string>
+    <string name="milestone_title_spiral_madness">Kegilaan Spiral</string>
+    <string name="milestone_title_storm_surge">Gelombang Badai</string>
+    <string name="milestone_title_royal_challenge">Tantangan Kerajaan</string>
+    <string name="milestone_title_ring_master">Tuan Cincin</string>
+    <string name="milestone_title_grand_finale">Grand Final</string>
+
+    <!-- ======================= Home screen ======================= -->
+    <string name="home_title_line1">PANAH</string>
+    <string name="home_title_line2">LARI</string>
+    <string name="home_progress_mode_level">%1$s \u00B7 TINGKAT</string>
+    <string name="home_progress_summary">%1$d dari %2$d diselesaikan \u00B7 terbaik %3$d</string>
+    <string name="home_journey_map">Peta Perjalanan</string>
+    <string name="journey_title">Perjalanan</string>
+    <string name="journey_header_summary">Tingkat %1$d / %2$d • %3$d dihapus</string>
+    <string name="journey_chapter_levels">Tingkat %1$s • %2$s</string>
+    <string name="home_daily_puzzle">Teka-teki Harian</string>
+    <string name="home_daily_done">Selesai setiap hari</string>
+    <string name="home_daily_done_streak">Selesai setiap hari - %1$d berturut-turut</string>
+
+    <!-- ======================= Game HUD / dialogs (GameComponents.kt) ======================= -->
+    <string name="combo_label">KOMBO x%1$d</string>
+    <string name="shape_label">BENTUK</string>
+    <string name="out_of_lives_title">Kehabisan Kehidupan!</string>
+    <string name="cleared_percent">%1$d%% dibersihkan</string>
+    <string name="watch_ad_to_continue">Tonton Iklan untuk Melanjutkan</string>
+    <string name="restore_lives_hint">Pulihkan ketiga nyawa</string>
+    <string name="continue_unavailable">Lanjutkan tidak tersedia saat ini</string>
+    <string name="escaped_title">LARI!</string>
+    <string name="level_complete_subtitle">Tingkat %1$d \u00B7 %2$s \u00B7 %3$s</string>
+    <string name="score_label">SKOR</string>
+    <string name="stars_label">BINTANG</string>
+    <string name="home_button">Rumah</string>
+
+    <!-- ======================= Puzzle stuck modal ======================= -->
+    <string name="puzzle_stuck_title">Teka-teki ini macet</string>
+    <string name="puzzle_stuck_body">Tidak ada anak panah yang bisa lepas dari sini, jadi level ini tidak dapat diselesaikan. Itu kesalahan kami, bukan kesalahan Anda.</string>
+    <string name="puzzle_stuck_skip">Lewati ke tingkat berikutnya</string>
+    <string name="puzzle_stuck_retry">Coba lagi tingkatnya</string>
+
+    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <string name="board_content_description">Papan panah. Ketuk panah untuk menembakkannya, tahan untuk melihat pratinjau jalurnya, cubit untuk memperbesar, dan seret untuk bergerak.</string>
+    <string name="board_zoom_hint">Cubit untuk memperbesar \u00B7 seret untuk bergerak</string>
+    <string name="board_reset_view">Setel ulang tampilan</string>
+
+    <!-- ======================= About screen ======================= -->
+    <string name="about_version">Versi %1$s</string>
+    <string name="about_card_idea_title">Idenya</string>
+    <string name="about_card_idea_body">Setiap anak panah ingin keluar. Ketuk satu dan ia akan melesat ke arah yang ditunjuknya - tetapi hanya jika tidak ada yang menghalanginya. Bersihkan papan dan bentuk yang disembunyikannya akan bebas.</string>
+    <string name="about_card_how_to_play_title">Cara bermain</string>
+    <string name="about_bullet_escape">Sebuah anak panah akan lolos hanya jika jalurnya ke tepi sudah jelas.</string>
+    <string name="about_bullet_blocked">Ketuk panah yang diblokir dan biayanya adalah nyawa. Tiga per tingkat.</string>
+    <string name="about_bullet_stars">Hapus cepat dan bersih untuk tiga bintang.</string>
+    <string name="about_bullet_hints">Terjebak? Dua petunjuk per level menunjukkan ketukan yang aman.</string>
+    <string name="about_card_two_ways_title">Dua cara untuk bermain</string>
+    <string name="about_bullet_classic">Klasik: panah pada kisi, bentuk yang digambar dalam sel.</string>
+    <string name="about_bullet_curved">Melengkung: panah mengalir sepanjang garis gambar yang digambar.</string>
+    <string name="about_two_ways_body">Setiap mode menyimpan kemajuannya sendiri, sehingga peralihan tidak memerlukan biaya apa pun.</string>
+    <string name="about_card_make_it_yours_title">Jadikan itu milikmu</string>
+    <string name="about_make_it_yours_body">Lima penampilan - Klasik, Tengah Malam, Matahari Terbenam, Bajak Laut, dan Tinta - masing-masing dengan layar beranda, gerakan, dan suaranya sendiri. Lebih suka mengikuti ponsel Anda? Pilih Sistem di Pengaturan.</string>
+    <string name="about_card_progress_safe_title">Kemajuan Anda aman</string>
+    <string name="about_progress_safe_body">Semuanya disimpan di perangkat Anda dan diputar secara offline. Masuk dengan Play Game dan perjalanan Anda akan berlanjut ke ponsel Anda berikutnya.</string>
+    <string name="about_link_terms">Ketentuan Layanan</string>
+    <string name="about_link_licenses">Lisensi</string>
+
+    <!-- ======================= Privacy Policy / Terms shared chrome ======================= -->
+    <string name="legal_last_updated">Terakhir diperbarui %1$s</string>
+    <string name="doc_short_version_title">Versi pendek</string>
+    <string name="doc_contact_title">Kontak</string>
+
+    <!-- ======================= Privacy Policy screen ======================= -->
+    <string name="privacy_short_body">Kami tidak menanyakan nama, email, atau nomor telepon Anda, dan kami tidak menjual apa pun tentang Anda. Permainan berjalan offline; satu-satunya data yang tersisa dari perangkat Anda adalah iklan dan kebutuhan masuk Play Game opsional.</string>
+    <string name="privacy_card_device_title">Apa yang tersisa di perangkat Anda</string>
+    <string name="privacy_bullet_progress">Level saat ini, level dan bintang terbaik, untuk setiap mode.</string>
+    <string name="privacy_bullet_settings">Pengaturan Anda: tema, suara, dan haptik.</string>
+    <string name="privacy_device_body">Ini ada di penyimpanan pribadi aplikasi dan dihapus saat Anda mencopot pemasangan game.</string>
+    <string name="privacy_card_ads_title">Periklanan</string>
+    <string name="privacy_ads_body">Iklan reward dan interstisial ditayangkan oleh Google AdMob. Untuk menampilkan dan mengukur iklan, AdMob dapat memproses ID iklan perangkat Anda, lokasi kasar yang diperoleh dari alamat IP Anda, serta informasi dasar perangkat dan aplikasi. Anda dapat mengatur ulang atau menghapus ID iklan di Pengaturan Android, di bawah Privasi, Iklan.</string>
+    <string name="privacy_card_cloud_title">Penyimpanan cloud opsional</string>
+    <string name="privacy_cloud_body">Jika Anda masuk dengan Google Play Game, kemajuan Anda disimpan di ruang simpanan game Play Game Anda sehingga kemajuan tersebut dapat mengikuti Anda ke perangkat baru. Kami hanya melihat nama tampilan Play Game Anda dan kemajuan yang disimpan. Keluar kapan saja di Pengaturan; bermain offline selalu menjadi pilihan.</string>
+    <string name="privacy_card_children_title">Anak-anak</string>
+    <string name="privacy_children_body">Game ini cocok untuk segala usia dan tidak mengumpulkan detail pribadi. Jika diperlukan, permintaan iklan ditandai sebagai ditujukan untuk anak-anak sehingga hanya iklan yang tidak dipersonalisasi yang ditayangkan.</string>
+    <string name="privacy_card_choices_title">Pilihan Anda</string>
+    <string name="privacy_bullet_reset">Setel ulang kemajuan kapan saja dari Pengaturan.</string>
+    <string name="privacy_bullet_signout">Keluar dari Play Game untuk menghentikan penyimpanan di cloud.</string>
+    <string name="privacy_bullet_uninstall">Copot pemasangan untuk menghapus semua yang disimpan secara lokal.</string>
+    <string name="privacy_card_others_title">Siapa lagi yang terlibat</string>
+    <string name="privacy_bullet_admob">Google AdMob - menyajikan dan mengukur iklan.</string>
+    <string name="privacy_bullet_playgames">Google Play Game - masuk opsional dan penyimpanan cloud.</string>
+    <string name="privacy_bullet_playstore">Google Play - mendistribusikan aplikasi dan pembaruannya.</string>
+    <string name="privacy_others_body">Tidak ada perusahaan lain yang menerima data dari game ini, dan kami tidak menjalankan analisis atau pelacakan kami sendiri.</string>
+    <string name="privacy_card_changes_title">Perubahan pada kebijakan ini</string>
+    <string name="privacy_changes_body">Jika kebijakan ini berubah, versi baru akan muncul di sini dengan tanggal baru, dan perubahan signifikan akan disebutkan dalam catatan rilis.</string>
+    <string name="privacy_contact_body">Ada pertanyaan, atau ingin penyimpanan cloud Anda dihapus? Tulis ke %1$s dan kami akan menjawab dalam 30 hari.</string>
+
+    <!-- ======================= Terms of Service screen ======================= -->
+    <string name="terms_short_body">Mainkan gamenya, nikmatilah, jangan coba-coba merusak atau menjualnya kembali. Memasang atau memainkan Arrow Escape berarti Anda menerima persyaratan ini.</string>
+    <string name="terms_card_license_title">Lisensi Anda untuk bermain</string>
+    <string name="terms_license_body">Kami memberi Anda lisensi pribadi, non-eksklusif, dan tidak dapat dipindahtangankan untuk menginstal dan memainkan Arrow Escape di perangkat yang Anda kendalikan, untuk hiburan Anda sendiri. Game, level, karya seni, suara, dan kodenya tetap menjadi milik kami.</string>
+    <string name="terms_card_not_allowed_title">Apa yang Anda setuju untuk tidak dilakukan</string>
+    <string name="terms_bullet_reverse_engineer">Merekayasa balik, mendekompilasi, atau memodifikasi aplikasi.</string>
+    <string name="terms_bullet_redistribute">Mendistribusikan ulang, menjual atau mensublisensikannya, seluruhnya atau sebagian.</string>
+    <string name="terms_bullet_cheats">Gunakan cheat, bot, atau alat yang memalsukan kemajuan atau penayangan iklan.</string>
+    <string name="terms_bullet_ads">Hapus, sembunyikan, atau ganggu iklan.</string>
+    <string name="terms_card_ads_title">Iklan dan pihak ketiga</string>
+    <string name="terms_ads_body">Permainan ini gratis dan dibayar dengan iklan. Periklanan ditayangkan oleh Google AdMob dan diatur oleh persyaratannya; penyimpanan cloud opsional berjalan di Google Play Game. Apa yang mereka terima dijabarkan dalam Kebijakan Privasi.</string>
+    <string name="terms_card_progress_title">Kemajuan Anda</string>
+    <string name="terms_progress_body">Kemajuan disimpan di perangkat Anda, dan di ruang simpanan game Play Game Anda sendiri jika Anda masuk. Kami melakukan yang terbaik untuk menjaganya tetap aman, namun kami tidak dapat menjaminnya terhadap kehilangan perangkat, uninstal, atau perubahan platform.</string>
+    <string name="terms_card_warranty_title">Tidak ada garansi</string>
+    <string name="terms_warranty_body">Permainan disediakan \"sebagaimana adanya\". Sejauh hukum mengizinkan, kami tidak bertanggung jawab atas kemajuan yang hilang, waktu yang hilang, atau kerugian tidak langsung apa pun yang timbul dari memainkannya.</string>
+    <string name="terms_card_changes_title">Mengubah dan mengakhiri kesepakatan</string>
+    <string name="terms_changes_body">Ketentuan ini dapat berubah; versi saat ini selalu ada di sini dengan tanggal baru, dan terus memutar berarti menerimanya. Anda dapat mengakhiri perjanjian ini kapan saja dengan mencopot pemasangan game.</string>
+    <string name="terms_contact_body">Ada pertanyaan tentang istilah-istilah ini? Tulis ke %1$s.</string>
+
+    <!-- ======================= Licenses screen (chrome only - attributions stay verbatim) ======================= -->
+    <string name="licenses_title">Lisensi</string>
+    <string name="licenses_header">Pemberitahuan sumber terbuka</string>
+    <string name="licenses_subtitle">%1$s berdiri di atas bahu ini.</string>
+    <string name="licenses_card_other_title">Segala sesuatu yang lain</string>
+    <string name="licenses_other_body">Pembuatan level, karya seni, paket suara, dan kode permainan adalah karya orisinal. %1$s</string>
+
+    <!-- ======================= Settings screen ======================= -->
+    <string name="settings_section_appearance">Penampilan</string>
+    <string name="settings_section_game">Permainan</string>
+    <string name="settings_toggle_sound_title">Efek Suara</string>
+    <string name="settings_toggle_sound_subtitle">Putar suara saat mengetuk panah</string>
+    <string name="settings_toggle_haptics_title">Umpan Balik Haptik</string>
+    <string name="settings_toggle_haptics_subtitle">Bergetar saat berinteraksi</string>
+    <string name="settings_section_progress">Kemajuan</string>
+    <string name="settings_badge_playing">BERMAIN</string>
+    <string name="settings_stat_current">Saat ini</string>
+    <string name="settings_stat_best">Terbaik</string>
+    <string name="settings_stat_cleared">Dibersihkan</string>
+    <string name="settings_section_about">Tentang</string>
+    <string name="settings_item_how_to_play_title">Cara Bermain</string>
+    <string name="settings_item_how_to_play_subtitle">Putar ulang panduannya</string>
+    <string name="settings_item_privacy_subtitle">Apa yang kita simpan dan apa yang tidak</string>
+    <string name="settings_item_about_title">Tentang Pelarian Panah</string>
+    <string name="settings_item_about_subtitle">Idenya, aturannya, dan tampilannya</string>
+    <string name="settings_section_debug">Men-debug</string>
+    <string name="settings_debug_tools_title">Alat Pengembang</string>
+    <string name="settings_debug_tap_to_hide">Ketuk untuk menyembunyikan</string>
+    <string name="settings_debug_tap_to_show">Ketuk untuk menampilkan</string>
+    <string name="settings_debug_dev_mode_title">Mode Pengembang</string>
+    <string name="settings_debug_dev_mode_subtitle">Buka level mana pun dari Beranda; bermain tidak pernah mengubah kemajuan Anda</string>
+    <string name="settings_debug_unlock_all_title">Buka Kunci Semua: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle">Setel kemajuan %1$s ke level %2$d</string>
+    <string name="settings_debug_reset_title">Setel ulang: %1$s</string>
+    <string name="settings_debug_reset_subtitle">Mulai %1$s dari level 1</string>
+    <string name="settings_footer">Dibuat dengan \u2764 untuk pecinta teka-teki</string>
+
+    <!-- ======================= Account section ======================= -->
+    <string name="account_section_title">Akun</string>
+    <string name="account_not_connected">Tidak terhubung</string>
+    <string name="account_backed_up">Kemajuan dicadangkan ke Google Play</string>
+    <string name="account_sign_in_hint">Masuk untuk mempertahankan level Anda jika Anda menginstal ulang</string>
+    <string name="account_sign_out">Keluar</string>
+    <string name="account_sign_in">Masuk</string>
+
+    <!-- ======================= Daily puzzle screen ======================= -->
+    <string name="daily_solved_title">Terpecahkan</string>
+    <string name="daily_streak_days">%1$d hari berturut-turut</string>
+    <string name="daily_come_back_tomorrow">Kembalilah besok</string>
+    <string name="daily_done_button">Selesai</string>
+
+    <!-- ======================= Coming soon card (end of Journey map) ======================= -->
+    <string name="coming_soon_badge">SEGERA DATANG</string>
+    <string name="coming_soon_title">Lebih banyak bab ada di bengkel</string>
+    <string name="coming_soon_body">Anda telah menyelesaikan semua yang telah kami bangun sejauh ini. Bentuk baru dan jalan keluar yang lebih rumit akan segera hadir - terus perbarui aplikasi agar dapat mendarat pada hari pengirimannya.</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev">\u25C0 Sebelumnya</string>
+    <string name="dev_nav_next">Berikutnya \u25B6</string>
+    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d panah</string>
+    <string name="dev_level_field_label">Tingkat (1-%1$d)</string>
+    <string name="dev_open_button">Buka</string>
+    <string name="dev_jump_to_shape_header">ATAU LOMPAT KE BAB BENTUK</string>
+    <string name="dev_chapter_title">%1$s \u00B7 bab %2$d</string>
+    <string name="dev_chapter_levels">Tingkat %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first">Pertama</string>
+    <string name="dev_level_button_last">Terakhir</string>
+    <string name="dev_level_button_master">Guru</string>
+    <string name="dev_header_title">Tingkat Pengembang \u00B7</string>
+
+    <!-- ======================= Onboarding tour (Home) ======================= -->
+    <string name="tour_home_modes_title">Pilih permainan Anda</string>
+    <string name="tour_home_modes_body">Klasik meletakkan panah pada kotak; Melengkung mengalirkannya di sekitar sosok yang digambar. Setiap mode menyimpan kemajuannya sendiri.</string>
+    <string name="tour_home_progress_title">Tempatmu dalam cerita</string>
+    <string name="tour_home_progress_body">Level Anda saat ini, seberapa jauh perjalanan Anda, dan pencapaian terbaik Anda sejauh ini.</string>
+    <string name="tour_home_play_title">Mulai di sini</string>
+    <string name="tour_home_play_body">Ketuk panah dan panah itu akan lolos ke arah yang ditunjuknya - tetapi hanya jika jalurnya jelas. Tiga nyawa per level.</string>
+    <string name="tour_home_journey_title">Peta Perjalanan</string>
+    <string name="tour_home_journey_body">Bab sepuluh level, bintang Anda di masing-masing level, dan intip apa yang masih terkunci.</string>
+    <string name="tour_home_settings_title">Jadikan itu milikmu</string>
+    <string name="tour_home_settings_body">Lima tampilan, masing-masing dengan tampilan dan suaranya sendiri, ditambah sakelar suara dan haptik serta panduan ini kapan pun Anda menginginkannya.</string>
+
+    <!-- ======================= Onboarding tour (in-game) ======================= -->
+    <string name="tour_game_board1_title">Langkah pertamamu</string>
+    <string name="tour_game_board1_body">Temukan panah dengan garis yang jelas ke tepi yang ditunjuknya, lalu ketuk panah tersebut. Ayo - papannya aktif.</string>
+    <string name="tour_game_board2_title">Sekarang satu lagi</string>
+    <string name="tour_game_board2_body">Setiap anak panah yang lepas membuka jalan bagi anak panah lainnya. Ketuk yang kedua dan lihat papannya mengendur.</string>
+    <string name="tour_game_lives_title">Panah ke kiri, dan hidup</string>
+    <string name="tour_game_lives_body">Ketuk panah yang diblokir dan panah itu bergetar alih-alih keluar - dan menghabiskan salah satu dari tiga hati ini.</string>
+    <string name="tour_game_hint_title">Terjebak? Ambil petunjuk</string>
+    <string name="tour_game_hint_body">Dua petunjuk sebuah level menunjukkan panah yang bisa berangkat sekarang. Habis dan Anda dapat menonton iklan lebih lanjut.</string>
+
+    <!-- ======================= Onboarding tour chrome ======================= -->
+    <string name="tour_step_counter">LANGKAH %1$d DARI %2$d</string>
+    <string name="tour_skip">Lewati</string>
+    <string name="tour_got_it">Mengerti</string>
+    <string name="tour_skip_move">Lewati langkah</string>
+    <string name="tour_next">Selanjutnya</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>
