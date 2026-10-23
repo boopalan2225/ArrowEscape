@@ -32,12 +32,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.clevercorner.arrowescape.cloud.CloudAccount
+import com.clevercorner.arrowescape.BuildConfig
 import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.cloud.CloudAccount
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
-import com.clevercorner.arrowescape.ui.milestone.MilestoneData
 import com.clevercorner.arrowescape.ui.components.GlyphIcon
+import com.clevercorner.arrowescape.ui.milestone.MilestoneData
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
@@ -161,48 +162,52 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Collapsed by default: destructive tools should take deliberate effort.
-            SettingsSection(title = stringResource(R.string.settings_section_debug)) {
-                ExpanderRow(
-                    title = stringResource(R.string.settings_debug_tools_title),
-                    subtitle = stringResource(
-                        if (debugExpanded) R.string.settings_debug_tap_to_hide else R.string.settings_debug_tap_to_show
-                    ),
-                    expanded = debugExpanded,
-                    onToggle = { debugExpanded = !debugExpanded }
-                )
+            if (BuildConfig.DEBUG) {
+                Spacer(Modifier.height(24.dp))
 
-                AnimatedVisibility(
-                    visible = debugExpanded,
-                    enter = expandVertically(tween(220)) + fadeIn(tween(220)),
-                    exit = shrinkVertically(tween(180)) + fadeOut(tween(180))
-                ) {
-                    Column {
-                        SettingsToggleItem(
-                            icon = "\uD83D\uDEE0",
-                            title = stringResource(R.string.settings_debug_dev_mode_title),
-                            subtitle = stringResource(R.string.settings_debug_dev_mode_subtitle),
-                            checked = prefs.devMode,
-                            onCheckedChange = onDevModeToggle
-                        )
-                        GameMode.entries.forEach { mode ->
-                            val modeLabel = stringResource(mode.labelRes)
-                            SettingsClickableItem(
-                                icon = "\uD83D\uDD13",
-                                title = stringResource(R.string.settings_debug_unlock_all_title, modeLabel),
-                                subtitle = stringResource(
-                                    R.string.settings_debug_unlock_all_subtitle,
-                                    modeLabel,
-                                    MilestoneData.forMode(mode).totalLevels
-                                ),
-                                onClick = { onUnlockAllLevels(mode) }
+                // Collapsed by default: destructive tools should take deliberate effort.
+                SettingsSection(title = stringResource(R.string.settings_section_debug)) {
+                    ExpanderRow(
+                        title = stringResource(R.string.settings_debug_tools_title),
+                        subtitle = stringResource(
+                            if (debugExpanded) R.string.settings_debug_tap_to_hide else R.string.settings_debug_tap_to_show
+                        ),
+                        expanded = debugExpanded,
+                        onToggle = { debugExpanded = !debugExpanded }
+                    )
+
+                    AnimatedVisibility(
+                        visible = debugExpanded,
+                        enter = expandVertically(tween(220)) + fadeIn(tween(220)),
+                        exit = shrinkVertically(tween(180)) + fadeOut(tween(180))
+                    ) {
+                        Column {
+                            SettingsToggleItem(
+                                icon = "\uD83D\uDEE0",
+                                title = stringResource(R.string.settings_debug_dev_mode_title),
+                                subtitle = stringResource(R.string.settings_debug_dev_mode_subtitle),
+                                checked = prefs.devMode,
+                                onCheckedChange = onDevModeToggle
                             )
-                            SettingsClickableItem(
-                                icon = "\uD83D\uDD04",
-                                title = stringResource(R.string.settings_debug_reset_title, modeLabel),
-                                subtitle = stringResource(R.string.settings_debug_reset_subtitle, modeLabel),
-                                onClick = { onResetProgress(mode) }
-                            )
+                            GameMode.entries.forEach { mode ->
+                                val modeLabel = stringResource(mode.labelRes)
+                                SettingsClickableItem(
+                                    icon = "\uD83D\uDD13",
+                                    title = stringResource(R.string.settings_debug_unlock_all_title, modeLabel),
+                                    subtitle = stringResource(
+                                        R.string.settings_debug_unlock_all_subtitle,
+                                        modeLabel,
+                                        MilestoneData.forMode(mode).totalLevels
+                                    ),
+                                    onClick = { onUnlockAllLevels(mode) }
+                                )
+                                SettingsClickableItem(
+                                    icon = "\uD83D\uDD04",
+                                    title = stringResource(R.string.settings_debug_reset_title, modeLabel),
+                                    subtitle = stringResource(R.string.settings_debug_reset_subtitle, modeLabel),
+                                    onClick = { onResetProgress(mode) }
+                                )
+                            }
                         }
                     }
                 }
@@ -243,10 +248,10 @@ private fun SettingsHeader(onBackClick: () -> Unit) {
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
             Spacer(Modifier.width(16.dp))
             Text(
