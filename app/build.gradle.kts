@@ -11,23 +11,31 @@ plugins {
  * Release signing credentials.
  *
  * Secrets live in keystore.properties at the repo root, which is gitignored -
- * see keystore.properties.template for the expected keys. A missing or
- * incomplete file is not an error: the release build simply stays unsigned so
- * that cloning the repo and running `assembleRelease` still works.
+ * see keystore.properties.template for the expected keys. Credentials can also
+ * be provided via environment variables. A missing or incomplete file is not an
+ * error: the release build simply stays unsigned so that cloning the repo and
+ * running `assembleRelease` still works.
  */
 val keystoreProperties = Properties().apply {
     val file = rootProject.file("keystore.properties")
     if (file.exists()) file.inputStream().use(::load)
 }
 
-/** Null unless every credential is present and the keystore really exists. */
-val releaseKeystore: File? = keystoreProperties.getProperty("storeFile")
-    ?.let(rootProject::file)
-    ?.takeIf { it.exists() }
-    ?.takeIf {
-        listOf("storePassword", "keyAlias", "keyPassword")
-            .all { key -> !keystoreProperties.getProperty(key).isNullOrBlank() }
-    }
+fun getSigningProp(key: String, envVar: String): String? {
+    return keystoreProperties.getProperty(key)?.takeIf { it.isNotBlank() }
+        ?: System.getenv(envVar)?.takeIf { it.isNotBlank() }
+}
+
+val storeFilePath = getSigningProp("storeFile", "KEYSTORE_FILE")
+val releaseKeystore: File? = storeFilePath?.let(rootProject::file)?.takeIf { it.exists() }
+val storePasswordVal = getSigningProp("storePassword", "KEYSTORE_PASSWORD")
+val keyAliasVal = getSigningProp("keyAlias", "KEY_ALIAS")
+val keyPasswordVal = getSigningProp("keyPassword", "KEY_PASSWORD")
+
+val isReleaseSigningConfigured = releaseKeystore != null &&
+        !storePasswordVal.isNullOrBlank() &&
+        !keyAliasVal.isNullOrBlank() &&
+        !keyPasswordVal.isNullOrBlank()
 
 android {
     namespace = "com.clevercorner.arrowescape"
@@ -68,12 +76,12 @@ android {
     signingConfigs {
         // Only declared when usable; referencing a half-configured signing
         // config fails the build in confusing ways at package time.
-        releaseKeystore?.let { keystore ->
+        if (isReleaseSigningConfigured && releaseKeystore != null) {
             create("release") {
-                storeFile = keystore
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = releaseKeystore
+                storePassword = storePasswordVal
+                keyAlias = keyAliasVal
+                keyPassword = keyPasswordVal
 
                 // minSdk is 26, so v1 is dead weight. v2/v3 are what Android
                 // verifies; v4 enables incremental install on API 30+.
@@ -208,9 +216,9 @@ dependencies {
 // loudly at the moment it is produced rather than letting it look like success.
 tasks.matching { it.name == "packageRelease" }.configureEach {
     doFirst {
-        if (releaseKeystore == null) {
+        if (!isReleaseSigningConfigured) {
             logger.warn(
-                "\n*** Release build is UNSIGNED - no valid keystore.properties found. ***\n" +
+                "\n*** Release build is UNSIGNED - no valid keystore.properties or environment variables found. ***\n" +
                 "    Copy keystore.properties.template to keystore.properties and fill it in.\n"
             )
         }
