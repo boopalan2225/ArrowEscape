@@ -30,10 +30,7 @@ val releaseKeystore: File? = keystoreProperties.getProperty("storeFile")
     }
 
 android {
-    // Code lives under com.arrowescape; the Play Store identity below adds the
-    // .game suffix. Keeping them separate avoids a redundant com.arrowescape
-    // .game.game.* tree, since the game logic already owns a `game` package.
-    namespace = "com.arrowescape"
+    namespace = "com.clevercorner.arrowescape"
     compileSdk = 34
 
     testOptions {
@@ -51,7 +48,7 @@ android {
 
     defaultConfig {
         // Permanent once published - Play Store listings cannot change it.
-        applicationId = "com.arrowescape.game"
+        applicationId = "com.clevercorner.arrowescape"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -225,7 +222,7 @@ tasks.register<JavaExec>("renderShapes") {
     group = "verification"
     description = "Renders generated shapes to build/shape-preview for eyeballing."
     dependsOn("compileDebugKotlin")
-    mainClass.set("com.arrowescape.game.curve.ShapePreview")
+    mainClass.set("com.clevercorner.arrowescape.game.curve.ShapePreview")
     classpath = files(
         layout.buildDirectory.dir("tmp/kotlin-classes/debug"),
         configurations.getByName("debugRuntimeClasspath")

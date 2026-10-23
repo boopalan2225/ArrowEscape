@@ -15,4 +15,4 @@
 -keep class com.google.android.gms.ads.** { *; }
 
 # Keep data classes
--keep class com.arrowescape.game.model.** { *; }
+-keep class com.clevercorner.arrowescape.game.model.** { *; }

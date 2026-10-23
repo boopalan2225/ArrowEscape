@@ -1,6 +1,14 @@
-# Arrow Escape
+# Arrow Escape: Tap & Solve
 
 A minimalist, offline-first 2D puzzle game for Android.
+
+## Store Listing
+
+| Field | Value |
+| --- | --- |
+| App name | Arrow Escape: Tap & Solve |
+| Package ID | `com.clevercorner.arrowescape` |
+| Short description | Solve arrow puzzles, clear the board, and escape every level! |
 
 ## Game Concept
 
@@ -61,7 +69,7 @@ python3 tools/generate_sfx.py
 ## Project Structure
 
 ```
-com.arrowescape/            # namespace (code root)
+com.clevercorner.arrowescape/   # namespace (code root)
   - game/
     - model/       # ArrowTile, Direction, GameState
     - engine/      # GameEngine, CollisionChecker, GameSolver
@@ -84,20 +92,11 @@ com.arrowescape/            # namespace (code root)
 
 ### Package naming
 
-`namespace` and `applicationId` differ on purpose:
+`namespace` and `applicationId` are the same value, `com.clevercorner.arrowescape`
+- Kotlin package root (where `BuildConfig` is generated) and Play Store
+identity are one and the same, **permanent** once published.
 
-| Setting | Value | Role |
-| --- | --- | --- |
-| `namespace` | `com.arrowescape` | Kotlin package root, where `BuildConfig` is generated |
-| `applicationId` | `com.arrowescape.game` | Play Store identity, **permanent** once published |
-
-The game logic already lives in a `game` package, so making the code root
-`com.arrowescape.game` would produce `com.arrowescape.game.game.curve`.
-Splitting the two keeps the tree readable and costs nothing: relative manifest
-names such as `.MainActivity` resolve against the namespace, while the shipped
-APK still reports `com.arrowescape.game`.
-
-Anything that matches on applicationId must use the suffixed form - notably
+Anything that matches on applicationId must use this exact value - notably
 `package_name` in `google-services.json`.
 
 ## Building
@@ -243,7 +242,7 @@ on the sad paths. All carry an `ad_format` of `rewarded` or `interstitial`.
 
 ### Going live
 
-1. Create a Firebase project and register `com.arrowescape`.
+1. Create a Firebase project and register `com.clevercorner.arrowescape`.
 2. Replace `app/google-services.json` with the downloaded file.
 3. Set `FIREBASE_ENABLED` to `true` in both buildTypes in `app/build.gradle.kts`.
 4. Set `mappingFileUploadEnabled = true` in the `release` buildType so
@@ -262,7 +261,7 @@ Firebase collection disabled.
 - [ ] Review the Terms, Privacy Policy and Licenses copy with a human lawyer
 - [ ] Create store listing assets (screenshots, icon, feature graphic)
 - [ ] Create signed release keystore (see Release Signing) and back it up
-- [ ] Confirm `applicationId` is `com.arrowescape.game` - it cannot change later
+- [ ] Confirm `applicationId` is `com.clevercorner.arrowescape` - it cannot change later
 - [ ] Build release AAB: `./gradlew bundleRelease`
 - [ ] Test on multiple devices/screen sizes
 - [ ] Complete Play Console app setup
