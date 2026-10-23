@@ -11,7 +11,8 @@ import com.clevercorner.arrowescape.BuildConfig
  */
 object AppInfo {
     const val NAME = "Arrow Escape"
-    val VERSION: String = BuildConfig.VERSION_NAME
+    val VERSION: String = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_NUMBER})"
+    val BUILD_NUMBER: Int = BuildConfig.BUILD_NUMBER
     const val SUPPORT_EMAIL = "support@arrowescape.app"
     const val COPYRIGHT = "\u00a9 2025 Arrow Escape. All rights reserved."
 

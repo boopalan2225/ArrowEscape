@@ -37,6 +37,11 @@ val isReleaseSigningConfigured = releaseKeystore != null &&
         !keyAliasVal.isNullOrBlank() &&
         !keyPasswordVal.isNullOrBlank()
 
+val appVersionName: String = providers.gradleProperty("app.versionName").orNull ?: "0.0.1"
+val appBuildNumber: Int = (providers.gradleProperty("app.buildNumber").orNull
+    ?: providers.environmentVariable("BUILD_NUMBER").orNull
+    ?: "1").toIntOrNull() ?: 1
+
 android {
     namespace = "com.clevercorner.arrowescape"
     compileSdk = 34
@@ -59,8 +64,9 @@ android {
         applicationId = "com.clevercorner.arrowescape"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = appBuildNumber
+        versionName = appVersionName
+        buildConfigField("int", "BUILD_NUMBER", "$appBuildNumber")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
