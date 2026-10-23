@@ -14,8 +14,8 @@ object AppInfo {
     val VERSION: String = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_NUMBER})"
     val BUILD_NUMBER: Int = BuildConfig.BUILD_NUMBER
     const val SUPPORT_EMAIL = "support@arrowescape.app"
-    const val COPYRIGHT = "\u00a9 2025 Arrow Escape. All rights reserved."
+    const val COPYRIGHT = "\u00a9 2026 Arrow Escape. All rights reserved."
 
     /** When the Terms and the Privacy Policy were last reworded. */
-    const val LEGAL_LAST_UPDATED = "October 2025"
+    const val LEGAL_LAST_UPDATED = "October 2026"
 }
