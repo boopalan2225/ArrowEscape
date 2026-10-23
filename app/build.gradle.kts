@@ -44,7 +44,7 @@ val appBuildNumber: Int = (providers.gradleProperty("app.buildNumber").orNull
 
 android {
     namespace = "com.clevercorner.arrowescape"
-    compileSdk = 34
+    compileSdk = 36
 
     testOptions {
         unitTests {
@@ -63,7 +63,7 @@ android {
         // Permanent once published - Play Store listings cannot change it.
         applicationId = "com.clevercorner.arrowescape"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = appBuildNumber
         versionName = appVersionName
         buildConfigField("int", "BUILD_NUMBER", "$appBuildNumber")
