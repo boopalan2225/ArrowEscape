@@ -80,6 +80,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
                 .padding(16.dp)
         ) {
             SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
@@ -237,6 +238,7 @@ private fun SettingsHeader(onBackClick: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
                 .padding(horizontal = 8.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

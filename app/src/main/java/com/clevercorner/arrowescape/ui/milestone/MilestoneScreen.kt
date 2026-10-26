@@ -74,7 +74,9 @@ fun MilestoneScreen(
 
             LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
@@ -110,7 +112,12 @@ private fun JourneyTopBar(
     val animated by animateFloatAsState(progress, tween(800), label = "prog")
 
     Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 3.dp) {
-        Column(Modifier.fillMaxWidth().padding(16.dp)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(16.dp)
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = onBackClick,

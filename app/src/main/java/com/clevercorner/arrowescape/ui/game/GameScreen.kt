@@ -79,14 +79,16 @@ fun GameScreen(
                 shadowElevation = 3.dp
             ) {
                 Column(
-                    modifier = Modifier.background(
-                        Brush.verticalGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                                Color.Transparent
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                    Color.Transparent
+                                )
                             )
                         )
-                    )
                 ) {
                     GameTopBar(
                         level = gameState.level,
@@ -138,7 +140,9 @@ fun GameScreen(
             }
 
             GameBottomBar(
-                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .spotlightTarget(SpotlightTarget.HINT),
                 shapeName = shapeName,
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
@@ -157,6 +161,7 @@ fun GameScreen(
             combo = combo,
             modifier = Modifier
                 .align(Alignment.TopCenter)
+                .statusBarsPadding()
                 .padding(top = 120.dp)
         )
 
