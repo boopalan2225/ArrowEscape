@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">Những gì chúng tôi giữ và những gì chúng tôi không</string>
     <string name="settings_item_about_title">Giới thiệu về Mũi tên thoát</string>
     <string name="settings_item_about_subtitle">Ý tưởng, quy tắc và vẻ ngoài</string>
-    <string name="settings_section_debug">Gỡ lỗi</string>
-    <string name="settings_debug_tools_title">Công cụ dành cho nhà phát triển</string>
-    <string name="settings_debug_tap_to_hide">Nhấn để ẩn</string>
-    <string name="settings_debug_tap_to_show">Nhấn để hiển thị</string>
-    <string name="settings_debug_dev_mode_title">Chế độ nhà phát triển</string>
-    <string name="settings_debug_dev_mode_subtitle">Mở bất kỳ cấp độ nào từ Trang chủ; chơi không bao giờ thay đổi sự tiến bộ của bạn</string>
-    <string name="settings_debug_unlock_all_title">Mở khóa tất cả: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">Đặt tiến trình %1$s lên cấp độ %2$d</string>
-    <string name="settings_debug_reset_title">Đặt lại: %1$s</string>
-    <string name="settings_debug_reset_subtitle">Bắt đầu %1$s từ cấp 1</string>
     <string name="settings_footer">Được làm bằng \u2764 dành cho những người yêu thích câu đố</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">SẮP CÓ</string>
     <string name="coming_soon_title">Nhiều chương hơn có trong hội thảo</string>
     <string name="coming_soon_body">Bạn đã xóa mọi thứ chúng tôi đã xây dựng cho đến nay. Những hình dạng mới và những lối thoát phức tạp hơn đang được triển khai - hãy cập nhật ứng dụng để chúng cập bến vào ngày giao hàng.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 Trước đó</string>
-    <string name="dev_nav_next">Tiếp theo \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d mũi tên</string>
-    <string name="dev_level_field_label">Cấp độ (1-%1$d)</string>
-    <string name="dev_open_button">Mở</string>
-    <string name="dev_jump_to_shape_header">HOẶC CHUYỂN ĐẾN CHƯƠNG CỦA HÌNH DẠNG</string>
-    <string name="dev_chapter_title">%1$s \u00B7 chương %2$d</string>
-    <string name="dev_chapter_levels">Cấp độ %1$d_V3_%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">đầu tiên</string>
-    <string name="dev_level_button_last">Cuối cùng</string>
-    <string name="dev_level_button_master">Bậc thầy</string>
-    <string name="dev_header_title">Cấp độ nhà phát triển \u00B7</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Chọn trò chơi của bạn</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">Hiểu rồi</string>
     <string name="tour_skip_move">Bỏ qua di chuyển</string>
     <string name="tour_next">Tiếp theo</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

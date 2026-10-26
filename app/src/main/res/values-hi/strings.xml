@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">हम क्या रखते हैं और क्या नहीं रखते</string>
     <string name="settings_item_about_title">एरो एस्केप के बारे में</string>
     <string name="settings_item_about_subtitle">विचार, नियम और रूप</string>
-    <string name="settings_section_debug">डीबग करें</string>
-    <string name="settings_debug_tools_title">डेवलपर उपकरण</string>
-    <string name="settings_debug_tap_to_hide">छिपाने के लिए टैप करें</string>
-    <string name="settings_debug_tap_to_show">दिखाने के लिए टैप करें</string>
-    <string name="settings_debug_dev_mode_title">डेवलपर मोड</string>
-    <string name="settings_debug_dev_mode_subtitle">घर से कोई भी स्तर खोलें; खेल कभी भी आपकी प्रगति नहीं बदलता</string>
-    <string name="settings_debug_unlock_all_title">सभी को अनलॉक करें: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">%1$s प्रगति को %2$d स्तर पर सेट करें</string>
-    <string name="settings_debug_reset_title">रीसेट: %1$s</string>
-    <string name="settings_debug_reset_subtitle">स्तर 1 से %1$s प्रारंभ करें</string>
     <string name="settings_footer">पहेली प्रेमियों के लिए \u2764 के साथ बनाया गया</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">जल्द आ रहा है</string>
     <string name="coming_soon_title">कार्यशाला में और भी अध्याय हैं</string>
     <string name="coming_soon_body">हमने अब तक जो कुछ भी बनाया है, उसे आपने साफ़ कर दिया है। नए आकार और पेचीदा पलायन रास्ते में हैं - ऐप को अपडेट रखें ताकि वे जहाज वाले दिन ही उतर सकें।</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 पिछला</string>
-    <string name="dev_nav_next">अगला \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d तीर</string>
-    <string name="dev_level_field_label">स्तर (1-%1$d)</string>
-    <string name="dev_open_button">खुला</string>
-    <string name="dev_jump_to_shape_header">या किसी आकृति के अध्याय पर जाएं</string>
-    <string name="dev_chapter_title">%1$s \u00B7 अध्याय %2$d</string>
-    <string name="dev_chapter_levels">स्तर %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">पहला</string>
-    <string name="dev_level_button_last">अंतिम</string>
-    <string name="dev_level_button_master">मास्टर</string>
-    <string name="dev_header_title">डेवलपर \u00B7 स्तर</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">अपना खेल चुनें</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">समझ गया</string>
     <string name="tour_skip_move">चाल छोड़ें</string>
     <string name="tour_next">अगला</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

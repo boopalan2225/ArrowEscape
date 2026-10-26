@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">我们保留什么，不保留什么</string>
     <string name="settings_item_about_title">关于密室逃脱</string>
     <string name="settings_item_about_subtitle">想法、规则和外观</string>
-    <string name="settings_section_debug">调试</string>
-    <string name="settings_debug_tools_title">开发者工具</string>
-    <string name="settings_debug_tap_to_hide">点击隐藏</string>
-    <string name="settings_debug_tap_to_show">点按即可显示</string>
-    <string name="settings_debug_dev_mode_title">开发者模式</string>
-    <string name="settings_debug_dev_mode_subtitle">从主页打开任何级别；玩耍永远不会改变你的进步</string>
-    <string name="settings_debug_unlock_all_title">解锁全部：%1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">将 %1$s 进度设置为级别 %2$d</string>
-    <string name="settings_debug_reset_title">重置：%1$s</string>
-    <string name="settings_debug_reset_subtitle">从级别 1 开始 %1$s</string>
     <string name="settings_footer">用 \u2764 为拼图爱好者制作</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">即将推出</string>
     <string name="coming_soon_title">更多章节在研讨会中</string>
     <string name="coming_soon_body">您已经清除了我们迄今为止构建的所有内容。新的形状和更棘手的逃脱即将到来 - 保持应用程序更新，以便它们在发货当天着陆。</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 上一页</string>
-    <string name="dev_nav_next">下一个 \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d 箭头</string>
-    <string name="dev_level_field_label">等级（1-%1$d）</string>
-    <string name="dev_open_button">打开</string>
-    <string name="dev_jump_to_shape_header">或跳至形状的章节</string>
-    <string name="dev_chapter_title">%1$s \u00B7 章 %2$d</string>
-    <string name="dev_chapter_levels">级别 %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">第一</string>
-    <string name="dev_level_button_last">最后</string>
-    <string name="dev_level_button_master">大师</string>
-    <string name="dev_header_title">开发人员 \u00B7 级别</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">选择你的游戏</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">明白了</string>
     <string name="tour_skip_move">跳过移动</string>
     <string name="tour_next">下一步</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

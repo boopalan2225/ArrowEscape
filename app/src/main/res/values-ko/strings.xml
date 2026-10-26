@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">우리가 지키는 것과 지키지 않는 것</string>
     <string name="settings_item_about_title">애로우 이스케이프 정보</string>
     <string name="settings_item_about_subtitle">아이디어, 규칙 및 외모</string>
-    <string name="settings_section_debug">디버그</string>
-    <string name="settings_debug_tools_title">개발자 도구</string>
-    <string name="settings_debug_tap_to_hide">숨기려면 탭하세요.</string>
-    <string name="settings_debug_tap_to_show">표시하려면 탭하세요.</string>
-    <string name="settings_debug_dev_mode_title">개발자 모드</string>
-    <string name="settings_debug_dev_mode_subtitle">홈에서 원하는 레벨을 엽니다. 플레이는 진행 상황을 바꾸지 않습니다</string>
-    <string name="settings_debug_unlock_all_title">모두 잠금 해제: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">%1$s 진행률을 %2$d 수준으로 설정</string>
-    <string name="settings_debug_reset_title">재설정: %1$s</string>
-    <string name="settings_debug_reset_subtitle">레벨 1에서 %1$s을 시작하세요</string>
     <string name="settings_footer">퍼즐 애호가를 위해 \u2764로 제작됨</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">출시 예정</string>
     <string name="coming_soon_title">워크샵에는 더 많은 장이 있습니다.</string>
     <string name="coming_soon_body">당신은 지금까지 우리가 쌓아온 모든 것을 정리했습니다. 새로운 모양과 더욱 까다로운 탈출 방법이 곧 출시됩니다. 배송 당일에 도착할 수 있도록 앱을 최신 상태로 유지하세요.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 이전</string>
-    <string name="dev_nav_next">다음 \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d 화살표</string>
-    <string name="dev_level_field_label">레벨(1-%1$d)</string>
-    <string name="dev_open_button">열기</string>
-    <string name="dev_jump_to_shape_header">또는 셰이프의 챕터로 이동</string>
-    <string name="dev_chapter_title">%1$s \u00B7 장 %2$d</string>
-    <string name="dev_chapter_levels">레벨 %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">첫 번째</string>
-    <string name="dev_level_button_last">마지막</string>
-    <string name="dev_level_button_master">마스터</string>
-    <string name="dev_header_title">개발자 \u00B7 레벨</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">게임을 선택하세요</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">알았어요</string>
     <string name="tour_skip_move">이동 건너뛰기</string>
     <string name="tour_next">다음</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

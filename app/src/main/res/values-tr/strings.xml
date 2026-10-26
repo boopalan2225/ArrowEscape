@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">Neleri saklıyoruz ve neleri tutmuyoruz</string>
     <string name="settings_item_about_title">Arrow Escape Hakkında</string>
     <string name="settings_item_about_subtitle">Fikir, kurallar ve görünüm</string>
-    <string name="settings_section_debug">Hata ayıklama</string>
-    <string name="settings_debug_tools_title">Geliştirici Araçları</string>
-    <string name="settings_debug_tap_to_hide">Gizlemek için dokunun</string>
-    <string name="settings_debug_tap_to_show">Göstermek için dokunun</string>
-    <string name="settings_debug_dev_mode_title">Geliştirici Modu</string>
-    <string name="settings_debug_dev_mode_subtitle">Ana Sayfadan herhangi bir seviyeyi açın; oynamak ilerlemenizi asla değiştirmez</string>
-    <string name="settings_debug_unlock_all_title">Tümünün Kilidini Aç: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">%1$s ilerlemesini %2$d düzeyine ayarlayın</string>
-    <string name="settings_debug_reset_title">Sıfırla: %1$s</string>
-    <string name="settings_debug_reset_subtitle">%1$s\'yi 1. seviyeden başlatın</string>
     <string name="settings_footer">Bulmaca severler için \u2764 ile yapıldı</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">ÇOK YAKINDA</string>
     <string name="coming_soon_title">Atölyede daha fazla bölüm var</string>
     <string name="coming_soon_body">Şu ana kadar inşa ettiğimiz her şeyi temizledin. Yeni şekiller ve daha zorlu kaçışlar yolda; uygulamayı güncel tutun ki gönderildiği gün size ulaşsın.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 Önceki</string>
-    <string name="dev_nav_next">Sonraki \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d okları</string>
-    <string name="dev_level_field_label">Seviye (1-%1$d)</string>
-    <string name="dev_open_button">Açık</string>
-    <string name="dev_jump_to_shape_header">VEYA BİR ŞEKLİN BÖLÜMÜNE ATLAYIN</string>
-    <string name="dev_chapter_title">%1$s \u00B7 bölüm %2$d</string>
-    <string name="dev_chapter_levels">Seviyeler %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">İlk</string>
-    <string name="dev_level_button_last">Son</string>
-    <string name="dev_level_button_master">Usta</string>
-    <string name="dev_header_title">Geliştirici \u00B7 Seviyeleri</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Oyununu seç</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">Anladım</string>
     <string name="tour_skip_move">Taşımayı atla</string>
     <string name="tour_next">Sonraki</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

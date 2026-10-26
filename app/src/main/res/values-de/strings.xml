@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">Was wir behalten und was nicht</string>
     <string name="settings_item_about_title">Über Arrow Escape</string>
     <string name="settings_item_about_subtitle">Die Idee, die Regeln und das Aussehen</string>
-    <string name="settings_section_debug">Debuggen</string>
-    <string name="settings_debug_tools_title">Entwicklertools</string>
-    <string name="settings_debug_tap_to_hide">Zum Ausblenden tippen</string>
-    <string name="settings_debug_tap_to_show">Zum Anzeigen antippen</string>
-    <string name="settings_debug_dev_mode_title">Entwicklermodus</string>
-    <string name="settings_debug_dev_mode_subtitle">Öffnen Sie ein beliebiges Level von zu Hause aus; Spielen ändert nie Ihren Fortschritt</string>
-    <string name="settings_debug_unlock_all_title">Alle freischalten: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">%1$s-Fortschritt auf Stufe %2$d setzen</string>
-    <string name="settings_debug_reset_title">Zurücksetzen: %1$s</string>
-    <string name="settings_debug_reset_subtitle">Starten Sie %1$s ab Ebene 1</string>
     <string name="settings_footer">Hergestellt mit \u2764 für Puzzle-Liebhaber</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">KOMMT BALD</string>
     <string name="coming_soon_title">Weitere Kapitel finden Sie im Workshop</string>
     <string name="coming_soon_body">Sie haben alles, was wir bisher gebaut haben, abgeräumt. Neue Formen und kniffligere Fluchten sind auf dem Weg – halten Sie die App auf dem neuesten Stand, damit sie am Tag der Auslieferung landen.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 Vorher</string>
-    <string name="dev_nav_next">Weiter \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d Pfeile</string>
-    <string name="dev_level_field_label">Ebene (1-%1$d)</string>
-    <string name="dev_open_button">Offen</string>
-    <string name="dev_jump_to_shape_header">ODER SPRINGEN SIE ZUM KAPITEL EINER FORM</string>
-    <string name="dev_chapter_title">%1$s \u00B7 Kapitel %2$d</string>
-    <string name="dev_chapter_levels">Ebenen %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">Erstens</string>
-    <string name="dev_level_button_last">Zuletzt</string>
-    <string name="dev_level_button_master">Meister</string>
-    <string name="dev_header_title">Entwickler-\u00B7-Stufen</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Wählen Sie Ihr Spiel</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">Verstanden</string>
     <string name="tour_skip_move">Zug überspringen</string>
     <string name="tour_next">Als nächstes</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

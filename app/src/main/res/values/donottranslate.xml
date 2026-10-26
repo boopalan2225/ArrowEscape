@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ======================= Developer / Debug Settings ======================= -->
+    <string name="settings_section_debug" translatable="false">Debug</string>
+    <string name="settings_debug_tools_title" translatable="false">Developer Tools</string>
+    <string name="settings_debug_tap_to_hide" translatable="false">Tap to hide</string>
+    <string name="settings_debug_tap_to_show" translatable="false">Tap to show</string>
+    <string name="settings_debug_dev_mode_title" translatable="false">Developer Mode</string>
+    <string name="settings_debug_dev_mode_subtitle" translatable="false">Open any level from Home; play never changes your progress</string>
+    <string name="settings_debug_unlock_all_title" translatable="false">Unlock All: %1$s</string>
+    <string name="settings_debug_unlock_all_subtitle" translatable="false">Set %1$s progress to level %2$d</string>
+    <string name="settings_debug_reset_title" translatable="false">Reset: %1$s</string>
+    <string name="settings_debug_reset_subtitle" translatable="false">Start %1$s from level 1</string>
+
+    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_nav_prev" translatable="false">\u25C0 Prev</string>
+    <string name="dev_nav_next" translatable="false">Next \u25B6</string>
+    <string name="dev_level_shape" translatable="false">L%1$d \u00B7 %2$s</string>
+    <string name="dev_difficulty_arrows" translatable="false">%1$s \u00B7 %2$d arrows</string>
+    <string name="dev_level_field_label" translatable="false">Level (1-%1$d)</string>
+    <string name="dev_open_button" translatable="false">Open</string>
+    <string name="dev_jump_to_shape_header" translatable="false">OR JUMP TO A SHAPE\'S CHAPTER</string>
+    <string name="dev_chapter_title" translatable="false">%1$s \u00B7 chapter %2$d</string>
+    <string name="dev_chapter_levels" translatable="false">Levels %1$d\u2013%2$d \u00B7 %3$s</string>
+    <string name="dev_level_button_first" translatable="false">First</string>
+    <string name="dev_level_button_last" translatable="false">Last</string>
+    <string name="dev_level_button_master" translatable="false">Master</string>
+    <string name="dev_header_title" translatable="false">Developer \u00B7 Levels</string>
+
+    <!--
+      Play Games Services App ID from Play Console > Grow > Play Games Services.
+      Must stay a string resource, not a Gradle manifest placeholder: AAPT
+      auto-types a purely-numeric placeholder value as an Integer, and the
+      games.APP_ID meta-data silently rejects anything that isn't a String
+      (confirmed on-device: "expected String but value was a java.lang.Integer").
+      A placeholder - sign-in will not work until this is a real app ID.
+    -->
+    <string name="game_services_app_id" translatable="false">000000000000</string>
+</resources>

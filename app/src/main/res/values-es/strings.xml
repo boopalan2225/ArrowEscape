@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">Lo que conservamos y lo que no</string>
     <string name="settings_item_about_title">Acerca de Escape de flecha</string>
     <string name="settings_item_about_subtitle">La idea, las reglas y las miradas.</string>
-    <string name="settings_section_debug">Depurar</string>
-    <string name="settings_debug_tools_title">Herramientas para desarrolladores</string>
-    <string name="settings_debug_tap_to_hide">Toca para ocultar</string>
-    <string name="settings_debug_tap_to_show">Toca para mostrar</string>
-    <string name="settings_debug_dev_mode_title">Modo desarrollador</string>
-    <string name="settings_debug_dev_mode_subtitle">Abra cualquier nivel desde Inicio; jugar nunca cambia tu progreso</string>
-    <string name="settings_debug_unlock_all_title">Desbloquear todo: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">Establecer el progreso de %1$s al nivel %2$d</string>
-    <string name="settings_debug_reset_title">Restablecer: %1$s</string>
-    <string name="settings_debug_reset_subtitle">Iniciar %1$s desde el nivel 1</string>
     <string name="settings_footer">Hecho con \u2764 para los amantes de los rompecabezas.</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">PRÓXIMAMENTE</string>
     <string name="coming_soon_title">Más capítulos están en el taller.</string>
     <string name="coming_soon_body">Has limpiado todo lo que hemos construido hasta ahora. Nuevas formas y escapes más complicados están en camino: mantén la aplicación actualizada para que aterricen el día del envío.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 Anterior</string>
-    <string name="dev_nav_next">Siguiente \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d flechas</string>
-    <string name="dev_level_field_label">Nivel (1-%1$d)</string>
-    <string name="dev_open_button">Abierto</string>
-    <string name="dev_jump_to_shape_header">O SALTAR AL CAPÍTULO DE UNA FORMA</string>
-    <string name="dev_chapter_title">%1$s \u00B7 capítulo %2$d</string>
-    <string name="dev_chapter_levels">Niveles %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">primero</string>
-    <string name="dev_level_button_last">último</string>
-    <string name="dev_level_button_master">maestro</string>
-    <string name="dev_header_title">Niveles de desarrollador \u00B7</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Elige tu juego</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">Lo tengo</string>
     <string name="tour_skip_move">Saltar movimiento</string>
     <string name="tour_next">Siguiente</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

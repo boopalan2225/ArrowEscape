@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">สิ่งที่เราเก็บและสิ่งที่เราไม่ทำ</string>
     <string name="settings_item_about_title">เกี่ยวกับ แอร์โรว์ หนี</string>
     <string name="settings_item_about_subtitle">ความคิด กฎเกณฑ์ และรูปลักษณ์ภายนอก</string>
-    <string name="settings_section_debug">ดีบัก</string>
-    <string name="settings_debug_tools_title">เครื่องมือสำหรับนักพัฒนา</string>
-    <string name="settings_debug_tap_to_hide">แตะเพื่อซ่อน</string>
-    <string name="settings_debug_tap_to_show">แตะเพื่อแสดง</string>
-    <string name="settings_debug_dev_mode_title">โหมดนักพัฒนาซอฟต์แวร์</string>
-    <string name="settings_debug_dev_mode_subtitle">เปิดระดับใดก็ได้จากหน้าแรก การเล่นไม่เคยเปลี่ยนความก้าวหน้าของคุณ</string>
-    <string name="settings_debug_unlock_all_title">ปลดล็อคทั้งหมด: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">ตั้งค่า %1$s ความคืบหน้าเป็นระดับ %2$d</string>
-    <string name="settings_debug_reset_title">รีเซ็ต: %1$s</string>
-    <string name="settings_debug_reset_subtitle">เริ่ม %1$s จากระดับ 1</string>
     <string name="settings_footer">สร้างด้วย \u2764 สำหรับผู้ชื่นชอบปริศนา</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">มาเร็ว ๆ นี้</string>
     <string name="coming_soon_title">มีบทอื่นๆ อยู่ในเวิร์กช็อป</string>
     <string name="coming_soon_body">คุณได้เคลียร์ทุกสิ่งที่เราสร้างมาจนถึงตอนนี้แล้ว รูปร่างใหม่และการหลบหนีที่ซับซ้อนยิ่งขึ้นกำลังมาถึงแล้ว - อัปเดตแอปอยู่เสมอเพื่อให้มาถึงในวันที่จัดส่ง</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 ก่อนหน้า</string>
-    <string name="dev_nav_next">ถัดไป \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d ลูกศร</string>
-    <string name="dev_level_field_label">ระดับ (1-%1$d)</string>
-    <string name="dev_open_button">เปิด</string>
-    <string name="dev_jump_to_shape_header">หรือข้ามไปที่บทของรูปร่าง</string>
-    <string name="dev_chapter_title">%1$s \u00B7 บท %2$d</string>
-    <string name="dev_chapter_levels">ระดับ %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">อันดับแรก</string>
-    <string name="dev_level_button_last">สุดท้าย</string>
-    <string name="dev_level_button_master">อาจารย์</string>
-    <string name="dev_header_title">นักพัฒนา \u00B7 ระดับ</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">เลือกเกมของคุณ</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">เข้าใจแล้ว</string>
     <string name="tour_skip_move">ข้ามการเคลื่อนไหว</string>
     <string name="tour_next">ถัดไป</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

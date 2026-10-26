@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">ما نحتفظ به وما لا نحتفظ به</string>
     <string name="settings_item_about_title">حول السهم الهروب</string>
     <string name="settings_item_about_subtitle">الفكرة والقواعد والمظهر</string>
-    <string name="settings_section_debug">تصحيح</string>
-    <string name="settings_debug_tools_title">أدوات المطور</string>
-    <string name="settings_debug_tap_to_hide">انقر للإخفاء</string>
-    <string name="settings_debug_tap_to_show">انقر للإظهار</string>
-    <string name="settings_debug_dev_mode_title">وضع المطور</string>
-    <string name="settings_debug_dev_mode_subtitle">فتح أي مستوى من الصفحة الرئيسية؛ اللعب لا يغير تقدمك أبدًا</string>
-    <string name="settings_debug_unlock_all_title">فتح الكل: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">تعيين %1$s التقدم إلى المستوى %2$d</string>
-    <string name="settings_debug_reset_title">إعادة الضبط: %1$s</string>
-    <string name="settings_debug_reset_subtitle">ابدأ %1$s من المستوى 1</string>
     <string name="settings_footer">مصنوعة باستخدام \u2764 لمحبي الألغاز</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">قريبا</string>
     <string name="coming_soon_title">المزيد من الفصول في ورشة العمل</string>
     <string name="coming_soon_body">لقد قمت بمسح كل ما بنيناه حتى الآن. هناك أشكال جديدة وعمليات هروب أكثر تعقيدًا في الطريق - حافظ على تحديث التطبيق حتى يصلوا في يوم الشحن.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 السابق</string>
-    <string name="dev_nav_next">التالي \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d أسهم</string>
-    <string name="dev_level_field_label">المستوى (1-%1$d)</string>
-    <string name="dev_open_button">مفتوح</string>
-    <string name="dev_jump_to_shape_header">أو انتقل إلى فصل الشكل</string>
-    <string name="dev_chapter_title">%1$s \u00B7 الفصل %2$d</string>
-    <string name="dev_chapter_levels">المستويات %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">أولا</string>
-    <string name="dev_level_button_last">الاخير</string>
-    <string name="dev_level_button_master">سيد</string>
-    <string name="dev_header_title">المطور \u00B7 المستويات</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">اختر لعبتك</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">حصلت عليه</string>
     <string name="tour_skip_move">تخطي التحرك</string>
     <string name="tour_next">التالي</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

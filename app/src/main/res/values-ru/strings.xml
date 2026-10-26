@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">Что мы сохраняем, а что нет</string>
     <string name="settings_item_about_title">О побеге со стрелкой</string>
     <string name="settings_item_about_subtitle">Идея, правила и внешний вид</string>
-    <string name="settings_section_debug">Отладка</string>
-    <string name="settings_debug_tools_title">Инструменты разработчика</string>
-    <string name="settings_debug_tap_to_hide">Нажмите, чтобы скрыть</string>
-    <string name="settings_debug_tap_to_show">Нажмите, чтобы показать</string>
-    <string name="settings_debug_dev_mode_title">Режим разработчика</string>
-    <string name="settings_debug_dev_mode_subtitle">Откройте любой уровень из Дома; игра никогда не меняет вашего прогресса</string>
-    <string name="settings_debug_unlock_all_title">Разблокировать все: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">Установите прогресс %1$s на уровень %2$d.</string>
-    <string name="settings_debug_reset_title">Сброс: %1$s</string>
-    <string name="settings_debug_reset_subtitle">Запустите %1$s с уровня 1.</string>
     <string name="settings_footer">Сделано с помощью \u2764 для любителей головоломок.</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">СКОРО</string>
     <string name="coming_soon_title">Остальные главы в мастерской</string>
     <string name="coming_soon_body">Вы очистили все, что мы построили до сих пор. Новые формы и более сложные побеги уже в пути — обновляйте приложение, чтобы они появились в день отправки.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 Предыдущий</string>
-    <string name="dev_nav_next">Следующий \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d стрелки</string>
-    <string name="dev_level_field_label">Уровень (1-%1$d)</string>
-    <string name="dev_open_button">Открыть</string>
-    <string name="dev_jump_to_shape_header">ИЛИ ПЕРЕХОДИТЕ К ГЛАВЕ ФОРМЫ</string>
-    <string name="dev_chapter_title">%1$s \u00B7 глава %2$d</string>
-    <string name="dev_chapter_levels">Уровни %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">Первый</string>
-    <string name="dev_level_button_last">Последний</string>
-    <string name="dev_level_button_master">Мастер</string>
-    <string name="dev_header_title">Уровни разработчика \u00B7</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Выберите свою игру</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">понял</string>
     <string name="tour_skip_move">Пропустить ход</string>
     <string name="tour_next">Далее</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>

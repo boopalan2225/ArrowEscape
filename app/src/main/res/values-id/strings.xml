@@ -182,16 +182,6 @@
     <string name="settings_item_privacy_subtitle">Apa yang kita simpan dan apa yang tidak</string>
     <string name="settings_item_about_title">Tentang Pelarian Panah</string>
     <string name="settings_item_about_subtitle">Idenya, aturannya, dan tampilannya</string>
-    <string name="settings_section_debug">Men-debug</string>
-    <string name="settings_debug_tools_title">Alat Pengembang</string>
-    <string name="settings_debug_tap_to_hide">Ketuk untuk menyembunyikan</string>
-    <string name="settings_debug_tap_to_show">Ketuk untuk menampilkan</string>
-    <string name="settings_debug_dev_mode_title">Mode Pengembang</string>
-    <string name="settings_debug_dev_mode_subtitle">Buka level mana pun dari Beranda; bermain tidak pernah mengubah kemajuan Anda</string>
-    <string name="settings_debug_unlock_all_title">Buka Kunci Semua: %1$s</string>
-    <string name="settings_debug_unlock_all_subtitle">Setel kemajuan %1$s ke level %2$d</string>
-    <string name="settings_debug_reset_title">Setel ulang: %1$s</string>
-    <string name="settings_debug_reset_subtitle">Mulai %1$s dari level 1</string>
     <string name="settings_footer">Dibuat dengan \u2764 untuk pecinta teka-teki</string>
 
     <!-- ======================= Account section ======================= -->
@@ -212,21 +202,6 @@
     <string name="coming_soon_badge">SEGERA DATANG</string>
     <string name="coming_soon_title">Lebih banyak bab ada di bengkel</string>
     <string name="coming_soon_body">Anda telah menyelesaikan semua yang telah kami bangun sejauh ini. Bentuk baru dan jalan keluar yang lebih rumit akan segera hadir - terus perbarui aplikasi agar dapat mendarat pada hari pengirimannya.</string>
-
-    <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev">\u25C0 Sebelumnya</string>
-    <string name="dev_nav_next">Berikutnya \u25B6</string>
-    <string name="dev_level_shape">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows">%1$s \u00B7 %2$d panah</string>
-    <string name="dev_level_field_label">Tingkat (1-%1$d)</string>
-    <string name="dev_open_button">Buka</string>
-    <string name="dev_jump_to_shape_header">ATAU LOMPAT KE BAB BENTUK</string>
-    <string name="dev_chapter_title">%1$s \u00B7 bab %2$d</string>
-    <string name="dev_chapter_levels">Tingkat %1$d\u2013%2$d \u00B7 %3$s</string>
-    <string name="dev_level_button_first">Pertama</string>
-    <string name="dev_level_button_last">Terakhir</string>
-    <string name="dev_level_button_master">Guru</string>
-    <string name="dev_header_title">Tingkat Pengembang \u00B7</string>
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Pilih permainan Anda</string>
@@ -256,14 +231,4 @@
     <string name="tour_got_it">Mengerti</string>
     <string name="tour_skip_move">Lewati langkah</string>
     <string name="tour_next">Selanjutnya</string>
-
-    <!--
-      Play Games Services App ID from Play Console > Grow > Play Games Services.
-      Must stay a string resource, not a Gradle manifest placeholder: AAPT
-      auto-types a purely-numeric placeholder value as an Integer, and the
-      games.APP_ID meta-data silently rejects anything that isn't a String
-      (confirmed on-device: "expected String but value was a java.lang.Integer").
-      A placeholder - sign-in will not work until this is a real app ID.
-    -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
 </resources>
