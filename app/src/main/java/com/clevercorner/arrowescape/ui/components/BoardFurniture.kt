@@ -1,7 +1,6 @@
 package com.clevercorner.arrowescape.ui.components
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -24,18 +23,35 @@ import com.clevercorner.arrowescape.ui.theme.GameColors
 object BoardFurniture {
 
     /**
-     * Colour for a locked pair. Both halves of a group get the same hue, which
-     * is the entire tutorial the mechanic needs - matching colours leave
-     * together.
+     * Hues reserved for locked pairs, deliberately independent of the theme.
+     *
+     * Pair colour used to be borrowed from the theme's four directional arrow
+     * hues, which quietly broke the mechanic in Ink: that palette is
+     * monochrome on purpose, so every pair came out a slightly different grey
+     * and there was no way to tell which two belonged together.
+     *
+     * Owning the palette fixes that everywhere at once, and in Ink it turns
+     * into a feature - locked pairs become the *only* colour on an otherwise
+     * black-and-white board, which is about as readable as a huddle can get.
+     *
+     * Four hues that stay distinct from each other on both the light paper
+     * boards and the daily's dark slate, and that do not rely on separating
+     * red from green.
      */
-    fun lockColors(group: Int, colors: GameColors): Pair<Color, Color> {
-        val palette = listOf(
-            colors.arrowRight,
-            colors.arrowUp,
-            colors.arrowLeft,
-            colors.arrowDown
-        )
-        val base = palette[group.mod(palette.size)]
+    private val LockPalette = listOf(
+        Color(0xFFF08A24), // amber
+        Color(0xFF14A89D), // teal
+        Color(0xFF9A5CE0), // violet
+        Color(0xFFE0457B)  // rose
+    )
+
+    /**
+     * Colour for a locked pair. Both halves of a group get the same hue,
+     * which is the entire tutorial the mechanic needs - matching colours
+     * leave together.
+     */
+    fun lockColors(group: Int): Pair<Color, Color> {
+        val base = LockPalette[group.mod(LockPalette.size)]
         return base to base.copy(alpha = 0.72f)
     }
 

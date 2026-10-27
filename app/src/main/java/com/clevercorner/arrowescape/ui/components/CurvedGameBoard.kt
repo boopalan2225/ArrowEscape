@@ -107,6 +107,16 @@ fun CurvedGameBoard(
     val skinColors = skin.colors()
     val boardDescription = stringResource(R.string.board_content_description)
 
+    // Split once per change rather than once per frame. The canvas repaints
+    // continuously while the hint pulses, and re-partitioning a few hundred
+    // arrows on every one of those frames is work nobody asked for.
+    val (resting, moving) = remember(arrows, escapingArrows, bumpingArrows) {
+        val (still, busy) = arrows.partition {
+            it.id !in escapingArrows && it.id !in bumpingArrows
+        }
+        still.filter { it.isActive } to busy
+    }
+
     // Animated values are passed as State and only read while drawing, so a
     // pulsing hint repaints the canvas instead of recomposing the whole board.
     val pulse = rememberInfiniteTransition(label = "boardPulse")
@@ -225,10 +235,7 @@ fun CurvedGameBoard(
                 scale(vp.zoom, vp.zoom, pivot = Offset.Zero)
             }) {
                 // Resting arrows first so anything moving is drawn on top.
-                val (resting, moving) = arrows.partition {
-                    it.id !in escapingArrows && it.id !in bumpingArrows
-                }
-                resting.filter { it.isActive }.forEach { arrow ->
+                resting.forEach { arrow ->
                     val hinted = arrow.id == hintArrowId
                     val render = {
                         drawArrow(

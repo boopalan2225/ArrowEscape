@@ -50,7 +50,6 @@ class GamePreferences(private val context: Context) {
         private fun keyHighestLevel(mode: GameMode) = intPreferencesKey("highest_level_${mode.id}")
         private fun keyTotalCompleted(mode: GameMode) = intPreferencesKey("total_completed_${mode.id}")
         private fun keyLevelStars(mode: GameMode) = stringPreferencesKey("level_stars_${mode.id}")
-        private fun keyBestTimes(mode: GameMode) = stringPreferencesKey("best_times_${mode.id}")
 
         /**
          * Pre-per-mode keys. Progress used to be global - one set of numbers
@@ -75,15 +74,7 @@ class GamePreferences(private val context: Context) {
         val currentLevel: Int = 1,
         val highestLevel: Int = 1,
         val totalLevelsCompleted: Int = 0,
-        val levelStars: Map<Int, Int> = emptyMap(), // level -> stars (1-3)
-        /**
-         * level -> fastest clear in seconds.
-         *
-         * Deliberately device-local: the cloud blob is a fixed, positional
-         * format that older builds still have to parse, and a personal best
-         * is not worth breaking their decoder over.
-         */
-        val bestTimes: Map<Int, Int> = emptyMap()
+        val levelStars: Map<Int, Int> = emptyMap() // level -> stars (1-3)
     ) {
         /**
          * Levels cleared, never more than [totalLevels]. A journey can be
@@ -140,7 +131,6 @@ class GamePreferences(private val context: Context) {
         val highestLevel: Int get() = activeProgress.highestLevel
         val totalLevelsCompleted: Int get() = activeProgress.totalLevelsCompleted
         val levelStars: Map<Int, Int> get() = activeProgress.levelStars
-        val bestTimes: Map<Int, Int> get() = activeProgress.bestTimes
     }
 
     /**
@@ -193,8 +183,7 @@ class GamePreferences(private val context: Context) {
         currentLevel = this[keyCurrentLevel(mode)] ?: 1,
         highestLevel = this[keyHighestLevel(mode)] ?: 1,
         totalLevelsCompleted = this[keyTotalCompleted(mode)] ?: 0,
-        levelStars = parseLevelMap(this[keyLevelStars(mode)]),
-        bestTimes = parseLevelMap(this[keyBestTimes(mode)])
+        levelStars = parseLevelMap(this[keyLevelStars(mode)])
     )
 
     /**
@@ -294,26 +283,6 @@ class GamePreferences(private val context: Context) {
             }
             prefs[keyLevelStars(mode)] = encodeLevelMap(starsMap)
         }
-    }
-
-    /**
-     * Records a clear time, keeping only the fastest.
-     *
-     * @return true if this run was a new personal best, so the caller can say
-     *         so without having to re-read the store and race itself.
-     */
-    suspend fun saveBestTime(mode: GameMode, level: Int, seconds: Int): Boolean {
-        var improved = false
-        context.dataStore.edit { prefs ->
-            val times = prefs.progressOf(mode).bestTimes.toMutableMap()
-            val previous = times[level]
-            improved = previous == null || seconds < previous
-            if (improved) {
-                times[level] = seconds
-                prefs[keyBestTimes(mode)] = encodeLevelMap(times)
-            }
-        }
-        return improved
     }
 
     suspend fun setSoundEnabled(enabled: Boolean) {

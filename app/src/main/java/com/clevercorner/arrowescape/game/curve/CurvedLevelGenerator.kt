@@ -60,6 +60,13 @@ object CurvedLevelGenerator {
     private const val STALL_LIMIT = 250
 
     /**
+     * How many slots [pickSlot] weighs before committing to one. Three is
+     * enough to steer the search without turning move selection into its own
+     * search.
+     */
+    private const val SLOT_SAMPLES = 3
+
+    /**
      * Tightness the daily shuffle aims for. Lower than a fresh level's
      * target: the shuffle has to land fast and reliably, and a board the
      * player has already half-solved is tight enough on its own.
@@ -236,7 +243,10 @@ object CurvedLevelGenerator {
 
         val graph = CurvedGameEngine.OrientationGraph(arrows, board)
         val climbed = climb(graph, BooleanArray(arrows.size), targetTightness, random)
-        return guaranteeSolvable(apply(arrows, climbed), board)
+        // The clear order is built here, once, rather than on every candidate
+        // the climb looked at.
+        val tuned = TunedLevel(applyFlips(arrows, climbed.flips), graph.analyze(climbed.flips))
+        return guaranteeSolvable(tuned, board)
     }
 
     /**
@@ -277,7 +287,7 @@ object CurvedLevelGenerator {
         val climbed = climb(graph, start, targetTightness, random)
         if (!climbed.result.solved) return null
 
-        return apply(relocated, climbed).arrows
+        return applyFlips(relocated, climbed.flips)
     }
 
     /**
@@ -293,7 +303,7 @@ object CurvedLevelGenerator {
         random: Random
     ): Climbed {
         var flips = start
-        var best = graph.analyze(flips)
+        var best = graph.score(flips)
 
         val budget = (flips.size * STEPS_PER_ARROW).coerceIn(200, 4000)
         var sinceImprovement = 0
@@ -314,11 +324,19 @@ object CurvedLevelGenerator {
             val jump = if (sinceImprovement > 40) (2..5).random(random) else 1
             val candidate = flips.copyOf()
             repeat(jump) {
-                val slot = candidate.indices.random(random)
+                // Aim only once there is a solvable board to improve on.
+                // While still hunting for one, "make this arrow more blocked"
+                // is pushing toward the deadlocks we are trying to escape, so
+                // plain random exploration is the better move.
+                val slot = if (best.solved) {
+                    pickSlot(graph, candidate, random)
+                } else {
+                    candidate.indices.random(random)
+                }
                 candidate[slot] = !candidate[slot]
             }
 
-            val result = graph.analyze(candidate)
+            val result = graph.score(candidate)
             if (isBetter(result, best)) {
                 flips = candidate
                 best = result
@@ -330,28 +348,53 @@ object CurvedLevelGenerator {
         return Climbed(flips, best)
     }
 
-    private fun apply(arrows: List<CurvedArrow>, climbed: Climbed): TunedLevel =
-        TunedLevel(
-            arrows.mapIndexed { slot, arrow ->
-                if (climbed.flips[slot]) arrow.reversed() else arrow
-            },
-            climbed.result
-        )
+    /** Applies a flip vector to the arrows. Geometry only - no solving. */
+    private fun applyFlips(arrows: List<CurvedArrow>, flips: BooleanArray): List<CurvedArrow> =
+        arrows.mapIndexed { slot, arrow -> if (flips[slot]) arrow.reversed() else arrow }
 
-    private class Climbed(val flips: BooleanArray, val result: CurvedGameEngine.SolveResult)
+    private class Climbed(val flips: BooleanArray, val result: CurvedGameEngine.SolveStats)
+
+    /**
+     * Chooses which arrow to try flipping.
+     *
+     * Not uniformly at random: it samples a few slots and takes the one whose
+     * flip would put the most arrows in its way. An arrow with an empty lane
+     * ahead of it is free on turn one and contributes nothing to the puzzle,
+     * so turning it to face a crowd is the move most likely to tighten the
+     * board. Picking blind meant most candidates were rejected and the search
+     * needed thousands of full evaluations to get anywhere; weighing moves
+     * first costs only array lengths, and no sweep at all.
+     */
+    private fun pickSlot(
+        graph: CurvedGameEngine.OrientationGraph,
+        flips: BooleanArray,
+        random: Random
+    ): Int {
+        var bestSlot = flips.indices.random(random)
+        var bestGain = Int.MIN_VALUE
+        repeat(SLOT_SAMPLES) {
+            val slot = flips.indices.random(random)
+            val gain = graph.blockerCount(slot, !flips[slot]) - graph.blockerCount(slot, flips[slot])
+            if (gain > bestGain) {
+                bestGain = gain
+                bestSlot = slot
+            }
+        }
+        return bestSlot
+    }
 
     /**
      * Solvability dominates; tightness only breaks ties between solvable
      * boards. While unsolvable, clearing more arrows is the gradient to climb.
      */
     private fun isBetter(
-        candidate: CurvedGameEngine.SolveResult,
-        best: CurvedGameEngine.SolveResult
+        candidate: CurvedGameEngine.SolveStats,
+        best: CurvedGameEngine.SolveStats
     ): Boolean = when {
         candidate.solved && !best.solved -> true
         !candidate.solved && best.solved -> false
         candidate.solved -> candidate.tightness > best.tightness
-        else -> candidate.order.size > best.order.size
+        else -> candidate.cleared > best.cleared
     }
 
     private data class TunedLevel(

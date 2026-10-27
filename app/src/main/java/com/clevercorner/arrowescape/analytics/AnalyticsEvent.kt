@@ -30,7 +30,6 @@ object Params {
     const val ARROWS = "arrows"
     const val REMAINING = "remaining"
     const val LIVES = "lives"
-    const val TIME_SECONDS = "time_seconds"
     const val MISTAKES = "mistakes"
     const val CONTINUE_USED = "continue_used"
     const val CLEARED_PCT = "cleared_pct"
@@ -71,12 +70,11 @@ object Events {
     fun invalidMove(level: Int, remainingLives: Int) =
         AnalyticsEvent("invalid_move", mapOf(Params.LEVEL to level, Params.LIVES to remainingLives))
 
-    fun levelCompleted(level: Int, timeSeconds: Int, mistakes: Int, continueUsed: Boolean) =
+    fun levelCompleted(level: Int, mistakes: Int, continueUsed: Boolean) =
         AnalyticsEvent(
             "level_completed",
             mapOf(
                 Params.LEVEL to level,
-                Params.TIME_SECONDS to timeSeconds,
                 Params.MISTAKES to mistakes,
                 Params.CONTINUE_USED to continueUsed
             )

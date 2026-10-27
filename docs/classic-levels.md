@@ -94,6 +94,14 @@ Pairs are safe by construction. Given a known solution order, arrows that are
 definition, and the second can leave the moment after with only the first in
 its way - exactly the allowance a locked pair gets.
 
+The hues come from `BoardFurniture.LockPalette` and are deliberately **not**
+taken from the active theme. They used to be borrowed from the theme's four
+directional arrow colours, which broke the mechanic outright in Ink: that
+palette is monochrome on purpose, so every pair came out a slightly different
+grey and nothing said which two belonged together. Owning four fixed hues
+fixes it everywhere, and in Ink it becomes the nicest version of the feature -
+the locked pairs are the only colour on an otherwise black-and-white board.
+
 ## Level kinds
 
 `LevelRecipe.kindOf` marks every 5th level a **Boss** and every 20th a **God**
@@ -127,18 +135,6 @@ sweeping into the outgoing direction plus a short fading exit lane. The first
 version was a plain chevron, which read as "something points that way" and
 taught nobody anything.
 
-## The level clock
-
-Every run is timed, and the fastest clear per level is kept. The timer is a
-carrot, never a stick: nothing expires and nothing is lost by being slow - it
-exists so a solved board is worth solving again. The HUD chip turns gold while
-the player is inside their own record, and the completion card calls out a new
-best.
-
-Best times are stored per mode and are deliberately **device-local**: the
-cloud blob is a fixed, positional format that older builds still have to
-parse, and a personal best is not worth breaking their decoder over.
-
 ## Where the rules live
 
 `ExitSimulator` is the single definition of "can it get out?". The collision
@@ -148,7 +144,7 @@ route the engine traced, deflector corners included.
 
 ## Why a level appears instantly
 
-Three things keep the loading spinner off the screen, in order of how much
+Several things keep the loading spinner off the screen, in order of how much
 they matter:
 
 1. **The sweep allocates nothing.** The orientation search runs the solver
@@ -162,8 +158,26 @@ they matter:
    used to run its full budget on every late level. It now bails after
    `STALL_LIMIT` non-improving steps - but only once it already holds a
    *solvable* board, so this can never trade correctness for speed.
-3. **Neighbours are built before they are asked for.** While the player reads
+3. **The search aims instead of guessing.** A candidate move used to be a
+   uniformly random flip, so most were rejected and progress needed thousands
+   of full evaluations. `pickSlot` now samples a few arrows and flips the one
+   that would gain the most blockers - an arrow with an empty lane ahead is
+   free on turn one and contributes nothing, so turning it to face a crowd is
+   the move most likely to tighten the board. Weighing moves costs array
+   lengths, not sweeps. It deliberately only applies *once a solvable board
+   exists*: while still hunting for one, "more blocked" points straight at the
+   deadlocks the search is trying to escape, so plain exploration wins there.
+4. **The search never builds the clear order.** It reads only whether the
+   board cleared and how constrained it was, so it calls `score()` which
+   returns `SolveStats` and writes the order into a reusable buffer. The
+   `List<Int>` of boxed ids is materialised once, for the winner, instead of
+   on every candidate.
+5. **Neighbours are built before they are asked for.** While the player reads
    the current board, the levels either side are generated in the background
    and land in the same cache a real load reads from. A real load cancels the
    speculative one first, so guessing never delays the level actually being
    waited on.
+
+On the drawing side the same instinct applies: the canvas repaints on every
+frame of the hint pulse, so anything that groups or partitions the arrow list
+is hoisted into a `remember` rather than run sixty times a second.

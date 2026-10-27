@@ -37,7 +37,6 @@ data class CurvedGameState(
     val mistakes: Int = 0,
     val status: GameStatus = GameStatus.PLAYING,
     val hintArrowId: Int? = null,
-    val startTimeMillis: Long = System.currentTimeMillis(),
     val colorPalette: List<Long> = emptyList(),
     /** No remaining arrow can ever escape - the level cannot be finished. */
     val isStuck: Boolean = false
@@ -130,6 +129,9 @@ class CurvedGameViewModel(
     private var continueUsedThisLevel = false
     private var pendingLevel: Int? = null
 
+    /** Set by [prepareLevel]; cleared by the [startLevel] that consumes it. */
+    private var preparedLevel: Int? = null
+
     private var session = CurvedSession.JOURNEY
 
     /** Non-null only while a daily board is being played. */
@@ -141,6 +143,9 @@ class CurvedGameViewModel(
      * tap is a set lookup rather than a geometric sweep.
      */
     private var blockingGraph: CurvedGameEngine.BlockingGraph? = null
+
+    /** The job building the board on screen. Superseded loads are cancelled. */
+    private var boardJob: Job? = null
 
     /** Speculative build of the neighbouring levels. See [prefetchNeighbours]. */
     private var prefetchJob: Job? = null
@@ -181,6 +186,25 @@ class CurvedGameViewModel(
     fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
 
     fun startLevel(level: Int) {
+        val alreadyPrepared = preparedLevel == level
+        preparedLevel = null
+        if (!alreadyPrepared) beginJourneyLevel(level)
+    }
+
+    /**
+     * Starts building [level] before its screen exists. The game screen is
+     * opened straight after, and [startLevel] then finds the board already
+     * on its way rather than starting it over.
+     *
+     * The player already chose this level on the previous screen, so there
+     * is no reason to wait for the game screen to ask for it.
+     */
+    fun prepareLevel(level: Int) {
+        preparedLevel = level
+        beginJourneyLevel(level)
+    }
+
+    private fun beginJourneyLevel(level: Int) {
         session = CurvedSession.JOURNEY
         dailyPuzzle = null
         stopShuffleClock()
@@ -331,12 +355,15 @@ class CurvedGameViewModel(
         // Whatever we were speculatively building, the player has now told us
         // what they actually want - stop competing with it for CPU.
         prefetchJob?.cancel()
-        viewModelScope.launch {
-            // Flagged before the first suspension point: until the new board
-            // exists the screen must show nothing rather than the previous
-            // level's arrows.
-            _isGenerating.value = true
+        boardJob?.cancel()
 
+        // Set before the first suspension point, so from this instant the
+        // header names the requested level and the board area shows only the
+        // spinner - never the previous level's arrows or name.
+        _gameState.value = headerOf(level)
+        _isGenerating.value = true
+
+        boardJob = viewModelScope.launch {
             // Generate the level - and its blocking graph - off the main thread.
             // Dense levels have hundreds of arrows; building the graph lazily on
             // the first tap would stall the UI right when the player touches it.
@@ -355,7 +382,6 @@ class CurvedGameViewModel(
                 mistakes = 0,
                 status = GameStatus.PLAYING,
                 hintArrowId = null,
-                startTimeMillis = System.currentTimeMillis(),
                 colorPalette = curvedLevel.colorPalette,
                 // The generator promises a solvable level; verify rather than trust.
                 isStuck = !CurvedGameEngine.isSolvable(graph, curvedLevel.arrows.map { it.id }.toSet())
@@ -389,6 +415,18 @@ class CurvedGameViewModel(
      * Cancelled the moment a real load starts, so speculative work never
      * delays the level actually being waited on.
      */
+    /**
+     * The part of a level's state that comes from its number alone - the
+     * name and difficulty the header shows. Read from the same sources the
+     * generator uses, so it cannot disagree with the finished board, and it
+     * is available instantly where the board is not.
+     */
+    private fun headerOf(level: Int) = CurvedGameState(
+        level = level,
+        shapeName = CurvedJourney.designFor(level).name,
+        difficulty = DifficultyTuning.tierOf(level)
+    )
+
     private fun prefetchNeighbours(level: Int) {
         prefetchJob = viewModelScope.launch(Dispatchers.Default) {
             for (neighbour in listOf(level + 1, level - 1)) {
@@ -569,10 +607,8 @@ class CurvedGameViewModel(
         if (prefs.value.devMode) return
 
         viewModelScope.launch {
-            val timeSeconds = ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
             analytics.log(Events.levelCompleted(
                 state.level,
-                timeSeconds,
                 state.mistakes,
                 continueUsedThisLevel
             ))

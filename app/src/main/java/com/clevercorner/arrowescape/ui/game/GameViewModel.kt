@@ -43,7 +43,6 @@ class GameViewModel(
         private const val ESCAPE_ANIMATION_DURATION_MS = 530L
         private const val SHAKE_ANIMATION_DURATION_MS = 300L
         private const val HINTS_PER_LEVEL = 2
-        private const val TIMER_TICK_MS = 250L
     }
 
     private val gameEngine = GameEngine()
@@ -78,22 +77,6 @@ class GameViewModel(
     private val _isGenerating = MutableStateFlow(false)
     val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
 
-    /**
-     * Seconds on the current run, ticking once a second while the level is
-     * being played. Derived from the state's own start stamp rather than
-     * counted up, so pausing the coroutine (backgrounding, a slow frame)
-     * cannot make the clock drift.
-     */
-    private val _elapsedSeconds = MutableStateFlow(0)
-    val elapsedSeconds: StateFlow<Int> = _elapsedSeconds.asStateFlow()
-
-    /** The record this run was measured against - null if there wasn't one. */
-    private val _previousBestSeconds = MutableStateFlow<Int?>(null)
-    val previousBestSeconds: StateFlow<Int?> = _previousBestSeconds.asStateFlow()
-
-    private val _isNewBestTime = MutableStateFlow(false)
-    val isNewBestTime: StateFlow<Boolean> = _isNewBestTime.asStateFlow()
-
     val prefs = preferences.prefsFlow.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -127,26 +110,6 @@ class GameViewModel(
         preloadAds()
         // Every theme has its own voice; keep the board speaking the right one.
         feedback.followTheme(prefs, viewModelScope)
-        runClock()
-    }
-
-    /**
-     * One clock for the whole ViewModel rather than one per level: a level
-     * that ends while its own ticker is mid-delay would otherwise leak a
-     * coroutine for every restart.
-     */
-    private fun runClock() {
-        viewModelScope.launch {
-            while (true) {
-                val state = _gameState.value
-                _elapsedSeconds.value = if (state.status == GameStatus.PLAYING) {
-                    gameEngine.getCompletionTimeSeconds(state)
-                } else {
-                    _elapsedSeconds.value
-                }
-                delay(TIMER_TICK_MS)
-            }
-        }
     }
 
     private fun preloadAds() {
@@ -189,9 +152,6 @@ class GameViewModel(
             _shakingArrows.value = emptySet()
             _hintsRemaining.value = HINTS_PER_LEVEL
             _combo.value = 0
-            _elapsedSeconds.value = 0
-            _isNewBestTime.value = false
-            _previousBestSeconds.value = prefs.value.bestTimes[level]
             continueUsedThisLevel = false
             _isGenerating.value = false
             prefetchNeighbours(level)
@@ -393,18 +353,11 @@ class GameViewModel(
 
     private fun handleLevelComplete(state: GameState) {
         viewModelScope.launch {
-            val timeSeconds = gameEngine.getCompletionTimeSeconds(state)
             analytics.log(Events.levelCompleted(
                 state.level,
-                timeSeconds,
                 state.mistakes,
                 continueUsedThisLevel
             ))
-
-            // Read the old record BEFORE saving, so the completion card can
-            // show what was beaten rather than what was just set.
-            _previousBestSeconds.value = prefs.value.bestTimes[state.level]
-            _isNewBestTime.value = preferences.saveBestTime(MODE, state.level, timeSeconds)
 
             // Calculate and save stars
             val stars = when {

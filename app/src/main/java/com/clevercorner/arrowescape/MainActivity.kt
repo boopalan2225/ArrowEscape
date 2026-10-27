@@ -157,6 +157,16 @@ fun ArrowEscapeApp(
         factory = CurvedGameViewModelFactory(preferences, adManager, analytics, context)
     )
 
+    /**
+     * Opens [level] in the current mode's game screen. A curved board starts
+     * building here, before the screen exists, so the level the player tapped
+     * is the one on display from the very first frame.
+     */
+    val playLevel: (Int) -> Unit = { level ->
+        if (prefs.mode == GameMode.CURVED) curvedGameViewModel.prepareLevel(level)
+        navController.navigate("game/$level")
+    }
+
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -173,7 +183,7 @@ fun ArrowEscapeApp(
                 prefs = prefs,
                 onPlayClick = {
                     analytics.log(Events.gameStarted(prefs.currentLevel))
-                    navController.navigate("game/${prefs.currentLevel}")
+                    playLevel(prefs.currentLevel)
                 },
                 onModeSelect = { mode ->
                     scope.launch { preferences.setGameMode(mode) }
@@ -208,7 +218,7 @@ fun ArrowEscapeApp(
         composable("dev") {
             DevLevelScreen(
                 onBackClick = { navController.popBackStack() },
-                onPlayLevel = { level -> navController.navigate("game/$level") }
+                onPlayLevel = playLevel
             )
         }
 
@@ -250,7 +260,7 @@ fun ArrowEscapeApp(
                 onBackClick = { navController.popBackStack() },
                 onPlayLevel = { level ->
                     analytics.log(Events.gameStarted(level))
-                    navController.navigate("game/$level")
+                    playLevel(level)
                 }
             )
         }

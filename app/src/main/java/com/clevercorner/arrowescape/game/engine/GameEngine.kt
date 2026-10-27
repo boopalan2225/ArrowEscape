@@ -37,7 +37,6 @@ class GameEngine {
         board = board,
         lives = MAX_LIVES,
         status = GameStatus.PLAYING,
-        startTimeMillis = System.currentTimeMillis(),
         mistakes = 0,
         difficultyLabel = difficultyLabel
     )
@@ -96,7 +95,4 @@ class GameEngine {
         GameSolver.solve(state.activeArrows, state.board)?.order?.firstOrNull()
             ?: CollisionChecker.getEscapableArrows(state.activeArrows, state.board)
                 .firstOrNull()?.id
-
-    fun getCompletionTimeSeconds(state: GameState): Int =
-        ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
 }

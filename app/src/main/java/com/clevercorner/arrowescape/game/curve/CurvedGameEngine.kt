@@ -188,15 +188,39 @@ object CurvedGameEngine {
             if (flipped) reversed[slot] else forward[slot]
 
         /**
-         * Greedy clear-through for one orientation assignment.
+         * How many arrows stand in [slot]'s way in the given orientation.
+         *
+         * Lets the search *aim*: an arrow with nothing in front of it is free
+         * on turn one, and turning it to face a crowd is the move most likely
+         * to tighten the board. Costs an array length rather than a sweep, so
+         * the search can weigh candidate moves before paying to evaluate one.
+         */
+        fun blockerCount(slot: Int, flipped: Boolean): Int = blockersOf(slot, flipped).size
+
+        /**
+         * Sweep statistics for one orientation assignment, without building
+         * the clear order. This is all the search reads, and skipping the
+         * order is what keeps a search step allocation-free.
+         *
          * [flips] is indexed by slot, not by arrow id.
          *
          * Not thread-safe: the scratch buffers are shared between calls. The
          * orientation search is single-threaded by design, and sharing is the
          * entire point - allocating them per call is what made it slow.
          */
-        fun analyze(flips: BooleanArray): SolveResult =
-            sweep(ids, work) { slot -> blockersOf(slot, flips[slot]) }
+        fun score(flips: BooleanArray): SolveStats =
+            sweepStats(size, work) { slot -> blockersOf(slot, flips[slot]) }
+
+        /**
+         * Full result, clear order included. One call at the end of a search,
+         * rather than one per candidate.
+         */
+        fun analyze(flips: BooleanArray): SolveResult {
+            val stats = score(flips)
+            val order = ArrayList<Int>(stats.cleared)
+            for (at in 0 until stats.cleared) order.add(ids[work.order[at]])
+            return SolveResult(stats.solved, order, stats.averageBranching, stats.forcedMoves)
+        }
     }
 
     /**
@@ -220,6 +244,9 @@ object CurvedGameEngine {
 
         /** Binary min-heap of free slots, so the lowest index is taken first. */
         val heap = IntArray(size)
+
+        /** Slots in the order they cleared, filled by every sweep. */
+        val order = IntArray(size)
     }
 
     /**
@@ -235,17 +262,17 @@ object CurvedGameEngine {
      * on. The lowest-index free arrow is taken each turn, so the order is
      * stable.
      */
-    private inline fun sweep(
-        ids: List<Int>,
+    private inline fun sweepStats(
+        n: Int,
         work: SweepWorkspace,
         blockerSlotsOf: (Int) -> IntArray
-    ): SolveResult {
-        val n = ids.size
+    ): SolveStats {
         val unmet = work.unmet
         val start = work.start
         val cursor = work.cursor
         val dependents = work.dependents
         val heap = work.heap
+        val order = work.order
 
         // Build the reverse adjacency (who unblocks whom) as a counting sort
         // into flat arrays, rather than a list object per arrow.
@@ -266,7 +293,7 @@ object CurvedGameEngine {
             if (unmet[slot] == 0) heapPush(heap, heapSize++, slot)
         }
 
-        val order = ArrayList<Int>(n)
+        var cleared = 0
         var branchingTotal = 0
         var turns = 0
         var forced = 0
@@ -278,7 +305,7 @@ object CurvedGameEngine {
 
             val chosen = heap[0]
             heapSize = heapPop(heap, heapSize)
-            order.add(ids[chosen])
+            order[cleared++] = chosen
 
             for (edge in start[chosen] until start[chosen + 1]) {
                 val dependent = dependents[edge]
@@ -286,7 +313,7 @@ object CurvedGameEngine {
             }
         }
 
-        return SolveResult(order.size == n, order, averageOf(branchingTotal, turns), forced)
+        return SolveStats(cleared, n, averageOf(branchingTotal, turns), forced)
     }
 
     /** Places [value] at [at] and sifts it up. [at] is the new last index. */
@@ -341,6 +368,45 @@ object CurvedGameEngine {
     }
 
     /**
+     * A sweep's outcome without the clear order.
+     *
+     * Exists because the orientation search never reads the order - only
+     * whether the board cleared and how constrained it was - and materialising
+     * a list of boxed ids on every one of thousands of candidates was pure
+     * waste. The order is built once, for the winner.
+     */
+    data class SolveStats(
+        val cleared: Int,
+        val total: Int,
+        val averageBranching: Float,
+        val forcedMoves: Int
+    ) {
+        val solved: Boolean get() = cleared == total
+        val tightness: Float get() = tightnessOf(solved, cleared, averageBranching, forcedMoves)
+    }
+
+    /**
+     * 0..1 difficulty score, defined once so [SolveStats] and [SolveResult]
+     * can never drift apart on what "hard" means.
+     *
+     * Branching is normalised by the number of arrows, because a raw count
+     * scales with board size - without that, a huge dense level always scored
+     * 'easier' than a tiny sparse one purely because it had more arrows free
+     * at any moment.
+     */
+    private fun tightnessOf(
+        solved: Boolean,
+        cleared: Int,
+        averageBranching: Float,
+        forcedMoves: Int
+    ): Float {
+        if (!solved || cleared == 0) return 0f
+        val openFraction = (averageBranching / cleared).coerceIn(0f, 1f)
+        val forcedScore = forcedMoves.toFloat() / cleared
+        return ((1f - openFraction) * 0.6f + forcedScore * 0.4f).coerceIn(0f, 1f)
+    }
+
+    /**
      * Result of simulating a full playthrough.
      */
     data class SolveResult(
@@ -351,19 +417,8 @@ object CurvedGameEngine {
         /** Turns where exactly one move existed. Higher = harder. */
         val forcedMoves: Int
     ) {
-        /**
-         * 0..1 difficulty score. Branching is normalised by the number of
-         * arrows, because a raw count scales with board size - without that,
-         * a huge dense level always scored 'easier' than a tiny sparse one
-         * purely because it had more arrows free at any moment.
-         */
         val tightness: Float
-            get() {
-                if (!solved || order.isEmpty()) return 0f
-                val openFraction = (averageBranching / order.size).coerceIn(0f, 1f)
-                val forcedScore = forcedMoves.toFloat() / order.size
-                return ((1f - openFraction) * 0.6f + forcedScore * 0.4f).coerceIn(0f, 1f)
-            }
+            get() = tightnessOf(solved, order.size, averageBranching, forcedMoves)
     }
 
     /**
@@ -422,6 +477,9 @@ object CurvedGameEngine {
         }
 
         val work = SweepWorkspace(ids.size, blockerSlots.sumOf { it.size })
-        return sweep(ids, work) { slot -> blockerSlots[slot] }
+        val stats = sweepStats(ids.size, work) { slot -> blockerSlots[slot] }
+        val order = ArrayList<Int>(stats.cleared)
+        for (at in 0 until stats.cleared) order.add(ids[work.order[at]])
+        return SolveResult(stats.solved, order, stats.averageBranching, stats.forcedMoves)
     }
 }

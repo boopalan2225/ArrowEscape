@@ -44,9 +44,6 @@ fun GameScreen(
     val shapeName by viewModel.shapeName.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
-    val elapsedSeconds by viewModel.elapsedSeconds.collectAsState()
-    val previousBest by viewModel.previousBestSeconds.collectAsState()
-    val isNewBest by viewModel.isNewBestTime.collectAsState()
     val levelMetrics by viewModel.levelMetrics.collectAsState()
     val isGenerating by viewModel.isGenerating.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
@@ -98,12 +95,6 @@ fun GameScreen(
                         // Difficulty and shape are static facts about the
                         // level - one quiet line, not two loud chips.
                         subtitle = "${gameState.difficultyLabel} \u00B7 $shapeName",
-                        trailing = {
-                            LevelTimerChip(
-                                elapsedSeconds = elapsedSeconds,
-                                bestSeconds = previousBest
-                            )
-                        },
                         onBackClick = onBackClick
                     )
 
@@ -222,16 +213,9 @@ fun GameScreen(
             ) {
                 LevelCompleteOverlay(
                     level = gameState.level,
-                    // The run clock stops the moment the level does, so this
-                    // is the finishing time - not "however long the card has
-                    // been on screen", which is what recomputing it here used
-                    // to show.
-                    timeSeconds = elapsedSeconds,
                     mistakes = gameState.mistakes,
                     shapeName = shapeName,
                     difficultyLabel = gameState.difficultyLabel,
-                    bestSeconds = previousBest,
-                    isNewBest = isNewBest,
                     onNextLevel = {
                         activity?.let { act ->
                             viewModel.showInterstitialIfNeeded(act) { viewModel.onNextLevel() }
@@ -300,7 +284,6 @@ private fun GameScreenPreviewContent(
                     GameTopBar(
                         level = level,
                         subtitle = "$difficultyLabel \u00B7 $shapeName",
-                        trailing = { LevelTimerChip(elapsedSeconds = 45, bestSeconds = null) },
                         onBackClick = {}
                     )
                     GameStatsRow(
@@ -344,7 +327,6 @@ private fun GameScreenPreviewContent(
             ) {
                 LevelCompleteOverlay(
                     level = level,
-                    timeSeconds = 45,
                     mistakes = 1,
                     shapeName = shapeName,
                     difficultyLabel = difficultyLabel,

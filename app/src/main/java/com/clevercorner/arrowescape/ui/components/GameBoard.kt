@@ -278,7 +278,7 @@ fun GameBoard(
                     // pointing at one of them would be half a hint.
                     val isHinted = arrow.id == hintArrowId ||
                             (hintedGroup != null && arrow.colorGroup == hintedGroup)
-                    val lock = arrow.colorGroup?.let { BoardFurniture.lockColors(it, gameColors) }
+                    val lock = arrow.colorGroup?.let { BoardFurniture.lockColors(it) }
                     val (c1, c2) = when {
                         isHinted -> gameColors.arrowHint to gameColors.arrowHint
                         lock != null -> lock

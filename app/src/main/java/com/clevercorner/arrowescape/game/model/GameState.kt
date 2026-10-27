@@ -20,7 +20,6 @@ data class GameState(
     val board: Board = Board(8, 8),
     val lives: Int = 3,
     val status: GameStatus = GameStatus.PLAYING,
-    val startTimeMillis: Long = System.currentTimeMillis(),
     val mistakes: Int = 0,
     val difficultyLabel: String = "Easy",
     val hintArrowId: Int? = null

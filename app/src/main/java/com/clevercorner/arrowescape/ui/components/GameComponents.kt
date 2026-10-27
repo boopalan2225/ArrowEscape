@@ -562,15 +562,12 @@ fun OutOfLivesModal(
 @Composable
 fun LevelCompleteOverlay(
     level: Int,
-    timeSeconds: Int,
     mistakes: Int,
     shapeName: String,
     difficultyLabel: String,
     onNextLevel: () -> Unit,
     onHome: () -> Unit,
-    modifier: Modifier = Modifier,
-    bestSeconds: Int? = null,
-    isNewBest: Boolean = false
+    modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
     
@@ -582,8 +579,7 @@ fun LevelCompleteOverlay(
     }
     
     // Calculate score
-    val timeBonus = maxOf(0, 100 - timeSeconds)
-    val score = maxOf(10, 100 - (mistakes * 15) + timeBonus / 2)
+    val score = maxOf(10, 100 - (mistakes * 15))
 
     // Animation states
     var visible by remember { mutableStateOf(false) }
@@ -705,15 +701,6 @@ fun LevelCompleteOverlay(
                 text = stringResource(R.string.level_complete_subtitle, level, shapeName, difficultyLabel),
                 style = MaterialTheme.typography.bodyLarge,
                 color = textSecondary
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            BestTimeRow(
-                timeSeconds = timeSeconds,
-                bestSeconds = bestSeconds,
-                isNewBest = isNewBest,
-                textColor = textSecondary
             )
 
             Spacer(modifier = Modifier.height(16.dp))

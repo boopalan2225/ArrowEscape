@@ -225,7 +225,6 @@ fun CurvedGameScreen(
             ) {
                 LevelCompleteOverlay(
                     level = gameState.level,
-                    timeSeconds = ((System.currentTimeMillis() - gameState.startTimeMillis) / 1000).toInt(),
                     mistakes = gameState.mistakes,
                     shapeName = gameState.shapeName,
                     difficultyLabel = gameState.difficulty,
