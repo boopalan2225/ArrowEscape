@@ -65,8 +65,10 @@ object DailyCalendar {
 /**
  * Which days have been solved, and how long the current run is.
  *
- * Backfilling an old day counts as solved but never extends the streak -
- * a streak that can be bought retroactively is not a streak.
+ * One puzzle per day, and only today's: a day you skipped is gone for good.
+ * That is what makes a streak worth anything - if yesterday could be played
+ * today, "50 days in a row" would mean nothing more than "50 days of
+ * catching up eventually".
  */
 data class DailyProgress(
     val cleared: Set<Int> = emptySet(),
@@ -75,12 +77,31 @@ data class DailyProgress(
 ) {
     fun isCleared(date: LocalDate): Boolean = DailyCalendar.stampOf(date) in cleared
 
+    /**
+     * What [date] looks like to the player right now.
+     *
+     * [today] is a parameter rather than a call to the clock so the rule can
+     * be reasoned about (and tested) without time travel.
+     */
+    fun statusOf(date: LocalDate, today: LocalDate = LocalDate.now()): DailyStatus = when {
+        isCleared(date) -> DailyStatus.SOLVED
+        date.isAfter(today) -> DailyStatus.LOCKED
+        date.isBefore(today) -> DailyStatus.EXPIRED
+        else -> DailyStatus.OPEN
+    }
+
+    /** The single gate every entry point should ask before dealing a board. */
+    fun canPlay(date: LocalDate, today: LocalDate = LocalDate.now()): Boolean =
+        statusOf(date, today) == DailyStatus.OPEN
+
+    /**
+     * Records a solve. A day that does not directly follow the last one
+     * restarts the streak at 1 - skipping is allowed, it just costs you the
+     * run you had going.
+     */
     fun withCleared(date: LocalDate): DailyProgress {
         val stamp = DailyCalendar.stampOf(date)
         if (stamp in cleared) return this
-
-        val backfill = lastCleared != null && stamp < lastCleared
-        if (backfill) return copy(cleared = cleared + stamp)
 
         val continues = lastCleared == DailyCalendar.stampOf(date.minusDays(1))
         return DailyProgress(
@@ -89,4 +110,19 @@ data class DailyProgress(
             lastCleared = stamp
         )
     }
+}
+
+/** The four states a date can be in, from the player's point of view. */
+enum class DailyStatus {
+    /** Today, and not yet solved. The only state you can play in. */
+    OPEN,
+
+    /** Solved. Come back tomorrow. */
+    SOLVED,
+
+    /** Missed. Gone for good - that is the deal. */
+    EXPIRED,
+
+    /** Tomorrow's, or later. Not yours yet. */
+    LOCKED
 }

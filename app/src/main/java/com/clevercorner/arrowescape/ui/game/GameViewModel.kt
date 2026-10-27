@@ -10,16 +10,20 @@ import com.clevercorner.arrowescape.analytics.AnalyticsTracker
 import com.clevercorner.arrowescape.analytics.Events
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.game.engine.CollisionChecker
 import com.clevercorner.arrowescape.game.engine.GameEngine
+import com.clevercorner.arrowescape.game.engine.GameSolver
 import com.clevercorner.arrowescape.game.level.DifficultyConfig
 import com.clevercorner.arrowescape.game.level.LevelGenerator
 import com.clevercorner.arrowescape.game.model.Arrow
-import com.clevercorner.arrowescape.game.model.Direction
+import com.clevercorner.arrowescape.game.model.Cell
 import com.clevercorner.arrowescape.game.model.GameState
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPrompter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,6 +43,7 @@ class GameViewModel(
         private const val ESCAPE_ANIMATION_DURATION_MS = 530L
         private const val SHAKE_ANIMATION_DURATION_MS = 300L
         private const val HINTS_PER_LEVEL = 2
+        private const val TIMER_TICK_MS = 250L
     }
 
     private val gameEngine = GameEngine()
@@ -46,17 +51,12 @@ class GameViewModel(
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
-    private val _escapingArrows = MutableStateFlow<Map<Int, Direction>>(emptyMap())
-    val escapingArrows: StateFlow<Map<Int, Direction>> = _escapingArrows.asStateFlow()
+    /** Arrow id -> the exact route it is sliding along (deflectors included). */
+    private val _escapingArrows = MutableStateFlow<Map<Int, List<Cell>>>(emptyMap())
+    val escapingArrows: StateFlow<Map<Int, List<Cell>>> = _escapingArrows.asStateFlow()
 
     private val _shakingArrows = MutableStateFlow<Set<Int>>(emptySet())
     val shakingArrows: StateFlow<Set<Int>> = _shakingArrows.asStateFlow()
-
-    private val _gridRows = MutableStateFlow(GameEngine.DEFAULT_GRID_ROWS)
-    val gridRows: StateFlow<Int> = _gridRows.asStateFlow()
-
-    private val _gridCols = MutableStateFlow(GameEngine.DEFAULT_GRID_COLS)
-    val gridCols: StateFlow<Int> = _gridCols.asStateFlow()
 
     private val _levelShape = MutableStateFlow(com.clevercorner.arrowescape.game.level.LevelShape.SQUARE)
     val levelShape: StateFlow<com.clevercorner.arrowescape.game.level.LevelShape> = _levelShape.asStateFlow()
@@ -64,11 +64,35 @@ class GameViewModel(
     private val _shapeName = MutableStateFlow("Square")
     val shapeName: StateFlow<String> = _shapeName.asStateFlow()
 
+    /** Generator read-out for the dev bar: how chained this board came out. */
+    private val _levelMetrics = MutableStateFlow(GameSolver.Solution(emptyList(), 0f, 0f, 0))
+    val levelMetrics: StateFlow<GameSolver.Solution> = _levelMetrics.asStateFlow()
+
     private val _hintsRemaining = MutableStateFlow(HINTS_PER_LEVEL)
     val hintsRemaining: StateFlow<Int> = _hintsRemaining.asStateFlow()
 
     private val _combo = MutableStateFlow(0)
     val combo: StateFlow<Int> = _combo.asStateFlow()
+
+    /** True while the next board is being built. The screen shows a spinner. */
+    private val _isGenerating = MutableStateFlow(false)
+    val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
+
+    /**
+     * Seconds on the current run, ticking once a second while the level is
+     * being played. Derived from the state's own start stamp rather than
+     * counted up, so pausing the coroutine (backgrounding, a slow frame)
+     * cannot make the clock drift.
+     */
+    private val _elapsedSeconds = MutableStateFlow(0)
+    val elapsedSeconds: StateFlow<Int> = _elapsedSeconds.asStateFlow()
+
+    /** The record this run was measured against - null if there wasn't one. */
+    private val _previousBestSeconds = MutableStateFlow<Int?>(null)
+    val previousBestSeconds: StateFlow<Int?> = _previousBestSeconds.asStateFlow()
+
+    private val _isNewBestTime = MutableStateFlow(false)
+    val isNewBestTime: StateFlow<Boolean> = _isNewBestTime.asStateFlow()
 
     val prefs = preferences.prefsFlow.stateIn(
         viewModelScope,
@@ -79,7 +103,6 @@ class GameViewModel(
     /** Decides when a happy player gets asked for a store review. */
     val reviewPrompter = ReviewPrompter(preferences, analytics)
 
-    private var currentLevelArrows: List<Arrow> = emptyList()
     private var continueUsedThisLevel = false
     private var pendingLevel: Int? = null
 
@@ -104,6 +127,26 @@ class GameViewModel(
         preloadAds()
         // Every theme has its own voice; keep the board speaking the right one.
         feedback.followTheme(prefs, viewModelScope)
+        runClock()
+    }
+
+    /**
+     * One clock for the whole ViewModel rather than one per level: a level
+     * that ends while its own ticker is mid-delay would otherwise leak a
+     * coroutine for every restart.
+     */
+    private fun runClock() {
+        viewModelScope.launch {
+            while (true) {
+                val state = _gameState.value
+                _elapsedSeconds.value = if (state.status == GameStatus.PLAYING) {
+                    gameEngine.getCompletionTimeSeconds(state)
+                } else {
+                    _elapsedSeconds.value
+                }
+                delay(TIMER_TICK_MS)
+            }
+        }
     }
 
     private fun preloadAds() {
@@ -111,8 +154,19 @@ class GameViewModel(
         adManager.loadInterstitialAd(context)
     }
 
+    /** Speculative build of the neighbouring levels. See [prefetchNeighbours]. */
+    private var prefetchJob: Job? = null
+
     fun startLevel(level: Int) {
+        // Whatever we were speculatively building, the player has now told us
+        // what they actually want - stop competing with it for CPU.
+        prefetchJob?.cancel()
         viewModelScope.launch {
+            // Flagged before the first suspension point: until the new board
+            // exists the screen must show nothing rather than the previous
+            // level's arrows.
+            _isGenerating.value = true
+
             // Generate off the main thread to keep the UI smooth.
             val generated = withContext(Dispatchers.Default) {
                 if (level == 1) {
@@ -122,25 +176,46 @@ class GameViewModel(
                 }
             }
 
-            currentLevelArrows = generated.arrows
-            _gridRows.value = generated.gridRows
-            _gridCols.value = generated.gridCols
             _levelShape.value = generated.shape
             _shapeName.value = generated.shapeName
+            _levelMetrics.value = generated.solution
             _gameState.value = gameEngine.createLevel(
                 level,
                 generated.arrows,
-                generated.gridRows,
-                generated.gridCols,
+                generated.board,
                 generated.difficultyLabel
             )
             _escapingArrows.value = emptyMap()
             _shakingArrows.value = emptySet()
             _hintsRemaining.value = HINTS_PER_LEVEL
             _combo.value = 0
+            _elapsedSeconds.value = 0
+            _isNewBestTime.value = false
+            _previousBestSeconds.value = prefs.value.bestTimes[level]
             continueUsedThisLevel = false
+            _isGenerating.value = false
+            prefetchNeighbours(level)
 
             analytics.log(Events.levelStarted(level, generated.arrows.size))
+        }
+    }
+
+    /**
+     * Quietly builds the levels either side of [level] while the player is
+     * busy with this one, so stepping between them is instant.
+     *
+     * The generator caches what it builds, so this only has to warm that
+     * cache - there is no second copy of the result to keep in sync here.
+     * Cancelled the moment a real load starts, so speculative work never
+     * delays the level actually being waited on.
+     */
+    private fun prefetchNeighbours(level: Int) {
+        prefetchJob = viewModelScope.launch(Dispatchers.Default) {
+            for (neighbour in listOf(level + 1, level - 1)) {
+                if (neighbour < 2) continue
+                ensureActive()
+                LevelGenerator.generateLevel(neighbour)
+            }
         }
     }
 
@@ -152,7 +227,14 @@ class GameViewModel(
      * dev bar can hide Next at the edge; stepping past it here would silently
      * reopen the dead button.
      */
-    fun devStepLevel(delta: Int) {
+    /**
+     * Moves [delta] levels and loads that board.
+     *
+     * Deliberately does NOT write the level back to preferences: stepping
+     * back to replay level 3 should not make Home offer level 3 forever
+     * after. Navigation is a visit, not a move.
+     */
+    fun stepLevel(delta: Int) {
         val target = (_gameState.value.level + delta)
             .coerceIn(1, DifficultyConfig.TOTAL_LEVELS)
         startLevel(target)
@@ -230,18 +312,20 @@ class GameViewModel(
             _gameState.value = currentState.copy(hintArrowId = null)
         }
 
-        val (newState, wasValid) = gameEngine.tapArrow(_gameState.value, arrow.id)
+        val result = gameEngine.tapArrow(_gameState.value, arrow.id)
 
-        if (wasValid) {
-            handleValidMove(arrow, newState)
+        val escape = result.escape
+        if (escape != null) {
+            handleValidMove(escape, result.state)
         } else {
-            handleInvalidMove(arrow, newState)
+            handleInvalidMove(arrow, result.state)
         }
     }
 
-    private fun handleValidMove(arrow: Arrow, newState: GameState) {
-        // Start escape animation
-        _escapingArrows.value = _escapingArrows.value + (arrow.id to arrow.direction)
+    private fun handleValidMove(escape: CollisionChecker.Escape, newState: GameState) {
+        // Start the escape animation for everything that leaves - a
+        // colour-locked pair flies out together.
+        _escapingArrows.value = _escapingArrows.value + escape.routes
 
         // Combo: increment on each consecutive valid move
         _combo.value = _combo.value + 1
@@ -265,11 +349,11 @@ class GameViewModel(
         // reassign the full newState later - that would overwrite any
         // arrows tapped while this animation was in flight.
         val finalStatus = newState.status
-        val arrowId = arrow.id
+        val departed = escape.arrowIds
 
         viewModelScope.launch {
             delay(ESCAPE_ANIMATION_DURATION_MS)
-            _escapingArrows.value = _escapingArrows.value - arrowId
+            _escapingArrows.value = _escapingArrows.value - departed
 
             // Only update status if this was the last arrow (level complete).
             // Read CURRENT state, don't clobber with stale captured state.
@@ -316,6 +400,11 @@ class GameViewModel(
                 state.mistakes,
                 continueUsedThisLevel
             ))
+
+            // Read the old record BEFORE saving, so the completion card can
+            // show what was beaten rather than what was just set.
+            _previousBestSeconds.value = prefs.value.bestTimes[state.level]
+            _isNewBestTime.value = preferences.saveBestTime(MODE, state.level, timeSeconds)
 
             // Calculate and save stars
             val stars = when {

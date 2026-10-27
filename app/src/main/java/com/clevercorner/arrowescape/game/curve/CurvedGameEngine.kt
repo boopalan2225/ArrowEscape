@@ -149,26 +149,77 @@ object CurvedGameEngine {
         val size = arrows.size
         val ids: List<Int> = arrows.map { it.id }
 
-        private val forward: List<Set<Int>>
-        private val reversed: List<Set<Int>>
+        /**
+         * Blockers as *slot* indices rather than arrow ids, so the sweep can
+         * walk a flat `IntArray` instead of iterating a `Set<Int>` - which
+         * boxed every element and needed an id-to-slot lookup per edge, on
+         * every one of the thousands of calls the search makes.
+         */
+        private val forward: Array<IntArray>
+        private val reversed: Array<IntArray>
+
+        private val work: SweepWorkspace
 
         init {
             // Index over forward geometry is enough: reversing an arrow keeps
             // its body in exactly the same place, only the heading changes.
             val index = ArrowSpatialIndex.forArrows(arrows)
-            forward = arrows.map { allBlockersFor(it, index, board) }
-            reversed = arrows.map { allBlockersFor(it.reversed(), index, board) }
+            val slotOfId = HashMap<Int, Int>(arrows.size * 2)
+            arrows.forEachIndexed { slot, arrow -> slotOfId[arrow.id] = slot }
+
+            fun slotsFor(arrow: CurvedArrow): IntArray {
+                val blockers = allBlockersFor(arrow, index, board)
+                val slots = IntArray(blockers.size)
+                var at = 0
+                for (id in blockers) slotOfId[id]?.let { slots[at++] = it }
+                return if (at == slots.size) slots else slots.copyOf(at)
+            }
+
+            forward = Array(arrows.size) { slotsFor(arrows[it]) }
+            reversed = Array(arrows.size) { slotsFor(arrows[it].reversed()) }
+
+            // Whichever orientation each arrow ends up in, the edge count
+            // cannot exceed the per-slot maximum of the two.
+            val maxEdges = (0 until size).sumOf { maxOf(forward[it].size, reversed[it].size) }
+            work = SweepWorkspace(size, maxEdges)
         }
 
-        fun blockersOf(slot: Int, flipped: Boolean): Set<Int> =
+        private fun blockersOf(slot: Int, flipped: Boolean): IntArray =
             if (flipped) reversed[slot] else forward[slot]
 
         /**
          * Greedy clear-through for one orientation assignment.
          * [flips] is indexed by slot, not by arrow id.
+         *
+         * Not thread-safe: the scratch buffers are shared between calls. The
+         * orientation search is single-threaded by design, and sharing is the
+         * entire point - allocating them per call is what made it slow.
          */
         fun analyze(flips: BooleanArray): SolveResult =
-            greedyClear(ids) { slot -> blockersOf(slot, flips[slot]) }
+            sweep(ids, work) { slot -> blockersOf(slot, flips[slot]) }
+    }
+
+    /**
+     * Reusable scratch buffers for [sweep].
+     *
+     * The orientation search runs the sweep thousands of times per level, and
+     * it used to allocate a `HashMap`, an `ArrayList` per arrow and a
+     * `TreeSet` on every single call. For a dense board that is millions of
+     * boxed operations and hundreds of thousands of objects per level - which
+     * is what left the loading spinner sitting there. Hoisting the buffers out
+     * means a search step allocates nothing but its result.
+     */
+    private class SweepWorkspace(size: Int, maxEdges: Int) {
+        /** How many blockers each slot is still waiting on. */
+        val unmet = IntArray(size)
+
+        /** CSR offsets: slot s's dependents live in [start[s], start[s + 1]). */
+        val start = IntArray(size + 1)
+        val cursor = IntArray(size + 1)
+        val dependents = IntArray(maxEdges)
+
+        /** Binary min-heap of free slots, so the lowest index is taken first. */
+        val heap = IntArray(size)
     }
 
     /**
@@ -180,44 +231,95 @@ object CurvedGameEngine {
      * remaining arrow each turn (quadratic), which was fine for 30 arrows and
      * hopeless for the 150+ a dense silhouette needs.
      *
-     * [blockersOf] maps an arrow's index in [ids] to the ids it waits on. The
-     * lowest-index free arrow is taken each turn, so the order is stable.
+     * [blockerSlotsOf] maps an arrow's index in [ids] to the *slots* it waits
+     * on. The lowest-index free arrow is taken each turn, so the order is
+     * stable.
      */
-    private inline fun greedyClear(ids: List<Int>, blockersOf: (Int) -> Set<Int>): SolveResult {
-        val slotOfId = HashMap<Int, Int>(ids.size * 2)
-        ids.forEachIndexed { slot, id -> slotOfId[id] = slot }
+    private inline fun sweep(
+        ids: List<Int>,
+        work: SweepWorkspace,
+        blockerSlotsOf: (Int) -> IntArray
+    ): SolveResult {
+        val n = ids.size
+        val unmet = work.unmet
+        val start = work.start
+        val cursor = work.cursor
+        val dependents = work.dependents
+        val heap = work.heap
 
-        val unmet = IntArray(ids.size)
-        val dependents = Array(ids.size) { ArrayList<Int>(2) }
-        for (slot in ids.indices) {
-            for (blocker in blockersOf(slot)) {
-                val blockerSlot = slotOfId[blocker] ?: continue
-                unmet[slot]++
-                dependents[blockerSlot].add(slot)
-            }
+        // Build the reverse adjacency (who unblocks whom) as a counting sort
+        // into flat arrays, rather than a list object per arrow.
+        java.util.Arrays.fill(start, 0, n + 1, 0)
+        for (slot in 0 until n) {
+            val blockers = blockerSlotsOf(slot)
+            unmet[slot] = blockers.size
+            for (blocker in blockers) start[blocker + 1]++
+        }
+        for (slot in 0 until n) start[slot + 1] += start[slot]
+        System.arraycopy(start, 0, cursor, 0, n + 1)
+        for (slot in 0 until n) {
+            for (blocker in blockerSlotsOf(slot)) dependents[cursor[blocker]++] = slot
         }
 
-        val free = java.util.TreeSet<Int>()
-        for (slot in ids.indices) if (unmet[slot] == 0) free.add(slot)
+        var heapSize = 0
+        for (slot in 0 until n) {
+            if (unmet[slot] == 0) heapPush(heap, heapSize++, slot)
+        }
 
-        val order = ArrayList<Int>(ids.size)
+        val order = ArrayList<Int>(n)
         var branchingTotal = 0
         var turns = 0
         var forced = 0
 
-        while (free.isNotEmpty()) {
-            branchingTotal += free.size
+        while (heapSize > 0) {
+            branchingTotal += heapSize
             turns++
-            if (free.size == 1) forced++
+            if (heapSize == 1) forced++
 
-            val chosen = free.pollFirst()!!
+            val chosen = heap[0]
+            heapSize = heapPop(heap, heapSize)
             order.add(ids[chosen])
-            for (dependent in dependents[chosen]) {
-                if (--unmet[dependent] == 0) free.add(dependent)
+
+            for (edge in start[chosen] until start[chosen + 1]) {
+                val dependent = dependents[edge]
+                if (--unmet[dependent] == 0) heapPush(heap, heapSize++, dependent)
             }
         }
 
-        return SolveResult(order.size == ids.size, order, averageOf(branchingTotal, turns), forced)
+        return SolveResult(order.size == n, order, averageOf(branchingTotal, turns), forced)
+    }
+
+    /** Places [value] at [at] and sifts it up. [at] is the new last index. */
+    private fun heapPush(heap: IntArray, at: Int, value: Int) {
+        var child = at
+        heap[child] = value
+        while (child > 0) {
+            val parent = (child - 1) / 2
+            if (heap[parent] <= heap[child]) break
+            val swap = heap[parent]
+            heap[parent] = heap[child]
+            heap[child] = swap
+            child = parent
+        }
+    }
+
+    /** Removes the root and returns the new size. */
+    private fun heapPop(heap: IntArray, size: Int): Int {
+        val last = size - 1
+        heap[0] = heap[last]
+        var parent = 0
+        while (true) {
+            val left = parent * 2 + 1
+            if (left >= last) break
+            val right = left + 1
+            val smaller = if (right < last && heap[right] < heap[left]) right else left
+            if (heap[parent] <= heap[smaller]) break
+            val swap = heap[parent]
+            heap[parent] = heap[smaller]
+            heap[smaller] = swap
+            parent = smaller
+        }
+        return last
     }
 
     /**
@@ -275,8 +377,7 @@ object CurvedGameEngine {
     /**
      * Greedily simulate clearing the board from a precomputed graph.
      */
-    fun analyze(graph: BlockingGraph): SolveResult =
-        greedyClear(graph.ids) { slot -> graph.blockersOf(graph.ids[slot]) }
+    fun analyze(graph: BlockingGraph): SolveResult = sweepOverIds(graph, graph.ids)
 
     private fun averageOf(total: Int, turns: Int): Float =
         if (turns == 0) 0f else total.toFloat() / turns
@@ -298,8 +399,29 @@ object CurvedGameEngine {
      * Blockers that have already left are simply ignored. O(arrows + edges),
      * so it is cheap enough to run after every move.
      */
-    fun isSolvable(graph: BlockingGraph, remaining: Set<Int>): Boolean {
-        val ids = graph.ids.filter { it in remaining }
-        return greedyClear(ids) { slot -> graph.blockersOf(ids[slot]) }.solved
+    fun isSolvable(graph: BlockingGraph, remaining: Set<Int>): Boolean =
+        sweepOverIds(graph, graph.ids.filter { it in remaining }).solved
+
+    /**
+     * Runs the sweep over an arbitrary subset of [graph]'s arrows.
+     *
+     * Converts the graph's id-keyed blocker sets into the slot-indexed form
+     * [sweep] wants. One-shot callers pay for that conversion; the generator
+     * does not, because [OrientationGraph] stores slots in the first place.
+     */
+    private fun sweepOverIds(graph: BlockingGraph, ids: List<Int>): SolveResult {
+        val slotOfId = HashMap<Int, Int>(ids.size * 2)
+        ids.forEachIndexed { slot, id -> slotOfId[id] = slot }
+
+        val blockerSlots = Array(ids.size) { slot ->
+            val blockers = graph.blockersOf(ids[slot])
+            val slots = IntArray(blockers.size)
+            var at = 0
+            for (id in blockers) slotOfId[id]?.let { slots[at++] = it }
+            if (at == slots.size) slots else slots.copyOf(at)
+        }
+
+        val work = SweepWorkspace(ids.size, blockerSlots.sumOf { it.size })
+        return sweep(ids, work) { slot -> blockerSlots[slot] }
     }
 }

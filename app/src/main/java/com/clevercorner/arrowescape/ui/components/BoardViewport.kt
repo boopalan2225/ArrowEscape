@@ -81,3 +81,15 @@ data class BoardViewport(
         private const val MIN_TAP_SHRINK = 0.25f
     }
 }
+
+/**
+ * Remembers whether the current press already turned into a preview, so the
+ * release does not also fire the arrow.
+ *
+ * A plain mutable holder rather than Compose state on purpose: this is read
+ * and written inside a long-lived gesture coroutine, where a recomposition
+ * would otherwise lose the flag mid-press. Shared by both boards.
+ */
+internal class PressTracker {
+    var previewShown: Boolean = false
+}

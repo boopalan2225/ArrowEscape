@@ -12,13 +12,17 @@ import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.game.curve.*
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
+import com.clevercorner.arrowescape.game.daily.DailyShuffle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPrompter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 /**
  * Game state for curved arrow puzzles.
@@ -77,6 +81,9 @@ class CurvedGameViewModel(
         private const val HINTS_PER_LEVEL = 2
         private const val BOARD_WIDTH = 400f
         private const val BOARD_HEIGHT = 600f
+
+        /** Half a shuffle: fold away, then unfold into the new arrangement. */
+        private const val SHUFFLE_FOLD_MS = 420L
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -99,6 +106,10 @@ class CurvedGameViewModel(
 
     private val _combo = MutableStateFlow(0)
     val combo: StateFlow<Int> = _combo.asStateFlow()
+
+    /** True while the next board is being built. The screen shows a spinner. */
+    private val _isGenerating = MutableStateFlow(false)
+    val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
 
     val prefs = preferences.prefsFlow.stateIn(
         viewModelScope,
@@ -130,6 +141,9 @@ class CurvedGameViewModel(
      * tap is a set lookup rather than a geometric sweep.
      */
     private var blockingGraph: CurvedGameEngine.BlockingGraph? = null
+
+    /** Speculative build of the neighbouring levels. See [prefetchNeighbours]. */
+    private var prefetchJob: Job? = null
 
     private fun requireGraph(state: CurvedGameState): CurvedGameEngine.BlockingGraph =
         blockingGraph ?: CurvedGameEngine.BlockingGraph(state.arrows, board()).also {
@@ -169,21 +183,160 @@ class CurvedGameViewModel(
     fun startLevel(level: Int) {
         session = CurvedSession.JOURNEY
         dailyPuzzle = null
+        stopShuffleClock()
         loadBoard(level)
     }
 
     /**
      * Plays today's (or any day's) puzzle. Same engine, same board, different
      * ending: a daily marks a date solved instead of advancing the journey.
+     *
+     * The daily also gets the shuffle clock - see [runShuffleClock].
      */
     fun startDaily(puzzle: DailyPuzzle) {
         session = CurvedSession.DAILY
         dailyPuzzle = puzzle
         loadBoard(puzzle.levelSeed)
+        runShuffleClock()
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Daily shuffle
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Counts down to the next board re-arrangement. Null outside the daily
+     * challenge, which is also how the UI knows not to draw the countdown.
+     */
+    private val _shuffleSecondsLeft = MutableStateFlow<Int?>(null)
+    val shuffleSecondsLeft: StateFlow<Int?> = _shuffleSecondsLeft.asStateFlow()
+
+    /** How many times today's board has turned over. */
+    private val _shuffleCount = MutableStateFlow(0)
+    val shuffleCount: StateFlow<Int> = _shuffleCount.asStateFlow()
+
+    /**
+     * 1 while the board is settled, dipping to 0 as it re-arranges.
+     *
+     * The board folds every arrow flat, swaps in the new arrangement at the
+     * instant nothing is visible, then unfolds. Done this way the change is
+     * a *movement* rather than a jump cut - and crucially the player never
+     * sees an arrowhead teleport from one end of its curve to the other,
+     * which is what made the first version look like a rendering glitch.
+     */
+    private val _shufflePhase = MutableStateFlow(1f)
+    val shufflePhase: StateFlow<Float> = _shufflePhase.asStateFlow()
+
+    private var shuffleJob: Job? = null
+
+    /**
+     * The daily's heartbeat: wait out an interval, re-arrange, repeat.
+     *
+     * The countdown only ticks while the level is actually being played, so
+     * reading the stuck-modal or the win card does not eat the clock. One
+     * job for the whole session rather than one per cycle - restarting the
+     * daily cancels it, and nothing else needs to know it exists.
+     */
+    private fun runShuffleClock() {
+        shuffleJob?.cancel()
+        _shuffleCount.value = 0
+        shuffleJob = viewModelScope.launch {
+            while (true) {
+                var remaining = DailyShuffle.INTERVAL_SECONDS
+                while (remaining > 0) {
+                    _shuffleSecondsLeft.value = remaining
+                    delay(1000)
+                    if (_gameState.value.status == GameStatus.PLAYING) remaining--
+                }
+                _shuffleSecondsLeft.value = 0
+                shuffleBoard()
+            }
+        }
+    }
+
+    /**
+     * Re-arranges the arrows still on the board, keeping every one of them.
+     *
+     * Only the survivors are shuffled: arrows that already escaped stay gone,
+     * so the count the player is working against never jumps. If the search
+     * cannot find a solvable arrangement the shuffle is skipped outright -
+     * dropping an arrow to force one through would be a worse lie than a
+     * board that occasionally stays put.
+     *
+     * @return whether the board actually changed.
+     */
+    private suspend fun shuffleBoard(): Boolean {
+        val state = _gameState.value
+        if (state.status != GameStatus.PLAYING) return false
+
+        // Never re-arrange the board out from under an arrow that is already
+        // flying. Waiting one cycle is invisible; teleporting a mid-flight
+        // arrow is not.
+        if (_escapingArrows.value.isNotEmpty() || _bumpingArrows.value.isNotEmpty()) return false
+
+        val survivors = state.arrows.filter { it.isActive }
+        if (survivors.size < 2) return false
+
+        val seed = (dailyPuzzle?.stamp ?: 0).toLong() * 31 + _shuffleCount.value
+        val reshuffled = withContext(Dispatchers.Default) {
+            CurvedLevelGenerator.reshuffle(survivors, board(), Random(seed))
+        } ?: return false
+
+        val byId = reshuffled.associateBy { it.id }
+        val arrows = state.arrows.map { byId[it.id] ?: it }
+
+        playShuffle(arrows)
+        _shuffleCount.value++
+        if (prefs.value.hapticsEnabled) feedback.playErrorHaptic()
+        return true
+    }
+
+    /**
+     * Folds the board away, swaps in [arrows], and unfolds it again.
+     *
+     * The swap happens at the pinch point, when every arrow is drawn at zero
+     * width, so there is no frame in which old and new geometry are both
+     * visible. The board decides how to stagger the fold across the canvas -
+     * see `shuffleScaleFor` - this only owns the timing.
+     *
+     * Driven by [animateProgress] rather than a Compose `Animatable`: an
+     * Animatable needs a MonotonicFrameClock, which a viewModelScope does
+     * not have, and asking for one crashed the moment the first shuffle
+     * fired. Every other animation in this class already uses this helper.
+     */
+    private suspend fun playShuffle(arrows: List<CurvedArrow>) {
+        animateProgress(SHUFFLE_FOLD_MS) { t -> _shufflePhase.value = 1f - smoothStep(t) }
+
+        // The blocking graph is geometry-derived and the geometry just
+        // changed; a stale graph would happily let blocked arrows fly.
+        blockingGraph = CurvedGameEngine.BlockingGraph(arrows, board())
+        _gameState.value = _gameState.value.copy(arrows = arrows, hintArrowId = null)
+
+        animateProgress(SHUFFLE_FOLD_MS) { t -> _shufflePhase.value = smoothStep(t) }
+        _shufflePhase.value = 1f
+    }
+
+    /** Classic smoothstep - eases both ends without an easing curve object. */
+    private fun smoothStep(t: Float): Float = t * t * (3f - 2f * t)
+
+    /** Stops the daily clock - on leaving the screen, or on solving the day. */
+    fun stopShuffleClock() {
+        shuffleJob?.cancel()
+        shuffleJob = null
+        _shuffleSecondsLeft.value = null
+        _shufflePhase.value = 1f
     }
 
     private fun loadBoard(level: Int) {
+        // Whatever we were speculatively building, the player has now told us
+        // what they actually want - stop competing with it for CPU.
+        prefetchJob?.cancel()
         viewModelScope.launch {
+            // Flagged before the first suspension point: until the new board
+            // exists the screen must show nothing rather than the previous
+            // level's arrows.
+            _isGenerating.value = true
+
             // Generate the level - and its blocking graph - off the main thread.
             // Dense levels have hundreds of arrows; building the graph lazily on
             // the first tap would stall the UI right when the player touches it.
@@ -218,9 +371,30 @@ class CurvedGameViewModel(
             _combo.value = 0
             continueUsedThisLevel = false
             blockingGraph = graph
+            _isGenerating.value = false
+            prefetchNeighbours(level)
             // Developer sessions are for looking at levels, not for metrics.
             if (!prefs.value.devMode) {
                 analytics.log(Events.levelStarted(level, curvedLevel.arrows.size))
+            }
+        }
+    }
+
+    /**
+     * Quietly builds the levels either side of [level] while the player is
+     * busy with this one, so stepping between them is instant.
+     *
+     * The generator caches what it builds, so this only has to warm that
+     * cache - there is no second copy of the result to keep in sync here.
+     * Cancelled the moment a real load starts, so speculative work never
+     * delays the level actually being waited on.
+     */
+    private fun prefetchNeighbours(level: Int) {
+        prefetchJob = viewModelScope.launch(Dispatchers.Default) {
+            for (neighbour in listOf(level + 1, level - 1)) {
+                if (neighbour < 1) continue
+                ensureActive()
+                CurvedLevelGenerator.generateLevel(neighbour, BOARD_WIDTH, BOARD_HEIGHT)
             }
         }
     }
@@ -246,6 +420,10 @@ class CurvedGameViewModel(
 
         val currentState = _gameState.value
         if (currentState.status != GameStatus.PLAYING || currentState.isStuck) return
+
+        // Mid-shuffle the board is folded away; a tap now would fire an
+        // arrow the player cannot even see.
+        if (_shufflePhase.value < 1f) return
 
         // Skip if already animating
         if (_escapingArrows.value.containsKey(arrow.id) || _bumpingArrows.value.containsKey(arrow.id)) {
@@ -409,6 +587,7 @@ class CurvedGameViewModel(
             if (session == CurvedSession.DAILY && daily != null) {
                 // A daily owes the journey nothing: no stars, no level bump,
                 // no interstitial counter. One date goes from open to solved.
+                stopShuffleClock()
                 preferences.markDailyCleared(daily.date)
             } else {
                 preferences.saveLevelStars(MODE, state.level, stars)
@@ -558,7 +737,11 @@ class CurvedGameViewModel(
      * bar can hide Next at the edge; stepping past it here would silently
      * reopen the dead button.
      */
-    fun devStepLevel(delta: Int) {
+    /**
+     * Moves [delta] levels and loads that board. See the classic twin: a
+     * visit, not a move, so preferences stay where the player left them.
+     */
+    fun stepLevel(delta: Int) {
         val target = (_gameState.value.level + delta)
             .coerceIn(1, CurvedJourney.totalLevels)
         startLevel(target)

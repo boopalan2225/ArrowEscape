@@ -83,10 +83,14 @@
     <string name="puzzle_stuck_skip">Skip to next level</string>
     <string name="puzzle_stuck_retry">Retry level</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Arrow board. Tap an arrow to fire it, hold to preview its path, pinch to zoom and drag to move around.</string>
     <string name="board_zoom_hint">Pinch to zoom \u00B7 drag to move</string>
     <string name="board_reset_view">Reset view</string>
+
+    <!-- ======================= Level timer ======================= -->
+    <string name="best_time_badge">Best</string>
+    <string name="best_time_label">best %1$s</string>
 
     <!-- ======================= About screen ======================= -->
     <string name="about_version">Version %1$s</string>
@@ -197,6 +201,16 @@
     <string name="daily_streak_days">%1$d days in a row</string>
     <string name="daily_come_back_tomorrow">Come back tomorrow</string>
     <string name="daily_done_button">Done</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Previous level</string>
+    <string name="level_next">Next level</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Daily</string>
+    <string name="daily_shuffle_in">Shuffle in %1$s</string>
+    <string name="daily_shuffle_count">Shuffled %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">Board shuffled!</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">COMING SOON</string>

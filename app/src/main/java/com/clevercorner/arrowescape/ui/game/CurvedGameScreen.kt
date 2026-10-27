@@ -43,6 +43,7 @@ fun CurvedGameScreen(
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
+    val isGenerating by viewModel.isGenerating.collectAsState()
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -87,14 +88,14 @@ fun CurvedGameScreen(
                 ) {
                     GameTopBar(
                         level = gameState.level,
+                        subtitle = "${gameState.difficulty} \u00B7 ${gameState.shapeName}",
                         onBackClick = onBackClick
                     )
 
                     GameStatsRow(
                         modifier = Modifier.spotlightTarget(SpotlightTarget.LIVES),
                         remainingArrows = gameState.remainingCount,
-                        lives = gameState.lives,
-                        difficultyLabel = gameState.difficulty
+                        lives = gameState.lives
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -110,18 +111,22 @@ fun CurvedGameScreen(
                     .spotlightTarget(SpotlightTarget.BOARD),
                 contentAlignment = Alignment.Center
             ) {
-                CurvedGameBoard(
-                    arrows = gameState.arrows,
-                    boardWidth = boardWidth,
-                    boardHeight = boardHeight,
-                    escapingArrows = escapingArrows,
-                    bumpingArrows = bumpingArrows,
-                    hintArrowId = gameState.hintArrowId,
-                    resetKey = gameState.level,
-                    isArrowFree = viewModel::isArrowFree,
-                    exitPointOf = viewModel::exitPointOf,
-                    onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
-                )
+                if (isGenerating) {
+                    BoardPlaceholder()
+                } else {
+                    CurvedGameBoard(
+                        arrows = gameState.arrows,
+                        boardWidth = boardWidth,
+                        boardHeight = boardHeight,
+                        escapingArrows = escapingArrows,
+                        bumpingArrows = bumpingArrows,
+                        hintArrowId = gameState.hintArrowId,
+                        resetKey = gameState.level,
+                        isArrowFree = viewModel::isArrowFree,
+                        exitPointOf = viewModel::exitPointOf,
+                        onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
+                    )
+                }
             }
 
             if (prefs.devMode) {
@@ -132,8 +137,8 @@ fun CurvedGameScreen(
                     arrowCount = gameState.arrows.size,
                     canGoPrevious = gameState.level > 1,
                     canGoNext = gameState.level < CurvedJourney.totalLevels,
-                    onPrevious = { viewModel.devStepLevel(-1) },
-                    onNext = { viewModel.devStepLevel(+1) }
+                    onPrevious = { viewModel.stepLevel(-1) },
+                    onNext = { viewModel.stepLevel(+1) }
                 )
             }
 
@@ -141,9 +146,12 @@ fun CurvedGameScreen(
                 modifier = Modifier
                     .navigationBarsPadding()
                     .spotlightTarget(SpotlightTarget.HINT),
-                shapeName = gameState.shapeName,
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
+                onPreviousLevel = { viewModel.stepLevel(-1) }
+                    .takeIf { gameState.level > 1 },
+                onNextLevel = { viewModel.stepLevel(+1) }
+                    .takeIf { gameState.level < prefs.highestLevel },
                 onHintClick = {
                     if (hintsRemaining > 0) {
                         viewModel.useHint()

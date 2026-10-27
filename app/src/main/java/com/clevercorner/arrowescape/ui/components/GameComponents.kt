@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +21,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -135,11 +139,24 @@ fun LivesDisplay(
 /**
  * Top bar for the game screen: back button, level, and settings/pause.
  */
+/**
+ * Header: back, who-and-where, and one optional trailing widget.
+ *
+ * [subtitle] carries the level's flavour (difficulty, shape) as small text
+ * instead of a separate chip. Chips shout; a subtitle whispers, and this is
+ * information you read once at the start of a level and then ignore.
+ *
+ * [trailing] is a slot rather than a parameter per gadget - classic puts its
+ * run clock there, daily its shuffle countdown, and this file does not need
+ * to know about either.
+ */
 @Composable
 fun GameTopBar(
     level: Int,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -162,85 +179,86 @@ fun GameTopBar(
             )
         }
 
-        Text(
-            text = stringResource(R.string.level_number, level),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.level_number, level),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            if (!subtitle.isNullOrBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = ArrowEscapeTheme.gameColors.textSecondary,
+                    maxLines = 1
+                )
+            }
+        }
 
-        // Spacer to balance the back button (settings lives on home)
-        Spacer(modifier = Modifier.size(40.dp))
+        // Fixed-width trailing slot so the title stays optically centred
+        // whether or not anything is in it.
+        Box(
+            modifier = Modifier.widthIn(min = 40.dp),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            trailing?.invoke()
+        }
     }
 }
 
 /**
- * Stats row: arrow counter chip | lives | difficulty badge.
+ * The two numbers that change while you play: lives left and arrows left.
+ *
+ * Everything static about the level (difficulty, shape name) used to live
+ * here too, which made four chips compete for one row on a phone. Static
+ * facts belong in the header subtitle; this row is for things that move.
  */
 @Composable
 fun GameStatsRow(
     remainingArrows: Int,
     lives: Int,
-    difficultyLabel: String,
     modifier: Modifier = Modifier
 ) {
-    val gameColors = ArrowEscapeTheme.gameColors
-
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = 20.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Arrow counter chip
-        Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = "\u2197",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                AnimatedContent(
-                    targetState = remainingArrows,
-                    transitionSpec = {
-                        (slideInVertically { -it } + fadeIn()) togetherWith
-                                (slideOutVertically { it } + fadeOut())
-                    },
-                    label = "count"
-                ) { count ->
-                    Text(
-                        text = "$count",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-
-        // Lives
         LivesDisplay(lives = lives)
 
-        // Difficulty badge
-        Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = difficultyColor(difficultyLabel, gameColors).copy(alpha = 0.15f)
+        // Arrows remaining
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                text = difficultyLabel,
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = difficultyColor(difficultyLabel, gameColors)
+                text = "\u2197",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.primary
             )
+            AnimatedContent(
+                targetState = remainingArrows,
+                transitionSpec = {
+                    (slideInVertically { -it } + fadeIn()) togetherWith
+                            (slideOutVertically { it } + fadeOut())
+                },
+                label = "count"
+            ) { count ->
+                Text(
+                    text = "$count",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
@@ -255,14 +273,23 @@ private fun difficultyColor(label: String, gameColors: com.clevercorner.arrowesc
 }
 
 /**
- * Bottom bar with a hint button and the current shape name.
+ * Bottom bar: step back a level, ask for a hint, step forward a level.
+ *
+ * Both nav callbacks are nullable and null means "not available" - level 1
+ * has nowhere to go back to, and forward stops at the furthest level the
+ * player has actually reached. Encoding availability in the callback itself
+ * means a screen cannot accidentally offer a button that does nothing.
+ *
+ * It used to also label the shape being played, which the board is already
+ * showing in full colour - the most literal duplication in the whole HUD.
  */
 @Composable
 fun GameBottomBar(
-    shapeName: String,
     hintsRemaining: Int,
     onHintClick: () -> Unit,
     isHintAdAvailable: Boolean = true,
+    onPreviousLevel: (() -> Unit)? = null,
+    onNextLevel: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -270,25 +297,15 @@ fun GameBottomBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Shape label
-        Column {
-            Text(
-                text = stringResource(R.string.shape_label),
-                style = MaterialTheme.typography.labelSmall,
-                color = gameColors.textSecondary,
-                letterSpacing = 1.5.sp
-            )
-            Text(
-                text = shapeName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+        LevelNavButton(
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            description = stringResource(R.string.level_previous),
+            onClick = onPreviousLevel
+        )
 
         // Hint button with badge. Once hints run out it stays tappable -
         // tapping now offers a rewarded ad instead of doing nothing, same
@@ -339,6 +356,50 @@ fun GameBottomBar(
                 }
             }
         }
+
+        LevelNavButton(
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            description = stringResource(R.string.level_next),
+            onClick = onNextLevel
+        )
+    }
+}
+
+/**
+ * One level-step button. Stays on screen when unavailable rather than
+ * disappearing, so the hint button never shuffles sideways between levels.
+ */
+/**
+ * One level-step button. Stays on screen when unavailable rather than
+ * disappearing, so the hint button never shuffles sideways between levels.
+ *
+ * Uses a vector [Icon] rather than a Text glyph on purpose: "\u2039"/"\u203A"
+ * sit high in most fonts, and Text's own ascent/descent padding stacks on
+ * top of that - the pair visibly sat low in their circles. A vector icon has
+ * no font metrics to fight and centers exactly, the same way the back arrow
+ * on [GameTopBar] always has.
+ */
+@Composable
+private fun LevelNavButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    description: String,
+    onClick: (() -> Unit)?
+) {
+    FilledIconButton(
+        onClick = { onClick?.invoke() },
+        enabled = onClick != null,
+        modifier = Modifier.size(44.dp),
+        shape = CircleShape,
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            modifier = Modifier.size(22.dp)
+        )
     }
 }
 
@@ -507,7 +568,9 @@ fun LevelCompleteOverlay(
     difficultyLabel: String,
     onNextLevel: () -> Unit,
     onHome: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    bestSeconds: Int? = null,
+    isNewBest: Boolean = false
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
     
@@ -572,7 +635,6 @@ fun LevelCompleteOverlay(
     val cardBg = gameColors.cardBackground
     val borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
     val accentBlue = MaterialTheme.colorScheme.primary
-    val textPrimary = MaterialTheme.colorScheme.onSurface
     val textSecondary = gameColors.textSecondary
 
     Card(
@@ -645,7 +707,16 @@ fun LevelCompleteOverlay(
                 color = textSecondary
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            BestTimeRow(
+                timeSeconds = timeSeconds,
+                bestSeconds = bestSeconds,
+                isNewBest = isNewBest,
+                textColor = textSecondary
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Stats card with animated counter effect
             Surface(

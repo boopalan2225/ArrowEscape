@@ -1,6 +1,7 @@
 package com.clevercorner.arrowescape.game.engine
 
 import com.clevercorner.arrowescape.game.model.Arrow
+import com.clevercorner.arrowescape.game.model.Board
 import com.clevercorner.arrowescape.game.model.GameState
 import com.clevercorner.arrowescape.game.model.GameStatus
 
@@ -16,8 +17,30 @@ class GameEngine {
         const val DEFAULT_GRID_COLS = 8
     }
 
-    private var gridRows = DEFAULT_GRID_ROWS
-    private var gridCols = DEFAULT_GRID_COLS
+    /**
+     * Outcome of a tap. [escape] is null when the move was illegal; otherwise
+     * it carries the route every departing arrow takes, which is exactly what
+     * the renderer needs to animate a deflected exit.
+     */
+    data class TapResult(val state: GameState, val escape: CollisionChecker.Escape?) {
+        val wasValid: Boolean get() = escape != null
+    }
+
+    fun createLevel(
+        level: Int,
+        arrows: List<Arrow>,
+        board: Board,
+        difficultyLabel: String = "Easy"
+    ): GameState = GameState(
+        level = level,
+        arrows = arrows,
+        board = board,
+        lives = MAX_LIVES,
+        status = GameStatus.PLAYING,
+        startTimeMillis = System.currentTimeMillis(),
+        mistakes = 0,
+        difficultyLabel = difficultyLabel
+    )
 
     fun createLevel(
         level: Int,
@@ -25,66 +48,55 @@ class GameEngine {
         rows: Int = DEFAULT_GRID_ROWS,
         cols: Int = DEFAULT_GRID_COLS,
         difficultyLabel: String = "Easy"
-    ): GameState {
-        gridRows = rows
-        gridCols = cols
-        return GameState(
-            level = level,
-            arrows = arrows,
-            lives = MAX_LIVES,
-            status = GameStatus.PLAYING,
-            startTimeMillis = System.currentTimeMillis(),
-            mistakes = 0,
-            difficultyLabel = difficultyLabel
-        )
-    }
+    ): GameState = createLevel(level, arrows, Board(rows, cols), difficultyLabel)
 
     /**
-     * Attempts to tap/remove the specified arrow.
-     * @return Pair of (newState, wasValidMove)
+     * Attempts to tap/remove the specified arrow. A colour-locked arrow takes
+     * its partner with it.
      */
-    fun tapArrow(state: GameState, arrowId: Int): Pair<GameState, Boolean> {
-        if (state.status != GameStatus.PLAYING) return state to false
+    fun tapArrow(state: GameState, arrowId: Int): TapResult {
+        if (state.status != GameStatus.PLAYING) return TapResult(state, null)
 
         val arrow = state.arrows.find { it.id == arrowId && it.isActive }
-            ?: return state to false
+            ?: return TapResult(state, null)
 
-        val canEscape = CollisionChecker.canEscape(
-            arrow, state.activeArrows, gridRows, gridCols
-        )
+        val escape = CollisionChecker.escapeFor(arrow, state.activeArrows, state.board)
+            ?: return TapResult(penalise(state), null)
 
-        return if (canEscape) handleValidMove(state, arrowId)
-        else handleInvalidMove(state)
+        return TapResult(clear(state, escape.arrowIds), escape)
     }
 
-    private fun handleValidMove(state: GameState, arrowId: Int): Pair<GameState, Boolean> {
+    private fun clear(state: GameState, departing: Set<Int>): GameState {
         val updated = state.arrows.map {
-            if (it.id == arrowId) it.copy(isActive = false) else it
+            if (it.id in departing) it.copy(isActive = false) else it
         }
-        var newState = state.copy(arrows = updated)
-        if (newState.remainingCount == 0) {
-            newState = newState.copy(status = GameStatus.LEVEL_COMPLETE)
+        val newState = state.copy(arrows = updated)
+        return if (newState.remainingCount == 0) {
+            newState.copy(status = GameStatus.LEVEL_COMPLETE)
+        } else {
+            newState
         }
-        return newState to true
     }
 
-    private fun handleInvalidMove(state: GameState): Pair<GameState, Boolean> {
+    private fun penalise(state: GameState): GameState {
         val newLives = state.lives - 1
-        var newState = state.copy(lives = newLives, mistakes = state.mistakes + 1)
-        if (newLives <= 0) newState = newState.copy(status = GameStatus.OUT_OF_LIVES)
-        return newState to false
+        val newState = state.copy(lives = newLives, mistakes = state.mistakes + 1)
+        return if (newLives <= 0) newState.copy(status = GameStatus.OUT_OF_LIVES) else newState
     }
 
     fun restoreLives(state: GameState): GameState =
         state.copy(lives = MAX_LIVES, status = GameStatus.PLAYING)
 
+    /**
+     * Hints follow the solver, not just any open arrow: on a board laced with
+     * deflectors and locked pairs, "a legal move" and "a move on the way to
+     * the win" are worth telling apart.
+     */
     fun findHintArrow(state: GameState): Int? =
-        CollisionChecker.getEscapableArrows(state.activeArrows, gridRows, gridCols)
-            .firstOrNull()?.id
+        GameSolver.solve(state.activeArrows, state.board)?.order?.firstOrNull()
+            ?: CollisionChecker.getEscapableArrows(state.activeArrows, state.board)
+                .firstOrNull()?.id
 
     fun getCompletionTimeSeconds(state: GameState): Int =
         ((System.currentTimeMillis() - state.startTimeMillis) / 1000).toInt()
-
-    fun getGridRows(): Int = gridRows
-    fun getGridCols(): Int = gridCols
 }

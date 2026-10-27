@@ -38,7 +38,11 @@ fun DevLevelBar(
     canGoNext: Boolean,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** How forced the solution is, 0..1. Null hides the read-out. */
+    tightness: Float? = null,
+    /** Longest run of moves with exactly one legal option. */
+    longestChain: Int = 0
 ) {
     Row(
         modifier = modifier
@@ -75,6 +79,15 @@ fun DevLevelBar(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+            // Generator read-out: the two numbers worth tuning against.
+            if (tightness != null) {
+                Text(
+                    text = "tight ${"%.2f".format(tightness)} \u00B7 chain $longestChain",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
         if (canGoNext) {

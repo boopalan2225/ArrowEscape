@@ -2,65 +2,153 @@ package com.clevercorner.arrowescape.game.level
 
 import com.clevercorner.arrowescape.game.engine.GameSolver
 import com.clevercorner.arrowescape.game.model.Arrow
+import com.clevercorner.arrowescape.game.model.Board
 import com.clevercorner.arrowescape.game.model.Cell
-import com.clevercorner.arrowescape.game.model.Direction
 import kotlin.random.Random
 
 data class GeneratedLevel(
     val arrows: List<Arrow>,
-    val gridRows: Int,
-    val gridCols: Int,
+    val board: Board,
     val shape: LevelShape,
     val shapeName: String,
-    val difficultyLabel: String
-)
+    val difficultyLabel: String,
+    val kind: LevelKind,
+    /** A known-good clear order plus its difficulty measurements. */
+    val solution: GameSolver.Solution
+) {
+    val gridRows: Int get() = board.rows
+    val gridCols: Int get() = board.cols
+
+    /** 0..1 - how forced the solution is. 1.0 means one legal move per turn. */
+    val tightness: Float get() = solution.tightness
+
+    /** Longest run of moves with exactly one legal option. */
+    val longestChain: Int get() = solution.longestChain
+
+    val solutionOrder: List<Int> get() = solution.order
+}
 
 /**
- * Generates dense shape levels made of BENDABLE snake-arrows, guaranteed
- * solvable via reverse-peeling.
+ * Builds a playable level out of three independent pieces:
  *
- * Mechanic (see CollisionChecker): a snake slithers out head-first, its body
- * following the head's trail. So only the HEAD needs a clear straight ray to
- * the edge - the body may bend freely. This lets us pack lots of bent snakes.
+ *  1. [LevelDesigns] says what the level looks like (the shape mask).
+ *  2. [LevelRecipe] says how hard it plays (tangle, dots, locks).
+ *  3. [SnakeCarver], [DeflectorPlanner] and [ColorLockPlanner] do the work.
  *
- * Reverse-peeling:
- *  1. Fill every cell of the shape mask.
- *  2. Repeatedly pick a cell whose head-ray (in some direction) is clear of the
- *     other remaining cells; make it a snake head and grow a bendy body through
- *     still-occupied cells. Remove and record it.
- *  3. Replaying that removal order is always a valid solution -> solvable.
+ * This file only wires them together and refuses to ship anything the solver
+ * cannot finish.
+ *
+ * Generation is a small contest rather than a single roll: candidate boards
+ * are built from the same recipe and the most *chained* one wins - the board
+ * with the longest runs of forced moves, where the player has to read ahead
+ * instead of poking at it. Rolling also covers the case where deflectors
+ * bend a route back inward and jam the carve, with a plain board as the last
+ * resort.
+ *
+ * The contest stops early at the first good-enough board. Running all of
+ * them every time multiplied generation cost by five for a difficulty gain
+ * nobody could feel, and the player paid for it in a visible stall on every
+ * level change.
  */
 object LevelGenerator {
 
-    fun generateLevel(levelNumber: Int): GeneratedLevel {
+    /** Ceiling on candidate boards. Each one costs a carve plus a solve. */
+    private const val MAX_CANDIDATES = 5
+
+    /**
+     * A [GameSolver.Solution.challenge] worth stopping the search for.
+     * Tuned to be reachable on most rolls, so the common path builds one or
+     * two boards rather than five.
+     */
+    private const val GOOD_ENOUGH = 0.62f
+
+    /** Recently built boards, so stepping back a level is instant. */
+    private val cache = LevelCache<Int, GeneratedLevel>()
+
+    fun generateLevel(levelNumber: Int): GeneratedLevel = cache.getOrPut(levelNumber) {
+        buildLevel(levelNumber)
+    }
+
+    private fun buildLevel(levelNumber: Int): GeneratedLevel {
         val design = LevelDesigns.forLevel(levelNumber)
-        val random = Random(levelNumber.toLong() * 31337 + 42)
-
-        // Scale template to grid size
-        val cells = ShapeTemplate.scaleTemplate(
-            design.template, 
-            design.gridSize, 
-            design.gridSize
-        ).toList()
-        
-        val arrows = carveSnakes(
-            cells, design.gridSize, design.gridSize, design.maxSnakeLength, random
-        )
-
-        require(GameSolver.isSolvable(arrows, design.gridSize, design.gridSize)) {
-            "Generated level $levelNumber is not solvable - this is a bug!"
-        }
-
-        // Map design category to LevelShape for compatibility
+        val recipe = LevelRecipe.forLevel(levelNumber, design)
         val shape = mapCategoryToShape(design.category, design.shapeName)
+
+        var best: GeneratedLevel? = null
+        for (attempt in 0 until MAX_CANDIDATES) {
+            val seed = Random(levelNumber.toLong() * 31337 + 42 + attempt)
+            val candidate = build(design, recipe, shape, seed) ?: continue
+            if (best == null || candidate.solution.challenge > best.solution.challenge) {
+                best = candidate
+            }
+            if (candidate.solution.challenge >= GOOD_ENOUGH) break
+        }
+        best?.let { return it }
+
+        // Dots are the only thing that can jam the carve; drop them and the
+        // reverse-peel guarantee is back in force.
+        val plain = recipe.copy(deflectors = 0, lockedPairs = 0)
+        return build(design, plain, shape, Random(levelNumber.toLong()))
+            ?: error("Level $levelNumber could not be generated even without furniture")
+    }
+
+    fun generateTutorialLevel(): GeneratedLevel {
+        val size = 4
+        val board = Board(size, size)
+        val cells = LevelShape.SQUARE.validCells(size, size).map { Cell(it.first, it.second) }
+        val recipe = LevelRecipe.forLevel(1, LevelDesigns.forLevel(1)).copy(
+            gridSize = size,
+            maxSnakeLength = 2,
+            deflectors = 0,
+            lockedPairs = 0
+        )
+        val arrows = SnakeCarver.carve(cells, board, recipe, Random(7)).orEmpty()
+        val solution = GameSolver.solve(arrows, board)
+            ?: GameSolver.Solution(emptyList(), 0f, 0f, 0)
 
         return GeneratedLevel(
             arrows = arrows,
-            gridRows = design.gridSize,
-            gridCols = design.gridSize,
+            board = board,
+            shape = LevelShape.SQUARE,
+            shapeName = "Square",
+            difficultyLabel = "Tutorial",
+            kind = LevelKind.TUTORIAL,
+            solution = solution
+        )
+    }
+
+    /** One roll of the dice. Null means this attempt jammed; try another. */
+    private fun build(
+        design: LevelDesigns.LevelDesign,
+        recipe: LevelRecipe,
+        shape: LevelShape,
+        random: Random
+    ): GeneratedLevel? {
+        val size = recipe.gridSize
+        val mask = ShapeTemplate.scaleTemplate(design.template, size, size)
+            .mapTo(HashSet()) { Cell(it.first, it.second) }
+        if (mask.isEmpty()) return null
+
+        val deflectors = DeflectorPlanner.plan(mask, recipe.deflectors, random)
+        val board = Board(size, size, deflectors)
+        val fill = mask - deflectors.map { it.cell }.toSet()
+
+        val carved = SnakeCarver.carve(fill, board, recipe, random) ?: return null
+        val solution = GameSolver.solve(carved, board) ?: return null
+
+        val locked = ColorLockPlanner.weld(carved, solution.order, recipe.lockedPairs, random)
+        // Locks are safe by construction, but construction arguments have a
+        // habit of being wrong; the solver gets the final word.
+        val verified = GameSolver.solve(locked, board)
+
+        return GeneratedLevel(
+            arrows = if (verified != null) locked else carved,
+            board = board,
             shape = shape,
             shapeName = design.shapeName,
-            difficultyLabel = design.difficultyLabel
+            difficultyLabel = recipe.difficultyLabel,
+            kind = recipe.kind,
+            solution = verified ?: solution
         )
     }
 
@@ -88,110 +176,5 @@ object LevelGenerator {
             category == "Letters" -> LevelShape.LETTER_X
             else -> LevelShape.SQUARE
         }
-    }
-
-    private fun carveSnakes(
-        shapeCells: List<Pair<Int, Int>>,
-        rows: Int,
-        cols: Int,
-        maxLen: Int,
-        random: Random
-    ): List<Arrow> {
-        val occupied = shapeCells.mapTo(HashSet()) { Cell(it.first, it.second) }
-        val arrows = mutableListOf<Arrow>()
-        var nextId = 0
-
-        while (occupied.isNotEmpty()) {
-            // Heads = cells whose forward ray (in some dir) is clear of the
-            // OTHER occupied cells.
-            val candidates = occupied.filter { headDirs(it, occupied, rows, cols).isNotEmpty() }
-            val head = candidates.random(random)
-            val dir = headDirs(head, occupied, rows, cols).random(random)
-
-            val path = ArrayDeque<Cell>()
-            path.addLast(head)
-            val snake = hashSetOf(head)
-
-            val targetLen = if (maxLen <= 1) 1
-            else (maxLen - random.nextInt(0, 2)).coerceAtLeast(2)
-
-            // Neck sits directly behind the head so the arrowhead reads cleanly.
-            // It only needs to be occupied now - NO ray check (body slithers out).
-            if (targetLen >= 2) {
-                val neck = Cell(head.row - dir.deltaRow(), head.col - dir.deltaCol())
-                if (neck in occupied && neck !in snake) {
-                    path.addFirst(neck); snake.add(neck)
-
-                    // Grow the rest with a strong preference for BENDS.
-                    while (path.size < targetLen) {
-                        val tail = path.first()
-                        val prev = path[1]
-                        val incoming = Cell(tail.row - prev.row, tail.col - prev.col)
-                        val options = neighbors(tail).filter {
-                            it in occupied && it !in snake &&
-                                    !isInFrontOfHead(it, head, dir)
-                        }
-                        if (options.isEmpty()) break
-                        val bends = options.filter {
-                            Cell(tail.row - it.row, tail.col - it.col) != incoming
-                        }
-                        val pool = if (bends.isNotEmpty() && random.nextFloat() < 0.8f)
-                            bends else options
-                        val next = pool.random(random)
-                        path.addFirst(next); snake.add(next)
-                    }
-                }
-            }
-
-            occupied.removeAll(snake)
-            arrows.add(Arrow(id = nextId++, cells = path.toList(), direction = dir))
-        }
-
-        return arrows.shuffled(random).mapIndexed { i, a -> a.copy(id = i) }
-    }
-
-    /** Directions in which [cell]'s forward ray is clear of other occupied cells. */
-    private fun headDirs(
-        cell: Cell,
-        occupied: Set<Cell>,
-        rows: Int,
-        cols: Int
-    ): List<Direction> = Direction.entries.filter { dir ->
-        var r = cell.row + dir.deltaRow()
-        var c = cell.col + dir.deltaCol()
-        while (r in 0 until rows && c in 0 until cols) {
-            if (Cell(r, c) in occupied) return@filter false
-            r += dir.deltaRow()
-            c += dir.deltaCol()
-        }
-        true
-    }
-
-    /** True if [cell] lies on the head's forward ray (directly in front of it). */
-    private fun isInFrontOfHead(cell: Cell, head: Cell, dir: Direction): Boolean {
-        val dr = dir.deltaRow(); val dc = dir.deltaCol()
-        if (dr != 0) {
-            if (cell.col != head.col) return false
-            val steps = (cell.row - head.row) * dr
-            return steps > 0
-        } else {
-            if (cell.row != head.row) return false
-            val steps = (cell.col - head.col) * dc
-            return steps > 0
-        }
-    }
-
-    private fun neighbors(cell: Cell): List<Cell> = listOf(
-        Cell(cell.row - 1, cell.col),
-        Cell(cell.row + 1, cell.col),
-        Cell(cell.row, cell.col - 1),
-        Cell(cell.row, cell.col + 1)
-    )
-
-    fun generateTutorialLevel(): GeneratedLevel {
-        val size = 4
-        val cells = LevelShape.SQUARE.validCells(size, size)
-        val arrows = carveSnakes(cells, size, size, 2, Random(7))
-        return GeneratedLevel(arrows, size, size, LevelShape.SQUARE, "Square", "Tutorial")
     }
 }

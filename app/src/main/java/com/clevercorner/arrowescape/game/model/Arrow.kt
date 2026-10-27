@@ -12,15 +12,19 @@ data class Cell(val row: Int, val col: Int)
  * [cells] are ordered from tail -> head so the shape can be drawn as a
  * connected poly-line with the arrowhead at the end.
  *
- * An arrow can escape only if EVERY cell has a clear straight path in
- * [direction] to the board edge (no other active arrow in the way). This
- * guarantees the rigid shape can slide off without overlapping anything.
+ * An arrow escapes head-first: only the route its head carves - straight in
+ * [direction] until a deflector bends it - has to be clear of other arrows.
+ *
+ * [colorGroup] marks a colour-locked pair. Both members leave together or not
+ * at all, and they ignore each other while leaving, so the player has to spot
+ * two openings at once instead of one.
  */
 data class Arrow(
     val id: Int,
     val cells: List<Cell>,
     val direction: Direction,
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
+    val colorGroup: Int? = null
 ) {
     val head: Cell get() = cells.last()
 

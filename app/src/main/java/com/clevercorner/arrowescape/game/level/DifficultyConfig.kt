@@ -1,7 +1,11 @@
 package com.clevercorner.arrowescape.game.level
 
 /**
- * Configuration for level difficulty based on level number.
+ * Legacy sizing table, kept for the shape/tier naming the UI still reads.
+ *
+ * How a level actually PLAYS is no longer decided here: [LevelDesigns] owns
+ * the artwork and its grid size, and [LevelRecipe] owns the difficulty knobs
+ * (snake length, tangle, deflectors, colour locks). Reach for those first.
  *
  * Difficulty scales through:
  * 1. Grid size: More cells = more arrows to clear

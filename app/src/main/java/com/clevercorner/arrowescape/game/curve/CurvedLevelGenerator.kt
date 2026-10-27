@@ -1,5 +1,6 @@
 package com.clevercorner.arrowescape.game.curve
 
+import com.clevercorner.arrowescape.game.level.LevelCache
 import kotlin.random.Random
 
 /**
@@ -49,13 +50,43 @@ object CurvedLevelGenerator {
 
     private const val STEPS_PER_ARROW = 40
 
+    /**
+     * Consecutive non-improving steps before the climb gives up.
+     *
+     * Only applies once a *solvable* board is in hand, so this can never
+     * trade correctness for speed - it only stops chasing extra tightness
+     * that the search has demonstrably stopped finding.
+     */
+    private const val STALL_LIMIT = 250
+
+    /**
+     * Tightness the daily shuffle aims for. Lower than a fresh level's
+     * target: the shuffle has to land fast and reliably, and a board the
+     * player has already half-solved is tight enough on its own.
+     */
+    private const val SHUFFLE_TIGHTNESS = 0.5f
+
     /** Breathing room between the artwork and the board edge. */
     private const val BOARD_PADDING = 28f
 
     /**
      * Generate a complete level.
      */
-    fun generateLevel(levelNumber: Int, boardWidth: Float = 400f, boardHeight: Float = 600f): CurvedLevel {
+    fun generateLevel(levelNumber: Int, boardWidth: Float = 400f, boardHeight: Float = 600f): CurvedLevel =
+        cache.getOrPut(CacheKey(levelNumber, boardWidth, boardHeight)) {
+            buildLevel(levelNumber, boardWidth, boardHeight)
+        }
+
+    /**
+     * Recently built boards. Curved generation runs a hill-climb of up to
+     * four thousand solves, which is far too much to repeat just because a
+     * player stepped back a level.
+     */
+    private val cache = LevelCache<CacheKey, CurvedLevel>()
+
+    private data class CacheKey(val level: Int, val width: Float, val height: Float)
+
+    private fun buildLevel(levelNumber: Int, boardWidth: Float, boardHeight: Float): CurvedLevel {
         val random = Random(levelNumber.toLong() * 31337 + 42)
         val tuning = DifficultyTuning.forLevel(levelNumber, random)
         val design = CurvedJourney.designFor(levelNumber)
@@ -204,14 +235,80 @@ object CurvedLevelGenerator {
         }
 
         val graph = CurvedGameEngine.OrientationGraph(arrows, board)
-        var flips = BooleanArray(arrows.size)
+        val climbed = climb(graph, BooleanArray(arrows.size), targetTightness, random)
+        return guaranteeSolvable(apply(arrows, climbed), board)
+    }
+
+    /**
+     * Re-arranges an already-solvable set of arrows into a *different*
+     * solvable arrangement, without adding or removing a single one.
+     *
+     * This is the daily challenge's shuffle, and it moves on two levels:
+     *
+     *  1. A random mirror/rotation of the WHOLE board ([BoardTransform]),
+     *     which physically relocates every line on screen. This is the part
+     *     that makes the shuffle actually look like a shuffle - flipping
+     *     individual arrowheads alone left the drawn curves in exactly the
+     *     same place, which read as "nothing happened".
+     *  2. The usual per-arrow orientation hill-climb on top, for direction
+     *     variety and to land on a solvable board.
+     *
+     * @return the re-arranged arrows, or null if the climb could not find a
+     *         solvable arrangement. Null means "skip this shuffle": dropping
+     *         arrows to force one through would break the promise that the
+     *         count never changes.
+     */
+    fun reshuffle(
+        arrows: List<CurvedArrow>,
+        board: CurvedGameEngine.Board,
+        random: Random,
+        targetTightness: Float = SHUFFLE_TIGHTNESS
+    ): List<CurvedArrow>? {
+        if (arrows.size < 2) return null
+
+        // Moved first: an isometry of the whole scene preserves every
+        // pairwise blocking relationship exactly, so the orientation climb
+        // below is searching the identical solution space it always does -
+        // the transform costs nothing in solver terms, only in geometry.
+        val relocated = arrows.transformedBy(BoardTransform.random(random), board.width, board.height)
+
+        val graph = CurvedGameEngine.OrientationGraph(relocated, board)
+        val start = BooleanArray(relocated.size) { random.nextBoolean() }
+        val climbed = climb(graph, start, targetTightness, random)
+        if (!climbed.result.solved) return null
+
+        return apply(relocated, climbed).arrows
+    }
+
+    /**
+     * Hill-climb from [start] towards a solvable, tight arrangement.
+     *
+     * Shared by first-time generation and by the daily shuffle - the search
+     * is identical, only the starting point differs.
+     */
+    private fun climb(
+        graph: CurvedGameEngine.OrientationGraph,
+        start: BooleanArray,
+        targetTightness: Float,
+        random: Random
+    ): Climbed {
+        var flips = start
         var best = graph.analyze(flips)
 
-        val budget = (arrows.size * STEPS_PER_ARROW).coerceIn(200, 4000)
+        val budget = (flips.size * STEPS_PER_ARROW).coerceIn(200, 4000)
         var sinceImprovement = 0
 
         for (step in 0 until budget) {
             if (best.solved && best.tightness >= targetTightness) break
+
+            // A hill-climb that has stopped climbing is just burning battery.
+            // The high difficulty bands ask for a tightness the scoring
+            // formula can barely reach, so without this the search ran its
+            // full budget on *every* late level - the single biggest reason
+            // the loading spinner used to sit there. Bailing out keeps the
+            // best board found so far, which is the one we were going to use
+            // anyway.
+            if (best.solved && sinceImprovement >= STALL_LIMIT) break
 
             // Widen the jump after a dry spell to escape local maxima.
             val jump = if (sinceImprovement > 40) (2..5).random(random) else 1
@@ -230,12 +327,18 @@ object CurvedLevelGenerator {
                 sinceImprovement++
             }
         }
-
-        val oriented = arrows.mapIndexed { slot, arrow ->
-            if (flips[slot]) arrow.reversed() else arrow
-        }
-        return guaranteeSolvable(TunedLevel(oriented, best), board)
+        return Climbed(flips, best)
     }
+
+    private fun apply(arrows: List<CurvedArrow>, climbed: Climbed): TunedLevel =
+        TunedLevel(
+            arrows.mapIndexed { slot, arrow ->
+                if (climbed.flips[slot]) arrow.reversed() else arrow
+            },
+            climbed.result
+        )
+
+    private class Climbed(val flips: BooleanArray, val result: CurvedGameEngine.SolveResult)
 
     /**
      * Solvability dominates; tightness only breaks ties between solvable

@@ -1,11 +1,14 @@
 package com.clevercorner.arrowescape.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -13,54 +16,85 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.game.curve.Point2D
+import com.clevercorner.arrowescape.game.engine.CollisionChecker
+import com.clevercorner.arrowescape.game.engine.ExitSimulator
 import com.clevercorner.arrowescape.game.level.LevelShape
 import com.clevercorner.arrowescape.game.model.Arrow
+import com.clevercorner.arrowescape.game.model.Board
 import com.clevercorner.arrowescape.game.model.Cell
+import com.clevercorner.arrowescape.game.model.Deflector
 import com.clevercorner.arrowescape.game.model.Direction
+import com.clevercorner.arrowescape.ui.components.BoardFurniture.drawDeflector
+import com.clevercorner.arrowescape.ui.components.BoardFurniture.drawLockBadge
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.sin
 
+/** Hold this long on an arrow to see where it would go instead of firing it. */
+private const val LONG_PRESS_MS = 220L
+
+/** Boards at least this busy open with the pinch-to-zoom hint showing. */
+private const val DENSE_ARROW_COUNT = 24
+private const val HINT_VISIBLE_MS = 2600L
+
 /**
- * Renders the board of bendable snake-arrows on a subtle dot grid.
- * Each arrow is a rounded poly-line with a chevron head, single navy color
- * (blue when hinted) - matching the reference art.
+ * Renders the board of bendable snake-arrows on a subtle dot grid, with pan
+ * and pinch-zoom on top.
+ *
+ * Three things are on show: the arrows themselves, the redirect dots that
+ * bend an escape route mid-flight, and colour-locked pairs - two arrows
+ * sharing a hue that must leave together.
+ *
+ * Holding an arrow previews its route rather than firing it, which is the
+ * only honest way to teach a deflected exit: the player watches the dashed
+ * line turn the corner, and on a blocked route sees the cell that stops it.
+ *
+ * [resetKey] re-centres the view whenever it changes - pass the level number
+ * so every level opens fully in frame.
  */
 @Composable
 fun GameBoard(
     arrows: List<Arrow>,
-    gridRows: Int,
-    gridCols: Int,
-    escapingArrows: Map<Int, Direction>,
+    board: Board,
+    escapingArrows: Map<Int, List<Cell>>,
     shakingArrows: Set<Int>,
     hintArrowId: Int?,
+    resetKey: Any,
     onArrowTap: (Arrow) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Which mode's surface to paint. */
+    skin: BoardSkin = BoardSkin.CLASSIC
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
+    val skinColors = skin.colors()
+    val gridRows = board.rows
+    val gridCols = board.cols
+    val boardDescription = stringResource(R.string.board_content_description)
 
     // Stable animation state holders - mutations happen in SideEffect, not during composition
     val escapeAnimatables = remember { mutableStateMapOf<Int, Animatable<Float, AnimationVector1D>>() }
     val shakeAnimatables = remember { mutableStateMapOf<Int, Animatable<Float, AnimationVector1D>>() }
-    
+
     // Cleanup stale animations after composition
     SideEffect {
         escapeAnimatables.keys.filter { it !in escapingArrows }.forEach { escapeAnimatables.remove(it) }
         shakeAnimatables.keys.filter { it !in shakingArrows }.forEach { shakeAnimatables.remove(it) }
     }
-    
+
     // Launch escape animations for each escaping arrow
     escapingArrows.keys.forEach { id ->
         key(id) {
@@ -71,7 +105,7 @@ fun GameBoard(
             }
         }
     }
-    
+
     // Launch shake animations
     shakingArrows.forEach { id ->
         key(id) {
@@ -82,33 +116,57 @@ fun GameBoard(
             }
         }
     }
-    
+
     val escapeAnim: Map<Int, Float> = escapeAnimatables.mapValues { it.value.value }
-    val shakeAnim: Map<Int, Float> = shakeAnimatables.mapValues { 
-        sin(it.value.value * 4 * Math.PI.toFloat()) * 9f 
+    val shakeAnim: Map<Int, Float> = shakeAnimatables.mapValues {
+        sin(it.value.value * 4 * Math.PI.toFloat()) * 9f
     }
 
-    val hintPulse = rememberInfiniteTransition(label = "hint")
-    val hintGlow by hintPulse.animateFloat(
+    val pulse = rememberInfiniteTransition(label = "boardPulse")
+    val hintGlow by pulse.animateFloat(
         0.25f, 0.6f,
         infiniteRepeatable(tween(700, easing = FastOutSlowInEasing), RepeatMode.Reverse),
         label = "hintGlow"
     )
+    val dashPhase by pulse.animateFloat(
+        0f, 1f,
+        infiniteRepeatable(tween(900, easing = LinearEasing)),
+        label = "previewDash"
+    )
 
-    BoxWithConstraints(
+    val hintedGroup = arrows.firstOrNull { it.id == hintArrowId }?.colorGroup
+
+    var viewport by remember { mutableStateOf(BoardViewport.RESET) }
+    var held by remember { mutableStateOf<Int?>(null) }
+    val tracker = remember { PressTracker() }
+    val atRest by remember { derivedStateOf { viewport.isIdentity } }
+
+    var zoomHintVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(resetKey) {
+        viewport = BoardViewport.RESET
+        held = null
+        zoomHintVisible = arrows.size >= DENSE_ARROW_COUNT
+        delay(HINT_VISIBLE_MS)
+        zoomHintVisible = false
+    }
+
+    // A rejected tap explains itself: the same dashed route, in the error
+    // colour, stopping dead on whatever is in the way.
+    val previewArrowId = held ?: shakingArrows.firstOrNull()
+    val preview = previewArrowId
+        ?.let { id -> arrows.firstOrNull { it.id == id && it.isActive } }
+        ?.let { arrow -> CollisionChecker.traceFor(arrow, arrows.filter { it.isActive }, board) }
+
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(gridCols.toFloat() / gridRows.toFloat())
-            .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.10f))
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                androidx.compose.ui.graphics.Brush.verticalGradient(
-                    listOf(
-                        gameColors.boardBackground,
-                        gameColors.arrowPrimary.copy(alpha = 0.06f)
-                    )
-                )
-            )
+            .aspectRatio(gridCols.toFloat() / gridRows.toFloat()),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = skinColors.surface,
+        shadowElevation = 4.dp
+    ) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
         // Using constraints from BoxWithConstraintsScope
         val boardW = this.constraints.maxWidth.toFloat()
@@ -135,213 +193,179 @@ fun GameBoard(
         // layout metrics on rotation/resize) without ever restarting the
         // coroutine mid-gesture.
         val latestArrows by rememberUpdatedState(arrows)
-        val latestCell by rememberUpdatedState(cell)
-        val latestOffX by rememberUpdatedState(offX)
-        val latestOffY by rememberUpdatedState(offY)
         val latestOnArrowTap by rememberUpdatedState(onArrowTap)
+        val latestLayout by rememberUpdatedState(
+            BoardLayout(cell, offX, offY, Point2D(boardW, boardH))
+        )
+
+        /** Which arrow is under this screen-space touch, pan and zoom included. */
+        fun arrowAt(touch: Offset): Arrow? {
+            val layout = latestLayout
+            val canvas = viewport.toCanvas(Point2D(touch.x, touch.y))
+            val col = ((canvas.x - layout.offX) / layout.cell).toInt()
+            val row = ((canvas.y - layout.offY) / layout.cell).toInt()
+            return latestArrows.firstOrNull { it.isActive && it.occupies(row, col) }
+        }
 
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
+                .semantics { contentDescription = boardDescription }
+                // Slide around / pinch-zoom. Consumes events only once a drag
+                // passes touch slop, so plain taps fall through to the tap
+                // detector below.
                 .pointerInput(Unit) {
-                    detectTapGestures { tap ->
-                        val col = ((tap.x - latestOffX) / latestCell).toInt()
-                        val row = ((tap.y - latestOffY) / latestCell).toInt()
-                        latestArrows.firstOrNull { it.isActive && it.occupies(row, col) }
-                            ?.let { latestOnArrowTap(it) }
+                    detectTransformGestures { centroid, pan, zoom, _ ->
+                        viewport = viewport.transformedBy(
+                            centroid = Point2D(centroid.x, centroid.y),
+                            panDelta = Point2D(pan.x, pan.y),
+                            zoomFactor = zoom,
+                            viewSize = latestLayout.viewSize
+                        )
+                        held = null
                     }
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = { touch ->
+                            tracker.previewShown = false
+                            val target = arrowAt(touch)
+                            if (target != null) {
+                                coroutineScope {
+                                    val pending = launch {
+                                        delay(LONG_PRESS_MS)
+                                        held = target.id
+                                        tracker.previewShown = true
+                                    }
+                                    tryAwaitRelease()
+                                    pending.cancel()
+                                }
+                            }
+                            held = null
+                        },
+                        onTap = { touch ->
+                            // A long-press only previews - releasing must not fire.
+                            if (!tracker.previewShown) arrowAt(touch)?.let { latestOnArrowTap(it) }
+                        }
+                    )
                 }
         ) {
-            drawDotGrid(gridRows, gridCols, cell, offX, offY, gameColors.gridLine)
+            val vp = viewport
+            withTransform({
+                translate(vp.pan.x, vp.pan.y)
+                scale(vp.zoom, vp.zoom, pivot = Offset.Zero)
+            }) {
+                drawBoardBackdrop(
+                    skin = skin,
+                    colors = skinColors,
+                    rows = gridRows,
+                    cols = gridCols,
+                    cell = cell,
+                    offsetX = offX,
+                    offsetY = offY
+                )
 
-            arrows.filter { it.isActive || escapingArrows.containsKey(it.id) }.forEach { arrow ->
-                val progress = escapeAnim[arrow.id] ?: 0f
-                val shake = shakeAnim[arrow.id] ?: 0f
-                val escaping = escapingArrows.containsKey(arrow.id)
-
-                val isHinted = arrow.id == hintArrowId
-                val c1 = if (isHinted) gameColors.arrowHint else gameColors.arrowPrimary
-                val c2 = if (isHinted) gameColors.arrowHint else gameColors.arrowSecondary
-
-                val basePoints = arrow.cells.map { centerOf(it) }
-                val points: List<Offset> = if (escaping && progress > 0f) {
-                    // Snake-peeling: head leads out along its direction, body
-                    // follows the exact trail the head carved (slithers away).
-                    slitherPoints(basePoints, arrow.direction, progress, gridW + gridH)
-                } else {
-                    basePoints.map { Offset(it.x + shake, it.y) }
+                board.deflectors.forEach { deflector ->
+                    drawDeflector(deflector, centerOf(deflector.cell), cell, gameColors)
                 }
 
-                if (isHinted) {
-                    points.forEach {
-                        drawCircle(gameColors.arrowHint.copy(alpha = hintGlow), cell * 0.5f, it)
+                arrows.filter { it.isActive || escapingArrows.containsKey(it.id) }.forEach { arrow ->
+                    val route = escapingArrows[arrow.id]
+                    val progress = escapeAnim[arrow.id] ?: 0f
+                    val shake = shakeAnim[arrow.id] ?: 0f
+
+                    // A hinted half of a locked pair lights up its partner too -
+                    // pointing at one of them would be half a hint.
+                    val isHinted = arrow.id == hintArrowId ||
+                            (hintedGroup != null && arrow.colorGroup == hintedGroup)
+                    val lock = arrow.colorGroup?.let { BoardFurniture.lockColors(it, gameColors) }
+                    val (c1, c2) = when {
+                        isHinted -> gameColors.arrowHint to gameColors.arrowHint
+                        lock != null -> lock
+                        else -> gameColors.arrowPrimary to gameColors.arrowSecondary
                     }
+
+                    val basePoints = arrow.cells.map { centerOf(it) }
+                    val points: List<Offset> = if (route != null && progress > 0f) {
+                        // Snake-peeling: the head runs the exact route the engine
+                        // traced - deflector bends included - and the body follows
+                        // the trail it carved.
+                        slitherPoints(basePoints, route.map { centerOf(it) }, progress, gridW + gridH)
+                    } else {
+                        basePoints.map { Offset(it.x + shake, it.y) }
+                    }
+
+                    if (isHinted) {
+                        points.forEach {
+                            drawCircle(gameColors.arrowHint.copy(alpha = hintGlow), cell * 0.5f, it)
+                        }
+                    }
+
+                    drawSnakeArrow(points, arrow.direction, cell, c1, c2)
+                    if (lock != null) drawLockBadge(points.first(), cell, lock.first)
                 }
 
-                drawSnakeArrow(points, arrow.direction, cell, c1, c2)
+                preview?.forEach { (arrowId, trace) ->
+                    val owner = arrows.firstOrNull { it.id == arrowId } ?: return@forEach
+                    drawRoutePreview(
+                        from = centerOf(owner.head),
+                        routePoints = trace.path.map { centerOf(it) },
+                        blockedAt = trace.stoppedAt?.let { centerOf(it) },
+                        cell = cell,
+                        dashPhase = dashPhase,
+                        clearColor = gameColors.arrowHint,
+                        blockedColor = gameColors.arrowDown
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = zoomHintVisible && atRest,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.board_zoom_hint),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                        RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            )
+        }
+
+        AnimatedVisibility(
+            visible = !atRest,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+        ) {
+            FilledTonalButton(
+                onClick = { viewport = BoardViewport.RESET },
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    stringResource(R.string.board_reset_view),
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
         }
     }
-}
-
-private fun DrawScope.drawDotGrid(
-    rows: Int, cols: Int, cell: Float, offX: Float, offY: Float, dotColor: Color
-) {
-    val radius = cell * 0.035f
-    for (r in 0 until rows) for (c in 0 until cols) {
-        drawCircle(dotColor, radius, Offset(offX + c * cell + cell / 2, offY + r * cell + cell / 2))
     }
 }
 
-/**
- * Draws a bendable arrow as a thick continuous pipe with SOFT rounded bends
- * and a solid filled arrowhead at the tip. [points] are ordered tail -> head.
- */
-private fun DrawScope.drawSnakeArrow(
-    points: List<Offset>,
-    direction: Direction,
-    cell: Float,
-    color1: Color,
-    color2: Color
-) {
-    val stroke = cell * 0.15f
-    val head = points.last()
-
-    val dirVec = when (direction) {
-        Direction.UP -> Offset(0f, -1f)
-        Direction.DOWN -> Offset(0f, 1f)
-        Direction.LEFT -> Offset(-1f, 0f)
-        Direction.RIGHT -> Offset(1f, 0f)
-    }
-    val perp = Offset(-dirVec.y, dirVec.x)
-
-    // Arrowhead geometry
-    val tip = head + dirVec * (cell * 0.42f)
-    val headHalf = cell * 0.27f
-    val headBack = tip - dirVec * (cell * 0.44f)
-
-    // Branded gradient brush running from the tail to the tip.
-    val brush = androidx.compose.ui.graphics.Brush.linearGradient(
-        colors = listOf(color1, color2),
-        start = points.first(),
-        end = tip
-    )
-
-    // Build the body vertex list (tail -> ... -> headBack). Single-cell arrows
-    // get an extended tail so a stem is visible.
-    val vertices = ArrayList<Offset>()
-    if (points.size == 1) {
-        vertices.add(head - dirVec * (cell * 0.40f))
-    } else {
-        vertices.add(points.first())
-        for (i in 1 until points.size - 1) vertices.add(points[i])
-    }
-    vertices.add(headBack)
-
-    val bodyPath = roundedPolyline(vertices, cornerRadius = cell * 0.40f)
-    drawPath(
-        bodyPath, brush,
-        style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round)
-    )
-
-    // Solid filled triangular head
-    val headPath = Path().apply {
-        val left = headBack + perp * headHalf
-        val right = headBack - perp * headHalf
-        moveTo(tip.x, tip.y)
-        lineTo(left.x, left.y)
-        lineTo(right.x, right.y)
-        close()
-    }
-    drawPath(headPath, brush, style = Fill)
-}
-
-/**
- * Builds a poly-line through [pts] with rounded corners of up to [cornerRadius]
- * at each interior vertex (quadratic bezier), giving soft snake bends.
- */
-private fun roundedPolyline(pts: List<Offset>, cornerRadius: Float): Path {
-    val path = Path()
-    if (pts.isEmpty()) return path
-    if (pts.size < 3) {
-        path.moveTo(pts.first().x, pts.first().y)
-        for (i in 1 until pts.size) path.lineTo(pts[i].x, pts[i].y)
-        return path
-    }
-
-    path.moveTo(pts.first().x, pts.first().y)
-    for (i in 1 until pts.size - 1) {
-        val prev = pts[i - 1]
-        val curr = pts[i]
-        val next = pts[i + 1]
-
-        val r1 = minOf(cornerRadius, distance(prev, curr) / 2f)
-        val r2 = minOf(cornerRadius, distance(curr, next) / 2f)
-
-        val entry = curr + unit(prev - curr) * r1
-        val exit = curr + unit(next - curr) * r2
-
-        path.lineTo(entry.x, entry.y)
-        path.quadraticBezierTo(curr.x, curr.y, exit.x, exit.y)
-    }
-    val last = pts.last()
-    path.lineTo(last.x, last.y)
-    return path
-}
-
-private fun distance(a: Offset, b: Offset): Float {
-    val dx = a.x - b.x; val dy = a.y - b.y
-    return kotlin.math.sqrt(dx * dx + dy * dy)
-}
-
-private fun unit(v: Offset): Offset {
-    val len = kotlin.math.sqrt(v.x * v.x + v.y * v.y)
-    return if (len == 0f) Offset.Zero else Offset(v.x / len, v.y / len)
-}
-
-/**
- * Computes the slithering positions of each body point as the snake exits.
- * The head runs off along [dir]; every other point advances the same arc
- * distance along the shared track, so the body follows the head's trail
- * (snake going into a hole) rather than the whole shape sliding rigidly.
- */
-private fun slitherPoints(
-    base: List<Offset>,
-    dir: Direction,
-    progress: Float,
-    extend: Float
-): List<Offset> {
-    val dirVec = when (dir) {
-        Direction.UP -> Offset(0f, -1f)
-        Direction.DOWN -> Offset(0f, 1f)
-        Direction.LEFT -> Offset(-1f, 0f)
-        Direction.RIGHT -> Offset(1f, 0f)
-    }
-    // Track = body (tail..head) + a long straight extension past the head.
-    val track = ArrayList<Offset>(base.size + 1)
-    track.addAll(base)
-    track.add(base.last() + dirVec * extend)
-
-    val cum = FloatArray(track.size)
-    for (i in 1 until track.size) cum[i] = cum[i - 1] + distance(track[i - 1], track[i])
-    val total = cum.last()
-    val d = progress * total
-
-    return base.indices.map { i -> pointAlong(track, cum, cum[i] + d) }
-}
-
-private fun pointAlong(pts: List<Offset>, cum: FloatArray, s: Float): Offset {
-    if (s <= 0f) return pts.first()
-    if (s >= cum.last()) return pts.last()
-    var i = 1
-    while (i < cum.size && cum[i] < s) i++
-    val segLen = (cum[i] - cum[i - 1]).coerceAtLeast(0.0001f)
-    val t = (s - cum[i - 1]) / segLen
-    return Offset(
-        pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t,
-        pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t
-    )
-}
+/** Board metrics a long-lived gesture coroutine needs to hit-test a touch. */
+private data class BoardLayout(
+    val cell: Float,
+    val offX: Float,
+    val offY: Float,
+    val viewSize: Point2D
+)
 
 // ======================= PREVIEWS =======================
 
@@ -377,8 +401,8 @@ private fun GameBoardPreviewSquare() {
         Surface(modifier = Modifier.padding(16.dp)) {
             GameBoard(
                 arrows = createSampleArrows(LevelShape.SQUARE),
-                gridRows = 8,
-                gridCols = 8,
+                board = Board(8, 8, listOf(Deflector(Cell(4, 4), Direction.RIGHT))),
+                resetKey = 0,
                 escapingArrows = emptyMap(),
                 shakingArrows = emptySet(),
                 hintArrowId = 0,
@@ -407,9 +431,9 @@ private fun GameBoardPreviewSpiral() {
                 Spacer(Modifier.height(8.dp))
                 GameBoard(
                     arrows = createSampleArrows(LevelShape.SPIRAL, 10),
-                    gridRows = 10,
-                    gridCols = 10,
-                    escapingArrows = emptyMap(),
+                    board = Board(10, 10),
+                    resetKey = 0,
+                escapingArrows = emptyMap(),
                     shakingArrows = emptySet(),
                     hintArrowId = null,
                     onArrowTap = {},
@@ -465,9 +489,9 @@ private fun GameBoardPreviewAllHardShapes() {
                                 )
                                 GameBoard(
                                     arrows = createSampleArrows(shape, 8),
-                                    gridRows = 8,
-                                    gridCols = 8,
-                                    escapingArrows = emptyMap(),
+                                    board = Board(8, 8),
+                                    resetKey = 0,
+                escapingArrows = emptyMap(),
                                     shakingArrows = emptySet(),
                                     hintArrowId = null,
                                     onArrowTap = {},

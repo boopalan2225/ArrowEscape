@@ -1,56 +1,86 @@
 package com.clevercorner.arrowescape.game.engine
 
 import com.clevercorner.arrowescape.game.model.Arrow
+import com.clevercorner.arrowescape.game.model.Board
 import com.clevercorner.arrowescape.game.model.Cell
 
 /**
- * Determines whether bendable snake-arrows can escape.
- * Pure logic, fully unit-testable.
+ * Decides which arrows may leave the board right now. Pure logic, no UI.
  *
- * Mechanic: an arrow slithers out head-first, its body following the exact
- * trail the head carved. Therefore the ONLY cells it newly enters are along
- * the head's straight forward ray. So an arrow can escape if and only if its
- * HEAD has a clear straight path in its direction to the board edge, with no
- * other active arrow's cell in the way.
+ * Mechanic: a snake slithers out head-first and its body follows the exact
+ * trail the head carved, so only the HEAD's route matters (see
+ * [ExitSimulator]). That is what makes densely packed bent snakes playable.
  *
- * This is what makes densely-packed BENT snakes playable - the body can bend
- * any way it likes; only the head's exit lane matters.
+ * Two mechanics ride on top of the base rule:
+ *  - deflectors bend the route, so "clear lane" is no longer a straight line;
+ *  - colour-locked arrows leave as a pair, ignoring each other on the way out.
  */
 object CollisionChecker {
 
-    fun canEscape(
+    /** A legal move: the arrows that leave, and the route each one takes. */
+    data class Escape(val routes: Map<Int, List<Cell>>) {
+        val arrowIds: Set<Int> get() = routes.keys
+    }
+
+    /**
+     * The move tapping [arrow] would make, or null if it is blocked.
+     * Tapping either half of a colour-locked pair moves both halves.
+     */
+    fun escapeFor(arrow: Arrow, activeArrows: List<Arrow>, board: Board): Escape? {
+        val traces = traceFor(arrow, activeArrows, board)
+        if (traces.isEmpty() || traces.values.any { !it.escaped }) return null
+        return Escape(traces.mapValues { it.value.path })
+    }
+
+    /**
+     * What would happen if [arrow] were tapped, whether or not it works: one
+     * trace per arrow that would leave with it. The board renderer uses this
+     * to show the player the route - including the cell that blocks it - so
+     * a deflected exit can be read rather than guessed at.
+     */
+    fun traceFor(
         arrow: Arrow,
         activeArrows: List<Arrow>,
-        gridRows: Int,
-        gridCols: Int
-    ): Boolean {
-        if (!arrow.isActive) return false
+        board: Board
+    ): Map<Int, ExitSimulator.Trace> {
+        if (!arrow.isActive) return emptyMap()
 
-        // Cells occupied by all OTHER active arrows.
+        val party = partyOf(arrow, activeArrows)
+        val partyIds = party.mapTo(HashSet()) { it.id }
         val blocked = HashSet<Cell>()
         for (other in activeArrows) {
-            if (other.id == arrow.id || !other.isActive) continue
+            if (!other.isActive || other.id in partyIds) continue
             blocked.addAll(other.cells)
         }
 
-        val dr = arrow.direction.deltaRow()
-        val dc = arrow.direction.deltaCol()
-
-        var r = arrow.head.row + dr
-        var c = arrow.head.col + dc
-        while (r in 0 until gridRows && c in 0 until gridCols) {
-            if (Cell(r, c) in blocked) return false
-            r += dr
-            c += dc
+        return party.associate { member ->
+            member.id to ExitSimulator.trace(member.head, member.direction, board, blocked)
         }
-        return true
     }
+
+    fun canEscape(arrow: Arrow, activeArrows: List<Arrow>, board: Board): Boolean =
+        escapeFor(arrow, activeArrows, board) != null
+
+    /** Legacy plain-board check - kept so callers without furniture stay simple. */
+    fun canEscape(arrow: Arrow, activeArrows: List<Arrow>, gridRows: Int, gridCols: Int): Boolean =
+        canEscape(arrow, activeArrows, Board(gridRows, gridCols))
+
+    fun getEscapableArrows(activeArrows: List<Arrow>, board: Board): List<Arrow> =
+        activeArrows.filter { canEscape(it, activeArrows, board) }
 
     fun getEscapableArrows(
         activeArrows: List<Arrow>,
         gridRows: Int,
         gridCols: Int
-    ): List<Arrow> = activeArrows.filter {
-        canEscape(it, activeArrows, gridRows, gridCols)
+    ): List<Arrow> = getEscapableArrows(activeArrows, Board(gridRows, gridCols))
+
+    /**
+     * The arrows that must move together with [arrow]: itself, plus its
+     * colour-lock partners that are still on the board.
+     */
+    private fun partyOf(arrow: Arrow, activeArrows: List<Arrow>): List<Arrow> {
+        val group = arrow.colorGroup ?: return listOf(arrow)
+        return activeArrows.filter { it.isActive && it.colorGroup == group }
+            .ifEmpty { listOf(arrow) }
     }
 }

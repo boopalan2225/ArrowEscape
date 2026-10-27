@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.clevercorner.arrowescape.game.level.DifficultyConfig
 import com.clevercorner.arrowescape.game.level.LevelShape
 import com.clevercorner.arrowescape.game.model.Arrow
+import com.clevercorner.arrowescape.game.model.Board
 import com.clevercorner.arrowescape.game.model.Cell
 import com.clevercorner.arrowescape.game.model.Direction
 import com.clevercorner.arrowescape.game.model.GameStatus
@@ -40,12 +41,14 @@ fun GameScreen(
     val gameState by viewModel.gameState.collectAsState()
     val escapingArrows by viewModel.escapingArrows.collectAsState()
     val shakingArrows by viewModel.shakingArrows.collectAsState()
-    val gridRows by viewModel.gridRows.collectAsState()
-    val gridCols by viewModel.gridCols.collectAsState()
-    val levelShape by viewModel.levelShape.collectAsState()
     val shapeName by viewModel.shapeName.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
+    val elapsedSeconds by viewModel.elapsedSeconds.collectAsState()
+    val previousBest by viewModel.previousBestSeconds.collectAsState()
+    val isNewBest by viewModel.isNewBestTime.collectAsState()
+    val levelMetrics by viewModel.levelMetrics.collectAsState()
+    val isGenerating by viewModel.isGenerating.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
 
     val context = LocalContext.current
@@ -92,14 +95,22 @@ fun GameScreen(
                 ) {
                     GameTopBar(
                         level = gameState.level,
+                        // Difficulty and shape are static facts about the
+                        // level - one quiet line, not two loud chips.
+                        subtitle = "${gameState.difficultyLabel} \u00B7 $shapeName",
+                        trailing = {
+                            LevelTimerChip(
+                                elapsedSeconds = elapsedSeconds,
+                                bestSeconds = previousBest
+                            )
+                        },
                         onBackClick = onBackClick
                     )
 
                     GameStatsRow(
                         modifier = Modifier.spotlightTarget(SpotlightTarget.LIVES),
                         remainingArrows = gameState.remainingCount,
-                        lives = gameState.lives,
-                        difficultyLabel = gameState.difficultyLabel
+                        lives = gameState.lives
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -115,15 +126,19 @@ fun GameScreen(
                     .spotlightTarget(SpotlightTarget.BOARD),
                 contentAlignment = Alignment.Center
             ) {
-                GameBoard(
-                    arrows = gameState.arrows,
-                    gridRows = gridRows,
-                    gridCols = gridCols,
-                    escapingArrows = escapingArrows,
-                    shakingArrows = shakingArrows,
-                    hintArrowId = gameState.hintArrowId,
-                    onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
-                )
+                if (isGenerating) {
+                    BoardPlaceholder()
+                } else {
+                    GameBoard(
+                        arrows = gameState.arrows,
+                        board = gameState.board,
+                        resetKey = gameState.level,
+                        escapingArrows = escapingArrows,
+                        shakingArrows = shakingArrows,
+                        hintArrowId = gameState.hintArrowId,
+                        onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
+                    )
+                }
             }
 
             if (prefs.devMode) {
@@ -131,11 +146,13 @@ fun GameScreen(
                     level = gameState.level,
                     shapeName = shapeName,
                     difficulty = gameState.difficultyLabel,
+                    tightness = levelMetrics.tightness,
+                    longestChain = levelMetrics.longestChain,
                     arrowCount = gameState.arrows.size,
                     canGoPrevious = gameState.level > 1,
                     canGoNext = gameState.level < DifficultyConfig.TOTAL_LEVELS,
-                    onPrevious = { viewModel.devStepLevel(-1) },
-                    onNext = { viewModel.devStepLevel(+1) }
+                    onPrevious = { viewModel.stepLevel(-1) },
+                    onNext = { viewModel.stepLevel(+1) }
                 )
             }
 
@@ -143,9 +160,14 @@ fun GameScreen(
                 modifier = Modifier
                     .navigationBarsPadding()
                     .spotlightTarget(SpotlightTarget.HINT),
-                shapeName = shapeName,
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
+                // Back to anything already played; forward only as far as
+                // the player has actually earned.
+                onPreviousLevel = { viewModel.stepLevel(-1) }
+                    .takeIf { gameState.level > 1 },
+                onNextLevel = { viewModel.stepLevel(+1) }
+                    .takeIf { gameState.level < prefs.highestLevel },
                 onHintClick = {
                     if (hintsRemaining > 0) {
                         viewModel.useHint()
@@ -200,10 +222,16 @@ fun GameScreen(
             ) {
                 LevelCompleteOverlay(
                     level = gameState.level,
-                    timeSeconds = ((System.currentTimeMillis() - gameState.startTimeMillis) / 1000).toInt(),
+                    // The run clock stops the moment the level does, so this
+                    // is the finishing time - not "however long the card has
+                    // been on screen", which is what recomputing it here used
+                    // to show.
+                    timeSeconds = elapsedSeconds,
                     mistakes = gameState.mistakes,
                     shapeName = shapeName,
                     difficultyLabel = gameState.difficultyLabel,
+                    bestSeconds = previousBest,
+                    isNewBest = isNewBest,
                     onNextLevel = {
                         activity?.let { act ->
                             viewModel.showInterstitialIfNeeded(act) { viewModel.onNextLevel() }
@@ -236,8 +264,7 @@ fun GameScreen(
 private fun GameScreenPreviewContent(
     level: Int = 5,
     arrows: List<Arrow>,
-    gridRows: Int = 8,
-    gridCols: Int = 8,
+    board: Board = Board(8, 8),
     lives: Int = 3,
     shapeName: String = "Spiral",
     difficultyLabel: String = "Medium",
@@ -270,11 +297,15 @@ private fun GameScreenPreviewContent(
                         )
                     )
                 ) {
-                    GameTopBar(level = level, onBackClick = {})
+                    GameTopBar(
+                        level = level,
+                        subtitle = "$difficultyLabel \u00B7 $shapeName",
+                        trailing = { LevelTimerChip(elapsedSeconds = 45, bestSeconds = null) },
+                        onBackClick = {}
+                    )
                     GameStatsRow(
                         remainingArrows = arrows.count { it.isActive },
-                        lives = lives,
-                        difficultyLabel = difficultyLabel
+                        lives = lives
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -289,8 +320,8 @@ private fun GameScreenPreviewContent(
             ) {
                 GameBoard(
                     arrows = arrows,
-                    gridRows = gridRows,
-                    gridCols = gridCols,
+                    board = board,
+                    resetKey = level,
                     escapingArrows = emptyMap(),
                     shakingArrows = emptySet(),
                     hintArrowId = arrows.firstOrNull()?.id,
@@ -299,7 +330,6 @@ private fun GameScreenPreviewContent(
             }
 
             GameBottomBar(
-                shapeName = shapeName,
                 hintsRemaining = hintsRemaining,
                 onHintClick = {}
             )

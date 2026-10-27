@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -80,11 +78,6 @@ private data class ExitPreview(
     }
 }
 
-/** Gesture bookkeeping that must survive between callbacks without recomposing. */
-private class PressTracker {
-    var previewShown = false
-}
-
 /**
  * The game board: curved arrows you can tap, long-press to preview, and pan or
  * pinch-zoom around (like the Flutter game's InteractiveViewer).
@@ -104,9 +97,14 @@ fun CurvedGameBoard(
     isArrowFree: (CurvedArrow) -> Boolean,
     exitPointOf: (CurvedArrow) -> Point2D,
     onArrowTap: (CurvedArrow) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** 1 = settled. Below that the board is mid-re-arrangement. */
+    shufflePhase: Float = 1f,
+    /** Which mode's surface to paint. Daily looks deliberately unlike the rest. */
+    skin: BoardSkin = BoardSkin.CURVED
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
+    val skinColors = skin.colors()
     val boardDescription = stringResource(R.string.board_content_description)
 
     // Animated values are passed as State and only read while drawing, so a
@@ -142,20 +140,16 @@ fun CurvedGameBoard(
     val latestIsFree by rememberUpdatedState(isArrowFree)
     val latestExitPoint by rememberUpdatedState(exitPointOf)
 
-    BoxWithConstraints(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(boardWidth / boardHeight)
-            .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.10f))
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        gameColors.boardBackground,
-                        gameColors.arrowPrimary.copy(alpha = 0.06f)
-                    )
-                )
-            )
+            .aspectRatio(boardWidth / boardHeight),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = skinColors.surface,
+        shadowElevation = 4.dp
+    ) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
         val canvasWidth = this.constraints.maxWidth.toFloat()
         val canvasHeight = this.constraints.maxHeight.toFloat()
@@ -223,6 +217,8 @@ fun CurvedGameBoard(
                     )
                 }
         ) {
+            drawBoardBackdrop(skin, skinColors)
+
             val vp = viewport
             withTransform({
                 translate(vp.pan.x, vp.pan.y)
@@ -234,14 +230,30 @@ fun CurvedGameBoard(
                 }
                 resting.filter { it.isActive }.forEach { arrow ->
                     val hinted = arrow.id == hintArrowId
-                    drawArrow(
-                        arrow, scaleX, scaleY,
-                        ArrowRenderState(
-                            isHinted = hinted,
-                            hintGlow = if (hinted) hintGlow.value else 0f,
-                            haloColor = gameColors.boardBackground
+                    val render = {
+                        drawArrow(
+                            arrow, scaleX, scaleY,
+                            ArrowRenderState(
+                                isHinted = hinted,
+                                hintGlow = if (hinted) hintGlow.value else 0f,
+                                haloColor = skinColors.halo
+                            )
                         )
-                    )
+                    }
+                    if (shufflePhase >= 1f) {
+                        render()
+                    } else {
+                        // Fold this arrow towards its own centre. The stagger
+                        // turns a uniform blink into a wave crossing the
+                        // board, which is what makes it read as the maze
+                        // re-arranging rather than the screen glitching.
+                        val centre = arrow.screenCentre(scaleX, scaleY)
+                        val fold = shuffleScaleFor(
+                            phase = shufflePhase,
+                            ripple = rippleOf(centre, canvasWidth, canvasHeight)
+                        )
+                        withTransform({ scale(fold, fold, pivot = centre) }) { render() }
+                    }
                 }
                 moving.forEach { arrow ->
                     drawArrow(
@@ -300,5 +312,6 @@ fun CurvedGameBoard(
                 Text(stringResource(R.string.board_reset_view), style = MaterialTheme.typography.labelMedium)
             }
         }
+    }
     }
 }

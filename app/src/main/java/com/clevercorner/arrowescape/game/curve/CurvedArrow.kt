@@ -292,6 +292,23 @@ data class CurvedArrow(
     fun reversed(): CurvedArrow = copy(
         segments = segments.reversed().map { BezierSegment(it.p3, it.p2, it.p1, it.p0) }
     )
+
+    /**
+     * Maps every control point of every segment through [transform], leaving
+     * id, color, stroke width and active state untouched.
+     *
+     * Used to move an arrow's whole physical path - not just which end its
+     * head sits on - which is what [reversed] alone cannot do: reversing
+     * swaps the head to the other end of the SAME curve, so the line drawn
+     * on screen never actually moves. A point-wise remap is how the daily
+     * shuffle makes the maze visibly rearrange rather than just flicker a
+     * few arrowheads.
+     */
+    fun transformed(transform: (Point2D) -> Point2D): CurvedArrow = copy(
+        segments = segments.map {
+            BezierSegment(transform(it.p0), transform(it.p1), transform(it.p2), transform(it.p3))
+        }
+    )
     
     /**
      * Get the bounding box of this arrow.

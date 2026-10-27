@@ -16,6 +16,8 @@ enum class GameStatus {
 data class GameState(
     val level: Int = 1,
     val arrows: List<Arrow> = emptyList(),
+    /** Bounds plus deflectors - everything the escape rules need. */
+    val board: Board = Board(8, 8),
     val lives: Int = 3,
     val status: GameStatus = GameStatus.PLAYING,
     val startTimeMillis: Long = System.currentTimeMillis(),

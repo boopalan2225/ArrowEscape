@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -30,9 +31,10 @@ import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
+import com.clevercorner.arrowescape.ui.components.BoardPlaceholder
+import com.clevercorner.arrowescape.ui.components.BoardSkin
 import com.clevercorner.arrowescape.ui.components.ConfettiBurst
 import com.clevercorner.arrowescape.ui.components.CurvedGameBoard
-import com.clevercorner.arrowescape.ui.components.GameStatsRow
 import com.clevercorner.arrowescape.ui.components.OutOfLivesModal
 import com.clevercorner.arrowescape.ui.components.PuzzleStuckModal
 import com.clevercorner.arrowescape.ui.game.CurvedGameViewModel
@@ -66,9 +68,45 @@ fun DailyScreen(
     val boardWidth by viewModel.boardWidth.collectAsState()
     val boardHeight by viewModel.boardHeight.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
+    val shuffleSecondsLeft by viewModel.shuffleSecondsLeft.collectAsState()
+    val shuffleCount by viewModel.shuffleCount.collectAsState()
+    val shufflePhase by viewModel.shufflePhase.collectAsState()
+    val isGenerating by viewModel.isGenerating.collectAsState()
     val activity = LocalContext.current as? Activity
 
-    LaunchedEffect(puzzle.stamp) { viewModel.startDaily(puzzle) }
+    // Announce each re-arrangement briefly, keyed on the counter so repeat
+    // shuffles each get their own flash.
+    var flashVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(shuffleCount) {
+        if (shuffleCount == 0) return@LaunchedEffect
+        flashVisible = true
+        delay(1100)
+        flashVisible = false
+    }
+
+    // Snapshotted on entry. Solving the puzzle flips the stored flag, and
+    // this must NOT re-evaluate mid-session or the board would vanish out
+    // from under the win card.
+    val playable = remember(puzzle.stamp) { prefs.daily.canPlay(puzzle.date) }
+
+    LaunchedEffect(puzzle.stamp) { if (playable) viewModel.startDaily(puzzle) }
+
+    // The shuffle clock belongs to this screen; it must not outlive it.
+    DisposableEffect(Unit) {
+        onDispose { viewModel.stopShuffleClock() }
+    }
+
+    // Reached today's puzzle after already solving it (deep link, back
+    // stack, a stale Home button). One a day means one a day.
+    if (!playable) {
+        DailyClosedScreen(
+            dateLabel = puzzle.date.format(TITLE_FORMAT),
+            streak = prefs.daily.streak,
+            onDone = onBackClick,
+            modifier = modifier
+        )
+        return
+    }
 
     val solved = gameState.status == GameStatus.LEVEL_COMPLETE
     val blurred = solved || gameState.status == GameStatus.OUT_OF_LIVES || gameState.isStuck
@@ -81,19 +119,16 @@ fun DailyScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .systemBarsPadding()
                 .then(if (blurred) Modifier.blur(8.dp) else Modifier)
         ) {
-            DailyTopBar(
-                title = puzzle.date.format(TITLE_FORMAT),
+            DailyHud(
+                dateLabel = puzzle.date.format(TITLE_FORMAT),
                 streak = prefs.daily.streak,
-                onBackClick = onBackClick
-            )
-
-            GameStatsRow(
-                remainingArrows = gameState.remainingCount,
+                secondsLeft = shuffleSecondsLeft,
+                shuffleCount = shuffleCount,
                 lives = gameState.lives,
-                difficultyLabel = gameState.difficulty
+                remainingArrows = gameState.remainingCount,
+                onBackClick = onBackClick
             )
 
             // The board takes every pixel the chrome does not need.
@@ -104,18 +139,26 @@ fun DailyScreen(
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CurvedGameBoard(
-                    arrows = gameState.arrows,
-                    boardWidth = boardWidth,
-                    boardHeight = boardHeight,
-                    escapingArrows = escapingArrows,
-                    bumpingArrows = bumpingArrows,
-                    hintArrowId = gameState.hintArrowId,
-                    resetKey = puzzle.stamp,
-                    isArrowFree = viewModel::isArrowFree,
-                    exitPointOf = viewModel::exitPointOf,
-                    onArrowTap = viewModel::onArrowTap
-                )
+                if (isGenerating) {
+                    BoardPlaceholder()
+                } else {
+                    CurvedGameBoard(
+                        arrows = gameState.arrows,
+                        boardWidth = boardWidth,
+                        boardHeight = boardHeight,
+                        shufflePhase = shufflePhase,
+                        escapingArrows = escapingArrows,
+                        bumpingArrows = bumpingArrows,
+                        hintArrowId = gameState.hintArrowId,
+                        resetKey = puzzle.stamp,
+                        isArrowFree = viewModel::isArrowFree,
+                        exitPointOf = viewModel::exitPointOf,
+                        onArrowTap = viewModel::onArrowTap,
+                        // The daily's whole identity: a dark slate board, so
+                        // it never gets mistaken for a journey level.
+                        skin = BoardSkin.DAILY
+                    )
+                }
             }
 
             HintButton(
@@ -129,6 +172,15 @@ fun DailyScreen(
                     .padding(bottom = 20.dp)
             )
         }
+
+        // Floats over the board, above the blur-free layer so it stays sharp.
+        ShuffleFlash(
+            visible = flashVisible,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .systemBarsPadding()
+                .padding(top = 140.dp)
+        )
 
         Scrim(visible = gameState.status == GameStatus.OUT_OF_LIVES) {
             OutOfLivesModal(
@@ -159,45 +211,6 @@ fun DailyScreen(
         ConfettiBurst(active = solved, modifier = Modifier.fillMaxSize())
 
         ReviewPromptEffect(viewModel.reviewPrompter)
-    }
-}
-
-/** Back arrow, the date, and the streak - nothing else earns a place here. */
-@Composable
-private fun DailyTopBar(title: String, streak: Int, onBackClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.back),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        // Balances the back arrow so the date sits dead centre, and earns its
-        // place by showing the one number worth protecting.
-        Box(Modifier.width(48.dp), contentAlignment = Alignment.Center) {
-            if (streak > 0) {
-                Text(
-                    text = "$streak",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
     }
 }
 
@@ -234,6 +247,31 @@ private fun Scrim(visible: Boolean, content: @Composable () -> Unit) {
         ) {
             content()
         }
+    }
+}
+
+/**
+ * What you get for walking back into a day you have already finished.
+ *
+ * Reuses the solved card verbatim - the message is identical, and inventing
+ * a second way to say "come back tomorrow" would only be a second thing to
+ * keep in step.
+ */
+@Composable
+private fun DailyClosedScreen(
+    dateLabel: String,
+    streak: Int,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .systemBarsPadding(),
+        contentAlignment = Alignment.Center
+    ) {
+        DailySolvedCard(title = dateLabel, streak = streak, onDone = onDone)
     }
 }
 
