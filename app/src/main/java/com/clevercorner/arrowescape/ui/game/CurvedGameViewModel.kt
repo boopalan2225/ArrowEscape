@@ -106,6 +106,17 @@ class CurvedGameViewModel(
     private val _combo = MutableStateFlow(0)
     val combo: StateFlow<Int> = _combo.asStateFlow()
 
+    /**
+     * Boards the player can rewind to, newest last - each is the arrow list as
+     * it stood before an escape. Cleared whenever the board is re-dealt, since
+     * an older arrangement is not one a shuffle could have produced.
+     */
+    private val undoHistory = UndoHistory<List<CurvedArrow>>()
+    val canUndo: StateFlow<Boolean> = undoHistory.canUndo
+
+    /** The longest run on record, so only a genuine new record gets written. */
+    private var bestRunKnown = 0
+
     /** True while the next board is being built. The screen shows a spinner. */
     private val _isGenerating = MutableStateFlow(false)
     val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
@@ -220,6 +231,7 @@ class CurvedGameViewModel(
     fun startDaily(puzzle: DailyPuzzle) {
         session = CurvedSession.DAILY
         dailyPuzzle = puzzle
+        viewModelScope.launch { bestRunKnown = preferences.prefsFlow.first().daily.bestRun }
         loadBoard(puzzle.levelSeed)
         runShuffleClock()
     }
@@ -311,6 +323,7 @@ class CurvedGameViewModel(
 
         playShuffle(arrows)
         _shuffleCount.value++
+        undoHistory.clear()
         if (prefs.value.hapticsEnabled) feedback.playErrorHaptic()
         return true
     }
@@ -356,6 +369,7 @@ class CurvedGameViewModel(
         // what they actually want - stop competing with it for CPU.
         prefetchJob?.cancel()
         boardJob?.cancel()
+        undoHistory.clear()
 
         // Set before the first suspension point, so from this instant the
         // header names the requested level and the board area shows only the
@@ -493,12 +507,15 @@ class CurvedGameViewModel(
 
         // Increment combo
         _combo.value = _combo.value + 1
+        if (session == CurvedSession.DAILY) recordRun(_combo.value)
 
         // Sounds & haptics
         if (prefs.value.soundEnabled) feedback.playSuccessSound()
         if (prefs.value.hapticsEnabled) feedback.playSuccessHaptic()
 
 //        analytics.log(Events.validMove(currentState.level, currentState.remainingCount - 1))
+
+        undoHistory.remember(currentState.arrows)
 
         // Mark arrow as inactive immediately (so other taps see it as gone)
         val updatedArrows = currentState.arrows.map {
@@ -648,6 +665,32 @@ class CurvedGameViewModel(
     // ─────────────────────────────────────────────────────────────────────
     // Hints
     // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Takes back the last escape. Only the board rewinds: a life lost to a
+     * blocked tap stays lost, so undo cannot be used to dodge a mistake.
+     *
+     * The run is broken too. Otherwise escaping the same arrow again would
+     * count twice towards the best run.
+     */
+    fun undoMove() {
+        val state = _gameState.value
+        if (state.status != GameStatus.PLAYING) return
+        // Never rewind under an arrow that is still on its way out. Checked
+        // before popping, so a refused undo keeps its snapshot.
+        if (_escapingArrows.value.isNotEmpty() || _bumpingArrows.value.isNotEmpty()) return
+
+        val previous = undoHistory.pop() ?: return
+        _combo.value = 0
+        _gameState.value = state.copy(arrows = previous, hintArrowId = null)
+    }
+
+    /** Writes a best run only when this run has actually beaten the record. */
+    private fun recordRun(run: Int) {
+        if (run <= bestRunKnown) return
+        bestRunKnown = run
+        viewModelScope.launch { preferences.recordDailyRun(run) }
+    }
 
     fun useHint() {
         if (_hintsRemaining.value <= 0) return

@@ -1,20 +1,8 @@
 package com.clevercorner.arrowescape.ui.daily
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,214 +14,197 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
-import com.clevercorner.arrowescape.game.daily.DailyShuffle
-import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
+import com.clevercorner.arrowescape.ui.theme.DailyHeaderStyle
+import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
+
+/** How tall the header band is, status bar included. */
+val DailyHeaderHeight = 250.dp
 
 /**
- * The daily challenge's header - deliberately nothing like the journey's.
+ * The daily challenge's header: the active theme's sky, with the day, the
+ * shape it is built from, and the three numbers worth a glance.
  *
- * The journey's chrome is quiet because a journey level waits for you. This
- * one is built around a draining ring, because the daily does not: the ring
- * IS the mode. Everything else (date, streak, lives, arrows) is tucked
- * around it so the one thing that moves is the one thing you look at.
+ * The art and inks come from the theme, so each look gets its own sky and
+ * its own readable text. Lives, the best winning streak and the day streak
+ * sit in the sky itself, so the top of the screen reads as one place.
  */
 @Composable
 fun DailyHud(
     dateLabel: String,
-    streak: Int,
-    secondsLeft: Int?,
-    shuffleCount: Int,
+    shapeName: String,
     lives: Int,
-    remainingArrows: Int,
+    bestRun: Int,
+    streak: Int,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val gameColors = ArrowEscapeTheme.gameColors
+    val style = LocalThemePersona.current.dailyHeader
 
-    Surface(
-        shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 4.dp,
+    Box(
         modifier = modifier
+            .fillMaxWidth()
+            .height(DailyHeaderHeight)
+            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
     ) {
+        Image(
+            painter = painterResource(style.art),
+            contentDescription = null,
+            // The artwork is much wider than this band. Anchor the crop left of
+            // centre so the sun stays in frame instead of being cropped away.
+            contentScale = ContentScale.Crop,
+            alignment = BiasAlignment(horizontalBias = -0.5f, verticalBias = 0f),
+            modifier = Modifier.matchParentSize()
+        )
+
         Column(
             modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            gameColors.arrowHint.copy(alpha = 0.18f),
-                            androidx.compose.ui.graphics.Color.Transparent
-                        )
-                    )
-                )
+                .fillMaxSize()
                 .statusBarsPadding()
-                .padding(horizontal = 12.dp, vertical = 8.dp)
+                // Top inset brings the title down off the status bar.
+                .padding(start = 12.dp, end = 12.dp, top = 20.dp, bottom = 8.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                BackButton(style = style, onClick = onBackClick)
 
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         text = stringResource(R.string.daily_badge).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp,
-                        color = gameColors.arrowHint
+                        letterSpacing = 3.sp,
+                        color = style.accent
                     )
                     Text(
                         text = dateLabel,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Black,
+                        color = style.ink
                     )
+                    if (shapeName.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        ShapeChip(style = style, shapeName = shapeName)
+                    }
                 }
 
-                ShuffleRing(secondsLeft = secondsLeft)
+                // Mirrors the back button so the date sits dead centre.
+                Spacer(Modifier.width(48.dp))
             }
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.weight(1f))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                DailyStat(glyph = "\u2764", value = "$lives")
-                DailyStat(glyph = "\u2197", value = "$remainingArrows")
-                if (streak > 0) DailyStat(glyph = "\uD83D\uDD25", value = "$streak")
-                if (shuffleCount > 0) {
-                    DailyStat(glyph = "\uD83D\uDD00", value = "$shuffleCount")
-                }
+                DailyStatCard(
+                    style = style,
+                    glyph = "\u2764\uFE0F",
+                    value = lives,
+                    label = stringResource(R.string.daily_stat_lives),
+                    modifier = Modifier.weight(1f)
+                )
+                DailyStatCard(
+                    style = style,
+                    glyph = "\uD83C\uDFC6",
+                    value = bestRun,
+                    label = stringResource(R.string.daily_stat_best_run),
+                    modifier = Modifier.weight(1f)
+                )
+                DailyStatCard(
+                    style = style,
+                    glyph = "\uD83D\uDCC5",
+                    value = streak,
+                    label = stringResource(R.string.daily_stat_streak),
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DailyStat(glyph: String, value: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+private fun BackButton(style: DailyHeaderStyle, onClick: () -> Unit) {
+    Surface(
+        shape = CircleShape,
+        color = style.glass,
+        shadowElevation = 2.dp,
+        modifier = Modifier.size(48.dp)
     ) {
-        Text(text = glyph, fontSize = 13.sp)
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
-/**
- * A ring that drains over the minute, with the seconds in the middle.
- *
- * Reads at a glance from across the room, which a row of text never does -
- * and in the last few seconds it flushes red and throbs, which is the cue to
- * either commit to a move or wait out the shuffle.
- */
-@Composable
-private fun ShuffleRing(secondsLeft: Int?, modifier: Modifier = Modifier) {
-    if (secondsLeft == null) return
-
-    val gameColors = ArrowEscapeTheme.gameColors
-    val urgent = secondsLeft <= DailyShuffle.WARN_SECONDS
-    val accent = if (urgent) gameColors.arrowDown else gameColors.arrowHint
-
-    // Animated so the ring glides between ticks instead of stepping.
-    val sweep by animateFloatAsState(
-        targetValue = secondsLeft.toFloat() / DailyShuffle.INTERVAL_SECONDS,
-        animationSpec = tween(durationMillis = 950, easing = androidx.compose.animation.core.LinearEasing),
-        label = "ringSweep"
-    )
-
-    val pulse = rememberInfiniteTransition(label = "ringPulse")
-    val throb by pulse.animateFloat(
-        0.5f, 1f,
-        infiniteRepeatable(tween(450, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "throb"
-    )
-
-    Box(
-        modifier = modifier
-            .size(52.dp)
-            .alpha(if (urgent) throb else 1f),
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = size.minDimension * 0.11f
-            val inset = stroke / 2f
-            val arcSize = Size(size.width - stroke, size.height - stroke)
-
-            drawArc(
-                color = accent.copy(alpha = 0.18f),
-                startAngle = 0f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = Offset(inset, inset),
-                size = arcSize,
-                style = Stroke(width = stroke)
-            )
-            drawArc(
-                color = accent,
-                startAngle = -90f,
-                sweepAngle = -360f * sweep.coerceIn(0f, 1f),
-                useCenter = false,
-                topLeft = Offset(inset, inset),
-                size = arcSize,
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
+        IconButton(onClick = onClick) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.back),
+                tint = style.ink
             )
         }
+    }
+}
+
+@Composable
+private fun ShapeChip(style: DailyHeaderStyle, shapeName: String) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = style.glass,
+        shadowElevation = 1.dp
+    ) {
         Text(
-            text = "$secondsLeft",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = accent
+            text = shapeName,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = style.ink
         )
     }
 }
 
-/**
- * The "it just happened" banner. Brief on purpose: the board itself is the
- * real announcement, this only names what the player just saw.
- */
+/** One glassy card: a glyph, the number, and what the number is. */
 @Composable
-fun ShuffleFlash(
-    visible: Boolean,
+private fun DailyStatCard(
+    style: DailyHeaderStyle,
+    glyph: String,
+    value: Int,
+    label: String,
     modifier: Modifier = Modifier
 ) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(tween(150)) + scaleIn(initialScale = 0.85f, animationSpec = tween(150)),
-        exit = fadeOut(tween(250)) + scaleOut(targetScale = 1.1f, animationSpec = tween(250)),
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = style.glass,
+        shadowElevation = 3.dp,
         modifier = modifier
     ) {
-        Text(
-            text = stringResource(R.string.daily_shuffle_flash),
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp))
-                .padding(horizontal = 20.dp, vertical = 10.dp),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = glyph, fontSize = 20.sp)
+            Column {
+                Text(
+                    text = "$value",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
+                    color = style.ink
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = style.mutedInk,
+                    maxLines = 1
+                )
+            }
+        }
     }
 }

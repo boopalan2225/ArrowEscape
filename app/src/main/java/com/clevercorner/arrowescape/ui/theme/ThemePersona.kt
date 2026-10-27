@@ -1,5 +1,6 @@
 package com.clevercorner.arrowescape.ui.theme
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
@@ -26,7 +27,22 @@ data class ThemePersona(
     val driftDown: Boolean,
     val corner: Dp,
     val glow: Color,
-    val sounds: SoundPack
+    val sounds: SoundPack,
+    /** The daily challenge's header: the sky art behind it and the inks that read on it. */
+    val dailyHeader: DailyHeaderStyle
+)
+
+/**
+ * How the daily challenge's header looks in one theme. The inks are chosen
+ * per theme because each sky is different - a dark night needs light text.
+ */
+data class DailyHeaderStyle(
+    @DrawableRes val art: Int,
+    val ink: Color,
+    val mutedInk: Color,
+    val accent: Color,
+    /** Translucent surface behind the back button, chip and stat cards. */
+    val glass: Color
 )
 
 /** The three clips a theme speaks with. */
@@ -56,7 +72,16 @@ private val ClassicPersona = ThemePersona(
     driftDown = false,
     corner = 18.dp,
     glow = Color(0xFF1A73E8),
-    sounds = SoundPack(R.raw.tap_success, R.raw.tap_error, R.raw.level_complete)
+    sounds = SoundPack(R.raw.tap_success,         R.raw.tap_error,
+        R.raw.level_complete
+    ),
+    dailyHeader = DailyHeaderStyle(
+        art = R.drawable.theme_bg_classic,
+        ink = Color(0xFF1B2A44),
+        mutedInk = Color(0xFF4A5568),
+        accent = Color(0xFF1A73E8),
+        glass = Color(0xE6FFFFFF)
+    )
 )
 
 private val MidnightPersona = ThemePersona(
@@ -73,6 +98,13 @@ private val MidnightPersona = ThemePersona(
         R.raw.midnight_tap_success,
         R.raw.midnight_tap_error,
         R.raw.midnight_level_complete
+    ),
+    dailyHeader = DailyHeaderStyle(
+        art = R.drawable.theme_bg_midnight,
+        ink = Color(0xFFF2F6FF),
+        mutedInk = Color(0xFFB8C6E6),
+        accent = Color(0xFF9DB4FF),
+        glass = Color(0xB3101A3A)
     )
 )
 
@@ -90,6 +122,13 @@ private val SunsetPersona = ThemePersona(
         R.raw.sunset_tap_success,
         R.raw.sunset_tap_error,
         R.raw.sunset_level_complete
+    ),
+    dailyHeader = DailyHeaderStyle(
+        art = R.drawable.theme_bg_sunset,
+        ink = Color(0xFF1B2A44),
+        mutedInk = Color(0xFF4A5568),
+        accent = Color(0xFFB4530B),
+        glass = Color(0xE6FFFFFF)
     )
 )
 
@@ -107,6 +146,13 @@ private val PiratePersona = ThemePersona(
         R.raw.pirate_tap_success,
         R.raw.pirate_tap_error,
         R.raw.pirate_level_complete
+    ),
+    dailyHeader = DailyHeaderStyle(
+        art = R.drawable.theme_bg_pirate,
+        ink = Color(0xFF1E2A2E),
+        mutedInk = Color(0xFF3F4F52),
+        accent = Color(0xFF9A5B13),
+        glass = Color(0xE0FFFFFF)
     )
 )
 
@@ -124,5 +170,12 @@ private val MonoPersona = ThemePersona(
         R.raw.mono_tap_success,
         R.raw.mono_tap_error,
         R.raw.mono_level_complete
+    ),
+    dailyHeader = DailyHeaderStyle(
+        art = R.drawable.theme_bg_mono,
+        ink = Color(0xFF14110F),
+        mutedInk = Color(0xFF4A4540),
+        accent = Color(0xFF5A5149),
+        glass = Color(0xE0FFFFFF)
     )
 )

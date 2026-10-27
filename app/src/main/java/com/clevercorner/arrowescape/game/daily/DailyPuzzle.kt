@@ -73,7 +73,9 @@ object DailyCalendar {
 data class DailyProgress(
     val cleared: Set<Int> = emptySet(),
     val streak: Int = 0,
-    val lastCleared: Int? = null
+    val lastCleared: Int? = null,
+    /** Longest run of escapes in a row, ever - the player's best winning streak. */
+    val bestRun: Int = 0
 ) {
     fun isCleared(date: LocalDate): Boolean = DailyCalendar.stampOf(date) in cleared
 
@@ -104,7 +106,7 @@ data class DailyProgress(
         if (stamp in cleared) return this
 
         val continues = lastCleared == DailyCalendar.stampOf(date.minusDays(1))
-        return DailyProgress(
+        return copy(
             cleared = cleared + stamp,
             streak = if (continues) streak + 1 else 1,
             lastCleared = stamp

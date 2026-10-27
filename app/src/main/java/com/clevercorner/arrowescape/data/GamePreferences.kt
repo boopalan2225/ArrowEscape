@@ -44,6 +44,7 @@ class GamePreferences(private val context: Context) {
         private val KEY_DAILY_CLEARED = stringPreferencesKey("daily_cleared") // "20251016,20251017"
         private val KEY_DAILY_STREAK = intPreferencesKey("daily_streak")
         private val KEY_DAILY_LAST = intPreferencesKey("daily_last_cleared")
+        private val KEY_DAILY_BEST_RUN = intPreferencesKey("daily_best_run")
 
         // ── Per-mode progress (suffixed with GameMode.id) ────────────────
         private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
@@ -167,7 +168,8 @@ class GamePreferences(private val context: Context) {
                         .mapNotNull(String::toIntOrNull)
                         .toSet(),
                     streak = stored[KEY_DAILY_STREAK] ?: 0,
-                    lastCleared = stored[KEY_DAILY_LAST]
+                    lastCleared = stored[KEY_DAILY_LAST],
+                    bestRun = stored[KEY_DAILY_BEST_RUN] ?: 0
                 )
             )
         }
@@ -340,6 +342,16 @@ class GamePreferences(private val context: Context) {
     }
 
     /**
+     * Keeps the longest daily run ever. Compared inside the edit, so two
+     * writers can never overwrite a record with a smaller one.
+     */
+    suspend fun recordDailyRun(run: Int) {
+        context.dataStore.edit { prefs ->
+            if (run > (prefs[KEY_DAILY_BEST_RUN] ?: 0)) prefs[KEY_DAILY_BEST_RUN] = run
+        }
+    }
+
+    /**
      * Marks [date]'s puzzle solved, letting [DailyProgress] decide what that
      * does to the streak - the rule lives with the data, not with the writer.
      */
@@ -351,7 +363,8 @@ class GamePreferences(private val context: Context) {
                     .mapNotNull(String::toIntOrNull)
                     .toSet(),
                 streak = prefs[KEY_DAILY_STREAK] ?: 0,
-                lastCleared = prefs[KEY_DAILY_LAST]
+                lastCleared = prefs[KEY_DAILY_LAST],
+                bestRun = prefs[KEY_DAILY_BEST_RUN] ?: 0
             )
             val updated = current.withCleared(date)
 

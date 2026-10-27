@@ -7,9 +7,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -48,8 +47,8 @@ private val TITLE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM 
  *
  * Everything decorative that the journey screens carry - gradient header,
  * shape name, stars, dev bar, combo badge, themed scenery - is deliberately
- * absent. The board is the entire interface; the chrome is a date, three
- * hearts and a hint.
+ * absent from the board itself. The chrome is a sunrise header (the day, the
+ * shape, lives, best run, streak), a shuffle timer and one row of actions.
  *
  * The gameplay is the curved engine untouched: same ViewModel, same board
  * component, same ads. Only the framing is different.
@@ -71,6 +70,8 @@ fun DailyScreen(
     val shuffleSecondsLeft by viewModel.shuffleSecondsLeft.collectAsState()
     val shuffleCount by viewModel.shuffleCount.collectAsState()
     val shufflePhase by viewModel.shufflePhase.collectAsState()
+    val combo by viewModel.combo.collectAsState()
+    val canUndo by viewModel.canUndo.collectAsState()
     val isGenerating by viewModel.isGenerating.collectAsState()
     val activity = LocalContext.current as? Activity
 
@@ -123,11 +124,11 @@ fun DailyScreen(
         ) {
             DailyHud(
                 dateLabel = puzzle.date.format(TITLE_FORMAT),
-                streak = prefs.daily.streak,
-                secondsLeft = shuffleSecondsLeft,
-                shuffleCount = shuffleCount,
+                shapeName = gameState.shapeName,
                 lives = gameState.lives,
-                remainingArrows = gameState.remainingCount,
+                // Live: the run in progress counts the moment it beats the record.
+                bestRun = maxOf(prefs.daily.bestRun, combo),
+                streak = prefs.daily.streak,
                 onBackClick = onBackClick
             )
 
@@ -136,7 +137,8 @@ fun DailyScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .clip(RoundedCornerShape(28.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (isGenerating) {
@@ -154,22 +156,30 @@ fun DailyScreen(
                         isArrowFree = viewModel::isArrowFree,
                         exitPointOf = viewModel::exitPointOf,
                         onArrowTap = viewModel::onArrowTap,
-                        // The daily's whole identity: a dark slate board, so
-                        // it never gets mistaken for a journey level.
+                        // The daily's whole identity: a pale sky board under the
+                        // sunrise, so it never gets mistaken for a journey level.
                         skin = BoardSkin.DAILY
                     )
                 }
             }
 
-            HintButton(
+            ShuffleTimerBar(
+                secondsLeft = shuffleSecondsLeft,
+                modifier = Modifier.padding(horizontal = 40.dp)
+            )
+
+            DailyActionBar(
+                canUndo = canUndo,
                 hintsRemaining = hintsRemaining,
-                onClick = {
+                onUndoClick = viewModel::undoMove,
+                onHintClick = {
                     if (hintsRemaining > 0) viewModel.useHint()
                     else activity?.let(viewModel::onWatchAdForHints)
                 },
+                onRestartClick = viewModel::onRestartLevel,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 20.dp)
+                    .navigationBarsPadding()
+                    .padding(top = 12.dp, bottom = 16.dp)
             )
         }
 
@@ -178,8 +188,7 @@ fun DailyScreen(
             visible = flashVisible,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .systemBarsPadding()
-                .padding(top = 140.dp)
+                .padding(top = DailyHeaderHeight + 12.dp)
         )
 
         Scrim(visible = gameState.status == GameStatus.OUT_OF_LIVES) {
@@ -211,23 +220,6 @@ fun DailyScreen(
         ConfettiBurst(active = solved, modifier = Modifier.fillMaxSize())
 
         ReviewPromptEffect(viewModel.reviewPrompter)
-    }
-}
-
-@Composable
-private fun HintButton(hintsRemaining: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .size(60.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shadowElevation = 2.dp
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(text = if (hintsRemaining > 0) "\uD83D\uDCA1" else "\u25B6", fontSize = 24.sp)
-        }
     }
 }
 

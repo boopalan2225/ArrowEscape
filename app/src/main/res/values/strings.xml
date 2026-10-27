@@ -207,6 +207,14 @@
     <string name="daily_shuffle_in">Shuffle in %1$s</string>
     <string name="daily_shuffle_count">Shuffled %1$d\u00D7</string>
     <string name="daily_shuffle_flash">Board shuffled!</string>
+    <string name="daily_stat_lives">Lives left</string>
+    <string name="daily_stat_best_run">Best run</string>
+    <string name="daily_stat_streak">Day streak</string>
+    <string name="daily_undo">Undo</string>
+    <string name="daily_restart">Restart</string>
+    <string name="daily_hint">Hint</string>
+    <string name="daily_hint_left">%1$d hints left</string>
+    <string name="daily_hint_watch_ad">Watch an ad for a hint</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">COMING SOON</string>

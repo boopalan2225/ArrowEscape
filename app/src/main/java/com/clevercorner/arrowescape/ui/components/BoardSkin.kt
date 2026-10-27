@@ -29,7 +29,7 @@ enum class BoardSkin {
     /** Journey, curved: a soft centre glow, so the art floats rather than sits. */
     CURVED,
 
-    /** Daily: a dark slate. Unmistakably not the journey. */
+    /** Daily: a pale sky field, the sunrise's counterpart to the journey boards. */
     DAILY
 }
 
@@ -62,13 +62,13 @@ fun BoardSkin.colors(): BoardSkinColors {
         )
 
         BoardSkin.DAILY -> {
-            // Not pure black: a slate that still carries a trace of the
-            // active theme, so switching persona is still visible here.
-            val slate = lerp(Color(0xFF161A22), game.arrowPrimary, 0.06f)
+            // A pale sky field tinted by the active theme, so the daily
+            // reads as its own board on the sunrise palette.
+            val sky = lerp(Color.White, game.arrowPrimary, 0.06f)
             BoardSkinColors(
-                surface = slate,
-                texture = Color.White.copy(alpha = 0.05f),
-                halo = slate
+                surface = sky,
+                texture = game.arrowPrimary.copy(alpha = 0.10f),
+                halo = sky
             )
         }
     }
@@ -104,7 +104,7 @@ fun DrawScope.drawBoardBackdrop(
             center = Offset(size.width / 2f, size.height / 2f)
         )
 
-        // A soft pool of light over the middle of the slate, which pulls the
+        // A soft pool of light over the middle of the field, which pulls the
         // eye to the tangle in the centre where the puzzle actually is.
         BoardSkin.DAILY -> drawRect(
             brush = Brush.radialGradient(
