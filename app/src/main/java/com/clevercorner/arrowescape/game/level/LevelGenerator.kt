@@ -1,5 +1,6 @@
 package com.clevercorner.arrowescape.game.level
 
+import com.clevercorner.arrowescape.game.LevelHeader
 import com.clevercorner.arrowescape.game.engine.GameSolver
 import com.clevercorner.arrowescape.game.model.Arrow
 import com.clevercorner.arrowescape.game.model.Board
@@ -69,6 +70,22 @@ object LevelGenerator {
         buildLevel(levelNumber)
     }
 
+    /** Level 1 is hand-made, so its header is a constant rather than a lookup. */
+    private const val TUTORIAL_SHAPE_NAME = "Square"
+    private const val TUTORIAL_DIFFICULTY = "Tutorial"
+
+    /**
+     * What the header can say about [levelNumber] before any board exists.
+     *
+     * Reads the same sources [buildLevel] does, so this instant answer and
+     * the finished board can never disagree. See [LevelHeader].
+     */
+    fun headerFor(levelNumber: Int): LevelHeader {
+        if (levelNumber == 1) return LevelHeader(TUTORIAL_SHAPE_NAME, TUTORIAL_DIFFICULTY)
+        val design = LevelDesigns.forLevel(levelNumber)
+        return LevelHeader(design.shapeName, LevelRecipe.forLevel(levelNumber, design).difficultyLabel)
+    }
+
     private fun buildLevel(levelNumber: Int): GeneratedLevel {
         val design = LevelDesigns.forLevel(levelNumber)
         val recipe = LevelRecipe.forLevel(levelNumber, design)
@@ -110,8 +127,8 @@ object LevelGenerator {
             arrows = arrows,
             board = board,
             shape = LevelShape.SQUARE,
-            shapeName = "Square",
-            difficultyLabel = "Tutorial",
+            shapeName = TUTORIAL_SHAPE_NAME,
+            difficultyLabel = TUTORIAL_DIFFICULTY,
             kind = LevelKind.TUTORIAL,
             solution = solution
         )

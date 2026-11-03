@@ -1,5 +1,6 @@
 package com.clevercorner.arrowescape.game.curve
 
+import com.clevercorner.arrowescape.game.LevelHeader
 import com.clevercorner.arrowescape.game.level.LevelCache
 import kotlin.random.Random
 
@@ -19,6 +20,15 @@ data class CurvedLevel(
     val tightness: Float,
     /** Known-good clear order, used for hints and auto-solve. */
     val solutionOrder: List<Int>,
+    /**
+     * Who blocks whom on this board.
+     *
+     * Travels with the level rather than being rebuilt by whoever plays it:
+     * it is a by-product of the orientation search that produced the arrows,
+     * so recomputing it is pure repetition - and repetition the player waits
+     * through, on a cache hit as well as a miss.
+     */
+    val blockingGraph: CurvedGameEngine.BlockingGraph,
     /** Arrows the generator laid out but had to discard to keep the level solvable. */
     val droppedArrows: Int = 0
 ) {
@@ -85,6 +95,17 @@ object CurvedLevelGenerator {
         }
 
     /**
+     * What the header can say about [levelNumber] before any board exists.
+     *
+     * Reads the same two sources [buildLevel] does, so this instant answer
+     * and the finished board can never disagree. See [LevelHeader].
+     */
+    fun headerFor(levelNumber: Int): LevelHeader = LevelHeader(
+        shapeName = CurvedJourney.designFor(levelNumber).name,
+        difficultyLabel = DifficultyTuning.tierOf(levelNumber)
+    )
+
+    /**
      * Recently built boards. Curved generation runs a hill-climb of up to
      * four thousand solves, which is far too much to repeat just because a
      * player stepped back a level.
@@ -149,6 +170,7 @@ object CurvedLevelGenerator {
             colorPalette = regions.map { it.color }.distinct(),
             tightness = tuned.result.tightness,
             solutionOrder = tuned.result.order,
+            blockingGraph = tuned.graph,
             droppedArrows = arrows.size - tuned.arrows.size
         )
     }
@@ -238,15 +260,23 @@ object CurvedLevelGenerator {
         random: Random
     ): TunedLevel {
         if (arrows.isEmpty()) {
-            return TunedLevel(arrows, CurvedGameEngine.SolveResult(true, emptyList(), 0f, 0))
+            return TunedLevel(
+                arrows,
+                CurvedGameEngine.SolveResult(true, emptyList(), 0f, 0),
+                CurvedGameEngine.BlockingGraph(emptyList(), emptyMap())
+            )
         }
 
         val graph = CurvedGameEngine.OrientationGraph(arrows, board)
         val climbed = climb(graph, BooleanArray(arrows.size), targetTightness, random)
-        // The clear order is built here, once, rather than on every candidate
-        // the climb looked at.
-        val tuned = TunedLevel(applyFlips(arrows, climbed.flips), graph.analyze(climbed.flips))
-        return guaranteeSolvable(tuned, board)
+        // The clear order and the live-play graph are both built here, once,
+        // rather than on every candidate the climb looked at.
+        val tuned = TunedLevel(
+            applyFlips(arrows, climbed.flips),
+            graph.analyze(climbed.flips),
+            graph.blockingGraph(climbed.flips)
+        )
+        return guaranteeSolvable(tuned)
     }
 
     /**
@@ -273,7 +303,7 @@ object CurvedLevelGenerator {
         board: CurvedGameEngine.Board,
         random: Random,
         targetTightness: Float = SHUFFLE_TIGHTNESS
-    ): List<CurvedArrow>? {
+    ): ShuffledBoard? {
         if (arrows.size < 2) return null
 
         // Moved first: an isometry of the whole scene preserves every
@@ -287,8 +317,20 @@ object CurvedLevelGenerator {
         val climbed = climb(graph, start, targetTightness, random)
         if (!climbed.result.solved) return null
 
-        return applyFlips(relocated, climbed.flips)
+        return ShuffledBoard(applyFlips(relocated, climbed.flips), graph.blockingGraph(climbed.flips))
     }
+
+    /**
+     * A shuffled board and the graph that describes it, handed over together.
+     *
+     * Arrows and their blocking graph are two halves of one fact; letting
+     * them travel separately is how a caller ends up animating new geometry
+     * against stale blocking rules.
+     */
+    data class ShuffledBoard(
+        val arrows: List<CurvedArrow>,
+        val blockingGraph: CurvedGameEngine.BlockingGraph
+    )
 
     /**
      * Hill-climb from [start] towards a solvable, tight arrangement.
@@ -399,21 +441,25 @@ object CurvedLevelGenerator {
 
     private data class TunedLevel(
         val arrows: List<CurvedArrow>,
-        val result: CurvedGameEngine.SolveResult
+        val result: CurvedGameEngine.SolveResult,
+        val graph: CurvedGameEngine.BlockingGraph
     )
 
     /**
      * Final safety net: never hand the player a board they cannot finish.
      * Dropping deadlocked arrows is always safe - removing an arrow can never
-     * block another one.
+     * block another one, which is also why the graph only has to be filtered
+     * rather than measured again.
      */
-    private fun guaranteeSolvable(
-        level: TunedLevel,
-        board: CurvedGameEngine.Board
-    ): TunedLevel {
+    private fun guaranteeSolvable(level: TunedLevel): TunedLevel {
         if (level.result.solved) return level
 
-        val survivors = level.arrows.filter { it.id in level.result.order.toSet() }
-        return TunedLevel(survivors, CurvedGameEngine.analyze(survivors, board))
+        val survivors = level.result.order.toSet()
+        val graph = level.graph.restrictedTo(survivors)
+        return TunedLevel(
+            level.arrows.filter { it.id in survivors },
+            CurvedGameEngine.analyze(graph),
+            graph
+        )
     }
 }

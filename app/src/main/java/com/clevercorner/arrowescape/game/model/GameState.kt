@@ -24,8 +24,15 @@ data class GameState(
     val difficultyLabel: String = "Easy",
     val hintArrowId: Int? = null
 ) {
-    val activeArrows: List<Arrow>
-        get() = arrows.filter { it.isActive }
+    /**
+     * Computed once per state, not once per read.
+     *
+     * This used to be a `get()` property that filtered the whole arrow list,
+     * and so did everything derived from it - so a single recomposition
+     * could walk a dense board several times over for an answer that cannot
+     * change, because the state is immutable.
+     */
+    val activeArrows: List<Arrow> = arrows.filter { it.isActive }
 
     /** Number of arrows still on the board. */
     val remainingCount: Int

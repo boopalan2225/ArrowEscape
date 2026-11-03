@@ -39,13 +39,10 @@ fun GameScreen(
     modifier: Modifier = Modifier
 ) {
     val gameState by viewModel.gameState.collectAsState()
-    val escapingArrows by viewModel.escapingArrows.collectAsState()
-    val shakingArrows by viewModel.shakingArrows.collectAsState()
     val shapeName by viewModel.shapeName.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
     val levelMetrics by viewModel.levelMetrics.collectAsState()
-    val isGenerating by viewModel.isGenerating.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
 
     val context = LocalContext.current
@@ -109,28 +106,18 @@ fun GameScreen(
             }
 
             // Game board - centered, fills available space
-            Box(
+            ClassicBoardArea(
+                viewModel = viewModel,
+                level = gameState.level,
+                arrows = gameState.arrows,
+                board = gameState.board,
+                hintArrowId = gameState.hintArrowId,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .spotlightTarget(SpotlightTarget.BOARD),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isGenerating) {
-                    BoardPlaceholder()
-                } else {
-                    GameBoard(
-                        arrows = gameState.arrows,
-                        board = gameState.board,
-                        resetKey = gameState.level,
-                        escapingArrows = escapingArrows,
-                        shakingArrows = shakingArrows,
-                        hintArrowId = gameState.hintArrowId,
-                        onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
-                    )
-                }
-            }
+                    .spotlightTarget(SpotlightTarget.BOARD)
+            )
 
             if (prefs.devMode) {
                 DevLevelBar(
@@ -236,6 +223,47 @@ fun GameScreen(
 
         // Asks for a store review when the player is clearly having fun.
         ReviewPromptEffect(viewModel.reviewPrompter)
+    }
+}
+
+/**
+ * The board, and the state that changes while arrows are in flight.
+ *
+ * Same reasoning as the curved mode's `CurvedBoardArea`: escaping and
+ * shaking arrows update about once a frame, and reading them in
+ * [GameScreen] re-ran the entire screen body at animation rate for state
+ * only the board cares about. The tap callback is remembered because a
+ * freshly allocated lambda on every recomposition is a board Compose can
+ * never skip.
+ */
+@Composable
+private fun ClassicBoardArea(
+    viewModel: GameViewModel,
+    level: Int,
+    arrows: List<Arrow>,
+    board: Board,
+    hintArrowId: Int?,
+    modifier: Modifier = Modifier
+) {
+    val escapingArrows by viewModel.escapingArrows.collectAsState()
+    val shakingArrows by viewModel.shakingArrows.collectAsState()
+    val isGenerating by viewModel.isGenerating.collectAsState()
+    val onArrowTap = remember(viewModel) { viewModel::onArrowTap }
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        if (isGenerating) {
+            BoardPlaceholder()
+        } else {
+            GameBoard(
+                arrows = arrows,
+                board = board,
+                resetKey = level,
+                escapingArrows = escapingArrows,
+                shakingArrows = shakingArrows,
+                hintArrowId = hintArrowId,
+                onArrowTap = onArrowTap
+            )
+        }
     }
 }
 

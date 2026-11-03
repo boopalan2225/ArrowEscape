@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.game.curve.CurvedArrow
 import com.clevercorner.arrowescape.game.curve.CurvedJourney
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.ui.components.*
@@ -36,14 +37,9 @@ fun CurvedGameScreen(
     modifier: Modifier = Modifier
 ) {
     val gameState by viewModel.gameState.collectAsState()
-    val escapingArrows by viewModel.escapingArrows.collectAsState()
-    val bumpingArrows by viewModel.bumpingArrows.collectAsState()
-    val boardWidth by viewModel.boardWidth.collectAsState()
-    val boardHeight by viewModel.boardHeight.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
-    val isGenerating by viewModel.isGenerating.collectAsState()
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -103,31 +99,17 @@ fun CurvedGameScreen(
             }
 
             // Game board - centered with the curved arrows
-            Box(
+            CurvedBoardArea(
+                viewModel = viewModel,
+                level = gameState.level,
+                arrows = gameState.arrows,
+                hintArrowId = gameState.hintArrowId,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .spotlightTarget(SpotlightTarget.BOARD),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isGenerating) {
-                    BoardPlaceholder()
-                } else {
-                    CurvedGameBoard(
-                        arrows = gameState.arrows,
-                        boardWidth = boardWidth,
-                        boardHeight = boardHeight,
-                        escapingArrows = escapingArrows,
-                        bumpingArrows = bumpingArrows,
-                        hintArrowId = gameState.hintArrowId,
-                        resetKey = gameState.level,
-                        isArrowFree = viewModel::isArrowFree,
-                        exitPointOf = viewModel::exitPointOf,
-                        onArrowTap = { arrow -> viewModel.onArrowTap(arrow) }
-                    )
-                }
-            }
+                    .spotlightTarget(SpotlightTarget.BOARD)
+            )
 
             if (prefs.devMode) {
                 DevLevelBar(
@@ -247,5 +229,56 @@ fun CurvedGameScreen(
 
         // Asks for a store review when the player is clearly having fun.
         ReviewPromptEffect(viewModel.reviewPrompter)
+    }
+}
+
+/**
+ * The board, and the three things that change while arrows are in flight.
+ *
+ * Split out deliberately. Escaping and bumping arrows update roughly every
+ * frame of an animation, and reading them in [CurvedGameScreen] meant the
+ * whole screen body - header, stats, dev bar, bottom bar, every overlay -
+ * re-ran at animation rate for state only the board cares about. Reading
+ * them here confines that churn to the subtree that has to redraw anyway.
+ *
+ * The callbacks are remembered for the same reason: a bound method
+ * reference allocates a fresh object on every recomposition, and a board
+ * whose parameters are never equal is a board Compose can never skip.
+ */
+@Composable
+private fun CurvedBoardArea(
+    viewModel: CurvedGameViewModel,
+    level: Int,
+    arrows: List<CurvedArrow>,
+    hintArrowId: Int?,
+    modifier: Modifier = Modifier
+) {
+    val escapingArrows by viewModel.escapingArrows.collectAsState()
+    val bumpingArrows by viewModel.bumpingArrows.collectAsState()
+    val boardWidth by viewModel.boardWidth.collectAsState()
+    val boardHeight by viewModel.boardHeight.collectAsState()
+    val isGenerating by viewModel.isGenerating.collectAsState()
+
+    val isArrowFree = remember(viewModel) { viewModel::isArrowFree }
+    val exitPointOf = remember(viewModel) { viewModel::exitPointOf }
+    val onArrowTap = remember(viewModel) { viewModel::onArrowTap }
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        if (isGenerating) {
+            BoardPlaceholder()
+        } else {
+            CurvedGameBoard(
+                arrows = arrows,
+                boardWidth = boardWidth,
+                boardHeight = boardHeight,
+                escapingArrows = escapingArrows,
+                bumpingArrows = bumpingArrows,
+                hintArrowId = hintArrowId,
+                resetKey = level,
+                isArrowFree = isArrowFree,
+                exitPointOf = exitPointOf,
+                onArrowTap = onArrowTap
+            )
+        }
     }
 }

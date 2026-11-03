@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,17 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.clevercorner.arrowescape.ads.AdManager
-import com.clevercorner.arrowescape.ads.AdManagerImpl
 import com.clevercorner.arrowescape.analytics.AnalyticsTracker
 import com.clevercorner.arrowescape.analytics.Events
-import com.clevercorner.arrowescape.analytics.Telemetry
 import com.clevercorner.arrowescape.crash.CrashKeys
 import com.clevercorner.arrowescape.crash.CrashReporter
 import com.clevercorner.arrowescape.cloud.CloudSave
@@ -61,50 +63,71 @@ import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var preferences: GamePreferences
-    private lateinit var adManager: AdManager
-    private lateinit var analytics: AnalyticsTracker
-    private lateinit var crashReporter: CrashReporter
+    // Process-scoped collaborators, borrowed rather than built: see
+    // ArrowEscapeApplication for why an Activity must not own them.
+    private val app: ArrowEscapeApplication get() = application as ArrowEscapeApplication
+    private val preferences: GamePreferences get() = app.preferences
+    private val adManager: AdManager get() = app.adManager
+    private val analytics: AnalyticsTracker get() = app.analytics
+    private val crashReporter: CrashReporter get() = app.crashReporter
+    private val feedback: GameFeedback get() = app.feedback
+
+    /** Activity-scoped: signing in needs an Activity to show a dialog over. */
     private lateinit var cloudSave: CloudSave
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splash = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        // Initialize dependencies
-        // Telemetry comes first: everything built after it can be reported on.
-        val telemetry = Telemetry.create(applicationContext)
-        analytics = telemetry.analytics
-        crashReporter = telemetry.crashReporter
-
-        preferences = GamePreferences(applicationContext)
-        adManager = AdManagerImpl(analytics)
         cloudSave = PlayGamesCloudSave()
 
-        // Initialize ads
-        adManager.initialize(applicationContext)
+        // Nothing below this line is needed to draw the first frame, and all
+        // of it is slow: MobileAds.initialize does disk and IPC work that
+        // Google explicitly recommends keeping off the main thread, and Play
+        // Games sign-in talks to another process. Run on the main thread
+        // during onCreate, they simply postponed the splash.
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) { adManager.initialize(applicationContext) }
 
-        // Play Games sign-in is best-effort and silent on launch - a player who
-        // has never connected this app to Play Games just plays locally, same
-        // as before this existed. See Settings for the explicit sign-in button.
-        cloudSave.initialize(this)
-        cloudSave.signInSilently()
-        CloudSyncCoordinator(cloudSave, preferences).start(lifecycleScope)
+            // Warming the ad cache is the app's call, not a ViewModel's. It
+            // used to happen in both game ViewModels' constructors - during
+            // composition, twice, for something no player sees for minutes.
+            adManager.loadRewardedAd(applicationContext)
+            adManager.loadInterstitialAd(applicationContext)
 
-        analytics.log(Events.appOpen())
+            // Play Games sign-in is best-effort and silent on launch - a player
+            // who has never connected this app to Play Games just plays
+            // locally. See Settings for the explicit sign-in button.
+            cloudSave.initialize(this@MainActivity)
+            cloudSave.signInSilently()
+            CloudSyncCoordinator(cloudSave, preferences).start(lifecycleScope)
+
+            analytics.log(Events.appOpen())
+        }
+
+        // Every theme has its own voice. One listener for the whole app -
+        // the board sounds the same in both modes, so this was never a
+        // per-ViewModel concern.
+        feedback.followTheme(preferences.prefsOrDefault, lifecycleScope)
 
         // Crash reports are far easier to triage with the player's mode and
         // level attached, so keep those keys current for the whole session.
         lifecycleScope.launch {
-            preferences.prefsFlow.collect { prefs ->
+            preferences.prefs.filterNotNull().collect { prefs ->
                 crashReporter.setKey(CrashKeys.GAME_MODE, prefs.mode.name)
                 crashReporter.setKey(CrashKeys.CURRENT_LEVEL, prefs.currentLevel)
             }
         }
 
+        // The app cannot honestly draw anything until it knows the player's
+        // theme and whether they have seen the tutorial. Holding the splash
+        // for that first disk read is the honest way to wait - the window
+        // used to sit blank and white instead, which reads as a slow app.
+        splash.setKeepOnScreenCondition { preferences.prefs.value == null }
+
         setContent {
-            // null until preferences load, so a saved theme never flashes the default first.
-            val loaded by preferences.prefsFlow.collectAsState(initial = null)
+            val loaded by preferences.prefs.collectAsState()
             val theme = AppTheme.resolve(loaded?.themeId, isSystemInDarkTheme())
 
             // One-time move of a pre-per-mode save into its owning mode.
@@ -115,16 +138,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Seeding with the loaded value matters: a default Prefs
-                    // would claim the tutorial was never seen, and returning
-                    // players would get a flash of coach marks.
-                    loaded?.let { initial ->
+                    // Gated on the real value: a default Prefs would claim
+                    // the tutorial was never seen, and returning players
+                    // would get a flash of coach marks.
+                    if (loaded != null) {
                         ArrowEscapeApp(
                             preferences = preferences,
                             adManager = adManager,
                             analytics = analytics,
                             cloudSave = cloudSave,
-                            initialPrefs = initial
+                            feedback = feedback
                         )
                     }
                 }
@@ -139,31 +162,41 @@ fun ArrowEscapeApp(
     adManager: AdManager,
     analytics: AnalyticsTracker,
     cloudSave: CloudSave,
-    initialPrefs: GamePreferences.Prefs
+    feedback: GameFeedback
 ) {
     val navController = rememberNavController()
-    val prefs by preferences.prefsFlow.collectAsState(initial = initialPrefs)
+    // Not seeded with a caller-supplied value: this composable is only
+    // reached once the real preferences have loaded, so the shared flow is
+    // already holding them.
+    val prefs by preferences.prefsOrDefault.collectAsState()
 
     // Shared ViewModels for game state
     val context = androidx.compose.ui.platform.LocalContext.current
-    
+
     // Grid-based (legacy) game ViewModel
     val gameViewModel: GameViewModel = viewModel(
-        factory = GameViewModelFactory(preferences, adManager, analytics, context)
+        factory = GameViewModelFactory(preferences, adManager, analytics, feedback, context)
     )
-    
+
     // Curved arrow game ViewModel (Option 2 revamp)
     val curvedGameViewModel: CurvedGameViewModel = viewModel(
-        factory = CurvedGameViewModelFactory(preferences, adManager, analytics, context)
+        factory = CurvedGameViewModelFactory(preferences, adManager, analytics, feedback, context)
     )
 
     /**
-     * Opens [level] in the current mode's game screen. A curved board starts
-     * building here, before the screen exists, so the level the player tapped
-     * is the one on display from the very first frame.
+     * Opens [level] in the current mode's game screen.
+     *
+     * The board starts building here, before the screen exists, so the level
+     * the player tapped is the one named in the header from the very first
+     * frame - and the generator has a head start on the navigation animation.
+     * `startLevel` is idempotent, so the game screen asking for the same
+     * level a moment later costs nothing.
      */
     val playLevel: (Int) -> Unit = { level ->
-        if (prefs.mode == GameMode.CURVED) curvedGameViewModel.prepareLevel(level)
+        when (prefs.mode) {
+            GameMode.CURVED -> curvedGameViewModel.startLevel(level)
+            GameMode.CLASSIC -> gameViewModel.startLevel(level)
+        }
         navController.navigate("game/$level")
     }
 
@@ -317,7 +350,7 @@ fun ArrowEscapeApp(
             val scope = rememberCoroutineScope()
             val account by cloudSave.account.collectAsState()
             val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
-            val auditionTheme = rememberThemeAudition(context)
+            val auditionTheme = rememberThemeAudition(feedback)
             SettingsScreen(
                 prefs = prefs,
                 account = account,
@@ -362,13 +395,13 @@ fun ArrowEscapeApp(
 
 /**
  * Plays whichever look you just tapped in Settings, so a theme is heard as
- * well as seen. Released with the screen that asked for it.
+ * well as seen. Uses the app's own voice rather than a private one: a second
+ * SoundPool to preview a sound the app can already make is pure duplication,
+ * and the pack it leaves behind is the one the player just chose anyway.
  */
 @Composable
-private fun rememberThemeAudition(context: android.content.Context): (String, Boolean) -> Unit {
+private fun rememberThemeAudition(feedback: GameFeedback): (String, Boolean) -> Unit {
     val systemDark = isSystemInDarkTheme()
-    val feedback = remember { GameFeedback(context.applicationContext) }
-    DisposableEffect(feedback) { onDispose { feedback.release() } }
 
     return { themeId, soundEnabled ->
         feedback.useTheme(AppTheme.resolve(themeId, systemDark))
@@ -398,7 +431,11 @@ private fun GameRoute(
 
     when (mode) {
         GameMode.CURVED -> {
-            LaunchedEffect(level) { curvedGameViewModel.startLevel(level) }
+            // Normally a no-op: whoever navigated here already dealt this
+            // level, which is why the header names it from the first frame.
+            // It matters after process death, when the back stack is
+            // restored onto this screen with nobody to deal the board.
+            LaunchedEffect(level) { curvedGameViewModel.resumeLevel(level) }
             CurvedGameScreen(
                 viewModel = curvedGameViewModel,
                 onBackClick = {
@@ -413,7 +450,8 @@ private fun GameRoute(
         }
 
         GameMode.CLASSIC -> {
-            LaunchedEffect(level) { gameViewModel.startLevel(level) }
+            // See the curved branch: a restoration net, not a second request.
+            LaunchedEffect(level) { gameViewModel.resumeLevel(level) }
             GameScreen(
                 viewModel = gameViewModel,
                 onBackClick = {

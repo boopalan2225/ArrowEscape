@@ -33,6 +33,8 @@ class GameViewModel(
     private val preferences: GamePreferences,
     private val adManager: AdManager,
     private val analytics: AnalyticsTracker,
+    /** App-wide, and owned by the app - this ViewModel must not release it. */
+    private val feedback: GameFeedback,
     private val context: Context
 ) : ViewModel() {
 
@@ -44,6 +46,12 @@ class GameViewModel(
         private const val ESCAPE_ANIMATION_DURATION_MS = 530L
         private const val SHAKE_ANIMATION_DURATION_MS = 300L
         private const val HINTS_PER_LEVEL = 2
+
+        /**
+         * How long speculative neighbour generation waits before starting,
+         * so it never competes with the board the player is waiting on.
+         */
+        private const val PREFETCH_GRACE_MS = 600L
     }
 
     private val gameEngine = GameEngine()
@@ -78,59 +86,53 @@ class GameViewModel(
     private val _isGenerating = MutableStateFlow(false)
     val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
 
-    val prefs = preferences.prefsFlow.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        GamePreferences.Prefs()
-    )
+    /**
+     * Shared with every other reader in the app - see [GamePreferences.prefs].
+     * Defaulted rather than nullable because gameplay cannot pause mid-tap to
+     * ask whether disk has answered yet.
+     */
+    val prefs = preferences.prefsOrDefault
 
     /** Decides when a happy player gets asked for a store review. */
     val reviewPrompter = ReviewPrompter(preferences, analytics)
 
     private var continueUsedThisLevel = false
-    private var pendingLevel: Int? = null
 
     /**
-     * Requests that the game start at a specific level (e.g. from the
-     * milestone journey screen). Persists it as the current level.
+     * The level currently on screen or on its way there.
+     *
+     * Null means "no board has ever been dealt in this ViewModel", which is
+     * the one question [resumeLevel] needs answered.
      */
-    fun setPendingLevel(level: Int) {
-        pendingLevel = level
-        viewModelScope.launch { preferences.setCurrentLevel(MODE, level) }
-    }
+    private var loadedLevel: Int? = null
 
-    /**
-     * Returns and clears any pending level request.
-     */
-    fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
-
-    // Haptics & sound - shared implementation, see GameFeedback.
-    private val feedback = GameFeedback(context)
-
-    init {
-        preloadAds()
-        // Every theme has its own voice; keep the board speaking the right one.
-        feedback.followTheme(prefs, viewModelScope)
-    }
-
-    private fun preloadAds() {
-        adManager.loadRewardedAd(context)
-        adManager.loadInterstitialAd(context)
-    }
+    // Haptics & sound - one app-wide instance, see GameFeedback.
 
     /** Speculative build of the neighbouring levels. See [prefetchNeighbours]. */
     private var prefetchJob: Job? = null
 
+    /**
+     * Deals [level] as a fresh board. Tapping Play means Play, so this
+     * always re-deals - asking for the level already on screen is a restart,
+     * not a no-op.
+     */
     fun startLevel(level: Int) {
         // Whatever we were speculatively building, the player has now told us
         // what they actually want - stop competing with it for CPU.
         prefetchJob?.cancel()
-        viewModelScope.launch {
-            // Flagged before the first suspension point: until the new board
-            // exists the screen must show nothing rather than the previous
-            // level's arrows.
-            _isGenerating.value = true
+        loadedLevel = level
 
+        // Stamped before the first suspension point, so from this instant
+        // the header names the level being built rather than whatever was
+        // on screen - or, on a cold start, the default of 1. Everything in
+        // a header is a pure function of the level number, so none of it
+        // has to wait for a board. See [LevelGenerator.headerFor].
+        val header = LevelGenerator.headerFor(level)
+        _shapeName.value = header.shapeName
+        _gameState.value = GameState(level = level, difficultyLabel = header.difficultyLabel)
+        _isGenerating.value = true
+
+        viewModelScope.launch {
             // Generate off the main thread to keep the UI smooth.
             val generated = withContext(Dispatchers.Default) {
                 if (level == 1) {
@@ -162,6 +164,18 @@ class GameViewModel(
     }
 
     /**
+     * Deals [level] only if there is no board yet.
+     *
+     * For the game route, which is reached by a caller that has already
+     * started the level - so normally this does nothing. It earns its keep
+     * after process death, when the back stack is restored straight onto the
+     * game screen with a brand new ViewModel and nobody to deal the board.
+     */
+    fun resumeLevel(level: Int) {
+        if (loadedLevel == null) startLevel(level)
+    }
+
+    /**
      * Quietly builds the levels either side of [level] while the player is
      * busy with this one, so stepping between them is instant.
      *
@@ -172,6 +186,7 @@ class GameViewModel(
      */
     private fun prefetchNeighbours(level: Int) {
         prefetchJob = viewModelScope.launch(Dispatchers.Default) {
+            delay(PREFETCH_GRACE_MS)
             for (neighbour in listOf(level + 1, level - 1)) {
                 if (neighbour < 2) continue
                 ensureActive()
@@ -449,11 +464,6 @@ class GameViewModel(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        feedback.release()
-    }
-
     // Settings
     fun setSoundEnabled(enabled: Boolean) {
         viewModelScope.launch {
@@ -472,10 +482,11 @@ class GameViewModelFactory(
     private val preferences: GamePreferences,
     private val adManager: AdManager,
     private val analytics: AnalyticsTracker,
+    private val feedback: GameFeedback,
     private val context: Context
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return GameViewModel(preferences, adManager, analytics, context) as T
+        return GameViewModel(preferences, adManager, analytics, feedback, context) as T
     }
 }

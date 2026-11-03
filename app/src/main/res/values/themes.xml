@@ -5,4 +5,24 @@
         <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <!--
+      The theme the launcher actually starts.
+
+      Without it the window is plain white from the moment the icon is tapped
+      until Compose has something to draw - and on a cold start that window is
+      held open further still, because the app cannot honestly pick a theme or
+      decide about coach marks before preferences have loaded from disk. A
+      blank white rectangle reads as a slow app. The launcher icon on its own
+      background reads as a launching one, and it costs nothing: the system
+      draws it, not us.
+
+      postSplashScreenTheme is what the Activity wears once the splash is
+      dismissed, so Theme.ArrowEscape above stays the real theme.
+    -->
+    <style name="Theme.ArrowEscape.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_arrow_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_arrow_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArrowEscape</item>
+    </style>
 </resources>

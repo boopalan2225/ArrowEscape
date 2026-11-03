@@ -6,9 +6,16 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.clevercorner.arrowescape.game.daily.DailyProgress
 import com.clevercorner.arrowescape.review.ReviewState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import java.io.IOException
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "arrow_escape_prefs")
@@ -20,7 +27,14 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
  * completion count and stars, so a player can hop between modes and always pick
  * up where they left off. Settings (sound, haptics, theme, dev mode) stay global.
  */
-class GamePreferences(private val context: Context) {
+class GamePreferences(
+    private val context: Context,
+    /**
+     * Scope the shared read lives in. App-lifetime by nature - preferences
+     * outlive every screen that reads them - so it is never cancelled.
+     */
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+) {
 
     companion object {
         // ── Global settings ──────────────────────────────────────────────
@@ -136,9 +150,14 @@ class GamePreferences(private val context: Context) {
     }
 
     /**
-     * Flow of all preferences.
+     * Decoding of the stored file into a [Prefs].
+     *
+     * Private because decoding is not free - it rebuilds the per-mode
+     * progress map and parses two compact "k:v" strings - and there is no
+     * reason for every screen and ViewModel to each do it on every write.
+     * They share [prefs] instead.
      */
-    val prefsFlow: Flow<Prefs> = context.dataStore.data
+    private val decoded: Flow<Prefs> = context.dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -177,6 +196,24 @@ class GamePreferences(private val context: Context) {
             )
         }
 
+    /**
+     * The one decoded copy of the player's preferences, shared by everyone.
+     *
+     * Null until the first disk read lands, which is a fact worth telling
+     * the truth about: a default [Prefs] claims the tutorial was never seen
+     * and no theme was ever chosen, and a UI that believes it flashes coach
+     * marks at a veteran. Callers that genuinely cannot wait for disk use
+     * [prefsOrDefault]; callers that can, wait.
+     *
+     * Started eagerly: the read begins the moment this object is built,
+     * which on launch is well before anything asks for the answer.
+     */
+    val prefs: StateFlow<Prefs?> = decoded.stateIn(scope, SharingStarted.Eagerly, null)
+
+    /** The best available answer, defaulted until the first read lands. */
+    val prefsOrDefault: StateFlow<Prefs> =
+        prefs.map { it ?: Prefs() }.stateIn(scope, SharingStarted.Eagerly, Prefs())
+
     /** The chosen mode, honouring the legacy `curved_mode` flag for upgraders. */
     private fun resolveMode(stored: Preferences): GameMode {
         stored[KEY_GAME_MODE]?.let { return GameMode.fromId(it) }
@@ -200,6 +237,11 @@ class GamePreferences(private val context: Context) {
      * the moment they switched modes, dragging the old save along with them.
      */
     suspend fun migrateLegacyProgress() {
+        // Read before writing. This runs on every launch, and `edit` takes
+        // the write lock even when it changes nothing - contending with the
+        // first read, which is the one thing the splash is waiting on.
+        if (context.dataStore.data.first()[KEY_MIGRATED] == true) return
+
         context.dataStore.edit { prefs ->
             if (prefs[KEY_MIGRATED] == true) return@edit
             prefs[KEY_MIGRATED] = true

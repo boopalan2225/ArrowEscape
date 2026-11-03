@@ -1,0 +1,74 @@
+# Baseline profile - classes and methods to compile AHEAD of first run.
+#
+# WHY THIS FILE EXISTS
+# Without it, everything here is interpreted the first time it runs and only
+# gets JIT-compiled once the player has already waited. That is exactly the
+# shape of the complaint this file answers: "the first launch is slow, after
+# that it's fine." Level generation is the worst offender - a hill-climb of
+# up to four thousand solver sweeps, running interpreted, on the one screen
+# the player is staring at.
+#
+# FORMAT
+#   L<class>;                       - load this class eagerly
+#   HSPL<class>;->method(sig)ret    - H=hot, S=startup, P=post-startup
+#   ** wildcards match any method/signature, which is what lets this file
+#   stay readable instead of listing a thousand signatures that rot on the
+#   next refactor.
+#
+# This is hand-written on purpose. A generated profile is better and needs a
+# device + the androidx.benchmark baseline profile module to produce; when
+# that exists, regenerate and replace this wholesale rather than editing it.
+
+# ---- Level generation: the heavy, hot, first-thing-you-wait-for path ----
+Lcom/clevercorner/arrowescape/game/curve/CurvedLevelGenerator;
+HSPLcom/clevercorner/arrowescape/game/curve/CurvedLevelGenerator;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/CurvedGameEngine;
+HSPLcom/clevercorner/arrowescape/game/curve/CurvedGameEngine;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/CurvedGameEngine$BlockingGraph;
+HSPLcom/clevercorner/arrowescape/game/curve/CurvedGameEngine$BlockingGraph;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/CurvedGameEngine$OrientationGraph;
+HSPLcom/clevercorner/arrowescape/game/curve/CurvedGameEngine$OrientationGraph;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/CurveGenerator;
+HSPLcom/clevercorner/arrowescape/game/curve/CurveGenerator;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/ShapePath;
+HSPLcom/clevercorner/arrowescape/game/curve/ShapePath;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/ShapeLibrary;
+HSPLcom/clevercorner/arrowescape/game/curve/ShapeLibrary;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/SvgPath;
+HSPLcom/clevercorner/arrowescape/game/curve/SvgPath;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/CurvedArrow;
+HSPLcom/clevercorner/arrowescape/game/curve/CurvedArrow;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/OccupancyGrid;
+HSPLcom/clevercorner/arrowescape/game/curve/OccupancyGrid;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/DifficultyTuning;
+HSPLcom/clevercorner/arrowescape/game/curve/DifficultyTuning;->**(**)**
+Lcom/clevercorner/arrowescape/game/curve/CurvedJourney;
+HSPLcom/clevercorner/arrowescape/game/curve/CurvedJourney;->**(**)**
+
+# ---- Classic mode generation ----
+Lcom/clevercorner/arrowescape/game/level/LevelGenerator;
+HSPLcom/clevercorner/arrowescape/game/level/LevelGenerator;->**(**)**
+Lcom/clevercorner/arrowescape/game/level/LevelDesigns;
+HSPLcom/clevercorner/arrowescape/game/level/LevelDesigns;->**(**)**
+Lcom/clevercorner/arrowescape/game/level/LevelRecipe;
+HSPLcom/clevercorner/arrowescape/game/level/LevelRecipe;->**(**)**
+Lcom/clevercorner/arrowescape/game/level/SnakeCarver;
+HSPLcom/clevercorner/arrowescape/game/level/SnakeCarver;->**(**)**
+Lcom/clevercorner/arrowescape/game/engine/GameSolver;
+HSPLcom/clevercorner/arrowescape/game/engine/GameSolver;->**(**)**
+
+# ---- Launch path ----
+Lcom/clevercorner/arrowescape/MainActivity;
+HSPLcom/clevercorner/arrowescape/MainActivity;->**(**)**
+Lcom/clevercorner/arrowescape/data/GamePreferences;
+HSPLcom/clevercorner/arrowescape/data/GamePreferences;->**(**)**
+Lcom/clevercorner/arrowescape/ui/theme/**;
+HSPLcom/clevercorner/arrowescape/ui/theme/**;->**(**)**
+Lcom/clevercorner/arrowescape/ui/home/**;
+HSPLcom/clevercorner/arrowescape/ui/home/**;->**(**)**
+
+# ---- Gameplay screens and the renderers they drive every frame ----
+Lcom/clevercorner/arrowescape/ui/game/**;
+HSPLcom/clevercorner/arrowescape/ui/game/**;->**(**)**
+Lcom/clevercorner/arrowescape/ui/components/**;
+HSPLcom/clevercorner/arrowescape/ui/components/**;->**(**)**

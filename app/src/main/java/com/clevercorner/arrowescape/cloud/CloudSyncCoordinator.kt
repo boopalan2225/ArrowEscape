@@ -46,7 +46,8 @@ class CloudSyncCoordinator(
         }
 
         scope.launch {
-            preferences.prefsFlow
+            preferences.prefs
+                .filterNotNull()
                 .map { it.progress }
                 .distinctUntilChanged()
                 .drop(1) // the initial emission is not a "change" worth pushing
@@ -60,7 +61,10 @@ class CloudSyncCoordinator(
     }
 
     private suspend fun syncOnSignIn() {
-        val localBeforeMerge = preferences.prefsFlow.first().progress
+        // Deliberately the nullable flow: merging against a defaulted Prefs
+        // before disk has answered would offer the cloud an empty local side
+        // and call it a merge.
+        val localBeforeMerge = preferences.prefs.filterNotNull().first().progress
         val remote = cloudSave.pull()
 
         if (remote == null) {
@@ -72,7 +76,7 @@ class CloudSyncCoordinator(
         preferences.applySnapshot(ProgressSnapshot.merge(localBeforeMerge, remote))
         // Read back the merged result and push it, so the cloud never keeps
         // holding the smaller side of the merge.
-        val merged = preferences.prefsFlow.first().progress
+        val merged = preferences.prefs.filterNotNull().first().progress
         cloudSave.push(merged)
     }
 }

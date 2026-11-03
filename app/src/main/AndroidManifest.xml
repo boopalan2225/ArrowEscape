@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
+        android:name=".ArrowEscapeApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_arrow"
         android:label="@string/app_name"
@@ -43,7 +44,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.ArrowEscape">
+            android:theme="@style/Theme.ArrowEscape.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

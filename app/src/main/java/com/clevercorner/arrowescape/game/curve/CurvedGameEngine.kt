@@ -85,24 +85,41 @@ object CurvedGameEngine {
      * expensive sweep runs once, and the solver then just walks integer sets.
      * This is what turns level generation from seconds into milliseconds.
      */
-    class BlockingGraph(arrows: List<CurvedArrow>, board: Board) {
-        val ids: List<Int> = arrows.map { it.id }
-
+    class BlockingGraph internal constructor(
+        val ids: List<Int>,
         /** For each arrow, the arrows standing in its escape path. */
         private val blockers: Map<Int, Set<Int>>
-
-        init {
-            val index = ArrowSpatialIndex.forArrows(arrows)
-            blockers = arrows.associate { arrow ->
-                arrow.id to allBlockersFor(arrow, index, board)
+    ) {
+        /**
+         * Builds the graph from geometry - one ray cast per arrow.
+         *
+         * Only for boards nobody has already measured. The generator has
+         * measured every board it produces, so it hands its own graph over
+         * rather than paying for this twice; see [OrientationGraph.blockingGraph].
+         */
+        constructor(arrows: List<CurvedArrow>, board: Board) : this(
+            arrows.map { it.id },
+            ArrowSpatialIndex.forArrows(arrows).let { index ->
+                arrows.associate { arrow -> arrow.id to allBlockersFor(arrow, index, board) }
             }
-        }
+        )
 
         fun blockersOf(id: Int): Set<Int> = blockers[id] ?: emptySet()
 
         /** An arrow is free when none of its blockers are still on the board. */
         fun isFree(id: Int, remaining: Set<Int>): Boolean =
             blockersOf(id).none { it in remaining }
+
+        /**
+         * The same graph with only [survivors] left standing.
+         *
+         * Geometry-free: removing an arrow can never block another one, so
+         * dropping it from every blocker set is the whole of the update.
+         */
+        fun restrictedTo(survivors: Set<Int>): BlockingGraph {
+            val kept = ids.filter { it in survivors }
+            return BlockingGraph(kept, kept.associateWith { blockersOf(it).intersect(survivors) })
+        }
     }
 
     /**
@@ -220,6 +237,25 @@ object CurvedGameEngine {
             val order = ArrayList<Int>(stats.cleared)
             for (at in 0 until stats.cleared) order.add(ids[work.order[at]])
             return SolveResult(stats.solved, order, stats.averageBranching, stats.forcedMoves)
+        }
+
+        /**
+         * The live-play graph for one orientation assignment.
+         *
+         * Both headings of every arrow were already swept when this object
+         * was built, so settling on [flips] is a matter of choosing which of
+         * the two precomputed answers to keep. No ray is cast here. That
+         * matters because the alternative - handing the finished arrows to
+         * `BlockingGraph(arrows, board)` - repeats the single most expensive
+         * step of generation for a result we are already holding.
+         */
+        fun blockingGraph(flips: BooleanArray): BlockingGraph {
+            val blockers = HashMap<Int, Set<Int>>(size * 2)
+            for (slot in 0 until size) {
+                val slots = blockersOf(slot, flips[slot])
+                blockers[ids[slot]] = slots.mapTo(HashSet(slots.size)) { ids[it] }
+            }
+            return BlockingGraph(ids, blockers)
         }
     }
 

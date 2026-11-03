@@ -42,13 +42,22 @@ data class CurvedGameState(
     /** No remaining arrow can ever escape - the level cannot be finished. */
     val isStuck: Boolean = false
 ) {
-    val activeArrows: List<CurvedArrow> get() = arrows.filter { it.isActive }
+    /**
+     * Computed once per state, not once per read.
+     *
+     * These used to be `get()` properties, and a dense board is hundreds of
+     * arrows: the header, the stats row, the progress track and the
+     * completion overlay each triggered their own filter pass, on every
+     * recomposition, several times a frame while arrows are flying. The
+     * state is immutable, so the answer cannot change between reads - which
+     * makes recomputing it pure waste.
+     */
+    val activeArrows: List<CurvedArrow> = arrows.filter { it.isActive }
+
     val remainingCount: Int get() = activeArrows.size
-    val clearedPercentage: Int get() {
-        val total = arrows.size
-        if (total == 0) return 0
-        return ((total - remainingCount) * 100) / total
-    }
+
+    val clearedPercentage: Int
+        get() = if (arrows.isEmpty()) 0 else ((arrows.size - remainingCount) * 100) / arrows.size
 }
 
 /**
@@ -68,6 +77,8 @@ class CurvedGameViewModel(
     private val preferences: GamePreferences,
     private val adManager: AdManager,
     private val analytics: AnalyticsTracker,
+    /** App-wide, and owned by the app - this ViewModel must not release it. */
+    private val feedback: GameFeedback,
     private val context: Context
 ) : ViewModel() {
 
@@ -93,6 +104,13 @@ class CurvedGameViewModel(
 
         /** Half a shuffle: fold away, then unfold into the new arrangement. */
         private const val SHUFFLE_FOLD_MS = 420L
+
+        /**
+         * How long speculative neighbour generation waits before starting.
+         * Long enough for the board the player is waiting on to compose,
+         * measure and draw first. See [prefetchNeighbours].
+         */
+        private const val PREFETCH_GRACE_MS = 600L
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -131,11 +149,12 @@ class CurvedGameViewModel(
     private val _isGenerating = MutableStateFlow(false)
     val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
 
-    val prefs = preferences.prefsFlow.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        GamePreferences.Prefs()
-    )
+    /**
+     * Shared with every other reader in the app - see [GamePreferences.prefs].
+     * Defaulted rather than nullable because gameplay cannot pause mid-tap to
+     * ask whether disk has answered yet.
+     */
+    val prefs = preferences.prefsOrDefault
 
     /** Decides when a happy player gets asked for a store review. */
     val reviewPrompter = ReviewPrompter(preferences, analytics)
@@ -159,10 +178,14 @@ class CurvedGameViewModel(
     }
 
     private var continueUsedThisLevel = false
-    private var pendingLevel: Int? = null
 
-    /** Set by [prepareLevel]; cleared by the [startLevel] that consumes it. */
-    private var preparedLevel: Int? = null
+    /**
+     * The journey level currently on screen or on its way there.
+     *
+     * Null means "no board has ever been dealt in this ViewModel", which is
+     * the one question [resumeLevel] needs answered.
+     */
+    private var journeyLevel: Int? = null
 
     private var session = CurvedSession.JOURNEY
 
@@ -190,58 +213,37 @@ class CurvedGameViewModel(
     private fun board() = CurvedGameEngine.Board(_boardWidth.value, _boardHeight.value)
 
     // ─────────────────────────────────────────────────────────────────────
-    // Haptics & Sound
+    // Haptics & Sound - one app-wide instance, see GameFeedback.
     // ─────────────────────────────────────────────────────────────────────
-
-    private val feedback = GameFeedback(context)
-
-    init {
-        preloadAds()
-        // Every theme has its own voice; keep the board speaking the right one.
-        feedback.followTheme(prefs, viewModelScope)
-    }
-
-    private fun preloadAds() {
-        adManager.loadRewardedAd(context)
-        adManager.loadInterstitialAd(context)
-    }
 
     // ─────────────────────────────────────────────────────────────────────
     // Level Navigation
     // ─────────────────────────────────────────────────────────────────────
 
-    fun setPendingLevel(level: Int) {
-        pendingLevel = level
-        viewModelScope.launch { preferences.setCurrentLevel(MODE, level) }
-    }
-
-    fun consumePendingLevel(): Int? = pendingLevel.also { pendingLevel = null }
-
-    fun startLevel(level: Int) {
-        val alreadyPrepared = preparedLevel == level
-        preparedLevel = null
-        if (!alreadyPrepared) beginJourneyLevel(level)
-    }
-
     /**
-     * Starts building [level] before its screen exists. The game screen is
-     * opened straight after, and [startLevel] then finds the board already
-     * on its way rather than starting it over.
-     *
-     * The player already chose this level on the previous screen, so there
-     * is no reason to wait for the game screen to ask for it.
+     * Deals [level] as a fresh journey board. Tapping Play means Play, so
+     * this always re-deals - asking for the level already on screen is a
+     * restart, not a no-op.
      */
-    fun prepareLevel(level: Int) {
-        preparedLevel = level
-        beginJourneyLevel(level)
-    }
-
-    private fun beginJourneyLevel(level: Int) {
+    fun startLevel(level: Int) {
         session = CurvedSession.JOURNEY
+        journeyLevel = level
         dailyPuzzle = null
         stopShuffleClock()
         useBoard(JOURNEY_BOARD_WIDTH, JOURNEY_BOARD_HEIGHT)
         loadBoard(level)
+    }
+
+    /**
+     * Deals [level] only if there is no board yet.
+     *
+     * For the game route, which is reached by a caller that has already
+     * started the level - so normally this does nothing. It earns its keep
+     * after process death, when the back stack is restored straight onto the
+     * game screen with a brand new ViewModel and nobody to deal the board.
+     */
+    fun resumeLevel(level: Int) {
+        if (journeyLevel == null) startLevel(level)
     }
 
     /**
@@ -253,7 +255,8 @@ class CurvedGameViewModel(
     fun startDaily(puzzle: DailyPuzzle) {
         session = CurvedSession.DAILY
         dailyPuzzle = puzzle
-        viewModelScope.launch { bestRunKnown = preferences.prefsFlow.first().daily.bestRun }
+        journeyLevel = null
+        viewModelScope.launch { bestRunKnown = preferences.prefs.filterNotNull().first().daily.bestRun }
         useBoard(DAILY_BOARD_SIDE, DAILY_BOARD_SIDE)
         loadBoard(puzzle.levelSeed)
         runShuffleClock()
@@ -341,10 +344,10 @@ class CurvedGameViewModel(
             CurvedLevelGenerator.reshuffle(survivors, board(), Random(seed))
         } ?: return false
 
-        val byId = reshuffled.associateBy { it.id }
+        val byId = reshuffled.arrows.associateBy { it.id }
         val arrows = state.arrows.map { byId[it.id] ?: it }
 
-        playShuffle(arrows)
+        playShuffle(arrows, reshuffled.blockingGraph)
         _shuffleCount.value++
         undoHistory.clear()
         if (prefs.value.hapticsEnabled) feedback.playErrorHaptic()
@@ -364,12 +367,15 @@ class CurvedGameViewModel(
      * not have, and asking for one crashed the moment the first shuffle
      * fired. Every other animation in this class already uses this helper.
      */
-    private suspend fun playShuffle(arrows: List<CurvedArrow>) {
+    private suspend fun playShuffle(arrows: List<CurvedArrow>, graph: CurvedGameEngine.BlockingGraph) {
         animateProgress(SHUFFLE_FOLD_MS) { t -> _shufflePhase.value = 1f - smoothStep(t) }
 
         // The blocking graph is geometry-derived and the geometry just
-        // changed; a stale graph would happily let blocked arrows fly.
-        blockingGraph = CurvedGameEngine.BlockingGraph(arrows, board())
+        // changed; a stale graph would happily let blocked arrows fly. The
+        // shuffle measured the new one while it searched, so swapping it in
+        // here costs nothing - it used to be re-derived on the main thread,
+        // mid-animation, which is the worst possible moment for a ray cast.
+        blockingGraph = graph
         _gameState.value = _gameState.value.copy(arrows = arrows, hintArrowId = null)
 
         animateProgress(SHUFFLE_FOLD_MS) { t -> _shufflePhase.value = smoothStep(t) }
@@ -401,13 +407,14 @@ class CurvedGameViewModel(
         _isGenerating.value = true
 
         boardJob = viewModelScope.launch {
-            // Generate the level - and its blocking graph - off the main thread.
-            // Dense levels have hundreds of arrows; building the graph lazily on
-            // the first tap would stall the UI right when the player touches it.
-            val (curvedLevel, graph) = withContext(Dispatchers.Default) {
-                val generated = CurvedLevelGenerator.generateLevel(level, _boardWidth.value, _boardHeight.value)
-                generated to CurvedGameEngine.BlockingGraph(generated.arrows, board())
+            // Generate the level off the main thread. Dense levels have
+            // hundreds of arrows, and the generator settles their blocking
+            // relationships as part of the orientation search - so the board
+            // arrives with its graph already measured.
+            val curvedLevel = withContext(Dispatchers.Default) {
+                CurvedLevelGenerator.generateLevel(level, _boardWidth.value, _boardHeight.value)
             }
+            val graph = curvedLevel.blockingGraph
 
             _gameState.value = CurvedGameState(
                 level = level,
@@ -420,8 +427,12 @@ class CurvedGameViewModel(
                 status = GameStatus.PLAYING,
                 hintArrowId = null,
                 colorPalette = curvedLevel.colorPalette,
-                // The generator promises a solvable level; verify rather than trust.
-                isStuck = !CurvedGameEngine.isSolvable(graph, curvedLevel.arrows.map { it.id }.toSet())
+                // The generator proves solvability before it returns, and
+                // drops arrows until it holds - so the clear order it found
+                // covering every arrow IS the proof. Re-deriving that here
+                // cost a full sweep on the player's critical path to answer
+                // "yes" every single time; comparing two sizes does not.
+                isStuck = curvedLevel.solutionOrder.size < curvedLevel.arrows.size
             )
 
             if (_gameState.value.isStuck) {
@@ -458,14 +469,33 @@ class CurvedGameViewModel(
      * generator uses, so it cannot disagree with the finished board, and it
      * is available instantly where the board is not.
      */
-    private fun headerOf(level: Int) = CurvedGameState(
-        level = level,
-        shapeName = CurvedJourney.designFor(level).name,
-        difficulty = DifficultyTuning.tierOf(level)
-    )
+    private fun headerOf(level: Int): CurvedGameState {
+        val header = CurvedLevelGenerator.headerFor(level)
+        return CurvedGameState(
+            level = level,
+            shapeName = header.shapeName,
+            difficulty = header.difficultyLabel
+        )
+    }
 
+    /**
+     * Quietly builds the levels either side of [level] while the player is
+     * busy with this one, so stepping between them is instant.
+     *
+     * The generator caches what it builds, so this only has to warm that
+     * cache - there is no second copy of the result to keep in sync here.
+     * Cancelled the moment a real load starts, so speculative work never
+     * delays the level actually being waited on.
+     *
+     * The grace period matters as much as the cancellation: the board that
+     * just finished generating still has to compose, measure and draw a few
+     * hundred curves, and starting two more searches in that exact window
+     * means the speculative work competes with the frame the player is
+     * actually waiting on.
+     */
     private fun prefetchNeighbours(level: Int) {
         prefetchJob = viewModelScope.launch(Dispatchers.Default) {
+            delay(PREFETCH_GRACE_MS)
             for (neighbour in listOf(level + 1, level - 1)) {
                 if (neighbour < 1) continue
                 ensureActive()
@@ -878,11 +908,6 @@ class CurvedGameViewModel(
 
     // ─────────────────────────────────────────────────────────────────────
 
-    override fun onCleared() {
-        super.onCleared()
-        feedback.release()
-    }
-
     // ─────────────────────────────────────────────────────────────────────
     // Settings
     // ─────────────────────────────────────────────────────────────────────
@@ -900,10 +925,11 @@ class CurvedGameViewModelFactory(
     private val preferences: GamePreferences,
     private val adManager: AdManager,
     private val analytics: AnalyticsTracker,
+    private val feedback: GameFeedback,
     private val context: Context
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return CurvedGameViewModel(preferences, adManager, analytics, context) as T
+        return CurvedGameViewModel(preferences, adManager, analytics, feedback, context) as T
     }
 }
