@@ -10,6 +10,7 @@ import com.clevercorner.arrowescape.analytics.AnalyticsTracker
 import com.clevercorner.arrowescape.analytics.Events
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.game.curve.*
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.daily.DailyShuffle
@@ -642,6 +643,20 @@ class CurvedGameViewModel(
     }
 
     private fun handleLevelComplete(state: CurvedGameState) {
+        val daily = dailyPuzzle.takeIf { session == CurvedSession.DAILY }
+        val stars = Scoring.starsFor(state.mistakes)
+
+        // One puzzle a day is a RULE, not a progress stat, so it is recorded
+        // even in developer mode. Letting the dev flag skip this write left
+        // the door open all afternoon: the same board could be solved, left
+        // and re-entered forever, which is the one thing a daily must never
+        // allow. Everything below this line is progress, and dev mode may
+        // still skip all of it.
+        if (daily != null) {
+            stopShuffleClock()
+            viewModelScope.launch { preferences.markDailyCleared(daily.date, stars) }
+        }
+
         // Developer mode never changes saved progress, stars or ad counters.
         if (prefs.value.devMode) return
 
@@ -652,19 +667,10 @@ class CurvedGameViewModel(
                 continueUsedThisLevel
             ))
 
-            // Calculate stars
-            val stars = when {
-                state.mistakes == 0 -> 3
-                state.mistakes <= 2 -> 2
-                else -> 1
-            }
-            val daily = dailyPuzzle
-            if (session == CurvedSession.DAILY && daily != null) {
-                // A daily owes the journey nothing: no stars, no level bump,
-                // no interstitial counter. One date goes from open to solved.
-                stopShuffleClock()
-                preferences.markDailyCleared(daily.date)
-            } else {
+            // A daily owes the journey nothing: no level bump, no stars on
+            // the map, no interstitial counter. Its own record was written
+            // above, before dev mode had a chance to veto it.
+            if (daily == null) {
                 preferences.saveLevelStars(MODE, state.level, stars)
                 preferences.setCurrentLevel(MODE, state.level + 1)
                 preferences.incrementTotalLevelsCompleted(MODE)

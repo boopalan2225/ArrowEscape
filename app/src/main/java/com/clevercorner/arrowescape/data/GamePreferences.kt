@@ -45,6 +45,7 @@ class GamePreferences(private val context: Context) {
         private val KEY_DAILY_STREAK = intPreferencesKey("daily_streak")
         private val KEY_DAILY_LAST = intPreferencesKey("daily_last_cleared")
         private val KEY_DAILY_BEST_RUN = intPreferencesKey("daily_best_run")
+        private val KEY_DAILY_STARS = stringPreferencesKey("daily_stars") // "20251016:3,20251017:2"
 
         // ── Per-mode progress (suffixed with GameMode.id) ────────────────
         private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
@@ -169,7 +170,9 @@ class GamePreferences(private val context: Context) {
                         .toSet(),
                     streak = stored[KEY_DAILY_STREAK] ?: 0,
                     lastCleared = stored[KEY_DAILY_LAST],
-                    bestRun = stored[KEY_DAILY_BEST_RUN] ?: 0
+                    bestRun = stored[KEY_DAILY_BEST_RUN] ?: 0,
+                    // Same "key:value" encoding the journey's stars use.
+                    stars = parseLevelMap(stored[KEY_DAILY_STARS])
                 )
             )
         }
@@ -355,7 +358,7 @@ class GamePreferences(private val context: Context) {
      * Marks [date]'s puzzle solved, letting [DailyProgress] decide what that
      * does to the streak - the rule lives with the data, not with the writer.
      */
-    suspend fun markDailyCleared(date: java.time.LocalDate) {
+    suspend fun markDailyCleared(date: java.time.LocalDate, stars: Int = 0) {
         context.dataStore.edit { prefs ->
             val current = DailyProgress(
                 cleared = prefs[KEY_DAILY_CLEARED].orEmpty()
@@ -364,12 +367,16 @@ class GamePreferences(private val context: Context) {
                     .toSet(),
                 streak = prefs[KEY_DAILY_STREAK] ?: 0,
                 lastCleared = prefs[KEY_DAILY_LAST],
-                bestRun = prefs[KEY_DAILY_BEST_RUN] ?: 0
+                bestRun = prefs[KEY_DAILY_BEST_RUN] ?: 0,
+                stars = parseLevelMap(prefs[KEY_DAILY_STARS])
             )
-            val updated = current.withCleared(date)
+            val updated = current.withCleared(date, stars)
 
             prefs[KEY_DAILY_CLEARED] = updated.cleared.sorted().joinToString(",")
             prefs[KEY_DAILY_STREAK] = updated.streak
+            prefs[KEY_DAILY_STARS] = updated.stars.entries
+                .sortedBy { it.key }
+                .joinToString(",") { "${it.key}:${it.value}" }
             updated.lastCleared?.let { prefs[KEY_DAILY_LAST] = it }
         }
     }

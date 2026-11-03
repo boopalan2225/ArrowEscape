@@ -30,6 +30,7 @@ import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
+import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.ui.components.BoardPlaceholder
 import com.clevercorner.arrowescape.ui.components.BoardPlaque
 import com.clevercorner.arrowescape.ui.components.BoardSkin
@@ -101,6 +102,12 @@ fun DailyScreen(
     // from under the win card.
     val playable = remember(puzzle.stamp) { prefs.daily.canPlay(puzzle.date) }
 
+    // Flipped by finishing today's board. The record is the *destination* of
+    // a solve, not something you have to leave and come back to find - and
+    // it must not depend on the saved progress having landed, because dev
+    // mode deliberately never writes any.
+    var showRecord by remember(puzzle.stamp) { mutableStateOf(false) }
+
     LaunchedEffect(puzzle.stamp) { if (playable) viewModel.startDaily(puzzle) }
 
     // The shuffle clock belongs to this screen; it must not outlive it.
@@ -109,12 +116,21 @@ fun DailyScreen(
     }
 
     // Reached today's puzzle after already solving it (deep link, back
-    // stack, a stale Home button). One a day means one a day.
-    if (!playable) {
-        DailyClosedScreen(
-            dateLabel = puzzle.date.format(TITLE_FORMAT),
-            streak = prefs.daily.streak,
-            onDone = onBackClick,
+    // stack, a stale Home button). One a day means one a day - so this is
+    // the record of every day instead, which is a reward rather than a
+    // locked door, and still not a second go at anything.
+    if (!playable || showRecord) {
+        DailyHistoryScreen(
+            // Today counts the moment it is solved, even before the write
+            // settles (or at all, in dev mode). withCleared is a no-op on a
+            // day already recorded, so this cannot double-count a streak.
+            progress = if (showRecord) {
+                prefs.daily.withCleared(puzzle.date, Scoring.starsFor(gameState.mistakes))
+            } else {
+                prefs.daily
+            },
+            today = puzzle.date,
+            onBackClick = onBackClick,
             modifier = modifier
         )
         return
@@ -232,7 +248,7 @@ fun DailyScreen(
             DailySolvedCard(
                 title = puzzle.date.format(TITLE_FORMAT),
                 streak = prefs.daily.streak,
-                onDone = onBackClick
+                onDone = { showRecord = true }
             )
         }
 
@@ -257,36 +273,6 @@ private fun Scrim(visible: Boolean, content: @Composable () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             content()
-        }
-    }
-}
-
-/**
- * What you get for walking back into a day you have already finished.
- *
- * Reuses the solved card verbatim - the message is identical, and inventing
- * a second way to say "come back tomorrow" would only be a second thing to
- * keep in step.
- */
-@Composable
-private fun DailyClosedScreen(
-    dateLabel: String,
-    streak: Int,
-    onDone: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        DailyBackdrop(modifier = Modifier.fillMaxSize())
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
-            contentAlignment = Alignment.Center
-        ) {
-            DailySolvedCard(title = dateLabel, streak = streak, onDone = onDone)
         }
     }
 }

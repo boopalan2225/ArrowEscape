@@ -10,6 +10,7 @@ import com.clevercorner.arrowescape.analytics.AnalyticsTracker
 import com.clevercorner.arrowescape.analytics.Events
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.game.engine.CollisionChecker
 import com.clevercorner.arrowescape.game.engine.GameEngine
 import com.clevercorner.arrowescape.game.engine.GameSolver
@@ -359,12 +360,7 @@ class GameViewModel(
                 continueUsedThisLevel
             ))
 
-            // Calculate and save stars
-            val stars = when {
-                state.mistakes == 0 -> 3
-                state.mistakes <= 2 -> 2
-                else -> 1
-            }
+            val stars = Scoring.starsFor(state.mistakes)
             preferences.saveLevelStars(MODE, state.level, stars)
 
             preferences.setCurrentLevel(MODE, state.level + 1)

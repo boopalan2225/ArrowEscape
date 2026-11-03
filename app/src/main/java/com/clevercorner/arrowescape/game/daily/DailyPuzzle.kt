@@ -75,9 +75,14 @@ data class DailyProgress(
     val streak: Int = 0,
     val lastCleared: Int? = null,
     /** Longest run of escapes in a row, ever - the player's best winning streak. */
-    val bestRun: Int = 0
+    val bestRun: Int = 0,
+    /** Stamp to stars earned, for the days in [cleared]. A history worth looking back at. */
+    val stars: Map<Int, Int> = emptyMap()
 ) {
     fun isCleared(date: LocalDate): Boolean = DailyCalendar.stampOf(date) in cleared
+
+    /** Stars earned on [date], or zero for a day never solved. */
+    fun starsOn(date: LocalDate): Int = stars[DailyCalendar.stampOf(date)] ?: 0
 
     /**
      * What [date] looks like to the player right now.
@@ -101,7 +106,7 @@ data class DailyProgress(
      * restarts the streak at 1 - skipping is allowed, it just costs you the
      * run you had going.
      */
-    fun withCleared(date: LocalDate): DailyProgress {
+    fun withCleared(date: LocalDate, starsEarned: Int = 0): DailyProgress {
         val stamp = DailyCalendar.stampOf(date)
         if (stamp in cleared) return this
 
@@ -109,7 +114,8 @@ data class DailyProgress(
         return copy(
             cleared = cleared + stamp,
             streak = if (continues) streak + 1 else 1,
-            lastCleared = stamp
+            lastCleared = stamp,
+            stars = stars + (stamp to starsEarned)
         )
     }
 }

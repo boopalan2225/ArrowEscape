@@ -196,6 +196,14 @@
     <string name="daily_solved_title">Solved</string>
     <string name="daily_streak_days">%1$d days in a row</string>
     <string name="daily_come_back_tomorrow">Come back tomorrow</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Your daily record</string>
+    <string name="daily_history_day_solved">%1$s · Solved for %2$d stars</string>
+    <string name="daily_history_day_missed">%1$s · Missed</string>
+    <string name="daily_history_day_locked">%1$s · Not open yet</string>
+    <string name="daily_history_day_open">%1$s · Today\'s puzzle</string>
+    <string name="daily_history_summary">%1$d solved · %2$d day streak</string>
     <string name="daily_done_button">Done</string>
 
     <!-- ======================= Level navigation ======================= -->

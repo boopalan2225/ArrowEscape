@@ -183,11 +183,11 @@ private val SunsetPersona = ThemePersona(
         // A thick copper rail with sakura spilling over two corners.
         boardPlayArea = 0.74f,
         boardHalo = Color(0xFFD9A074),
-        // Terracotta's complement. Pink on tan was two warm neighbours
-        // muddying each other; deep teal to seafoam is the one hue that
-        // separates cleanly from this stone at a glance, and it still reads
-        // as evening water under a sunset.
-        arrowDuotone = Color(0xFF0B4F57) to Color(0xFF8FDCD6)
+        // Carved copper and cream. Teal was a cold guest on a warm board and
+        // pink was too close a neighbour to the stone; a near-black cocoa
+        // rising to cream contrasts at BOTH ends of the ramp instead of only
+        // the dark one, and it is the frame's own metal.
+        arrowDuotone = Color(0xFF3E2016) to Color(0xFFFFF1DD)
     )
 )
 
@@ -253,11 +253,11 @@ private val MonoPersona = ThemePersona(
         // The new board is pale stone inside a sumi brush border, so the
         // frame itself eats less than the old painted one did.
         boardPlayArea = 0.80f,
-        boardHalo = Color(0xFFEDEBE8),
-        // Pure brushwork: soot black down to a wet-ink grey, the same range
-        // as the border strokes and the blossom twigs. Indigo was the one
-        // colour on an otherwise colourless board, which is precisely what
-        // an ink-wash theme must not have.
-        arrowDuotone = Color(0xFF14110F) to Color(0xFF8C8884)
+        boardHalo = Color(0xFFF4F3F1),
+        // Sumi on rice paper: ink black to wet charcoal. The old ramp faded
+        // to a pale grey that dissolved into near-white stone - half the
+        // arrows were ghosts. This one stays dark end to end, like the
+        // brush strokes framing it.
+        arrowDuotone = Color(0xFF0B0B0B) to Color(0xFF5E5A57)
     )
 )

@@ -54,7 +54,10 @@ fun ShuffleTimerBar(secondsLeft: Int?, modifier: Modifier = Modifier) {
     val style = LocalThemePersona.current.dailyHeader
     val gameColors = ArrowEscapeTheme.gameColors
     val urgent = secondsLeft <= DailyShuffle.WARN_SECONDS
-    val accent = if (urgent) gameColors.arrowDown else gameColors.arrowHint
+    // The calm colour is the theme's own accent, not the shared hint amber:
+    // an ink-wash board had one orange bar on it and nothing else, which
+    // made the timer look like it belonged to a different app.
+    val accent = if (urgent) gameColors.arrowDown else style.accent
 
     // Animated so the bar glides between ticks instead of stepping.
     val fraction by animateFloatAsState(

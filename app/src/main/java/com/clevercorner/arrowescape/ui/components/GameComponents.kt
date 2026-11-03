@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 
 /**
@@ -571,12 +572,7 @@ fun LevelCompleteOverlay(
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
     
-    // Calculate stars based on mistakes
-    val stars = when {
-        mistakes == 0 -> 3
-        mistakes <= 2 -> 2
-        else -> 1
-    }
+    val stars = Scoring.starsFor(mistakes)
     
     // Calculate score
     val score = maxOf(10, 100 - (mistakes * 15))

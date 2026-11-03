@@ -294,12 +294,12 @@ private fun HomeActions(
     // Today's puzzle, and whether it is still waiting. The label does the
     // nagging so no notification has to.
     //
-    // Once solved the button goes dead rather than just changing its label:
-    // one puzzle per day means the door is actually shut, not merely
-    // discouraging.
+    // Solved, the button stays live but changes job: it opens the record of
+    // every day played instead of a board. The door to today is still shut -
+    // the history screen deals no puzzle - but a dead button hid the one
+    // reward a daily ever gives, which is the row of days behind it.
     OutlinedButton(
         onClick = onDailyClick,
-        enabled = !dailySolved,
         modifier = Modifier
             .fillMaxWidth()
             .height(52.dp),
