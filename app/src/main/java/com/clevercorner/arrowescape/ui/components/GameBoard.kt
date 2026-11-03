@@ -220,7 +220,9 @@ fun GameBoard(
                             centroid = Point2D(centroid.x, centroid.y),
                             panDelta = Point2D(pan.x, pan.y),
                             zoomFactor = zoom,
-                            viewSize = latestLayout.viewSize
+                            // The grid board owns its whole canvas, so its
+                            // walls are the card's own edges.
+                            bounds = BoardBounds(latestLayout.viewSize)
                         )
                         held = null
                     }

@@ -3,6 +3,22 @@ package com.clevercorner.arrowescape.ui.components
 import com.clevercorner.arrowescape.game.curve.Point2D
 
 /**
+ * The slab of canvas a board's content lives on, and must stay reachable
+ * within.
+ *
+ * Most boards fill their whole canvas, so [origin] is zero and [size] is the
+ * view. The daily's plaque paints its own four walls, so its play area is
+ * inset inside them - and nothing may be panned or zoomed out past them,
+ * hence [slack] of zero there.
+ */
+data class BoardBounds(
+    val size: Point2D,
+    val origin: Point2D = Point2D.ZERO,
+    /** How far past each edge the board may drift, as a fraction of [size]. */
+    val slack: Float = BoardViewport.BOUNDARY_FRACTION
+)
+
+/**
  * Pan / pinch-zoom state for the game board, as pure math.
  *
  * Mirrors the Flutter game's `InteractiveViewer` (min 0.8x, max 4x, a little
@@ -33,31 +49,35 @@ data class BoardViewport(
         centroid: Point2D,
         panDelta: Point2D,
         zoomFactor: Float,
-        viewSize: Point2D
+        bounds: BoardBounds
     ): BoardViewport {
         val newZoom = (zoom * zoomFactor).coerceIn(MIN_ZOOM, MAX_ZOOM)
         val applied = newZoom / zoom
         val anchored = centroid - (centroid - pan) * applied
-        return BoardViewport(newZoom, anchored + panDelta).clamped(viewSize)
+        return BoardViewport(newZoom, anchored + panDelta).clamped(bounds)
     }
 
     /**
-     * Keep the board within reach: it may drift [BOUNDARY_FRACTION] of the
-     * view past each edge (so edge arrows can be pulled clear of thumbs) but
-     * never be flung out of sight.
+     * Keep the board within reach: it may drift [BoardBounds.slack] of the
+     * play area past each edge (so edge arrows can be pulled clear of thumbs)
+     * but never be flung out of sight.
      */
-    fun clamped(viewSize: Point2D): BoardViewport = BoardViewport(
+    fun clamped(bounds: BoardBounds): BoardViewport = BoardViewport(
         zoom,
         Point2D(
-            clampAxis(pan.x, viewSize.x),
-            clampAxis(pan.y, viewSize.y)
+            clampAxis(pan.x, bounds.origin.x, bounds.size.x, bounds.slack),
+            clampAxis(pan.y, bounds.origin.y, bounds.size.y, bounds.slack)
         )
     )
 
-    private fun clampAxis(value: Float, view: Float): Float {
-        val margin = view * BOUNDARY_FRACTION
-        val low = view - view * zoom - margin
-        val high = margin
+    /**
+     * Pan allowed on one axis for content spanning canvas `origin..origin+length`,
+     * which must keep covering that same span on screen, give or take [slack].
+     */
+    private fun clampAxis(value: Float, origin: Float, length: Float, slack: Float): Float {
+        val margin = length * slack
+        val low = (origin + length) * (1f - zoom) - margin
+        val high = origin * (1f - zoom) + margin
         // Zoomed far out the range can invert; centre instead of fighting it.
         return if (low > high) (low + high) / 2f else value.coerceIn(low, high)
     }

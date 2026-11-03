@@ -1,6 +1,5 @@
 package com.clevercorner.arrowescape.ui.daily
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,11 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,12 +26,13 @@ import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
 val DailyHeaderHeight = 250.dp
 
 /**
- * The daily challenge's header: the active theme's sky, with the day, the
- * shape it is built from, and the three numbers worth a glance.
+ * The daily challenge's header: the day, the shape it is built from, and the
+ * three numbers worth a glance, floating over the screen's shared backdrop.
  *
- * The art and inks come from the theme, so each look gets its own sky and
- * its own readable text. Lives, the best winning streak and the day streak
- * sit in the sky itself, so the top of the screen reads as one place.
+ * This no longer paints its own sky - [DailyBackdrop] now covers the whole
+ * screen, header included, so the header and the board read as one scene
+ * instead of a decorated card sitting above a plain body. The inks still
+ * come from the theme, so each look keeps its own readable text.
  */
 @Composable
 fun DailyHud(
@@ -54,18 +50,7 @@ fun DailyHud(
         modifier = modifier
             .fillMaxWidth()
             .height(DailyHeaderHeight)
-            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
     ) {
-        Image(
-            painter = painterResource(style.art),
-            contentDescription = null,
-            // The artwork is much wider than this band. Anchor the crop left of
-            // centre so the sun stays in frame instead of being cropped away.
-            contentScale = ContentScale.Crop,
-            alignment = BiasAlignment(horizontalBias = -0.5f, verticalBias = 0f),
-            modifier = Modifier.matchParentSize()
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()

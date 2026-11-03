@@ -78,8 +78,17 @@ class CurvedGameViewModel(
         private const val ANIMATION_FRAME_MS = 16L
         private const val DEFAULT_LIVES = 3
         private const val HINTS_PER_LEVEL = 2
-        private const val BOARD_WIDTH = 400f
-        private const val BOARD_HEIGHT = 600f
+        /** The journey's board: a tall card that fills a phone screen. */
+        private const val JOURNEY_BOARD_WIDTH = 400f
+        private const val JOURNEY_BOARD_HEIGHT = 600f
+
+        /**
+         * The daily's board is square, because the daily's plaque artwork is
+         * square and that plaque *is* the four walls the arrows escape past.
+         * A 2:3 playfield inside a 1:1 frame can only ever spill over it or
+         * float in the middle of it; neither reads as one board.
+         */
+        private const val DAILY_BOARD_SIDE = 500f
 
         /** Half a shuffle: fold away, then unfold into the new arrangement. */
         private const val SHUFFLE_FOLD_MS = 420L
@@ -131,11 +140,22 @@ class CurvedGameViewModel(
     val reviewPrompter = ReviewPrompter(preferences, analytics)
 
     // Board dimensions for rendering
-    private val _boardWidth = MutableStateFlow(BOARD_WIDTH)
+    private val _boardWidth = MutableStateFlow(JOURNEY_BOARD_WIDTH)
     val boardWidth: StateFlow<Float> = _boardWidth.asStateFlow()
 
-    private val _boardHeight = MutableStateFlow(BOARD_HEIGHT)
+    private val _boardHeight = MutableStateFlow(JOURNEY_BOARD_HEIGHT)
     val boardHeight: StateFlow<Float> = _boardHeight.asStateFlow()
+
+    /**
+     * Switches the playfield every later step reads from - generation,
+     * blocking graph, exit rays and the on-screen scale alike. Call before
+     * [loadBoard]; a board half-built against the previous size would judge
+     * escapes against walls the player cannot see.
+     */
+    private fun useBoard(width: Float, height: Float) {
+        _boardWidth.value = width
+        _boardHeight.value = height
+    }
 
     private var continueUsedThisLevel = false
     private var pendingLevel: Int? = null
@@ -166,7 +186,7 @@ class CurvedGameViewModel(
             blockingGraph = it
         }
 
-    private fun board() = CurvedGameEngine.Board(BOARD_WIDTH, BOARD_HEIGHT)
+    private fun board() = CurvedGameEngine.Board(_boardWidth.value, _boardHeight.value)
 
     // ─────────────────────────────────────────────────────────────────────
     // Haptics & Sound
@@ -219,6 +239,7 @@ class CurvedGameViewModel(
         session = CurvedSession.JOURNEY
         dailyPuzzle = null
         stopShuffleClock()
+        useBoard(JOURNEY_BOARD_WIDTH, JOURNEY_BOARD_HEIGHT)
         loadBoard(level)
     }
 
@@ -232,6 +253,7 @@ class CurvedGameViewModel(
         session = CurvedSession.DAILY
         dailyPuzzle = puzzle
         viewModelScope.launch { bestRunKnown = preferences.prefsFlow.first().daily.bestRun }
+        useBoard(DAILY_BOARD_SIDE, DAILY_BOARD_SIDE)
         loadBoard(puzzle.levelSeed)
         runShuffleClock()
     }
@@ -382,7 +404,7 @@ class CurvedGameViewModel(
             // Dense levels have hundreds of arrows; building the graph lazily on
             // the first tap would stall the UI right when the player touches it.
             val (curvedLevel, graph) = withContext(Dispatchers.Default) {
-                val generated = CurvedLevelGenerator.generateLevel(level, BOARD_WIDTH, BOARD_HEIGHT)
+                val generated = CurvedLevelGenerator.generateLevel(level, _boardWidth.value, _boardHeight.value)
                 generated to CurvedGameEngine.BlockingGraph(generated.arrows, board())
             }
 
@@ -446,7 +468,7 @@ class CurvedGameViewModel(
             for (neighbour in listOf(level + 1, level - 1)) {
                 if (neighbour < 1) continue
                 ensureActive()
-                CurvedLevelGenerator.generateLevel(neighbour, BOARD_WIDTH, BOARD_HEIGHT)
+                CurvedLevelGenerator.generateLevel(neighbour, _boardWidth.value, _boardHeight.value)
             }
         }
     }

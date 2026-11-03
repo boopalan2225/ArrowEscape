@@ -6,8 +6,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.lerp
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
+import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
 
 /**
  * The look of the board surface, which is how a player tells the three modes
@@ -29,7 +29,7 @@ enum class BoardSkin {
     /** Journey, curved: a soft centre glow, so the art floats rather than sits. */
     CURVED,
 
-    /** Daily: a pale sky field, the sunrise's counterpart to the journey boards. */
+    /** Daily: a whisper of theme glass over the shared scene, not a boxed-off field. */
     DAILY
 }
 
@@ -62,13 +62,16 @@ fun BoardSkin.colors(): BoardSkinColors {
         )
 
         BoardSkin.DAILY -> {
-            // A pale sky field tinted by the active theme, so the daily
-            // reads as its own board on the sunrise palette.
-            val sky = lerp(Color.White, game.arrowPrimary, 0.06f)
+            // A bare hint of the theme's own glass, far lighter than the
+            // header's cards - just enough to lift the arrows off the photo
+            // behind them without boxing the board into a flat, opaque
+            // square that no longer matches the rest of the screen.
+            val glass = LocalThemePersona.current.dailyHeader.glass
+            val whisper = glass.copy(alpha = glass.alpha * 0.35f)
             BoardSkinColors(
-                surface = sky,
+                surface = whisper,
                 texture = game.arrowPrimary.copy(alpha = 0.10f),
-                halo = sky
+                halo = whisper
             )
         }
     }

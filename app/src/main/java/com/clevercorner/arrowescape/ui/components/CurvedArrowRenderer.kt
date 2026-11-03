@@ -29,7 +29,9 @@ internal data class ArrowRenderState(
     val isHinted: Boolean = false,
     val hintGlow: Float = 0f,
     /** Board colour, drawn as a thin rim round the head so it reads on top of neighbours. */
-    val haloColor: Color = Color.Transparent
+    val haloColor: Color = Color.Transparent,
+    /** Replaces the arrow's own baked colour - how one theme recolours every shape consistently. See [duotone]. */
+    val colorOverride: Color? = null
 )
 
 /** Flashed over an arrow that was tapped while blocked. */
@@ -46,7 +48,7 @@ internal fun DrawScope.drawArrow(
 ) {
     if (arrow.segments.isEmpty()) return
 
-    val color = Color(arrow.color)
+    val color = state.colorOverride ?: Color(arrow.color)
     val project = projector(scaleX, scaleY)
     val strokePx = arrow.strokeWidth * (scaleX + scaleY) / 2f
 
@@ -219,3 +221,19 @@ private fun projector(scaleX: Float, scaleY: Float): (Point2D) -> Offset =
     { p -> Offset(p.x * scaleX, p.y * scaleY) }
 
 private fun bodyStroke(width: Float) = Stroke(width = width, cap = StrokeCap.Round, join = StrokeJoin.Round)
+
+/**
+ * Recolours [original] onto a two-stop gradient between [dark] and [light],
+ * using the original's own luminance as the mix point.
+ *
+ * Shape art is deliberately painted with shaded regions - an owl's belly is
+ * lighter than its wing, a yin-yang's swirl alternates tones - and that
+ * shading is what makes the arrows read as a shape rather than a flat heap
+ * of lines. A straight colour swap would throw that away; keeping the
+ * original's brightness as the blend factor carries the shading across into
+ * a theme's own two colours instead.
+ */
+internal fun duotone(original: Color, dark: Color, light: Color): Color {
+    val luminance = 0.299f * original.red + 0.587f * original.green + 0.114f * original.blue
+    return lerp(dark, light, luminance.coerceIn(0f, 1f))
+}

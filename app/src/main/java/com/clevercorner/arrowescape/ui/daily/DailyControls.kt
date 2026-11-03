@@ -22,8 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
 
-/** The hint glow. Fixed like the sunrise: it is a light, not a theme colour. */
+/** The hint glow. Fixed across themes: it is a light, not a theme colour. */
 private val HintGlow = Color(0xFFFFD35C)
 
 /**
@@ -73,17 +74,14 @@ private fun ActionPill(
     /** Flips the glyph, turning a clockwise arrow into an undo. */
     mirrored: Boolean = false
 ) {
-    val ink = if (enabled) {
-        MaterialTheme.colorScheme.onSurface
-    } else {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-    }
+    val style = LocalThemePersona.current.dailyHeader
+    val ink = if (enabled) style.ink else style.mutedInk
 
     Surface(
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = style.glass,
         shadowElevation = 3.dp,
         modifier = Modifier
             .width(96.dp)
@@ -118,6 +116,7 @@ private fun ActionPill(
  */
 @Composable
 private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
+    val style = LocalThemePersona.current.dailyHeader
     val hasHints = hintsRemaining > 0
     val description = if (hasHints) {
         stringResource(R.string.daily_hint_left, hintsRemaining)
@@ -150,7 +149,7 @@ private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
             if (hasHints) {
                 Surface(
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = style.accent,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .size(24.dp)
@@ -160,7 +159,7 @@ private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
                             text = "$hintsRemaining",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = Color.White
                         )
                     }
                 }
@@ -170,7 +169,7 @@ private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
             text = stringResource(R.string.daily_hint),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = style.ink
         )
     }
 }

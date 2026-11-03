@@ -38,6 +38,7 @@ import com.clevercorner.arrowescape.ui.components.OutOfLivesModal
 import com.clevercorner.arrowescape.ui.components.PuzzleStuckModal
 import com.clevercorner.arrowescape.ui.game.CurvedGameViewModel
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
+import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
 import java.time.format.DateTimeFormatter
 
 private val TITLE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM d")
@@ -47,8 +48,10 @@ private val TITLE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM 
  *
  * Everything decorative that the journey screens carry - gradient header,
  * shape name, stars, dev bar, combo badge, themed scenery - is deliberately
- * absent from the board itself. The chrome is a sunrise header (the day, the
- * shape, lives, best run, streak), a shuffle timer and one row of actions.
+ * absent from the board itself. The chrome is the active theme's own scene
+ * ([DailyBackdrop]) behind a header (the day, the shape, lives, best run,
+ * streak), a shuffle timer and one row of actions, so the whole screen reads
+ * as one place instead of a decorated strip above a plain body.
  *
  * The gameplay is the curved engine untouched: same ViewModel, same board
  * component, same ads. Only the framing is different.
@@ -74,6 +77,7 @@ fun DailyScreen(
     val canUndo by viewModel.canUndo.collectAsState()
     val isGenerating by viewModel.isGenerating.collectAsState()
     val activity = LocalContext.current as? Activity
+    val dailyStyle = LocalThemePersona.current.dailyHeader
 
     // Announce each re-arrangement briefly, keyed on the counter so repeat
     // shuffles each get their own flash.
@@ -112,16 +116,18 @@ fun DailyScreen(
     val solved = gameState.status == GameStatus.LEVEL_COMPLETE
     val blurred = solved || gameState.status == GameStatus.OUT_OF_LIVES || gameState.isStuck
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
+    Box(modifier = modifier.fillMaxSize()) {
+        // Backdrop and chrome blur together, so a modal reads as the whole
+        // scene stepping back rather than just the buttons going soft while
+        // a crisp photo stays put behind them.
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .then(if (blurred) Modifier.blur(8.dp) else Modifier)
         ) {
+            DailyBackdrop(modifier = Modifier.fillMaxSize())
+
+            Column(modifier = Modifier.fillMaxSize()) {
             DailyHud(
                 dateLabel = puzzle.date.format(TITLE_FORMAT),
                 shapeName = gameState.shapeName,
@@ -132,12 +138,15 @@ fun DailyScreen(
                 onBackClick = onBackClick
             )
 
-            // The board takes every pixel the chrome does not need.
+            // The board takes every pixel the chrome does not need. The
+            // plaque is square and width-bound, so each dp of side padding
+            // costs a dp off BOTH its edges - keep it to a hairline and let
+            // the artwork be the thing you look at.
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = 4.dp, vertical = 6.dp)
                     .clip(RoundedCornerShape(28.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -156,9 +165,11 @@ fun DailyScreen(
                         isArrowFree = viewModel::isArrowFree,
                         exitPointOf = viewModel::exitPointOf,
                         onArrowTap = viewModel::onArrowTap,
-                        // The daily's whole identity: a pale sky board under the
-                        // sunrise, so it never gets mistaken for a journey level.
-                        skin = BoardSkin.DAILY
+                        // The daily's whole identity: a frosted glass pane
+                        // over the theme's own scene, not a flat square card.
+                        skin = BoardSkin.DAILY,
+                        boardArtRes = dailyStyle.boardArt,
+                        arrowDuotone = dailyStyle.arrowDuotone
                     )
                 }
             }
@@ -181,6 +192,7 @@ fun DailyScreen(
                     .navigationBarsPadding()
                     .padding(top = 12.dp, bottom = 16.dp)
             )
+            }
         }
 
         // Floats over the board, above the blur-free layer so it stays sharp.
@@ -257,13 +269,18 @@ private fun DailyClosedScreen(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .systemBarsPadding(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        DailySolvedCard(title = dateLabel, streak = streak, onDone = onDone)
+        DailyBackdrop(modifier = Modifier.fillMaxSize())
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
+            contentAlignment = Alignment.Center
+        ) {
+            DailySolvedCard(title = dateLabel, streak = streak, onDone = onDone)
+        }
     }
 }
 

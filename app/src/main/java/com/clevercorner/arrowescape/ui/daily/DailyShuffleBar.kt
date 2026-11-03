@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.game.daily.DailyShuffle
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
+import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
 
 /**
  * Time until the board re-deals, as a thin bar under the board.
@@ -49,6 +51,7 @@ import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 fun ShuffleTimerBar(secondsLeft: Int?, modifier: Modifier = Modifier) {
     if (secondsLeft == null) return
 
+    val style = LocalThemePersona.current.dailyHeader
     val gameColors = ArrowEscapeTheme.gameColors
     val urgent = secondsLeft <= DailyShuffle.WARN_SECONDS
     val accent = if (urgent) gameColors.arrowDown else gameColors.arrowHint
@@ -68,8 +71,14 @@ fun ShuffleTimerBar(secondsLeft: Int?, modifier: Modifier = Modifier) {
         label = "throb"
     )
 
-    Column(
+    Surface(
         modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = style.glass,
+        shadowElevation = 2.dp
+    ) {
+    Column(
+        modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -94,6 +103,7 @@ fun ShuffleTimerBar(secondsLeft: Int?, modifier: Modifier = Modifier) {
                     .background(accent)
             )
         }
+    }
     }
 }
 
