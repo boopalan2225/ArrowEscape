@@ -65,13 +65,6 @@ private const val HINT_VISIBLE_MS = 3500L
 /** Only dense boards are worth explaining pinch-to-zoom for. */
 private const val DENSE_ARROW_COUNT = 30
 
-/**
- * The share of a themed plaque taken up by its own painted play area - the
- * marble inside the frame. The rest is the frame itself, which is the board's
- * four walls, so no arrow may be drawn, tapped or panned onto it.
- */
-private const val PLAQUE_PLAY_AREA = 0.78f
-
 /** Long-press preview of one arrow's exit line, from its head tip to the board edge. */
 private data class ExitPreview(
     val arrow: CurvedArrow,
@@ -115,8 +108,8 @@ fun CurvedGameBoard(
     shufflePhase: Float = 1f,
     /** Which mode's surface to paint. Daily looks deliberately unlike the rest. */
     skin: BoardSkin = BoardSkin.CURVED,
-    /** A theme's own plaque, shown whole and centred under the arrows. Null keeps [skin]'s flat surface. */
-    @DrawableRes boardArtRes: Int? = null,
+    /** A theme's own painted board, whose frame is the four walls. Null keeps [skin]'s flat surface. */
+    plaque: BoardPlaque? = null,
     /** Recolours every arrow onto a theme's two-stop gradient. Null keeps each arrow's own baked colour. See [duotone]. */
     arrowDuotone: Pair<Color, Color>? = null
 ) {
@@ -181,14 +174,14 @@ fun CurvedGameBoard(
             .aspectRatio(boardWidth / boardHeight),
         // A plaque brings its own corners; rounding the card again would
         // shave them off. Everything else keeps the house shape.
-        shape = if (boardArtRes != null) RectangleShape else MaterialTheme.shapes.extraLarge,
+        shape = if (plaque != null) RectangleShape else MaterialTheme.shapes.extraLarge,
         // A theme's own plaque is the boundary the player sees - this
         // Surface exists only to host the Canvas, not to draw a second,
         // larger frame of its own behind it (its elevation shadow, being a
         // soft rounded rectangle taller than the square plaque, used to
         // read as a stray blurred box floating behind the card).
-        color = if (boardArtRes != null) Color.Transparent else skinColors.surface,
-        shadowElevation = if (boardArtRes != null) 0.dp else 4.dp
+        color = if (plaque != null) Color.Transparent else skinColors.surface,
+        shadowElevation = if (plaque != null) 0.dp else 4.dp
     ) {
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
@@ -201,7 +194,7 @@ fun CurvedGameBoard(
         // whole card. The card itself matches the playfield's aspect ratio,
         // so the plaque fits it exactly - there is no second, invisible
         // border around it any more.
-        val playFraction = if (boardArtRes != null) PLAQUE_PLAY_AREA else 1f
+        val playFraction = plaque?.playArea ?: 1f
         val playWidth = canvasWidth * playFraction
         val playHeight = canvasHeight * playFraction
         val scaleX = playWidth / boardWidth
@@ -212,7 +205,7 @@ fun CurvedGameBoard(
             origin = Point2D(playOrigin.x, playOrigin.y),
             // Painted walls are walls: nothing drifts past them. A plain
             // card has no walls to respect, so it keeps its thumb-room.
-            slack = if (boardArtRes != null) 0f else BoardViewport.BOUNDARY_FRACTION
+            slack = if (plaque != null) 0f else BoardViewport.BOUNDARY_FRACTION
         )
 
         // Latest layout, readable from long-lived gesture coroutines.
@@ -221,9 +214,9 @@ fun CurvedGameBoard(
 
         // The card and the plaque share an aspect ratio, so a plain fit is
         // already edge to edge: no zoom, no cropped corners, no letterbox.
-        boardArtRes?.let { res ->
+        plaque?.let { board ->
             Image(
-                painter = painterResource(res),
+                painter = painterResource(board.art),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize()
@@ -290,7 +283,7 @@ fun CurvedGameBoard(
         ) {
             // A plaque paints its own surface; a second wash of skin colour
             // over it would only dull the art and bleed onto its frame.
-            if (boardArtRes == null) drawBoardBackdrop(skin, skinColors)
+            if (plaque == null) drawBoardBackdrop(skin, skinColors)
 
             val vp = viewport
             withTransform({
@@ -299,7 +292,7 @@ fun CurvedGameBoard(
                 // instead of riding along with the content it is meant to
                 // fence in. (Declared after, a zoom simply scaled the clip
                 // up with the arrows - which is no clip at all.)
-                if (boardArtRes != null) clipRect(
+                if (plaque != null) clipRect(
                     left = playOrigin.x,
                     top = playOrigin.y,
                     right = playOrigin.x + playWidth,
@@ -322,7 +315,7 @@ fun CurvedGameBoard(
                             ArrowRenderState(
                                 isHinted = hinted,
                                 hintGlow = if (hinted) hintGlow.value else 0f,
-                                haloColor = skinColors.halo,
+                                haloColor = plaque?.halo ?: skinColors.halo,
                                 colorOverride = recolor(arrow)
                             )
                         )
@@ -348,7 +341,7 @@ fun CurvedGameBoard(
                         ArrowRenderState(
                             escapeProgress = escapingArrows[arrow.id] ?: 0f,
                             bump = bumpingArrows[arrow.id],
-                            haloColor = gameColors.boardBackground,
+                            haloColor = plaque?.halo ?: gameColors.boardBackground,
                             colorOverride = recolor(arrow)
                         )
                     )

@@ -31,6 +31,7 @@ import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
 import com.clevercorner.arrowescape.ui.components.BoardPlaceholder
+import com.clevercorner.arrowescape.ui.components.BoardPlaque
 import com.clevercorner.arrowescape.ui.components.BoardSkin
 import com.clevercorner.arrowescape.ui.components.ConfettiBurst
 import com.clevercorner.arrowescape.ui.components.CurvedGameBoard
@@ -78,6 +79,12 @@ fun DailyScreen(
     val isGenerating by viewModel.isGenerating.collectAsState()
     val activity = LocalContext.current as? Activity
     val dailyStyle = LocalThemePersona.current.dailyHeader
+
+    // This theme's painted board, if it has one: the artwork and how much of
+    // it the puzzle may use travel together, because they describe one object.
+    val boardPlaque = remember(dailyStyle) {
+        dailyStyle.boardArt?.let { BoardPlaque(it, dailyStyle.boardPlayArea, dailyStyle.boardHalo) }
+    }
 
     // Announce each re-arrangement briefly, keyed on the counter so repeat
     // shuffles each get their own flash.
@@ -168,7 +175,7 @@ fun DailyScreen(
                         // The daily's whole identity: a frosted glass pane
                         // over the theme's own scene, not a flat square card.
                         skin = BoardSkin.DAILY,
-                        boardArtRes = dailyStyle.boardArt,
+                        plaque = boardPlaque,
                         arrowDuotone = dailyStyle.arrowDuotone
                     )
                 }

@@ -53,19 +53,27 @@ data class DailyHeaderStyle(
      * tinted glass pane - a theme can give the puzzle its own table, not
      * just its own sky. Null keeps the existing whisper-of-glass look.
      *
-     * The art is a square asset; the board itself is not (its canvas is a
-     * fixed 2:3 rectangle, so every level's curves stay correctly
-     * proportioned). Rather than stretch the plaque's corners into ovals or
-     * crop its edges off to force a fit, it is shown whole and centred; the
-     * existing whisper-of-glass pane still fills the rest of the board, so
-     * any sliver left over top or bottom still reads as this scene's glass,
-     * not a seam - and it works on any device's aspect ratio.
+     * Must be a SQUARE asset whose painted frame is the board's four walls:
+     * the daily playfield is square to match, so the plaque fits its card
+     * exactly and the arrows are clipped to the marble inside the frame.
+     * A non-square asset would letterbox and the walls would stop lining up
+     * with the wall the engine judges escapes against.
      */
     @DrawableRes val boardArt: Int? = null,
     /**
+     * The fraction of [boardArt]'s square that is actually playable, centred -
+     * everything outside it is the plaque's painted frame, which is the
+     * board's four walls. Per theme, because an ivy rail and a pirate's hat
+     * eat wildly different amounts of the square.
+     */
+    val boardPlayArea: Float = 1f,
+    /** The stone colour inside [boardArt]'s frame, which arrow edges blend into. */
+    val boardHalo: Color = Color.Transparent,
+    /**
      * Recolours every arrow onto this theme's own two-stop gradient, so an
      * owl's tan belly and a yin-yang's ink swirl both read as one theme's
-     * palette on the daily screen. Null keeps each shape's own baked colours.
+     * palette - and, more importantly, so the arrows contrast with whatever
+     * stone [boardArt] paints under them. Null keeps each shape's own colours.
      */
     val arrowDuotone: Pair<Color, Color>? = null
 )
@@ -108,6 +116,9 @@ private val ClassicPersona = ThemePersona(
         glass = Color(0xE6FFFFFF),
         scrim = Color.White,
         boardArt = R.drawable.daily_board_classic,
+        boardPlayArea = 0.78f,
+        boardHalo = Color(0xFFF1EBE0),
+        // Deep harbour navy to pale sky, on white marble veined with gold.
         arrowDuotone = Color(0xFF123B66) to Color(0xFFBEE6FF)
     )
 )
@@ -133,7 +144,16 @@ private val MidnightPersona = ThemePersona(
         mutedInk = Color(0xFFB8C6E6),
         accent = Color(0xFF9DB4FF),
         glass = Color(0xB3101A3A),
-        scrim = Color.Black
+        scrim = Color.Black,
+        boardArt = R.drawable.daily_board_midnight,
+        // Ivy and blossom crowd the corners of the gold rail.
+        boardPlayArea = 0.76f,
+        boardHalo = Color(0xFF34435C),
+        // Moonlight, not treasure: the gold ramp fought the frame it sat
+        // inside and turned the arrows into more decoration. Steel blue up
+        // to near-white reads instantly on slate and belongs to the sky
+        // this theme is named after.
+        arrowDuotone = Color(0xFF41639F) to Color(0xFFEDF3FF)
     )
 )
 
@@ -158,7 +178,16 @@ private val SunsetPersona = ThemePersona(
         mutedInk = Color(0xFF4A5568),
         accent = Color(0xFFB4530B),
         glass = Color(0xE6FFFFFF),
-        scrim = Color.White
+        scrim = Color.White,
+        boardArt = R.drawable.daily_board_sunset,
+        // A thick copper rail with sakura spilling over two corners.
+        boardPlayArea = 0.74f,
+        boardHalo = Color(0xFFD9A074),
+        // Terracotta's complement. Pink on tan was two warm neighbours
+        // muddying each other; deep teal to seafoam is the one hue that
+        // separates cleanly from this stone at a glance, and it still reads
+        // as evening water under a sunset.
+        arrowDuotone = Color(0xFF0B4F57) to Color(0xFF8FDCD6)
     )
 )
 
@@ -185,7 +214,16 @@ private val PiratePersona = ThemePersona(
         glass = Color(0xE0FFFFFF),
         // Warm ivory, not pure white - a light edge-fade that still reads
         // as this theme's sunset, dark ink needs the lift for contrast.
-        scrim = Color(0xFFFFF2DC)
+        scrim = Color(0xFFFFF2DC),
+        boardArt = R.drawable.daily_board_pirate,
+        // The most crowded frame of the five: a captain's hat overhangs the
+        // top, lanterns the sides, and a wheel, chest and chart the bottom.
+        boardPlayArea = 0.62f,
+        boardHalo = Color(0xFF4A2E1B),
+        // Gold on gold-framed wood was camouflage. Weathered verdigris to
+        // sea foam - the green of old ship's brass - lifts clear of every
+        // brown plank and answers the theme's own teal glow.
+        arrowDuotone = Color(0xFF0A5A52) to Color(0xFF9FE6D7)
     )
 )
 
@@ -210,6 +248,16 @@ private val MonoPersona = ThemePersona(
         mutedInk = Color(0xFF4A4540),
         accent = Color(0xFF5A5149),
         glass = Color(0xE0FFFFFF),
-        scrim = Color(0xFFF4EFE6)
+        scrim = Color(0xFFF4EFE6),
+        boardArt = R.drawable.daily_board_mono,
+        // The new board is pale stone inside a sumi brush border, so the
+        // frame itself eats less than the old painted one did.
+        boardPlayArea = 0.80f,
+        boardHalo = Color(0xFFEDEBE8),
+        // Pure brushwork: soot black down to a wet-ink grey, the same range
+        // as the border strokes and the blossom twigs. Indigo was the one
+        // colour on an otherwise colourless board, which is precisely what
+        // an ink-wash theme must not have.
+        arrowDuotone = Color(0xFF14110F) to Color(0xFF8C8884)
     )
 )

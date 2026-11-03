@@ -1,5 +1,6 @@
 package com.clevercorner.arrowescape.ui.daily
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -23,9 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.ui.theme.LocalThemePersona
-
-/** The hint glow. Fixed across themes: it is a light, not a theme colour. */
-private val HintGlow = Color(0xFFFFD35C)
 
 /**
  * The daily's three actions in one row: step back, ask for help, start over.
@@ -110,9 +107,14 @@ private fun ActionPill(
 }
 
 /**
- * A glowing bulb with the hints left as a badge. With none left the bulb
- * becomes a play glyph: tapping it offers an ad for another, which is the
- * same button doing a different job, not a second control.
+ * A bulb in the theme's own accent, with the hints left as a badge. With none
+ * left the bulb becomes a play glyph: tapping it offers an ad for another,
+ * which is the same button doing a different job, not a second control.
+ *
+ * Deliberately no longer a fixed yellow disc the size of a plum: it sat on
+ * five different scenes looking borrowed from a sixth, and dwarfed the two
+ * pills beside it. Accent fill plus a glass ring ties it to whichever theme
+ * is on screen, the way every other control here is already tied.
  */
 @Composable
 private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
@@ -126,40 +128,43 @@ private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Box(modifier = Modifier.size(80.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(60.dp), contentAlignment = Alignment.Center) {
             Surface(
                 onClick = onClick,
                 shape = CircleShape,
-                color = HintGlow,
-                shadowElevation = 8.dp,
+                color = style.accent,
+                border = BorderStroke(2.dp, style.glass),
+                shadowElevation = 6.dp,
                 modifier = Modifier
-                    .size(68.dp)
+                    .size(48.dp)
                     .semantics { contentDescription = description }
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = if (hasHints) "\uD83D\uDCA1" else "\u25B6",
-                        fontSize = 28.sp
+                        fontSize = 20.sp
                     )
                 }
             }
 
             if (hasHints) {
+                // Glass on accent, the inverse of the orb - the count reads
+                // as part of the same button instead of a sticker on it.
                 Surface(
                     shape = CircleShape,
-                    color = style.accent,
+                    color = style.glass,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .size(24.dp)
+                        .size(20.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = "$hintsRemaining",
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = style.ink
                         )
                     }
                 }
@@ -167,7 +172,7 @@ private fun HintOrb(hintsRemaining: Int, onClick: () -> Unit) {
         }
         Text(
             text = stringResource(R.string.daily_hint),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = style.ink
         )
