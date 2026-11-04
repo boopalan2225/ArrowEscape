@@ -102,7 +102,8 @@ fun SettingsScreen(
                     onSelect = onThemeSelect,
                     systemDark = isSystemInDarkTheme(),
                     wallet = prefs.wallet,
-                    onBuyTheme = onBuyTheme
+                    onBuyTheme = onBuyTheme,
+                    devMode = prefs.devMode
                 )
             }
 

@@ -14,6 +14,9 @@ import com.clevercorner.arrowescape.R
  * the player already owns, not on which they fancy (see
  * `economy.CoinRules.unlockPrice`). Light and dark are never for sale - a
  * player must always be able to match their phone and their eyes.
+ *
+ * Who may wear what is answered by [isUnlocked] and [unlockedIds], and
+ * nowhere else.
  */
 enum class AppTheme(
     /** Stable key persisted in preferences - never rename once shipped. */
@@ -28,6 +31,15 @@ enum class AppTheme(
     SUNSET("sunset", R.string.theme_sunset_label, isDark = false),
     PIRATE("pirate", R.string.theme_pirate_label, isDark = false),
     MONO("mono", R.string.theme_mono_label, isDark = false);
+
+    /**
+     * True when this look may be worn, given the ids the player has unlocked.
+     *
+     * The one place the ownership rule is written. It used to live in two -
+     * the picker and [owned] - which is the kind of duplication that lets a
+     * theme be selectable on one screen and quietly refused on the next.
+     */
+    fun isUnlocked(unlocked: Set<String>): Boolean = isFree || id in unlocked
 
     companion object {
         /**
@@ -61,7 +73,23 @@ enum class AppTheme(
          */
         fun owned(savedId: String?, systemDark: Boolean, unlocked: Set<String>): AppTheme {
             val chosen = resolve(savedId, systemDark)
-            return if (chosen.isFree || chosen.id in unlocked) chosen else defaultFor(systemDark)
+            return if (chosen.isUnlocked(unlocked)) chosen else defaultFor(systemDark)
         }
+
+        /**
+         * The theme ids that count as unlocked right now.
+         *
+         * Developer mode owns the whole catalogue. A dev build exists to
+         * *look at* every theme, and making the person who drew them grind
+         * coins first is silly.
+         *
+         * Note what this is not: a write. The wallet is never touched, so
+         * switching dev mode off takes the paid looks straight back and no
+         * invented unlock can reach a cloud save. Granting themes by quietly
+         * crediting the wallet instead would have been fewer lines and a
+         * permanent lie.
+         */
+        fun unlockedIds(owned: Set<String>, devMode: Boolean): Set<String> =
+            if (devMode) entries.mapTo(HashSet()) { it.id } else owned
     }
 }

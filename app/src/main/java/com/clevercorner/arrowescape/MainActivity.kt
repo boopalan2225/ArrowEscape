@@ -143,11 +143,15 @@ class MainActivity : ComponentActivity() {
             val loaded by preferences.prefs.collectAsState()
             // `owned`, not `resolve`: a paid theme the wallet cannot account
             // for falls back to the phone's own light or dark rather than
-            // being worn for free.
+            // being worn for free. Dev mode is the one exception, and it is a
+            // view over the wallet rather than a change to it.
             val theme = AppTheme.owned(
                 savedId = loaded?.themeId,
                 systemDark = isSystemInDarkTheme(),
-                unlocked = loaded?.wallet?.unlockedThemes.orEmpty()
+                unlocked = AppTheme.unlockedIds(
+                    owned = loaded?.wallet?.unlockedThemes.orEmpty(),
+                    devMode = loaded?.devMode == true
+                )
             )
 
             // One-time move of a pre-per-mode save into its owning mode.

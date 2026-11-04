@@ -61,6 +61,9 @@ private const val COLUMNS = 3
  * the price instead of a tick and opens the till rather than selecting, so
  * the shop *is* the picker: a separate "store" screen would mean drawing
  * every theme preview twice.
+ *
+ * In [devMode] every card is simply selectable: nothing is priced, because
+ * nothing is locked.
  */
 @Composable
 fun ThemePicker(
@@ -69,9 +72,10 @@ fun ThemePicker(
     systemDark: Boolean,
     wallet: Wallet,
     onBuyTheme: suspend (AppTheme) -> Boolean,
+    devMode: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val options = themeOptions(systemDark, wallet)
+    val options = themeOptions(systemDark, wallet, devMode)
     var shopping by remember { mutableStateOf<AppTheme?>(null) }
     // One price for whichever locked card you tap: what the *next* unlock
     // costs. Every card shows the same number, which is the honest way to
@@ -138,9 +142,14 @@ private data class ThemeChoice(
 )
 
 @Composable
-private fun themeOptions(systemDark: Boolean, wallet: Wallet): List<ThemeChoice> {
+private fun themeOptions(
+    systemDark: Boolean,
+    wallet: Wallet,
+    devMode: Boolean
+): List<ThemeChoice> {
     val light = AppTheme.CLASSIC.colorScheme()
     val dark = AppTheme.MIDNIGHT.colorScheme()
+    val unlocked = AppTheme.unlockedIds(wallet.unlockedThemes, devMode)
 
     // "System" is a rule, not a look, so its card shows both halves of the rule.
     val system = ThemeChoice(
@@ -159,7 +168,6 @@ private fun themeOptions(systemDark: Boolean, wallet: Wallet): List<ThemeChoice>
 
     return listOf(system) + AppTheme.entries.map { theme ->
         val scheme = theme.colorScheme()
-        val owned = theme.isFree || theme.id in wallet.unlockedThemes
         ThemeChoice(
             id = theme.id,
             labelRes = theme.labelRes,
@@ -169,7 +177,7 @@ private fun themeOptions(systemDark: Boolean, wallet: Wallet): List<ThemeChoice>
             ),
             outline = scheme.outline,
             dots = listOf(scheme.primary, scheme.secondary, scheme.primaryContainer),
-            lockedTheme = theme.takeUnless { owned }
+            lockedTheme = theme.takeUnless { it.isUnlocked(unlocked) }
         )
     }
 }
