@@ -13,9 +13,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
- * The only place that decides *when* local progress and cloud progress talk
- * to each other. Neither [GamePreferences] nor the game ViewModels know this
+ * The only place that decides *when* local state and cloud state talk to
+ * each other. Neither [GamePreferences] nor the game ViewModels know this
  * exists - progress just happens to get backed up.
+ *
+ * Signed out, this object does nothing at all and the game is untouched:
+ * every puzzle, coin and streak still works, just on one device. That is the
+ * deal, and it is checked in exactly one place - the `account.value != null`
+ * below - rather than being a condition sprinkled through the app.
  */
 class CloudSyncCoordinator(
     private val cloudSave: CloudSave,
@@ -36,7 +41,7 @@ class CloudSyncCoordinator(
      *    device (never regressing either), save the result locally, and push
      *    it straight back - so the cloud reflects the merge too, not just
      *    whichever side happened to be bigger.
-     * 2. Whenever local progress changes while signed in: push it, debounced.
+     * 2. Whenever local state changes while signed in: push it, debounced.
      */
     fun start(scope: CoroutineScope) {
         scope.launch {
@@ -48,13 +53,13 @@ class CloudSyncCoordinator(
         scope.launch {
             preferences.prefs
                 .filterNotNull()
-                .map { it.progress }
+                .map(CloudState::of)
                 .distinctUntilChanged()
                 .drop(1) // the initial emission is not a "change" worth pushing
                 .debounce(PUSH_DEBOUNCE_MS)
-                .collectLatest { progress ->
+                .collectLatest { state ->
                     if (cloudSave.account.value != null) {
-                        cloudSave.push(progress)
+                        cloudSave.push(state)
                     }
                 }
         }
@@ -64,7 +69,7 @@ class CloudSyncCoordinator(
         // Deliberately the nullable flow: merging against a defaulted Prefs
         // before disk has answered would offer the cloud an empty local side
         // and call it a merge.
-        val localBeforeMerge = preferences.prefs.filterNotNull().first().progress
+        val localBeforeMerge = CloudState.of(preferences.prefs.filterNotNull().first())
         val remote = cloudSave.pull()
 
         if (remote == null) {
@@ -73,10 +78,9 @@ class CloudSyncCoordinator(
             return
         }
 
-        preferences.applySnapshot(ProgressSnapshot.merge(localBeforeMerge, remote))
+        preferences.applyCloudState(ProgressSnapshot.merge(localBeforeMerge, remote))
         // Read back the merged result and push it, so the cloud never keeps
         // holding the smaller side of the merge.
-        val merged = preferences.prefs.filterNotNull().first().progress
-        cloudSave.push(merged)
+        cloudSave.push(CloudState.of(preferences.prefs.filterNotNull().first()))
     }
 }

@@ -187,8 +187,8 @@
     <!-- ======================= Account section ======================= -->
     <string name="account_section_title">Account</string>
     <string name="account_not_connected">Not connected</string>
-    <string name="account_backed_up">Progress backs up to Google Play</string>
-    <string name="account_sign_in_hint">Sign in to keep your levels if you reinstall</string>
+    <string name="account_backed_up">Levels, streak and coins back up to Google Play</string>
+    <string name="account_sign_in_hint">Optional — everything works offline. Sign in to carry your levels, streak and coins to another phone.</string>
     <string name="account_sign_out">Sign out</string>
     <string name="account_sign_in">Sign in</string>
 
@@ -259,5 +259,57 @@
     <string name="tour_skip_move">Skip move</string>
     <string name="tour_next">Next</string>
 
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Cancel</string>
+    <string name="coins_title">Coins</string>
+    <string name="coins_balance_subtitle">%1$d in your purse</string>
+    <string name="coins_lifetime">%1$d earned all-time</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Welcome bonus</string>
+    <string name="coin_reason_daily">Daily puzzle solved</string>
+    <string name="coin_reason_streak">%1$d days in a row!</string>
+    <string name="coin_reason_chapter">Chapter %1$d complete</string>
+    <string name="coin_reason_referral">Invite redeemed</string>
+
+    <string name="coins_earn_title">Ways to earn</string>
+    <string name="coins_earn_welcome_detail">A little something to start you off</string>
+    <string name="coins_earn_daily_title">Daily puzzle</string>
+    <string name="coins_earn_daily_detail">%1$d days solved — a flawless escape pays more</string>
+    <string name="coins_earn_streak_title">Daily streak</string>
+    <string name="coins_earn_streak_detail">%1$d days in a row — next reward at %2$d</string>
+    <string name="coins_earn_streak_maxed">Every streak reward claimed</string>
+    <string name="coins_earn_chapter_title">Journey chapters</string>
+    <string name="coins_earn_chapter_detail">%1$d chapters cleared</string>
+    <string name="coins_earn_referral_title">Invite a friend</string>
+    <string name="coins_earn_referral_detail">Redeem a friend\'s code — once</string>
+
+    <string name="coins_invite_title">Invite a friend</string>
+    <string name="coins_invite_subtitle">A friend who starts out with your code gets %1$d coins</string>
+    <string name="coins_invite_share">Share my code</string>
+    <string name="coins_invite_message">I\'m escaping arrows — use my code %1$s when you start and grab some bonus coins. %2$s</string>
+    <string name="coins_redeem_label">Friend\'s code</string>
+    <string name="coins_redeem_button">Redeem</string>
+    <string name="coins_redeem_ok">Nice — %1$d coins added</string>
+    <string name="coins_redeem_bad">That code doesn\'t look right</string>
+    <string name="coins_redeem_own">That one\'s your own code</string>
+    <string name="coins_redeem_already">Invite bonus already claimed</string>
+
+    <string name="coins_shelf_title">Unlocking looks</string>
+    <string name="coins_shelf_subtitle">Any theme you like — the price is how many you already own</string>
+    <string name="coins_shelf_rung">Theme %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">Unlock %1$s</string>
+    <string name="theme_locked_body">Yours for %1$d coins.</string>
+    <string name="theme_locked_short">%1$d more coins to go. Keep that daily streak alive.</string>
+    <string name="theme_unlocked_title">%1$s unlocked!</string>
+    <string name="theme_unlocked_body">Enjoy the new scenery.</string>
+    <string name="theme_unlock_button">Unlock · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Reset coins</string>
+    <string name="settings_debug_reset_coins_subtitle">Empty the purse, tear up the ledger, re-lock every paid theme</string>
 
 </resources>

@@ -30,6 +30,7 @@ import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.ui.components.GlyphIcon
+import com.clevercorner.arrowescape.ui.coins.CoinPill
 import com.clevercorner.arrowescape.ui.milestone.MilestoneData
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
@@ -49,6 +50,7 @@ fun HomeScreen(
     onModeSelect: (GameMode) -> Unit,
     onJourneyClick: () -> Unit,
     onDailyClick: () -> Unit = {},
+    onCoinsClick: () -> Unit = {},
     onSettingsClick: () -> Unit,
     onDevClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -111,6 +113,18 @@ fun HomeScreen(
                 onSettingsClick = onSettingsClick
             )
         }
+
+        // The purse, always in the corner of the eye. Top-right rather than
+        // in the button stack on purpose: a balance is a *status*, and a
+        // status that scrolls away stops doing its job.
+        CoinPill(
+            balance = prefs.wallet.balance,
+            onClick = onCoinsClick,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .systemBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        )
 
         // Developer door: parked in a corner so it never shifts the layout,
         // and absent entirely unless developer mode is on.

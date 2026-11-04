@@ -58,12 +58,16 @@ fun SettingsScreen(
     onDevModeToggle: (Boolean) -> Unit = {},
     /** Receives an [AppTheme] id, or [AppTheme.SYSTEM_ID] to follow the phone. */
     onThemeSelect: (String) -> Unit = {},
+    /** Spends coins on a locked look. False when the purse came up short. */
+    onBuyTheme: suspend (AppTheme) -> Boolean = { false },
+    onCoinsClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     onHowToPlayClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
     onBackClick: () -> Unit,
     onUnlockAllLevels: (GameMode) -> Unit = {},
     onResetProgress: (GameMode) -> Unit = {},
+    onResetCoins: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
@@ -84,10 +88,20 @@ fun SettingsScreen(
                 .padding(16.dp)
         ) {
             SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
+                // The wallet sits above the shop window, where a wallet belongs.
+                SettingsClickableItem(
+                    icon = "\uD83E\uDE99",
+                    title = stringResource(R.string.coins_title),
+                    subtitle = stringResource(R.string.coins_balance_subtitle, prefs.wallet.balance),
+                    onClick = onCoinsClick
+                )
+
                 ThemePicker(
                     selectedId = prefs.themeId,
                     onSelect = onThemeSelect,
-                    systemDark = isSystemInDarkTheme()
+                    systemDark = isSystemInDarkTheme(),
+                    wallet = prefs.wallet,
+                    onBuyTheme = onBuyTheme
                 )
             }
 
@@ -209,6 +223,16 @@ fun SettingsScreen(
                                     onClick = { onResetProgress(mode) }
                                 )
                             }
+
+                            // The first settle writes off a player's pre-coin
+                            // history rather than paying it - a one-way door,
+                            // and the branch hardest to walk through twice.
+                            SettingsClickableItem(
+                                icon = "\uD83E\uDE99",
+                                title = stringResource(R.string.settings_debug_reset_coins_title),
+                                subtitle = stringResource(R.string.settings_debug_reset_coins_subtitle),
+                                onClick = onResetCoins
+                            )
                         }
                     }
                 }

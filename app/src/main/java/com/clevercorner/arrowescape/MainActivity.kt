@@ -34,7 +34,10 @@ import com.clevercorner.arrowescape.cloud.CloudSyncCoordinator
 import com.clevercorner.arrowescape.cloud.PlayGamesCloudSave
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.game.daily.DailyCalendar
+import com.clevercorner.arrowescape.ui.coins.CoinRewardHost
+import com.clevercorner.arrowescape.ui.coins.CoinScreen
 import com.clevercorner.arrowescape.ui.daily.DailyScreen
 import com.clevercorner.arrowescape.ui.dev.DevLevelScreen
 import com.clevercorner.arrowescape.ui.game.CurvedGameScreen
@@ -71,6 +74,7 @@ class MainActivity : ComponentActivity() {
     private val analytics: AnalyticsTracker get() = app.analytics
     private val crashReporter: CrashReporter get() = app.crashReporter
     private val feedback: GameFeedback get() = app.feedback
+    private val coinBank: CoinBank get() = app.coinBank
 
     /** Activity-scoped: signing in needs an Activity to show a dialog over. */
     private lateinit var cloudSave: CloudSave
@@ -111,6 +115,10 @@ class MainActivity : ComponentActivity() {
         // per-ViewModel concern.
         feedback.followTheme(preferences.prefsOrDefault, lifecycleScope)
 
+        // Coins settle themselves: the bank watches saved progress and pays
+        // whatever the rules say is owed. No screen has to remember to.
+        coinBank.start(lifecycleScope)
+
         // Crash reports are far easier to triage with the player's mode and
         // level attached, so keep those keys current for the whole session.
         lifecycleScope.launch {
@@ -128,7 +136,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val loaded by preferences.prefs.collectAsState()
-            val theme = AppTheme.resolve(loaded?.themeId, isSystemInDarkTheme())
+            // `owned`, not `resolve`: a paid theme the wallet cannot account
+            // for falls back to the phone's own light or dark rather than
+            // being worn for free.
+            val theme = AppTheme.owned(
+                savedId = loaded?.themeId,
+                systemDark = isSystemInDarkTheme(),
+                unlocked = loaded?.wallet?.unlockedThemes.orEmpty()
+            )
 
             // One-time move of a pre-per-mode save into its owning mode.
             LaunchedEffect(Unit) { preferences.migrateLegacyProgress() }
@@ -142,13 +157,21 @@ class MainActivity : ComponentActivity() {
                     // the tutorial was never seen, and returning players
                     // would get a flash of coach marks.
                     if (loaded != null) {
-                        ArrowEscapeApp(
-                            preferences = preferences,
-                            adManager = adManager,
-                            analytics = analytics,
-                            cloudSave = cloudSave,
-                            feedback = feedback
-                        )
+                        Box(Modifier.fillMaxSize()) {
+                            ArrowEscapeApp(
+                                preferences = preferences,
+                                adManager = adManager,
+                                analytics = analytics,
+                                cloudSave = cloudSave,
+                                feedback = feedback,
+                                coinBank = coinBank
+                            )
+
+                            // Above every screen, because a grant can settle
+                            // while the player is on any of them - mid-daily,
+                            // mid-journey, or five seconds after launch.
+                            CoinRewardHost(coinBank)
+                        }
                     }
                 }
             }
@@ -162,7 +185,8 @@ fun ArrowEscapeApp(
     adManager: AdManager,
     analytics: AnalyticsTracker,
     cloudSave: CloudSave,
-    feedback: GameFeedback
+    feedback: GameFeedback,
+    coinBank: CoinBank
 ) {
     val navController = rememberNavController()
     // Not seeded with a caller-supplied value: this composable is only
@@ -227,6 +251,9 @@ fun ArrowEscapeApp(
                 onDailyClick = {
                     navController.navigate("daily")
                 },
+                onCoinsClick = {
+                    navController.navigate("coins")
+                },
                 onSettingsClick = {
                     navController.navigate("settings")
                 },
@@ -277,6 +304,24 @@ fun ArrowEscapeApp(
 
         composable("terms") {
             TermsOfServiceScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        // The purse: what it holds, how it fills, and who to invite.
+        composable("coins") {
+            CoinScreen(
+                wallet = prefs.wallet,
+                daily = prefs.daily,
+                // Both journeys count: a chapter is a chapter, whichever
+                // game you beat it in.
+                chaptersCleared = GameMode.entries.sumOf { mode ->
+                    val journey = MilestoneData.forMode(mode)
+                    ((prefs.progressOf(mode).highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE)
+                        .coerceIn(0, journey.milestones.size)
+                },
+                ensureReferralCode = coinBank::myReferralCode,
+                onRedeem = { code -> coinBank.redeem(code, prefs.wallet) },
+                onBackClick = { navController.popBackStack() }
+            )
         }
 
         composable("licenses") {
@@ -369,6 +414,8 @@ fun ArrowEscapeApp(
                     auditionTheme(themeId, prefs.soundEnabled)
                     scope.launch { preferences.setTheme(themeId) }
                 },
+                onBuyTheme = { theme -> coinBank.buyTheme(theme.id) },
+                onCoinsClick = { navController.navigate("coins") },
                 onAboutClick = { navController.navigate("about") },
                 onHowToPlayClick = {
                     // Replaying means arming both tours and going back to Home;
@@ -387,6 +434,9 @@ fun ArrowEscapeApp(
                 },
                 onResetProgress = { mode ->
                     scope.launch { preferences.resetProgress(mode) }
+                },
+                onResetCoins = {
+                    scope.launch { preferences.resetWallet() }
                 }
             )
         }

@@ -24,8 +24,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -37,6 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.economy.CoinRules
+import com.clevercorner.arrowescape.economy.Wallet
+import com.clevercorner.arrowescape.ui.coins.PriceTag
+import com.clevercorner.arrowescape.ui.coins.ThemeUnlockDialog
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.colorScheme
 import com.clevercorner.arrowescape.ui.theme.persona
@@ -49,16 +57,26 @@ private const val COLUMNS = 3
  * players who would rather the app follow their phone.
  *
  * Every card previews its own colours and mascot, so adding a theme needs no
- * code here - only a palette and a persona.
+ * code here - only a palette and a persona. A theme with a price on it shows
+ * the price instead of a tick and opens the till rather than selecting, so
+ * the shop *is* the picker: a separate "store" screen would mean drawing
+ * every theme preview twice.
  */
 @Composable
 fun ThemePicker(
     selectedId: String?,
     onSelect: (String) -> Unit,
     systemDark: Boolean,
+    wallet: Wallet,
+    onBuyTheme: suspend (AppTheme) -> Boolean,
     modifier: Modifier = Modifier
 ) {
-    val options = themeOptions(systemDark)
+    val options = themeOptions(systemDark, wallet)
+    var shopping by remember { mutableStateOf<AppTheme?>(null) }
+    // One price for whichever locked card you tap: what the *next* unlock
+    // costs. Every card shows the same number, which is the honest way to
+    // say "your first one is 150" without ranking the artwork.
+    val price = CoinRules.unlockPrice(wallet.unlockedThemes.size)
 
     Column(
         modifier = modifier
@@ -74,7 +92,13 @@ fun ThemePicker(
                         option = option,
                         isSelected = option.id == selectedId ||
                             (option.id == AppTheme.SYSTEM_ID && AppTheme.followsSystem(selectedId)),
-                        onClick = { onSelect(option.id) },
+                        price = price,
+                        affordable = wallet.canAfford(price),
+                        onClick = {
+                            // A locked card is a shop window, not a choice.
+                            val locked = option.lockedTheme
+                            if (locked == null) onSelect(option.id) else shopping = locked
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -82,6 +106,22 @@ fun ThemePicker(
                 repeat(COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
+    }
+
+    shopping?.let { theme ->
+        ThemeUnlockDialog(
+            theme = theme,
+            balance = wallet.balance,
+            price = price,
+            onBuy = onBuyTheme,
+            onBought = {
+                shopping = null
+                // Bought is worn: nobody spends 220 coins to then go hunting
+                // for the card they just paid for.
+                onSelect(it.id)
+            },
+            onDismiss = { shopping = null }
+        )
     }
 }
 
@@ -92,11 +132,13 @@ private data class ThemeChoice(
     val crest: String,
     val backdrop: Brush,
     val outline: Color,
-    val dots: List<Color>
+    val dots: List<Color>,
+    /** The theme this card sells, or null when it is simply selectable. */
+    val lockedTheme: AppTheme? = null
 )
 
 @Composable
-private fun themeOptions(systemDark: Boolean): List<ThemeChoice> {
+private fun themeOptions(systemDark: Boolean, wallet: Wallet): List<ThemeChoice> {
     val light = AppTheme.CLASSIC.colorScheme()
     val dark = AppTheme.MIDNIGHT.colorScheme()
 
@@ -117,6 +159,7 @@ private fun themeOptions(systemDark: Boolean): List<ThemeChoice> {
 
     return listOf(system) + AppTheme.entries.map { theme ->
         val scheme = theme.colorScheme()
+        val owned = theme.isFree || theme.id in wallet.unlockedThemes
         ThemeChoice(
             id = theme.id,
             labelRes = theme.labelRes,
@@ -125,7 +168,8 @@ private fun themeOptions(systemDark: Boolean): List<ThemeChoice> {
                 listOf(scheme.background, theme.persona().glow.copy(alpha = 0.18f))
             ),
             outline = scheme.outline,
-            dots = listOf(scheme.primary, scheme.secondary, scheme.primaryContainer)
+            dots = listOf(scheme.primary, scheme.secondary, scheme.primaryContainer),
+            lockedTheme = theme.takeUnless { owned }
         )
     }
 }
@@ -134,9 +178,13 @@ private fun themeOptions(systemDark: Boolean): List<ThemeChoice> {
 private fun ThemeOption(
     option: ThemeChoice,
     isSelected: Boolean,
+    price: Int,
+    affordable: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val locked = option.lockedTheme != null
+
     // A small spring on selection: confirmation you can feel, not just read.
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.04f else 1f,
@@ -165,6 +213,8 @@ private fun ThemeOption(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // The theme in miniature: its own backdrop, mascot and accents.
+            // Locked, it is shown faded rather than hidden - you cannot want
+            // what you have never seen.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -174,12 +224,25 @@ private fun ThemeOption(
                     .border(1.dp, option.outline, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.alpha(if (locked) 0.45f else 1f)
+                ) {
                     Text(option.crest, fontSize = 14.sp, color = option.dots.first())
                     Spacer(Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         option.dots.forEach { Dot(it) }
                     }
+                }
+
+                if (locked) {
+                    PriceTag(
+                        price = price,
+                        affordable = affordable,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(4.dp)
+                    )
                 }
             }
 
@@ -188,7 +251,11 @@ private fun ThemeOption(
             // Selection is never colour alone: a tick and a bolder label too.
             val label = stringResource(option.labelRes)
             Text(
-                text = if (isSelected) "\u2713 $label" else label,
+                text = when {
+                    locked -> "\uD83D\uDD12 $label"
+                    isSelected -> "\u2713 $label"
+                    else -> label
+                },
                 style = MaterialTheme.typography.labelMedium,
                 fontSize = 11.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,

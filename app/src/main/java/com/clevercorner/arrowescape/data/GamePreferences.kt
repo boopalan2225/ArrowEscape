@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.clevercorner.arrowescape.cloud.CloudState
+import com.clevercorner.arrowescape.economy.CoinGrant
+import com.clevercorner.arrowescape.economy.Wallet
 import com.clevercorner.arrowescape.game.daily.DailyProgress
 import com.clevercorner.arrowescape.review.ReviewState
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +63,17 @@ class GamePreferences(
         private val KEY_DAILY_LAST = intPreferencesKey("daily_last_cleared")
         private val KEY_DAILY_BEST_RUN = intPreferencesKey("daily_best_run")
         private val KEY_DAILY_STARS = stringPreferencesKey("daily_stars") // "20251016:3,20251017:2"
+
+        // ── Coins (see economy.CoinRules for what they are worth) ───────
+        //
+        // Two monotone totals rather than a balance: see economy.Wallet for
+        // why a number both devices would have edited is not a number two
+        // devices can merge.
+        private val KEY_COIN_EARNED = intPreferencesKey("coin_lifetime")
+        private val KEY_COIN_SPENT = intPreferencesKey("coin_spent")
+        private val KEY_COIN_GRANTS = stringPreferencesKey("coin_grants") // "welcome,d20251016,s7"
+        private val KEY_THEMES_UNLOCKED = stringPreferencesKey("themes_unlocked") // "sunset,pirate"
+        private val KEY_REFERRAL_CODE = stringPreferencesKey("referral_code")
 
         // ── Per-mode progress (suffixed with GameMode.id) ────────────────
         private fun keyCurrentLevel(mode: GameMode) = intPreferencesKey("current_level_${mode.id}")
@@ -138,7 +152,9 @@ class GamePreferences(
         val review: ReviewState = ReviewState(),
         /** Solved days and the current run. Shared by every mode - there is
          *  only ever one puzzle a day. */
-        val daily: DailyProgress = DailyProgress()
+        val daily: DailyProgress = DailyProgress(),
+        /** Coins earned, coins spent, and the looks they bought. */
+        val wallet: Wallet = Wallet()
     ) {
         fun progressOf(mode: GameMode): ModeProgress = progress[mode] ?: ModeProgress()
 
@@ -192,6 +208,13 @@ class GamePreferences(
                     bestRun = stored[KEY_DAILY_BEST_RUN] ?: 0,
                     // Same "key:value" encoding the journey's stars use.
                     stars = parseLevelMap(stored[KEY_DAILY_STARS])
+                ),
+                wallet = Wallet(
+                    lifetimeEarned = stored[KEY_COIN_EARNED] ?: 0,
+                    lifetimeSpent = stored[KEY_COIN_SPENT] ?: 0,
+                    paidGrants = parseCsv(stored[KEY_COIN_GRANTS]),
+                    unlockedThemes = parseCsv(stored[KEY_THEMES_UNLOCKED]),
+                    referralCode = stored[KEY_REFERRAL_CODE]
                 )
             )
         }
@@ -269,6 +292,98 @@ class GamePreferences(
     private fun encodeLevelMap(values: Map<Int, Int>): String =
         values.entries.joinToString(",") { "${it.key}:${it.value}" }
 
+    /** Plain comma-separated sets - grant ids, theme ids, anything stringy. */
+    private fun parseCsv(encoded: String?): Set<String> =
+        encoded.orEmpty().split(",").filter { it.isNotBlank() }.toSet()
+
+    // ── Coins ──────────────────────────────────────────────────────
+
+    /**
+     * Pays [credited] and writes off [acknowledged], in one transaction.
+     *
+     * Two lists rather than two methods because they are two halves of one
+     * decision and must land together: [acknowledged] grants are marked paid
+     * *without* paying, which is how a player who already had forty chapters
+     * and a hundred daily solves before coins existed does not wake up rich
+     * enough to buy the shop. See `economy.CoinBank`.
+     *
+     * Balance and ledger move inside the same `edit`, so a grant can never be
+     * recorded without its coins or paid twice by two racing writers.
+     */
+    suspend fun creditCoins(credited: List<CoinGrant>, acknowledged: List<CoinGrant> = emptyList()) {
+        if (credited.isEmpty() && acknowledged.isEmpty()) return
+        context.dataStore.edit { prefs ->
+            val ledger = parseCsv(prefs[KEY_COIN_GRANTS]).toMutableSet()
+            // Re-checked against the stored ledger, not the caller's snapshot:
+            // the caller read it some milliseconds ago, and a daily solve may
+            // have landed since.
+            val fresh = credited.filter { ledger.add(it.id) }
+            acknowledged.forEach { ledger.add(it.id) }
+
+            val earned = fresh.sumOf { it.amount }
+            prefs[KEY_COIN_EARNED] = (prefs[KEY_COIN_EARNED] ?: 0) + earned
+            prefs[KEY_COIN_GRANTS] = ledger.joinToString(",")
+        }
+    }
+
+    /**
+     * Buys [themeId], or refuses. Returns the price paid, or null if the
+     * purse came up short or the theme was already owned.
+     *
+     * The till names the price, not the caller: it depends on how many
+     * themes are already owned, and only this transaction knows that for
+     * certain. A UI that worked out the price, then spent, could be
+     * double-tapped into buying the second theme at the first one's price.
+     */
+    suspend fun purchaseTheme(themeId: String, priceFor: (owned: Int) -> Int): Int? {
+        var paid: Int? = null
+        context.dataStore.edit { prefs ->
+            val owned = parseCsv(prefs[KEY_THEMES_UNLOCKED])
+            if (themeId in owned) return@edit
+
+            val price = priceFor(owned.size)
+            val spent = prefs[KEY_COIN_SPENT] ?: 0
+            if ((prefs[KEY_COIN_EARNED] ?: 0) - spent < price) return@edit
+
+            prefs[KEY_COIN_SPENT] = spent + price
+            prefs[KEY_THEMES_UNLOCKED] = (owned + themeId).joinToString(",")
+            paid = price
+        }
+        return paid
+    }
+
+    /**
+     * Empties the purse and tears up the ledger - debug builds only.
+     *
+     * Exists because the *first* settle is a one-way door: it writes off a
+     * player's pre-coin history instead of paying it, and that is exactly
+     * the branch hardest to test twice. Without this, checking it meant
+     * uninstalling the app.
+     */
+    suspend fun resetWallet() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(KEY_COIN_EARNED)
+            prefs.remove(KEY_COIN_SPENT)
+            prefs.remove(KEY_COIN_GRANTS)
+            prefs.remove(KEY_THEMES_UNLOCKED)
+            prefs.remove(KEY_REFERRAL_CODE)
+        }
+    }
+
+    /**
+     * Returns this player's invite code, minting it on first ask.
+     *
+     * Write-once: a code that changed would strand every friend holding the
+     * old one, so an existing value always wins over [candidate].
+     */
+    suspend fun referralCode(candidate: String): String {
+        var code = candidate
+        context.dataStore.edit { prefs ->
+            code = prefs[KEY_REFERRAL_CODE] ?: candidate.also { prefs[KEY_REFERRAL_CODE] = it }
+        }
+        return code
+    }
+
     suspend fun setCurrentLevel(mode: GameMode, level: Int) {
         context.dataStore.edit { prefs ->
             val best = prefs.progressOf(mode).highestLevel
@@ -284,21 +399,42 @@ class GamePreferences(
     }
 
     /**
-     * Overwrites every mode's progress verbatim with [progress].
+     * Overwrites this device's journey progress, daily record and purse
+     * verbatim with [state].
      *
      * Used only by cloud sync, which has already decided what the right
-     * numbers are (see `cloud.ProgressSnapshot.merge`) - this is a plain
+     * answers are (see `cloud.ProgressSnapshot.merge`) - this is a plain
      * writer, not a merge, so GamePreferences does not need to know cloud
-     * save exists.
+     * save exists. One transaction, because a device that restored its
+     * levels but not its coins is a device that has been robbed.
+     *
+     * Notice what it does *not* write: sound, haptics, theme, dev mode. A
+     * setting is a property of a phone, not of a player.
      */
-    suspend fun applySnapshot(progress: Map<GameMode, ModeProgress>) {
+    suspend fun applyCloudState(state: CloudState) {
         context.dataStore.edit { prefs ->
             for (mode in GameMode.entries) {
-                val p = progress[mode] ?: continue
+                val p = state.progress[mode] ?: continue
                 prefs[keyCurrentLevel(mode)] = p.currentLevel
                 prefs[keyHighestLevel(mode)] = p.highestLevel
                 prefs[keyTotalCompleted(mode)] = p.totalLevelsCompleted
                 prefs[keyLevelStars(mode)] = encodeLevelMap(p.levelStars)
+            }
+
+            with(state.daily) {
+                prefs[KEY_DAILY_CLEARED] = cleared.sorted().joinToString(",")
+                prefs[KEY_DAILY_STREAK] = streak
+                prefs[KEY_DAILY_BEST_RUN] = bestRun
+                prefs[KEY_DAILY_STARS] = encodeLevelMap(stars)
+                lastCleared?.let { prefs[KEY_DAILY_LAST] = it }
+            }
+
+            with(state.wallet) {
+                prefs[KEY_COIN_EARNED] = lifetimeEarned
+                prefs[KEY_COIN_SPENT] = lifetimeSpent
+                prefs[KEY_COIN_GRANTS] = paidGrants.joinToString(",")
+                prefs[KEY_THEMES_UNLOCKED] = unlockedThemes.joinToString(",")
+                referralCode?.let { prefs[KEY_REFERRAL_CODE] = it }
             }
         }
     }

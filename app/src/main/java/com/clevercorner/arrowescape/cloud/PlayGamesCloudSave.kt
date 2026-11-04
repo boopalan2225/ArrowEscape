@@ -2,8 +2,6 @@ package com.clevercorner.arrowescape.cloud
 
 import android.app.Activity
 import android.util.Log
-import com.clevercorner.arrowescape.data.GameMode
-import com.clevercorner.arrowescape.data.GamePreferences.ModeProgress
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
 import com.google.android.gms.games.SnapshotsClient
@@ -91,7 +89,7 @@ class PlayGamesCloudSave : CloudSave {
         }
     }
 
-    override suspend fun pull(): Map<GameMode, ModeProgress>? {
+    override suspend fun pull(): CloudState? {
         val act = activity ?: return null
         if (_account.value == null) return null
         return runCatching {
@@ -103,12 +101,12 @@ class PlayGamesCloudSave : CloudSave {
         }.getOrNull()
     }
 
-    override suspend fun push(progress: Map<GameMode, ModeProgress>) {
+    override suspend fun push(state: CloudState) {
         val act = activity ?: return
         if (_account.value == null) return
         runCatching {
             val snapshot = openResolved(act)
-            val encoded = ProgressSnapshot.encode(progress).toByteArray(Charsets.UTF_8)
+            val encoded = ProgressSnapshot.encode(state).toByteArray(Charsets.UTF_8)
             snapshot.snapshotContents.writeBytes(encoded)
             val change = SnapshotMetadataChange.Builder().build()
             PlayGames.getSnapshotsClient(act).commitAndClose(snapshot, change).await()
@@ -138,11 +136,14 @@ class PlayGamesCloudSave : CloudSave {
     }
 
     private fun mergeConflict(a: Snapshot?, b: Snapshot?): ByteArray {
-        val progressA = a?.snapshotContents?.readFully()?.let { String(it, Charsets.UTF_8) }
-            ?.let(ProgressSnapshot::decode).orEmpty()
-        val progressB = b?.snapshotContents?.readFully()?.let { String(it, Charsets.UTF_8) }
-            ?.let(ProgressSnapshot::decode).orEmpty()
-        return ProgressSnapshot.encode(ProgressSnapshot.merge(progressA, progressB))
+        val stateA = a.decodeOrEmpty()
+        val stateB = b.decodeOrEmpty()
+        return ProgressSnapshot.encode(ProgressSnapshot.merge(stateA, stateB))
             .toByteArray(Charsets.UTF_8)
     }
+
+    private fun Snapshot?.decodeOrEmpty(): CloudState =
+        this?.snapshotContents?.readFully()
+            ?.let { ProgressSnapshot.decode(String(it, Charsets.UTF_8)) }
+            ?: CloudState()
 }

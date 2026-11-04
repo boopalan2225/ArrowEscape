@@ -1,8 +1,6 @@
 package com.clevercorner.arrowescape.cloud
 
 import android.app.Activity
-import com.clevercorner.arrowescape.data.GameMode
-import com.clevercorner.arrowescape.data.GamePreferences.ModeProgress
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -10,8 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 data class CloudAccount(val displayName: String)
 
 /**
- * Cloud save over Google Play Games: who is signed in, and moving progress
- * to and from their account.
+ * Cloud save over Google Play Games: who is signed in, and moving a player's
+ * [CloudState] to and from their account.
  *
  * An interface (rather than one concrete class) for the same reason
  * [com.clevercorner.arrowescape.ads.AdManager] is one: Compose previews and any
@@ -33,6 +31,12 @@ interface CloudSave {
      * Tries to sign in using an account already associated with this device,
      * with no UI. Safe to call on every app start - it is a no-op if nothing
      * is available, and never throws.
+     *
+     * This is the *whole* sign-in story for most players: Play Games signs
+     * them in on its own, their save follows them to a new phone, and they
+     * never see a prompt. Anyone it cannot pick up - no Google account, no
+     * Play Services, declined - simply plays offline with everything kept on
+     * the device. Sign-in is a backup, never a gate.
      */
     fun signInSilently()
 
@@ -42,14 +46,14 @@ interface CloudSave {
     fun signOut()
 
     /**
-     * The signed-in player's saved progress, or null if there is none yet or
+     * The signed-in player's saved state, or null if there is none yet or
      * nobody is signed in. Never throws - cloud trouble should degrade to
      * "play locally", not crash the game.
      */
-    suspend fun pull(): Map<GameMode, ModeProgress>?
+    suspend fun pull(): CloudState?
 
     /** Best-effort upload. Failures are swallowed; there is always a local copy. */
-    suspend fun push(progress: Map<GameMode, ModeProgress>)
+    suspend fun push(state: CloudState)
 }
 
 /** For previews and anywhere a real Google account would be noise. */
@@ -59,6 +63,6 @@ class NoOpCloudSave : CloudSave {
     override fun signInSilently() {}
     override fun signIn(activity: Activity) {}
     override fun signOut() {}
-    override suspend fun pull(): Map<GameMode, ModeProgress>? = null
-    override suspend fun push(progress: Map<GameMode, ModeProgress>) {}
+    override suspend fun pull(): CloudState? = null
+    override suspend fun push(state: CloudState) {}
 }

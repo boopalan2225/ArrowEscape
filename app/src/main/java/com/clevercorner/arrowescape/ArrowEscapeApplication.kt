@@ -7,7 +7,9 @@ import com.clevercorner.arrowescape.analytics.AnalyticsTracker
 import com.clevercorner.arrowescape.crash.CrashReporter
 import com.clevercorner.arrowescape.analytics.Telemetry
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.ui.game.GameFeedback
+import com.clevercorner.arrowescape.ui.milestone.MilestoneData
 
 /**
  * The things that live as long as the process does.
@@ -31,6 +33,22 @@ class ArrowEscapeApplication : Application() {
 
     /** One voice for the whole app - both game modes sound the same. */
     val feedback: GameFeedback by lazy { GameFeedback(applicationContext) }
+
+    /**
+     * The only thing that moves coins, and process-scoped for the same
+     * reason [preferences] is: two banks would settle the same grant twice,
+     * each believing it got there first.
+     *
+     * Chapter counting is handed in here because this is the composition
+     * root - the one place entitled to know that the economy and the Journey
+     * Map both exist.
+     */
+    val coinBank: CoinBank by lazy {
+        CoinBank(preferences) { mode, progress ->
+            val chapters = MilestoneData.forMode(mode).milestones.size
+            ((progress.highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE).coerceIn(0, chapters)
+        }
+    }
 
     val adManager: AdManager by lazy { AdManagerImpl(analytics) }
 

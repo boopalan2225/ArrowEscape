@@ -8,15 +8,23 @@ import com.clevercorner.arrowescape.R
  *
  * Only identity lives here; the colours are in `ThemePalettes.kt`, so adding a
  * theme is one entry here plus one palette there.
+ *
+ * [isFree] is the only thing the economy needs from a theme. What a *paid*
+ * one costs is not written here on purpose: the price depends on how many
+ * the player already owns, not on which they fancy (see
+ * `economy.CoinRules.unlockPrice`). Light and dark are never for sale - a
+ * player must always be able to match their phone and their eyes.
  */
 enum class AppTheme(
     /** Stable key persisted in preferences - never rename once shipped. */
     val id: String,
     @StringRes val labelRes: Int,
-    val isDark: Boolean
+    val isDark: Boolean,
+    /** False for the looks that must be unlocked with coins. */
+    val isFree: Boolean = false
 ) {
-    CLASSIC("classic", R.string.theme_classic_label, isDark = false),
-    MIDNIGHT("midnight", R.string.theme_midnight_label, isDark = true),
+    CLASSIC("classic", R.string.theme_classic_label, isDark = false, isFree = true),
+    MIDNIGHT("midnight", R.string.theme_midnight_label, isDark = true, isFree = true),
     SUNSET("sunset", R.string.theme_sunset_label, isDark = false),
     PIRATE("pirate", R.string.theme_pirate_label, isDark = false),
     MONO("mono", R.string.theme_mono_label, isDark = false);
@@ -41,5 +49,19 @@ enum class AppTheme(
         /** The saved choice, or the phone-matching default for anyone who has not picked. */
         fun resolve(savedId: String?, systemDark: Boolean): AppTheme =
             fromId(savedId) ?: defaultFor(systemDark)
+
+        /**
+         * The saved choice, downgraded to a free look if it is not owned.
+         *
+         * Belt and braces: the picker will not let anyone select a locked
+         * theme, but a wallet restored from a cloud save with fewer unlocks
+         * than the device had could otherwise leave a player staring at a
+         * paid theme they no longer own. Falling back to the phone's own
+         * light or dark is the quiet, correct answer.
+         */
+        fun owned(savedId: String?, systemDark: Boolean, unlocked: Set<String>): AppTheme {
+            val chosen = resolve(savedId, systemDark)
+            return if (chosen.isFree || chosen.id in unlocked) chosen else defaultFor(systemDark)
+        }
     }
 }

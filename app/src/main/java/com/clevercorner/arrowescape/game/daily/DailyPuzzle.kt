@@ -74,7 +74,11 @@ data class DailyProgress(
     val cleared: Set<Int> = emptySet(),
     val streak: Int = 0,
     val lastCleared: Int? = null,
-    /** Longest run of escapes in a row, ever - the player's best winning streak. */
+    /**
+     * Longest run of arrows escaped in a row without a blocked tap - a
+     * scoreboard stat from inside a single board, and nothing at all to do
+     * with turning up day after day. That is [streak].
+     */
     val bestRun: Int = 0,
     /** Stamp to stars earned, for the days in [cleared]. A history worth looking back at. */
     val stars: Map<Int, Int> = emptyMap()
@@ -117,6 +121,27 @@ data class DailyProgress(
             lastCleared = stamp,
             stars = stars + (stamp to starsEarned)
         )
+    }
+
+    /**
+     * Recounts [streak] from [cleared] instead of believing the stored
+     * number.
+     *
+     * Needed when two devices' histories are combined: solving Monday on a
+     * tablet and Tuesday on a phone leaves each holding "streak 1", and the
+     * larger of two wrong answers is still wrong. The set of days is the
+     * only thing that was ever the truth; this walks back from the last one
+     * for as long as the day before it is also in the set.
+     */
+    fun withStreakRecounted(): DailyProgress {
+        val last = lastCleared ?: return copy(streak = 0)
+        var day = DailyCalendar.dateOf(last)
+        var run = 0
+        while (DailyCalendar.stampOf(day) in cleared) {
+            run++
+            day = day.minusDays(1)
+        }
+        return copy(streak = run)
     }
 }
 
