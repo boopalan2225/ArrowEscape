@@ -35,9 +35,14 @@ import com.clevercorner.arrowescape.cloud.PlayGamesCloudSave
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinBank
+import com.clevercorner.arrowescape.economy.CoinRules
 import com.clevercorner.arrowescape.game.daily.DailyCalendar
+import com.clevercorner.arrowescape.review.ReviewPolicy
+import com.clevercorner.arrowescape.review.ReviewState
 import com.clevercorner.arrowescape.ui.coins.CoinRewardHost
 import com.clevercorner.arrowescape.ui.coins.CoinScreen
+import com.clevercorner.arrowescape.ui.coins.rememberCoinAdLauncher
+import com.clevercorner.arrowescape.ui.review.RatingScreen
 import com.clevercorner.arrowescape.ui.daily.DailyScreen
 import com.clevercorner.arrowescape.ui.dev.DevLevelScreen
 import com.clevercorner.arrowescape.ui.game.CurvedGameScreen
@@ -194,6 +199,17 @@ fun ArrowEscapeApp(
     // already holding them.
     val prefs by preferences.prefsOrDefault.collectAsState()
 
+    // One launcher for every "watch an ad for coins" button in the app; the
+    // grant is claimed in the reward callback, never on dismissal.
+    val watchAdForCoins = rememberCoinAdLauncher(adManager, coinBank)
+    val scopeForReview = rememberCoroutineScope()
+
+    /** Remembers a rating decision, then leaves the screen. */
+    val finishRating: (ReviewState) -> Unit = { state ->
+        scopeForReview.launch { preferences.saveReviewState(state) }
+        navController.popBackStack()
+    }
+
     // Shared ViewModels for game state
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -254,6 +270,18 @@ fun ArrowEscapeApp(
                 onCoinsClick = {
                     navController.navigate("coins")
                 },
+                onRateClick = {
+                    navController.navigate("rate")
+                },
+                onRateDismiss = {
+                    // "Not now" spends one of the quota and resets the run,
+                    // so the invitation needs a fresh streak to come back.
+                    scope.launch {
+                        preferences.saveReviewState(
+                            ReviewPolicy.afterAsk(prefs.review, prefs.totalLevelsCompleted)
+                        )
+                    }
+                },
                 onSettingsClick = {
                     navController.navigate("settings")
                 },
@@ -268,6 +296,13 @@ fun ArrowEscapeApp(
                             steps = HomeTour.steps,
                             onFinish = {
                                 scope.launch { preferences.setTutorialDone(true) }
+                            },
+                            // Skip ends the tutorial, not the page. Marking
+                            // only the Home half done used to drop the
+                            // player into the in-game tour moments later,
+                            // which reads as the app ignoring them.
+                            onSkip = {
+                                scope.launch { preferences.setWalkthroughsDone(true) }
                             }
                         )
                     }
@@ -298,6 +333,9 @@ fun ArrowEscapeApp(
                 puzzle = DailyCalendar.puzzleFor(LocalDate.now()),
                 prefs = prefs,
                 viewModel = curvedGameViewModel,
+                doubler = CoinRules.dailyDoublerOffer(prefs.wallet, prefs.daily, LocalDate.now()),
+                adReady = adManager.isRewardedAdReady(),
+                onWatchAd = watchAdForCoins,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -318,9 +356,28 @@ fun ArrowEscapeApp(
                     ((prefs.progressOf(mode).highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE)
                         .coerceIn(0, journey.milestones.size)
                 },
+                adOffer = CoinRules.adOffer(prefs.wallet, LocalDate.now()),
+                adReady = adManager.isRewardedAdReady(),
+                onWatchAd = watchAdForCoins,
                 ensureReferralCode = coinBank::myReferralCode,
                 onRedeem = { code -> coinBank.redeem(code, prefs.wallet) },
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Reached by choice only - from Settings, or the card on Home. The
+        // automatic path is still Play's own sheet; see RatingScreen.
+        composable("rate") {
+            RatingScreen(
+                onRateClick = {
+                    // Navigation to the Play listing lands later; the
+                    // decision is already worth remembering, because a
+                    // player who said yes must never be asked again.
+                    finishRating(ReviewPolicy.afterRated(prefs.review))
+                },
+                onLaterClick = {
+                    finishRating(ReviewPolicy.afterAsk(prefs.review, prefs.totalLevelsCompleted))
+                }
             )
         }
 
@@ -384,6 +441,9 @@ fun ArrowEscapeApp(
                             progress = arrowsLeft,
                             onFinish = {
                                 scope.launch { preferences.setGameTourDone(true) }
+                            },
+                            onSkip = {
+                                scope.launch { preferences.setWalkthroughsDone(true) }
                             }
                         )
                     }
@@ -416,6 +476,7 @@ fun ArrowEscapeApp(
                 },
                 onBuyTheme = { theme -> coinBank.buyTheme(theme.id) },
                 onCoinsClick = { navController.navigate("coins") },
+                onRateClick = { navController.navigate("rate") },
                 onAboutClick = { navController.navigate("about") },
                 onHowToPlayClick = {
                     // Replaying means arming both tours and going back to Home;

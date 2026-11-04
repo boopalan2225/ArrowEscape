@@ -29,8 +29,10 @@ import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.review.ReviewPolicy
 import com.clevercorner.arrowescape.ui.components.GlyphIcon
 import com.clevercorner.arrowescape.ui.coins.CoinPill
+import com.clevercorner.arrowescape.ui.review.RatingInviteCard
 import com.clevercorner.arrowescape.ui.milestone.MilestoneData
 import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
@@ -51,6 +53,8 @@ fun HomeScreen(
     onJourneyClick: () -> Unit,
     onDailyClick: () -> Unit = {},
     onCoinsClick: () -> Unit = {},
+    onRateClick: () -> Unit = {},
+    onRateDismiss: () -> Unit = {},
     onSettingsClick: () -> Unit,
     onDevClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -112,6 +116,14 @@ fun HomeScreen(
                 dailyStreak = prefs.daily.streak,
                 onSettingsClick = onSettingsClick
             )
+
+            // Asked only of players mid-winning-streak, and only ever as an
+            // invitation sitting on the front door - see RatingScreen for
+            // why this is never a popup and never a sentiment filter.
+            if (ReviewPolicy.isOnARoll(prefs.review)) {
+                Spacer(Modifier.height(16.dp))
+                RatingInviteCard(onClick = onRateClick, onDismiss = onRateDismiss)
+            }
         }
 
         // The purse, always in the corner of the eye. Top-right rather than

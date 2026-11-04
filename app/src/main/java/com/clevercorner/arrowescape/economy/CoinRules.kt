@@ -3,6 +3,7 @@ package com.clevercorner.arrowescape.economy
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.daily.DailyCalendar
 import com.clevercorner.arrowescape.game.daily.DailyProgress
+import java.time.LocalDate
 
 /**
  * What a coin is worth earning, and the one function that decides who is owed
@@ -35,6 +36,19 @@ object CoinRules {
     /** A friend's code redeemed. */
     const val REFERRAL = 50
 
+    /** One rewarded ad, watched willingly, all the way through. */
+    const val AD_REWARD = 12
+
+    /**
+     * Ads that pay in a day.
+     *
+     * A cap, not a target. Watching ads is the fast lane and it is meant to
+     * be tempting - roughly triple what a day of simply turning up pays -
+     * but an uncapped fast lane is not a lane, it is the whole road, and a
+     * game whose best strategy is "watch adverts" is not a game.
+     */
+    const val ADS_PER_DAY = 2
+
     /**
      * What the next theme costs, by how many have already been bought.
      *
@@ -42,8 +56,13 @@ object CoinRules {
      * to make, and tying the price to *which* one you fancy would quietly
      * rank them. Tying it to *how many you already own* says the real thing
      * instead - the first is a treat, the third is a collection.
+     *
+     * The steps are gentle because buying *spends* the coins rather than
+     * merely unlocking a tier: a player who saves 150 is back at zero
+     * afterwards, and a steep second rung would read as a punishment for
+     * having enjoyed the first.
      */
-    val UNLOCK_PRICES: List<Int> = listOf(150, 300, 500)
+    val UNLOCK_PRICES: List<Int> = listOf(150, 200, 250)
 
     /** Price of the next unlock for somebody who already owns [owned] of them. */
     fun unlockPrice(owned: Int): Int =
@@ -90,6 +109,8 @@ object CoinRules {
     private fun dailyId(stamp: Int) = "d$stamp"
     private fun streakId(tier: Int) = "s$tier"
     private fun chapterId(mode: GameMode, chapter: Int) = "c-${mode.id}-$chapter"
+    private fun adId(stamp: Int, index: Int) = "a$stamp-$index"
+    private fun doublerId(stamp: Int) = "x$stamp"
     /**
      * One invite bonus per player, ever - so the id names the *bonus*, not
      * the code. Keying it by code would let a determined player collect
@@ -152,5 +173,57 @@ object CoinRules {
         }
 
         return bill
+    }
+
+    // ── Ads ──────────────────────────────────────────────────────────────
+    //
+    // Not part of [owed]: everything there is *derived* from things the
+    // player did in the game, and nothing in a save file can tell you an
+    // advert was sat through. These are offers - the UI asks what is on the
+    // table, shows the ad, and only then claims the grant.
+    //
+    // They are still grants with ids, so the day's allowance is counted by
+    // the same ledger that stops every other reward being paid twice. One
+    // mechanism, five reward types.
+
+    /** How many of today's paid ads have already been watched. */
+    fun adsWatched(wallet: Wallet, today: LocalDate): Int {
+        val stamp = DailyCalendar.stampOf(today)
+        return (0 until ADS_PER_DAY).count { wallet.hasPaid(adId(stamp, it)) }
+    }
+
+    /**
+     * The next "watch an ad for coins" offer, or null once the day's
+     * allowance is spent.
+     */
+    fun adOffer(wallet: Wallet, today: LocalDate): CoinGrant? {
+        val watched = adsWatched(wallet, today)
+        if (watched >= ADS_PER_DAY) return null
+        return CoinGrant(
+            id = adId(DailyCalendar.stampOf(today), watched),
+            amount = AD_REWARD,
+            source = CoinSource.AD,
+            detail = ADS_PER_DAY - watched - 1 // how many will be left after this one
+        )
+    }
+
+    /**
+     * The offer to double today's daily-puzzle payout, or null if there is
+     * nothing to double or it has been doubled already.
+     *
+     * The one piece of genuine temptation in the economy: it appears at the
+     * exact moment a player is pleased with themselves, costs them nothing
+     * but thirty seconds, and is never, ever required. Solving the puzzle
+     * already paid - this is the second helping.
+     */
+    fun dailyDoublerOffer(wallet: Wallet, daily: DailyProgress, today: LocalDate): CoinGrant? {
+        val stamp = DailyCalendar.stampOf(today)
+        if (stamp !in daily.cleared) return null
+        if (wallet.hasPaid(doublerId(stamp))) return null
+        // Worth exactly what the day itself paid, flawless bonus included -
+        // "double" has to mean double or it is a lie with a button on it.
+        val earned = DAILY_SOLVE +
+            if ((daily.stars[stamp] ?: 0) >= FLAWLESS_STARS) DAILY_FLAWLESS_BONUS else 0
+        return CoinGrant(doublerId(stamp), earned, CoinSource.AD, detail = earned)
     }
 }

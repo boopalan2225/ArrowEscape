@@ -56,6 +56,25 @@ object ReviewPolicy {
         return firstAsk || totalLevelsCleared - state.levelsAtLastAsk >= LEVELS_BETWEEN_ASKS
     }
 
+    /**
+     * True when the player is visibly enjoying themselves *right now* - a
+     * run of wins going, and no rating given yet.
+     *
+     * Drives the invitation card on Home, which is a softer surface than
+     * [shouldAsk]'s automatic sheet: no quota, no level spacing, because the
+     * card interrupts nothing and the player taps it or does not.
+     *
+     * The two never fight. [shouldAsk] firing resets [ReviewState.winStreak]
+     * via [afterAsk], which switches this off in the same write - so the
+     * card appears on the rolls the automatic path did *not* take, not
+     * alongside it.
+     */
+    fun isOnARoll(state: ReviewState): Boolean =
+        !state.rated && state.winStreak >= STREAK_REQUIRED
+
+    /** They went to the store. Never ask again, by any route. */
+    fun afterRated(state: ReviewState): ReviewState = state.copy(rated = true)
+
     /** A cleared level extends the streak. */
     fun afterWin(state: ReviewState): ReviewState =
         state.copy(winStreak = state.winStreak + 1)

@@ -140,4 +140,5 @@ fun CoinGrant.reasonText(): String = when (source) {
     CoinSource.STREAK -> stringResource(R.string.coin_reason_streak, detail)
     CoinSource.CHAPTER -> stringResource(R.string.coin_reason_chapter, detail)
     CoinSource.REFERRAL -> stringResource(R.string.coin_reason_referral)
+    CoinSource.AD -> stringResource(R.string.coin_reason_ad)
 }

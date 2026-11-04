@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.economy.CoinGrant
 import com.clevercorner.arrowescape.economy.CoinRules
 import com.clevercorner.arrowescape.economy.RedeemResult
 import com.clevercorner.arrowescape.economy.Wallet
@@ -62,6 +65,10 @@ fun CoinScreen(
     wallet: Wallet,
     daily: DailyProgress,
     chaptersCleared: Int,
+    /** Today's "watch an ad" offer, or null once the allowance is spent. */
+    adOffer: CoinGrant?,
+    adReady: Boolean,
+    onWatchAd: (CoinGrant) -> Unit,
     ensureReferralCode: suspend () -> String,
     onRedeem: suspend (String) -> RedeemResult,
     onBackClick: () -> Unit,
@@ -82,7 +89,15 @@ fun CoinScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BalanceBanner(balance = wallet.balance, lifetime = wallet.lifetimeEarned)
+            BalanceBanner(
+                balance = wallet.balance,
+                lifetime = wallet.lifetimeEarned,
+                spent = wallet.lifetimeSpent
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            AdOfferCard(offer = adOffer, adReady = adReady, onWatchAd = onWatchAd)
 
             Spacer(Modifier.height(20.dp))
 
@@ -138,7 +153,7 @@ private fun CoinHeader(onBackClick: () -> Unit) {
  * over before most visits had begun.
  */
 @Composable
-private fun BalanceBanner(balance: Int, lifetime: Int) {
+private fun BalanceBanner(balance: Int, lifetime: Int, spent: Int) {
     val shimmer = rememberInfiniteTransition(label = "walletShine")
     val sweep by shimmer.animateFloat(
         initialValue = -0.4f,
@@ -193,11 +208,94 @@ private fun BalanceBanner(balance: Int, lifetime: Int) {
                     )
                 }
                 Spacer(Modifier.height(4.dp))
+                // Earned *and* spent, because the balance alone makes a
+                // player who just bought a theme look like they have done
+                // nothing. The ledger is the achievement; the purse is the
+                // leftovers.
                 Text(
-                    text = stringResource(R.string.coins_lifetime, lifetime),
+                    text = stringResource(R.string.coins_lifetime, lifetime, spent),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+    }
+}
+
+/**
+ * The fast lane: coins for thirty seconds of advertising.
+ *
+ * Given its own card above the earn list rather than a row inside it,
+ * because it is the one offer on this screen a player can act on *right
+ * now* - everything else describes how to earn tomorrow. That is the line
+ * being drawn: ads are never required for anything, and never hidden
+ * either.
+ *
+ * When the allowance is spent the card stays put and goes quiet. An offer
+ * that vanishes teaches nobody that it will be back tomorrow.
+ */
+@Composable
+private fun AdOfferCard(offer: CoinGrant?, adReady: Boolean, onWatchAd: (CoinGrant) -> Unit) {
+    val available = offer != null && adReady
+
+    // A slow shimmer while there is something to claim, still when there is
+    // not - motion is the honest signal for "this is actionable".
+    val pulse = rememberInfiniteTransition(label = "adOffer")
+    val glow by pulse.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1500), RepeatMode.Reverse),
+        label = "adGlow"
+    )
+
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = if (available) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(CoinArt.Face.copy(alpha = if (available) glow else 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                GlyphIcon(glyph = "\u25B6", fontSize = 18.sp, color = CoinArt.Rim)
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.coins_ad_title, CoinRules.AD_REWARD),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = when {
+                        offer == null -> stringResource(R.string.coins_ad_spent, CoinRules.ADS_PER_DAY)
+                        !adReady -> stringResource(R.string.coins_ad_not_ready)
+                        else -> stringResource(R.string.coins_ad_left, offer.detail + 1)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Button(
+                onClick = { offer?.let(onWatchAd) },
+                enabled = available,
+                shape = MaterialTheme.shapes.large
+            ) {
+                Text(stringResource(R.string.coins_ad_button), fontWeight = FontWeight.Bold)
             }
         }
     }

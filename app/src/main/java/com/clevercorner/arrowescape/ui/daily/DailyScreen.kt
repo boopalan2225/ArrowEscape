@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GamePreferences
+import com.clevercorner.arrowescape.economy.CoinGrant
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
@@ -35,6 +36,7 @@ import com.clevercorner.arrowescape.ui.components.BoardPlaceholder
 import com.clevercorner.arrowescape.ui.components.BoardPlaque
 import com.clevercorner.arrowescape.ui.components.BoardSkin
 import com.clevercorner.arrowescape.ui.components.ConfettiBurst
+import com.clevercorner.arrowescape.ui.coins.CoinIcon
 import com.clevercorner.arrowescape.ui.components.CurvedGameBoard
 import com.clevercorner.arrowescape.ui.components.OutOfLivesModal
 import com.clevercorner.arrowescape.ui.components.PuzzleStuckModal
@@ -63,6 +65,10 @@ fun DailyScreen(
     puzzle: DailyPuzzle,
     prefs: GamePreferences.Prefs,
     viewModel: CurvedGameViewModel,
+    /** The offer to double today's payout, or null once there is none to make. */
+    doubler: CoinGrant?,
+    adReady: Boolean,
+    onWatchAd: (CoinGrant) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -248,6 +254,9 @@ fun DailyScreen(
             DailySolvedCard(
                 title = puzzle.date.format(TITLE_FORMAT),
                 streak = prefs.daily.streak,
+                doubler = doubler,
+                adReady = adReady,
+                onWatchAd = onWatchAd,
                 onDone = { showRecord = true }
             )
         }
@@ -279,10 +288,18 @@ private fun Scrim(visible: Boolean, content: @Composable () -> Unit) {
 
 /**
  * No stars, no score, no "next level" - there is no next level today.
- * Just the day, the run it belongs to, and the door out.
+ * Just the day, the run it belongs to, the one optional offer, and the door
+ * out.
  */
 @Composable
-private fun DailySolvedCard(title: String, streak: Int, onDone: () -> Unit) {
+private fun DailySolvedCard(
+    title: String,
+    streak: Int,
+    doubler: CoinGrant?,
+    adReady: Boolean,
+    onWatchAd: (CoinGrant) -> Unit,
+    onDone: () -> Unit
+) {
     val gameColors = ArrowEscapeTheme.gameColors
 
     Card(
@@ -323,6 +340,12 @@ private fun DailySolvedCard(title: String, streak: Int, onDone: () -> Unit) {
 
             Spacer(Modifier.height(24.dp))
 
+            // The one place the app asks for thirty seconds of attention,
+            // and it asks at the only moment it has earned the right to: the
+            // puzzle is already solved and already paid for. "Done" below is
+            // always right there, the same size, never greyed out.
+            DailyDoublerOffer(offer = doubler, adReady = adReady, onWatchAd = onWatchAd)
+
             Button(
                 onClick = onDone,
                 modifier = Modifier
@@ -332,6 +355,61 @@ private fun DailySolvedCard(title: String, streak: Int, onDone: () -> Unit) {
             ) {
                 Text(stringResource(R.string.daily_done_button), fontWeight = FontWeight.Bold)
             }
+        }
+    }
+}
+
+/**
+ * "Double today's coins" - or, once it has been taken, a quiet line saying
+ * so. Absent entirely when there is nothing to offer, which is the only
+ * state in which an advert button has no business existing.
+ */
+@Composable
+private fun DailyDoublerOffer(
+    offer: CoinGrant?,
+    adReady: Boolean,
+    onWatchAd: (CoinGrant) -> Unit
+) {
+    if (offer == null) return
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(bottom = 16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CoinIcon(size = 22.dp, flipping = adReady)
+            Text(
+                text = stringResource(R.string.daily_double_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        Spacer(Modifier.height(4.dp))
+
+        Text(
+            text = stringResource(R.string.daily_double_body, offer.amount),
+            style = MaterialTheme.typography.bodySmall,
+            color = ArrowEscapeTheme.gameColors.textSecondary,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        OutlinedButton(
+            onClick = { onWatchAd(offer) },
+            enabled = adReady,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large
+        ) {
+            Text(
+                text = stringResource(R.string.daily_double_button, offer.amount),
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }

@@ -50,6 +50,8 @@ fun PrivacyPolicyScreen(
 
         DocumentCard(title = stringResource(R.string.privacy_card_device_title)) {
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_progress))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_coins))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_invite_code))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_settings))
             DocumentParagraph(stringResource(R.string.privacy_device_body))
         }

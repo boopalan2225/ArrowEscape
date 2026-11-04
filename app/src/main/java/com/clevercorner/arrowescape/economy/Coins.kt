@@ -18,7 +18,10 @@ enum class CoinSource {
     CHAPTER,
 
     /** A friend's invite code, redeemed. */
-    REFERRAL
+    REFERRAL,
+
+    /** A rewarded ad, watched by choice. Never the only way to get anything. */
+    AD
 }
 
 /**

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +62,19 @@ private val SCRIM = Color(0xDD0B0B0F)
 private const val PADDING_PX = 10f
 private const val CORNER_PX = 22f
 
+/** Breathing room between the highlighted control and the card explaining it. */
+private val CARD_GAP = 20.dp
+
+/**
+ * Room the card is always given, whatever the highlight is doing.
+ *
+ * A tall target - the board, which is most of the screen - used to ask for a
+ * gap bigger than the window, and the card was pushed off the top edge
+ * taking the Skip button with it. Reserving space is the fix: the tour must
+ * never be able to hide its own way out.
+ */
+private val CARD_MIN_SPACE = 230.dp
+
 /**
  * Dims the screen and cuts a hole around one real control at a time, with a
  * card explaining it and Back / Next to move the tour along.
@@ -74,12 +88,18 @@ private const val CORNER_PX = 22f
  * @param progress a number the host bumps whenever the player makes progress
  *   (arrows remaining, for instance). An interactive step waits for it to
  *   change rather than guessing with a timer.
+ * @param onFinish the tour was seen through to the end.
+ * @param onSkip the player asked to stop. A different outcome from
+ *   [onFinish] and emphatically not a synonym: "Skip" means *the tutorial*,
+ *   not *this page of it*, and a host that treats them alike will march a
+ *   player who just opted out into the next tour anyway.
  */
 @Composable
 fun SpotlightOverlay(
     state: SpotlightState,
     steps: List<TutorialStep>,
     onFinish: () -> Unit,
+    onSkip: () -> Unit,
     modifier: Modifier = Modifier,
     progress: Int = 0
 ) {
@@ -159,8 +179,17 @@ fun SpotlightOverlay(
             Blocker(left, top, right - left, bottom - top, advance)
         }
 
-        val below = bottom < maxHeight / 2
-        val gap = if (below) bottom + 20.dp else maxHeight - top + 20.dp
+        // The card goes in whichever gap is bigger, and the gap is capped so
+        // there is always room left to draw it. Choosing by "is the hole in
+        // the top half" fell over on a tall highlight: the board's bottom is
+        // past the midpoint while its top is near zero, so the card was sent
+        // *above* a target that starts at the top of the screen, and a
+        // padding larger than the window pushed it out of sight entirely.
+        val spaceAbove = top
+        val spaceBelow = maxHeight - bottom
+        val below = spaceBelow >= spaceAbove
+        val headroom = (maxHeight - CARD_MIN_SPACE).coerceAtLeast(0.dp)
+        val gap = (if (below) bottom else maxHeight - top).plus(CARD_GAP).coerceIn(0.dp, headroom)
 
         TourCard(
             step = step,
@@ -169,9 +198,12 @@ fun SpotlightOverlay(
             isLast = isLast,
             onBack = { index-- },
             onNext = advance,
-            onSkip = onFinish,
+            onSkip = onSkip,
             modifier = Modifier
                 .align(if (below) Alignment.TopCenter else Alignment.BottomCenter)
+                // Status and navigation bars are part of the overlay's own
+                // area; without this the card can tuck under the clock.
+                .systemBarsPadding()
                 .padding(horizontal = 20.dp)
                 .padding(top = if (below) gap else 0.dp, bottom = if (below) 0.dp else gap)
         )
@@ -240,7 +272,10 @@ private fun TourCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TextButton(onClick = onSkip) { Text(stringResource(R.string.tour_skip)) }
+                // Says "tutorial", not "step", because that is what it does:
+                // one tap and neither this tour nor the one waiting on the
+                // next screen will bother the player again.
+                TextButton(onClick = onSkip) { Text(stringResource(R.string.tour_skip_all)) }
 
                 Spacer(Modifier.weight(1f))
 

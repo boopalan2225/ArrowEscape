@@ -136,4 +136,20 @@ class CoinBank(
         till.withLock { preferences.creditCoins(listOf(grant)) }
         _pending.update { it + grant }
     }
+
+    /**
+     * Pays for an advert the player has already finished watching.
+     *
+     * Called *after* the reward callback fires, never before: an ad that was
+     * closed early has not been watched, and paying optimistically would
+     * turn the fast lane into a free one.
+     *
+     * [offer] comes from [CoinRules.adOffer] or [CoinRules.dailyDoublerOffer],
+     * so the daily allowance is decided by the rules rather than by whichever
+     * screen happened to show the button.
+     */
+    suspend fun creditAd(offer: CoinGrant) {
+        till.withLock { preferences.creditCoins(listOf(offer)) }
+        _pending.update { it + offer }
+    }
 }

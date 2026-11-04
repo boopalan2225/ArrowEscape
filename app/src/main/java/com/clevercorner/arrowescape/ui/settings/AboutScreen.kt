@@ -95,6 +95,20 @@ fun AboutScreen(
 
         Spacer(Modifier.height(14.dp))
 
+        // Placed before "Make it yours": coins are what unlocks the looks,
+        // so explaining the currency after the shop window would be telling
+        // the story backwards.
+        DocumentCard(title = stringResource(R.string.about_card_coins_title)) {
+            DocumentParagraph(stringResource(R.string.about_coins_body))
+            DocumentBullet("\uD83D\uDCC5", stringResource(R.string.about_bullet_coins_daily))
+            DocumentBullet("\uD83D\uDD25", stringResource(R.string.about_bullet_coins_streak))
+            DocumentBullet("\uD83D\uDDFA", stringResource(R.string.about_bullet_coins_chapter))
+            DocumentBullet("\uD83D\uDC65", stringResource(R.string.about_bullet_coins_invite))
+            DocumentBullet("\u25B6", stringResource(R.string.about_bullet_coins_ads))
+        }
+
+        Spacer(Modifier.height(14.dp))
+
         DocumentCard(title = stringResource(R.string.about_card_make_it_yours_title)) {
             DocumentParagraph(stringResource(R.string.about_make_it_yours_body))
         }

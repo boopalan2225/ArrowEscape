@@ -61,6 +61,7 @@ fun SettingsScreen(
     /** Spends coins on a locked look. False when the purse came up short. */
     onBuyTheme: suspend (AppTheme) -> Boolean = { false },
     onCoinsClick: () -> Unit = {},
+    onRateClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     onHowToPlayClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
@@ -153,6 +154,13 @@ fun SettingsScreen(
             Spacer(Modifier.height(24.dp))
 
             SettingsSection(title = stringResource(R.string.settings_section_about)) {
+                SettingsClickableItem(
+                    icon = "\u2B50",
+                    title = stringResource(R.string.settings_item_rate_title),
+                    subtitle = stringResource(R.string.settings_item_rate_subtitle),
+                    onClick = onRateClick
+                )
+
                 SettingsClickableItem(
                     icon = "\uD83C\uDFAF",
                     title = stringResource(R.string.settings_item_how_to_play_title),

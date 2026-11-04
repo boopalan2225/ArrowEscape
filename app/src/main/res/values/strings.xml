@@ -101,10 +101,17 @@
     <string name="about_bullet_classic">Classic: arrows on a grid, shapes drawn in cells.</string>
     <string name="about_bullet_curved">Curved: arrows flow along the lines of a drawn figure.</string>
     <string name="about_two_ways_body">Each mode keeps its own progress, so switching never costs a level.</string>
+    <string name="about_card_coins_title">Coins</string>
+    <string name="about_coins_body">Coins unlock the paid appearances. They come from showing up rather than from grinding - replaying a level you have already beaten earns nothing.</string>
+    <string name="about_bullet_coins_daily">Solve the daily puzzle: 8 coins, or 15 without a mistake.</string>
+    <string name="about_bullet_coins_streak">Reach 3, 7, 14, 30, 60 or 100 days in a row for a one-off bonus.</string>
+    <string name="about_bullet_coins_chapter">Finish a chapter of either journey map: 20 coins.</string>
+    <string name="about_bullet_coins_invite">Redeem a friend\'s invite code once: 50 coins.</string>
+    <string name="about_bullet_coins_ads">Prefer to hurry? Two optional ads a day pay 12 each, and the daily puzzle can be doubled. Nothing in the game is ever locked behind an ad.</string>
     <string name="about_card_make_it_yours_title">Make it yours</string>
-    <string name="about_make_it_yours_body">Five appearances - Classic, Midnight, Sunset, Pirate and Ink - each with its own home screen, motion and sound. Prefer to follow your phone? Pick System in Settings.</string>
+    <string name="about_make_it_yours_body">Five appearances - Classic, Midnight, Sunset, Pirate and Ink - each with its own home screen, motion and sound. Classic and Midnight are free and always will be; the other three are unlocked with coins, costing 150, 200 and 250 whichever order you choose them in. Prefer to follow your phone? Pick System in Settings.</string>
     <string name="about_card_progress_safe_title">Your progress is safe</string>
-    <string name="about_progress_safe_body">Everything is stored on your device and plays offline. Sign in with Play Games and your journey rides along to your next phone.</string>
+    <string name="about_progress_safe_body">Everything is stored on your device and plays offline. Sign in with Play Games and your levels, stars, daily streak and coins ride along to your next phone.</string>
     <string name="about_link_terms">Terms of Service</string>
     <string name="about_link_licenses">Licenses</string>
 
@@ -117,12 +124,14 @@
     <string name="privacy_short_body">We do not ask for your name, email or phone number, and we do not sell anything about you. The game runs offline; the only data that leaves your device is what ads and the optional Play Games sign-in need.</string>
     <string name="privacy_card_device_title">What stays on your device</string>
     <string name="privacy_bullet_progress">Current level, best level and stars, for each mode.</string>
+    <string name="privacy_bullet_coins">Your daily-puzzle record and streak, your coin balance and the appearances you have unlocked.</string>
+    <string name="privacy_bullet_invite_code">Your invite code - six random characters generated on your device. It is not derived from your name, your account or anything about your phone, and it only leaves your device if you choose to share it.</string>
     <string name="privacy_bullet_settings">Your settings: theme, sound and haptics.</string>
     <string name="privacy_device_body">This lives in the app\'s private storage and is removed when you uninstall the game.</string>
     <string name="privacy_card_ads_title">Advertising</string>
-    <string name="privacy_ads_body">Rewarded and interstitial ads are served by Google AdMob. To show and measure ads, AdMob may process your device\'s advertising ID, coarse location derived from your IP address, and basic device and app information. You can reset or delete the advertising ID in Android Settings, under Privacy, Ads.</string>
+    <string name="privacy_ads_body">Rewarded and interstitial ads are served by Google AdMob. Rewarded ads are always your choice: they pay coins, extra hints or another life, and nothing in the game is locked behind one. To show and measure ads, AdMob may process your device\'s advertising ID, coarse location derived from your IP address, and basic device and app information. You can reset or delete the advertising ID in Android Settings, under Privacy, Ads.</string>
     <string name="privacy_card_cloud_title">Optional cloud save</string>
-    <string name="privacy_cloud_body">If you sign in with Google Play Games, your progress is stored in your own Play Games saved-games space so it follows you to a new device. We see only your Play Games display name and that saved progress. Sign out any time in Settings; playing offline is always an option.</string>
+    <string name="privacy_cloud_body">If you sign in with Google Play Games, your levels, stars, daily-puzzle record, streak and coins are stored in your own Play Games saved-games space so they follow you to a new device. We see only your Play Games display name and that saved progress. Sign out any time in Settings; playing offline is always an option.</string>
     <string name="privacy_card_children_title">Children</string>
     <string name="privacy_children_body">The game is suitable for all ages and collects no personal details. Where required, ad requests are marked as child-directed so only non-personalised ads are served.</string>
     <string name="privacy_card_choices_title">Your choices</string>
@@ -187,8 +196,8 @@
     <!-- ======================= Account section ======================= -->
     <string name="account_section_title">Account</string>
     <string name="account_not_connected">Not connected</string>
-    <string name="account_backed_up">Levels, streak and coins back up to Google Play</string>
-    <string name="account_sign_in_hint">Optional — everything works offline. Sign in to carry your levels, streak and coins to another phone.</string>
+    <string name="account_backed_up">Levels, streak and coins are saved to Google Play</string>
+    <string name="account_sign_in_hint">Sign in to save your progress</string>
     <string name="account_sign_out">Sign out</string>
     <string name="account_sign_in">Sign in</string>
 
@@ -255,6 +264,7 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">STEP %1$d OF %2$d</string>
     <string name="tour_skip">Skip</string>
+    <string name="tour_skip_all">Skip tutorial</string>
     <string name="tour_got_it">Got it</string>
     <string name="tour_skip_move">Skip move</string>
     <string name="tour_next">Next</string>
@@ -264,7 +274,7 @@
     <string name="cancel">Cancel</string>
     <string name="coins_title">Coins</string>
     <string name="coins_balance_subtitle">%1$d in your purse</string>
-    <string name="coins_lifetime">%1$d earned all-time</string>
+    <string name="coins_lifetime">%1$d earned all-time · %2$d spent</string>
     <string name="coin_amount_gained">+%1$d</string>
 
     <!-- Why coins arrived; shown on the reward card and in the earn list. -->
@@ -273,6 +283,7 @@
     <string name="coin_reason_streak">%1$d days in a row!</string>
     <string name="coin_reason_chapter">Chapter %1$d complete</string>
     <string name="coin_reason_referral">Invite redeemed</string>
+    <string name="coin_reason_ad">Thanks for watching</string>
 
     <string name="coins_earn_title">Ways to earn</string>
     <string name="coins_earn_welcome_detail">A little something to start you off</string>
@@ -297,8 +308,18 @@
     <string name="coins_redeem_own">That one\'s your own code</string>
     <string name="coins_redeem_already">Invite bonus already claimed</string>
 
-    <string name="coins_shelf_title">Unlocking looks</string>
-    <string name="coins_shelf_subtitle">Any theme you like — the price is how many you already own</string>
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Watch an ad for %1$d coins</string>
+    <string name="coins_ad_button">Watch</string>
+    <string name="coins_ad_left">%1$d left today</string>
+    <string name="coins_ad_spent">Today\'s %1$d are done — back tomorrow</string>
+    <string name="coins_ad_not_ready">No ad ready just now</string>
+    <string name="daily_double_title">Double today\'s coins</string>
+    <string name="daily_double_body">Watch a short ad for another %1$d.</string>
+    <string name="daily_double_button">Watch · +%1$d</string>
+    <string name="daily_double_done">Doubled. Nice one.</string>
+
+    <string name="coins_shelf_title">Unlocking looks</string>    <string name="coins_shelf_subtitle">Any theme you like — the price is how many you already own</string>
     <string name="coins_shelf_rung">Theme %1$d</string>
 
     <!-- The theme shop, which is the theme picker wearing a price tag. -->
@@ -311,5 +332,17 @@
 
     <string name="settings_debug_reset_coins_title">Reset coins</string>
     <string name="settings_debug_reset_coins_subtitle">Empty the purse, tear up the ledger, re-lock every paid theme</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Enjoying Arrow Escape?</string>
+    <string name="rating_body">A rating takes ten seconds and genuinely helps a small game find its players.</string>
+    <string name="rating_cta">Rate on Google Play</string>
+    <string name="rating_later">Not now</string>
+    <string name="rating_invite_title">You\'re on a roll </string>
+    <string name="rating_invite_body">Fancy leaving the game a rating?</string>
+    <string name="settings_item_rate_title">Rate Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">Leave a rating on Google Play</string>
 
 </resources>
