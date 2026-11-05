@@ -339,9 +339,14 @@ class CurvedGameViewModel(
         val survivors = state.arrows.filter { it.isActive }
         if (survivors.size < 2) return false
 
-        val seed = (dailyPuzzle?.stamp ?: 0).toLong() * 31 + _shuffleCount.value
+        // Searched with the same tuning the level was generated with, so a
+        // shuffled daily is as hard as the board it came from - not a second,
+        // easier target that only the daily ever sees.
+        val puzzle = dailyPuzzle ?: return false
+        val tuning = CurvedLevelGenerator.tuningFor(puzzle.levelSeed)
+        val seed = puzzle.stamp.toLong() * 31 + _shuffleCount.value
         val reshuffled = withContext(Dispatchers.Default) {
-            CurvedLevelGenerator.reshuffle(survivors, board(), Random(seed))
+            CurvedLevelGenerator.reshuffle(survivors, board(), Random(seed), tuning)
         } ?: return false
 
         val byId = reshuffled.arrows.associateBy { it.id }

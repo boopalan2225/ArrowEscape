@@ -76,22 +76,8 @@ object CurvedLevelGenerator {
      */
     private const val SLOT_SAMPLES = 3
 
-    /**
-     * Tightness the daily shuffle aims for. Lower than a fresh level's
-     * target: the shuffle has to land fast and reliably, and a board the
-     * player has already half-solved is tight enough on its own.
-     */
-    private const val SHUFFLE_TIGHTNESS = 0.5f
-
-    /**
-     * Flow weight for the daily shuffle.
-     *
-     * Lower than any journey tier on purpose. A shuffle starts from random
-     * orientations rather than the flow field's own, so there is no pristine
-     * drawing left to protect - and the player needs to see that something
-     * actually changed.
-     */
-    private const val SHUFFLE_FLOW_WEIGHT = 0.10f
+    /** Attempts per shuffle before it is skipped. See [reshuffle]. */
+    private const val SHUFFLE_ATTEMPTS = 4
 
     /** Breathing room between the artwork and the board edge. */
     private const val BOARD_PADDING = 28f
@@ -124,11 +110,24 @@ object CurvedLevelGenerator {
 
     private data class CacheKey(val level: Int, val width: Float, val height: Float)
 
+    /**
+     * The tuning a level plays with: its tier sets the character, and where
+     * it sits in its chapter sets the pace.
+     *
+     * Public so that anything re-arranging a level later - the daily shuffle
+     * - searches with the *same* targets the level was generated with, rather
+     * than a second set of constants that quietly drifts from the first.
+     */
+    fun tuningFor(levelNumber: Int): DifficultyTuning =
+        DifficultyTuning.forLevel(levelNumber, Random(levelSeed(levelNumber)))
+            .rampedBy(CurvedJourney.progressThroughChapter(levelNumber))
+
+    private fun levelSeed(levelNumber: Int): Long = levelNumber.toLong() * 31337 + 42
+
     private fun buildLevel(levelNumber: Int, boardWidth: Float, boardHeight: Float): CurvedLevel {
-        val random = Random(levelNumber.toLong() * 31337 + 42)
-        // The tier sets the character of a level; where it sits in its
-        // chapter sets the pace. Without the second, all ten levels of a
-        // shape are the same board wearing a different seed.
+        val random = Random(levelSeed(levelNumber))
+        // Same tuning as tuningFor(levelNumber), which is why that function
+        // builds its own Random from the same seed: the two stay in step.
         val tuning = DifficultyTuning.forLevel(levelNumber, random)
             .rampedBy(CurvedJourney.progressThroughChapter(levelNumber))
         val design = CurvedJourney.designFor(levelNumber)
@@ -401,19 +400,33 @@ object CurvedLevelGenerator {
      *  2. The usual per-arrow orientation hill-climb on top, for direction
      *     variety and to land on a solvable board.
      *
-     * @return the re-arranged arrows, or null if the climb could not find a
-     *         solvable arrangement. Null means "skip this shuffle": dropping
-     *         arrows to force one through would break the promise that the
-     *         count never changes.
+     * @return the re-arranged arrows, or null if no attempt found a solvable
+     *         arrangement. Null means "skip this shuffle": dropping arrows to
+     *         force one through would break the promise that the count never
+     *         changes.
      */
     fun reshuffle(
         arrows: List<CurvedArrow>,
         board: CurvedGameEngine.Board,
         random: Random,
-        targetTightness: Float = SHUFFLE_TIGHTNESS
+        tuning: DifficultyTuning
     ): ShuffledBoard? {
         if (arrows.size < 2) return null
+        // Hard tiers solve on roughly one attempt in three to five. Each attempt
+        // is a few milliseconds, so a few tries recovers the shuffles that the
+        // old easier target used to land for free, without easing the target.
+        repeat(SHUFFLE_ATTEMPTS) {
+            attemptReshuffle(arrows, board, random, tuning)?.let { return it }
+        }
+        return null
+    }
 
+    private fun attemptReshuffle(
+        arrows: List<CurvedArrow>,
+        board: CurvedGameEngine.Board,
+        random: Random,
+        tuning: DifficultyTuning
+    ): ShuffledBoard? {
         // Moved first: an isometry of the whole scene preserves every
         // pairwise blocking relationship exactly, so the orientation climb
         // below is searching the identical solution space it always does -
@@ -425,9 +438,9 @@ object CurvedLevelGenerator {
         val climbed = climb(
             graph = graph,
             start = start,
-            targetTightness = targetTightness,
+            targetTightness = tuning.targetTightness,
             flow = FlowCoherence(relocated),
-            flowWeight = SHUFFLE_FLOW_WEIGHT,
+            flowWeight = tuning.flowWeight,
             random = random
         )
         if (!climbed.result.solved) return null
