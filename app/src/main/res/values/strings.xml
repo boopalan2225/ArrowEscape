@@ -8,6 +8,12 @@
     <string name="play_button">PLAY</string>
     <string name="continue_button">CONTINUE</string>
     <string name="restart_level">Restart Level</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Reminders and updates from Arrow Escape</string>
+    <string name="notification_daily_reminder_title">Today\'s puzzle is waiting</string>
+    <string name="notification_daily_reminder_body">Keep your streak alive - come solve today\'s board.</string>
     <string name="next_level_button">NEXT LEVEL</string>
     <string name="about_title">About</string>
     <string name="privacy_policy_title">Privacy Policy</string>

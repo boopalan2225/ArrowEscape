@@ -36,7 +36,7 @@ import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
 import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.ui.components.BoardPlaceholder
-import com.clevercorner.arrowescape.ui.components.BoardLegendRow
+import com.clevercorner.arrowescape.ui.components.BoardLegendButton
 import com.clevercorner.arrowescape.ui.components.BoardPlaque
 import com.clevercorner.arrowescape.ui.components.BoardSkin
 import com.clevercorner.arrowescape.ui.components.ConfettiBurst
@@ -181,9 +181,9 @@ fun DailyScreen(
                 // Live: the run in progress counts the moment it beats the record.
                 bestRun = maxOf(prefs.daily.bestRun, combo),
                 streak = prefs.daily.streak,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                trailing = { BoardLegendButton(GameMode.CURVED) }
             )
-            BoardLegendRow(GameMode.CURVED)
 
             if (prefs.devMode) {
                 DevLayoutChooser(

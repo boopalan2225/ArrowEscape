@@ -33,6 +33,12 @@ val DailyHeaderHeight = 250.dp
  * screen, header included, so the header and the board read as one scene
  * instead of a decorated card sitting above a plain body. The inks still
  * come from the theme, so each look keeps its own readable text.
+ *
+ * [trailing] mirrors [com.clevercorner.arrowescape.ui.components.GameTopBar]'s
+ * own slot of the same name - a fixed-width spot opposite the back button so
+ * whatever sits there (the board legend, here) does not throw the date off
+ * centre. Empty by default, which is exactly the old behaviour: a bare
+ * spacer doing nothing but balancing the back button's width.
  */
 @Composable
 fun DailyHud(
@@ -42,7 +48,8 @@ fun DailyHud(
     bestRun: Int,
     streak: Int,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     val style = LocalThemePersona.current.dailyHeader
 
@@ -84,8 +91,12 @@ fun DailyHud(
                     }
                 }
 
-                // Mirrors the back button so the date sits dead centre.
-                Spacer(Modifier.width(48.dp))
+                // Mirrors the back button so the date sits dead centre -
+                // same 48dp either empty (nothing passed) or holding
+                // [trailing], so centring never depends on what's inside it.
+                Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                    trailing?.invoke()
+                }
             }
 
             Spacer(Modifier.weight(1f))

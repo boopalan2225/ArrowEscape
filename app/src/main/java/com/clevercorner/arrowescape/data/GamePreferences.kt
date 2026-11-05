@@ -51,6 +51,9 @@ class GamePreferences(
         private val KEY_TUTORIAL_DONE = booleanPreferencesKey("tutorial_done") // Absent = never onboarded
         private val KEY_GAME_TOUR_DONE = booleanPreferencesKey("game_tour_done") // The in-game walkthrough
 
+        // ── Notifications (see notifications.NotificationTokenProvider) ───
+        private val KEY_NOTIFICATION_TOKEN = stringPreferencesKey("notification_token")
+
         // ── Store review prompt (see review.ReviewPolicy) ────────────────
         private val KEY_REVIEW_STREAK = intPreferencesKey("review_win_streak")
         private val KEY_REVIEW_ASKS = intPreferencesKey("review_times_asked")
@@ -382,6 +385,21 @@ class GamePreferences(
             code = prefs[KEY_REFERRAL_CODE] ?: candidate.also { prefs[KEY_REFERRAL_CODE] = it }
         }
         return code
+    }
+
+    /**
+     * This install's push-registration token, minted on first ask and kept
+     * forever - the same write-once shape as [referralCode], for the same
+     * reason: whatever eventually reads this needs one stable answer, not a
+     * fresh one every call. [candidate] is normally [NotificationToken.generate]
+     * - see that object for why it is not a real token yet.
+     */
+    suspend fun notificationToken(candidate: String): String {
+        var token = candidate
+        context.dataStore.edit { prefs ->
+            token = prefs[KEY_NOTIFICATION_TOKEN] ?: candidate.also { prefs[KEY_NOTIFICATION_TOKEN] = it }
+        }
+        return token
     }
 
     suspend fun setCurrentLevel(mode: GameMode, level: Int) {

@@ -9,6 +9,9 @@
     <!-- Haptic feedback -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Local notifications (daily reminder use case); a runtime prompt on API 33+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".ArrowEscapeApplication"
         android:allowBackup="true"

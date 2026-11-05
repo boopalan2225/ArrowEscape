@@ -31,7 +31,7 @@ object CoinRules {
     const val DAILY_FLAWLESS_BONUS = 7
 
     /** One chapter of a journey map finished. */
-    const val CHAPTER = 20
+    const val CHAPTER = 10
 
     /** A friend's code redeemed. */
     const val REFERRAL = 50
@@ -43,11 +43,12 @@ object CoinRules {
      * Ads that pay in a day.
      *
      * A cap, not a target. Watching ads is the fast lane and it is meant to
-     * be tempting - roughly triple what a day of simply turning up pays -
-     * but an uncapped fast lane is not a lane, it is the whole road, and a
-     * game whose best strategy is "watch adverts" is not a game.
+     * be tempting - this is what lets a determined player roughly match a
+     * week of simply turning up in a single day - but an uncapped fast lane
+     * is not a lane, it is the whole road, and a game whose best strategy is
+     * "watch adverts" is not a game.
      */
-    const val ADS_PER_DAY = 2
+    const val ADS_PER_DAY = 5
 
     /**
      * What the next theme costs, by how many have already been bought.

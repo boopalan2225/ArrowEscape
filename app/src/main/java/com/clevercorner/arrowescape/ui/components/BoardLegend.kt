@@ -66,8 +66,12 @@ fun BoardLegendButton(mode: GameMode, modifier: Modifier = Modifier) {
             .semantics { contentDescription = legendDescription },
         shape = CircleShape,
         colors = IconButtonDefaults.filledIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            // A tinted container, not the back button's neutral surfaceVariant -
+            // the two buttons share a size and shape, but this one still needs
+            // to read as its own, separate action rather than melting into the
+            // header's chrome.
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     ) {
         // A plain glyph rather than a Material icon import - the rest of the
@@ -81,25 +85,6 @@ fun BoardLegendButton(mode: GameMode, modifier: Modifier = Modifier) {
 
     if (open) {
         BoardLegendDialog(mode = mode, onDismiss = { open = false })
-    }
-}
-
-/**
- * The legend button on its own slim row beneath a header.
- *
- * For screens whose header has no [GameTopBar]-style trailing slot to tuck
- * the button into (daily mode's `DailyHud` is the one caller left) - see
- * [BoardLegendButton] for the button itself.
- */
-@Composable
-fun BoardLegendRow(mode: GameMode, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp, end = 25.dp),
-        horizontalArrangement = Arrangement.End
-    ) {
-        BoardLegendButton(mode)
     }
 }
 

@@ -9,8 +9,17 @@ import com.clevercorner.arrowescape.analytics.Telemetry
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.game.curve.CurvedAssetShapes
+import com.clevercorner.arrowescape.notifications.AppNotifications
+import com.clevercorner.arrowescape.notifications.DailyReminderUseCase
+import com.clevercorner.arrowescape.notifications.LocalNotificationTokenProvider
+import com.clevercorner.arrowescape.notifications.NotificationTokenProvider
+import com.clevercorner.arrowescape.notifications.SystemAppNotifications
 import com.clevercorner.arrowescape.ui.game.GameFeedback
 import com.clevercorner.arrowescape.ui.milestone.MilestoneData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * The things that live as long as the process does.
@@ -35,6 +44,15 @@ class ArrowEscapeApplication : Application() {
         // reads it lazily on first level build, which is always later than
         // this) - see ShapeCatalog.register's ordering guard.
         CurvedAssetShapes.loadAndRegister(this)
+
+        // Idempotent and cheap; channels need to exist before anything can
+        // post to them. Minting the token here too is one-shot, fire-and-
+        // forget plumbing-proving - nothing downstream reads it yet, but the
+        // day something does, it will already be sitting in [preferences].
+        appNotifications.ensureChannel(this)
+        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+            notificationTokenProvider.getOrCreateToken()
+        }
     }
 
     /** Built lazily so an empty process (e.g. a content provider) pays nothing. */
@@ -65,6 +83,17 @@ class ArrowEscapeApplication : Application() {
     }
 
     val adManager: AdManager by lazy { AdManagerImpl(analytics) }
+
+    /** The capability: turn a title/body into a notification. No opinions about why. */
+    val appNotifications: AppNotifications by lazy { SystemAppNotifications() }
+
+    /** This install's (dummy, local-only) push-registration token - see [NotificationTokenProvider]. */
+    val notificationTokenProvider: NotificationTokenProvider by lazy {
+        LocalNotificationTokenProvider(preferences)
+    }
+
+    /** The one opinion: remind a player about today's puzzle if they haven't solved it. */
+    val dailyReminder: DailyReminderUseCase by lazy { DailyReminderUseCase(appNotifications, preferences) }
 
     private val telemetry by lazy { Telemetry.create(applicationContext) }
 
