@@ -43,10 +43,10 @@ internal data class ArrowRenderState(
 )
 
 /** Flashed over an arrow that was tapped while blocked. */
-private val BLOCKED_TINT = Color(0xFFE53935)
+internal val BLOCKED_TINT = Color(0xFFE53935)
 
-private val PREVIEW_CLEAR = Color(0xFF34C759)
-private val PREVIEW_BLOCKED = Color(0xFFFF3B30)
+internal val PREVIEW_CLEAR = Color(0xFF34C759)
+internal val PREVIEW_BLOCKED = Color(0xFFFF3B30)
 
 internal fun DrawScope.drawArrow(
     arrow: CurvedArrow,
@@ -109,7 +109,7 @@ internal fun DrawScope.drawArrow(
  * turn is dim and hollow, the one that may go is solid and bright. Without
  * that, tapping a clear lane and getting nothing looks like a bug.
  */
-private fun DrawScope.drawSequencePips(
+internal fun DrawScope.drawSequencePips(
     centre: Offset,
     radiusPx: Float,
     key: Int,

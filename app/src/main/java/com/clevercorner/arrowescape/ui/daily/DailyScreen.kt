@@ -29,12 +29,14 @@ import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinGrant
+import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.daily.DailyBoardLayout
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
 import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.ui.components.BoardPlaceholder
+import com.clevercorner.arrowescape.ui.components.BoardLegendRow
 import com.clevercorner.arrowescape.ui.components.BoardPlaque
 import com.clevercorner.arrowescape.ui.components.BoardSkin
 import com.clevercorner.arrowescape.ui.components.ConfettiBurst
@@ -181,6 +183,7 @@ fun DailyScreen(
                 streak = prefs.daily.streak,
                 onBackClick = onBackClick
             )
+            BoardLegendRow(GameMode.CURVED)
 
             if (prefs.devMode) {
                 DevLayoutChooser(

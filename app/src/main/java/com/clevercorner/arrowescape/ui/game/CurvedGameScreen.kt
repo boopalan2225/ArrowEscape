@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.curve.CurvedArrow
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.ui.components.*
@@ -96,6 +97,8 @@ fun CurvedGameScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
+
+            BoardLegendRow(GameMode.CURVED)
 
             // Game board - centered with the curved arrows
             CurvedBoardArea(

@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.clevercorner.arrowescape.game.level.DifficultyConfig
 import com.clevercorner.arrowescape.game.level.LevelShape
+import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.model.Arrow
 import com.clevercorner.arrowescape.game.model.Board
 import com.clevercorner.arrowescape.game.model.Cell
@@ -104,6 +105,8 @@ fun GameScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
+
+            BoardLegendRow(GameMode.CLASSIC)
 
             // Game board - centered, fills available space
             ClassicBoardArea(

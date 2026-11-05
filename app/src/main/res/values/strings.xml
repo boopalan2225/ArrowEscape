@@ -345,4 +345,15 @@
     <string name="settings_item_rate_title">Rate Arrow Escape</string>
     <string name="settings_item_rate_subtitle">Leave a rating on Google Play</string>
 
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Legend</string>
+    <string name="legend_open_label">Legend</string>
+    <string name="legend_close">Got it</string>
+    <string name="legend_arrow">Arrow: slides off the board when its path is clear</string>
+    <string name="legend_blocked">Blocked: flashes when its path is still in the way</string>
+    <string name="legend_turn_pad">Turn pad: an arrow reaching it leaves in the pad’s direction</string>
+    <string name="legend_lock_pair">Lock pair: matching rings leave together</string>
+    <string name="legend_sequence">Numbered: clear in order. Bright is your turn, dim must wait</string>
+    <string name="legend_route">Route: green clears, red is blocked</string>
+    <string name="legend_hint">Glow: the next arrow to move</string>
 </resources>
