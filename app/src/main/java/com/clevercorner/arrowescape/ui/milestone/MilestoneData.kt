@@ -95,23 +95,36 @@ class Journey(
     fun totalLevelsFor(highestLevel: Int): Int = milestonesFor(highestLevel).last().endLevel
 
     /**
-     * Levels the developer "unlock all" tool should currently grant.
+     * Levels the developer "unlock all" tool should currently grant for a
+     * player whose own progress is [currentHighestLevel].
      *
-     * Deliberately NOT a fixed level number - that was tried twice in the
-     * same session (1000, then 400) and both needed a human to come back
-     * and retune them as soon as the authored catalogue's real size made
-     * the arithmetic land somewhere unintended. [catalogueMultiple] scales
-     * against [minChapters] instead, so this grows automatically whenever
-     * the catalogue does, with nothing here to ever come back and edit.
+     * Two different staleness bugs lived here before, and this fixes both
+     * by never trusting a single frozen number:
      *
-     * For grid mode this has no effect: [milestonesUpTo] ignores whatever
-     * chapter count it is asked for and always returns the real, finite
-     * list - asking for more chapters than exist just asks for the same
-     * list again, because past the real ending there is only a repeating
-     * fallback square to unlock, not new content.
+     * 1. An absolute level constant (1000, then 400) needed hand-retuning
+     *    the moment the authored catalogue's real size made the arithmetic
+     *    land somewhere unintended. [catalogueMultiple] against [minChapters]
+     *    fixed that - it scales with the catalogue automatically.
+     * 2. That alone still went stale the moment a *player* stepped past it:
+     *    once dev-mode stepping stopped being bounded (see
+     *    `CurvedGameViewModel.stepLevel`), a developer could walk to level
+     *    715 by hand while "unlock all" kept offering 615 - correct for the
+     *    catalogue, wrong for where this player actually is. Taking the
+     *    larger of the two fixes it: unlock-all can never offer *less* than
+     *    a level this player has already legitimately reached, the same
+     *    guarantee [totalLevelsFor] already gives the Journey Map.
+     *
+     * For grid mode neither term can push past the real ending:
+     * [milestonesUpTo] ignores whatever chapter count either one asks for
+     * and always returns the same finite list, because past that ending
+     * there is only a repeating fallback square to unlock, not new content.
      */
-    fun devUnlockLevelCount(catalogueMultiple: Int = DEV_UNLOCK_CATALOGUE_MULTIPLE): Int =
-        milestonesUpTo(minChapters * catalogueMultiple).last().endLevel
+    fun devUnlockLevelCount(currentHighestLevel: Int, catalogueMultiple: Int = DEV_UNLOCK_CATALOGUE_MULTIPLE): Int {
+        val catalogueTarget = milestonesUpTo(minChapters * catalogueMultiple).last().endLevel
+        val progressTarget = totalLevelsFor(currentHighestLevel)
+        return maxOf(catalogueTarget, progressTarget)
+    }
+
 
     companion object {
         /**

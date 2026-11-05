@@ -495,14 +495,14 @@ fun ArrowEscapeApp(
                 },
                 onUnlockAllLevels = { mode ->
                     scope.launch {
-                        // A dev convenience to jump deep into content, not
-                        // tied to this player's own progress. See
-                        // Journey.devUnlockLevelCount for why this scales
-                        // with the live catalogue instead of a fixed level
-                        // number - a fixed number needed hand-retuning twice
-                        // in one session as soon as it stopped matching
-                        // reality, which was the whole bug this fixed.
-                        val maxLevel = MilestoneData.forMode(mode).devUnlockLevelCount()
+                        // A dev convenience - but never a downgrade. See
+                        // Journey.devUnlockLevelCount for why this needs the
+                        // player's own current progress as well as the
+                        // catalogue: a fixed target (even a dynamic one
+                        // scaled off the catalogue alone) still goes stale
+                        // the moment unbounded dev-stepping walks past it.
+                        val highest = prefs.progressOf(mode).highestLevel
+                        val maxLevel = MilestoneData.forMode(mode).devUnlockLevelCount(highest)
                         preferences.unlockAllLevels(mode, maxLevel)
                     }
                 },

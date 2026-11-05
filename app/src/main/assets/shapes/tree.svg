@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 400 600">
+
+  <!-- Trunk -->
+  <path id="trunk"
+      fill="#8B5A2B"
+      d="M170 400 L170 560 L230 560 L230 400 Z"/>
+
+  <!-- Trunk shade -->
+  <path id="trunk_shade"
+      fill="#6E4522"
+      d="M170 400 L190 400 L190 560 L170 560 Z"/>
+
+  <!-- Lowest, widest canopy layer -->
+  <ellipse id="foliage_bottom" cx="200" cy="380" rx="150" ry="110" fill="#2E7D32"/>
+
+  <!-- Middle canopy layer -->
+  <ellipse id="foliage_mid" cx="200" cy="280" rx="120" ry="95" fill="#388E3C"/>
+
+  <!-- Top canopy layer -->
+  <ellipse id="foliage_top" cx="200" cy="180" rx="90" ry="80" fill="#43A047"/>
+
+  <!-- Sunlit highlight -->
+  <ellipse id="highlight" cx="168" cy="150" rx="30" ry="24" fill="#66BB6A"/>
+
+  <!-- Shadow at the base of the canopy -->
+  <ellipse id="shadow" cx="245" cy="420" rx="42" ry="26" fill="#1B5E20"/>
+
+</svg>

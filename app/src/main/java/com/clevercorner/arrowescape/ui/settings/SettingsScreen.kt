@@ -223,7 +223,8 @@ fun SettingsScreen(
                                         modeLabel,
                                         // Matches what onUnlockAllLevels actually grants -
                                         // see Journey.devUnlockLevelCount.
-                                        MilestoneData.forMode(mode).devUnlockLevelCount()
+                                        MilestoneData.forMode(mode)
+                                            .devUnlockLevelCount(prefs.progressOf(mode).highestLevel)
                                     ),
                                     onClick = { onUnlockAllLevels(mode) }
                                 )

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 400 600">
+
+  <!-- Nose cone -->
+  <path id="nose"
+      fill="#E74C3C"
+      d="M200 40
+             C150 60 130 120 130 180
+             L270 180
+             C270 120 250 60 200 40 Z"/>
+
+  <!-- Main body -->
+  <path id="body"
+      fill="#ECF0F1"
+      d="M130 180
+             L130 420
+             Q130 450 160 450
+             L240 450
+             Q270 450 270 420
+             L270 180 Z"/>
+
+  <!-- Window ring -->
+  <circle id="window_ring" cx="200" cy="260" r="42" fill="#2C3E50"/>
+
+  <!-- Window -->
+  <circle id="window" cx="200" cy="260" r="33" fill="#3498DB"/>
+
+  <!-- Window shine -->
+  <circle id="window_shine" cx="188" cy="248" r="9" fill="#AED6F1"/>
+
+  <!-- Stripe -->
+  <path id="stripe"
+      fill="#E74C3C"
+      d="M130 320 L270 320 L270 340 L130 340 Z"/>
+
+  <!-- Left fin -->
+  <path id="left_fin"
+      fill="#C0392B"
+      d="M130 380 L58 462 L130 428 Z"/>
+
+  <!-- Right fin -->
+  <path id="right_fin"
+      fill="#C0392B"
+      d="M270 380 L342 462 L270 428 Z"/>
+
+  <!-- Base collar -->
+  <path id="base"
+      fill="#BDC3C7"
+      d="M160 450 L240 450 L230 480 L170 480 Z"/>
+
+  <!-- Outer flame -->
+  <path id="flame_outer"
+      fill="#F39C12"
+      d="M170 480 L230 480 L212 560 Q200 582 188 560 Z"/>
+
+  <!-- Inner flame -->
+  <path id="flame_inner"
+      fill="#F1C40F"
+      d="M185 480 L215 480 L204 535 Q200 550 196 535 Z"/>
+
+</svg>
