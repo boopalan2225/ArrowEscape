@@ -3,6 +3,7 @@ package com.clevercorner.arrowescape.game.curve
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -44,7 +45,19 @@ object CurveGenerator {
         VERTICAL,     // Top to bottom waves
         SPIRAL,       // Spiral from center
         RING,         // Pure circles around the centre (eyes, coils)
-        CONTOUR       // Follows the shape outline, like feather/fur flow
+        CONTOUR,      // Follows the shape outline, like feather/fur flow
+
+        /**
+         * Long switchback serpentines - see [MeanderFill].
+         *
+         * The odd one out: every other entry here names an angle field that
+         * [FlowField] evaluates per point, while this one names a different
+         * generator entirely, because a turn-rate-capped streamline cannot
+         * hairpin by construction. It lives in this enum anyway so that a
+         * region picks its fill the same way it picks anything else - a
+         * `@meander` suffix on an SVG layer id, no second mechanism.
+         */
+        MEANDER
     }
 
     /** Turning rate cap, in radians per step. Keeps streamlines smooth. */
@@ -140,6 +153,7 @@ object CurveGenerator {
                     points = points,
                     cfg = passCfg,
                     id = arrowId,
+                    tone = toneAt(points, boundsMin, boundsMax, passCfg.colorPalette.size),
                     canvas = canvas,
                     random = random
                 ) ?: continue
@@ -154,27 +168,146 @@ object CurveGenerator {
     }
 
     /**
+     * Strokes that *follow* a region's contour instead of filling it.
+     *
+     * This is what [RegionKind.OUTLINE] and [RegionKind.FEATURE] are made of:
+     * a line round the silhouette, or the small deliberate arcs that are
+     * themselves the detail. Filling cannot produce either - a packed area
+     * reads as a mass, and a drawing needs edges too.
+     *
+     * Admission goes through the same [placeWithClearEscape] as every other
+     * arrow, so a contour pass cannot smuggle an unsolvable board past the
+     * dependency graph. Some strokes will be refused - a closed ring is a
+     * natural dependency cycle - and the gaps that leaves are honest.
+     */
+    fun generateContourArrows(
+        shape: ShapePath,
+        config: GenerationConfig = GenerationConfig(),
+        random: Random = Random.Default,
+        exclusions: List<ShapePath> = emptyList(),
+        startId: Int = 0,
+        canvas: PackingCanvas
+    ): List<CurvedArrow> {
+        val contours = shape.contours
+        if (contours.isEmpty()) return emptyList()
+
+        val (boundsMin, boundsMax) = shape.bounds
+        val span = maxOf(boundsMax.x - boundsMin.x, boundsMax.y - boundsMin.y)
+        val cfg = config.copy(
+            arrowMaxLength = minOf(config.arrowMaxLength, span * 1.2f),
+            arrowMinLength = minOf(
+                config.arrowMinLength,
+                maxOf(span * 0.18f, ArrowHeadGeometry.minBodyLength(config.strokeWidth))
+            )
+        )
+
+        val grid = canvas.grid
+        val collideRadius = cfg.strokeWidth * 1.15f
+        val occupyRadius = cfg.strokeWidth * 0.75f
+
+        val arrows = mutableListOf<CurvedArrow>()
+        var arrowId = startId
+
+        for (ring in contours) {
+            for (run in splitIntoRuns(ring, cfg, exclusions)) {
+                val points = truncateAtCollision(run, grid, collideRadius)
+                val arrow = placeWithClearEscape(
+                    points = points,
+                    cfg = cfg,
+                    id = arrowId,
+                    tone = toneAt(points, boundsMin, boundsMax, cfg.colorPalette.size),
+                    canvas = canvas,
+                    random = random
+                ) ?: continue
+
+                grid.occupyPath(arrow.polyline, occupyRadius)
+                arrows.add(arrow)
+                arrowId++
+            }
+        }
+        return arrows
+    }
+
+    /**
+     * Chop a contour into arrow-sized runs, leaving a gap between them.
+     *
+     * The gap matters: without it a ring becomes one unbroken pipe and reads
+     * as a border, not as a line of arrows. Points inside an [exclusions]
+     * region end the current run, so a contour passing behind something
+     * already drawn breaks around it rather than through it.
+     */
+    internal fun splitIntoRuns(
+        ring: List<Point2D>,
+        cfg: GenerationConfig,
+        exclusions: List<ShapePath>
+    ): List<List<Point2D>> {
+        val runs = mutableListOf<List<Point2D>>()
+        var current = mutableListOf<Point2D>()
+        var length = 0f
+        var skipping = 0f
+        // Tracked independently of [current], which empties on every flush -
+        // measuring the gap against it would make the gap never close.
+        var previous: Point2D? = null
+
+        fun flush() {
+            if (length >= cfg.arrowMinLength && current.size >= 2) runs.add(current)
+            current = mutableListOf()
+            length = 0f
+        }
+
+        for (point in ring) {
+            val step = previous?.distanceTo(point) ?: 0f
+            previous = point
+
+            if (exclusions.any { it.contains(point) }) {
+                flush()
+                skipping = 0f
+                continue
+            }
+            if (skipping > 0f) {
+                skipping -= step
+                continue
+            }
+
+            if (current.isNotEmpty()) length += step
+            current.add(point)
+            if (length >= cfg.arrowMaxLength) {
+                flush()
+                skipping = cfg.arrowSpacing
+            }
+        }
+        flush()
+        return runs
+    }
+
+    /**
      * Build an arrow from [points] and admit it to the board in whichever
      * orientation keeps the dependency graph acyclic. If neither works,
      * shorten the stroke and try again - a shorter stroke ends somewhere else
      * and often points somewhere open.
      */
-    private fun placeWithClearEscape(
+    internal fun placeWithClearEscape(
         points: List<Point2D>,
         cfg: GenerationConfig,
         id: Int,
+        tone: Int,
         canvas: PackingCanvas,
         random: Random
     ): CurvedArrow? {
         var current = points
 
         repeat(MAX_SHORTENINGS + 1) { attempt ->
+            // Two different questions, and a stroke has to answer both: is
+            // there enough of it, and did it go anywhere? A tight coil has
+            // ample arc length and occupies a smudge - legible as ink,
+            // illegible as an arrow.
             if (current.size < 2 || polylineLength(current) < cfg.arrowMinLength) return null
+            if (boundingDiagonal(current) < ArrowHeadGeometry.minVisualExtent(cfg.strokeWidth)) return null
 
             val forward = CurvedArrow.throughPoints(
                 id = id,
                 points = trimToLength(current, cfg.arrowMaxLength),
-                color = cfg.colorPalette[id % cfg.colorPalette.size],
+                color = cfg.colorPalette[tone.coerceIn(0, cfg.colorPalette.lastIndex)],
                 tension = 0.32f
             ).copy(strokeWidth = cfg.strokeWidth)
 
@@ -196,7 +329,7 @@ object CurveGenerator {
     /**
      * Cut a traced path at the first point that collides with existing ink.
      */
-    private fun truncateAtCollision(
+    internal fun truncateAtCollision(
         points: List<Point2D>,
         grid: OccupancyGrid,
         radius: Float
@@ -312,8 +445,55 @@ object CurveGenerator {
         return points
     }
 
+    /**
+     * Which tone of a region's colour a stroke is painted in, from *where it
+     * is* rather than from the order it happened to be placed in.
+     *
+     * Tones used to be dealt out by arrow id. The intent was texture - a big
+     * region in one flat colour reads as a blob - but ids follow packing
+     * order, which is only loosely spatial, so neighbouring strokes landed on
+     * unrelated tones. That is not texture, it is static.
+     *
+     * A ramp across the region's bounds gives the same variety arranged the
+     * way light actually falls, so the eye reads it as a shaded surface. The
+     * palette runs light to dark (see [ArrowTones]), so lighting it from the
+     * top-left is simply the ramp in its natural order.
+     */
+    internal fun toneAt(
+        points: List<Point2D>,
+        boundsMin: Point2D,
+        boundsMax: Point2D,
+        tones: Int
+    ): Int {
+        if (tones <= 1 || points.isEmpty()) return 0
+        val mid = points[points.size / 2]
+        val width = (boundsMax.x - boundsMin.x).coerceAtLeast(1f)
+        val height = (boundsMax.y - boundsMin.y).coerceAtLeast(1f)
+        val across = ((mid.x - boundsMin.x) / width + (mid.y - boundsMin.y) / height) / 2f
+        return (across * tones).toInt().coerceIn(0, tones - 1)
+    }
+
     private fun polylineLength(points: List<Point2D>): Float =
         (1 until points.size).fold(0f) { acc, i -> acc + points[i - 1].distanceTo(points[i]) }
+
+    /**
+     * Diagonal of the polyline's bounding box - how much board it actually
+     * covers, as opposed to how much stroke it spent getting there.
+     */
+    private fun boundingDiagonal(points: List<Point2D>): Float {
+        if (points.size < 2) return 0f
+        var minX = points[0].x
+        var maxX = minX
+        var minY = points[0].y
+        var maxY = minY
+        for (p in points) {
+            if (p.x < minX) minX = p.x
+            if (p.x > maxX) maxX = p.x
+            if (p.y < minY) minY = p.y
+            if (p.y > maxY) maxY = p.y
+        }
+        return hypot(maxX - minX, maxY - minY)
+    }
 
     /** Wrap an angle delta into (-PI, PI]. */
     private fun normalizeAngle(angle: Float): Float {
@@ -369,6 +549,10 @@ object CurveGenerator {
                 FlowType.SPIRAL -> atan2(p.y - cy, p.x - cx) + (PI / 3).toFloat()
                 FlowType.RING -> atan2(p.y - cy, p.x - cx) + (PI / 2).toFloat()
                 FlowType.CONTOUR -> shape.edgeTangentAt(p)
+            // Only reachable if a meander region was routed through the
+            // streamline tracer - a small-region fallback. Following the
+            // contour is the least surprising thing to do there.
+            FlowType.MEANDER -> shape.edgeTangentAt(p)
             }
 
             // Curl adds tight, high-frequency rotation on top of the base

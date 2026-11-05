@@ -53,15 +53,14 @@ data class GeneratedLevel(
  */
 object LevelGenerator {
 
-    /** Ceiling on candidate boards. Each one costs a carve plus a solve. */
-    private const val MAX_CANDIDATES = 5
-
     /**
-     * A [GameSolver.Solution.challenge] worth stopping the search for.
-     * Tuned to be reachable on most rolls, so the common path builds one or
-     * two boards rather than five.
+     * Ceiling on candidate boards. Each one costs a carve plus a solve.
+     *
+     * Slightly higher than the old five because the controller *uses* its
+     * attempts - each one is aimed by the last one's miss rather than being
+     * another independent roll of the same dice.
      */
-    private const val GOOD_ENOUGH = 0.62f
+    private const val MAX_CANDIDATES = 7
 
     /** Recently built boards, so stepping back a level is instant. */
     private val cache = LevelCache<Int, GeneratedLevel>()
@@ -88,26 +87,77 @@ object LevelGenerator {
 
     private fun buildLevel(levelNumber: Int): GeneratedLevel {
         val design = LevelDesigns.forLevel(levelNumber)
-        val recipe = LevelRecipe.forLevel(levelNumber, design)
+        val baseRecipe = LevelRecipe.forLevel(levelNumber, design).sizedForBudget(levelNumber, design)
         val shape = mapCategoryToShape(design.category, design.shapeName)
+        val band = DifficultyBand.forLevel(levelNumber)
 
+        // A controller, not a tournament. Each attempt is steered by how the
+        // previous one missed, so the search walks toward the band instead of
+        // rolling dice and keeping the luckiest board.
+        var recipe = baseRecipe
         var best: GeneratedLevel? = null
+        var bestMiss = Float.MAX_VALUE
+
         for (attempt in 0 until MAX_CANDIDATES) {
             val seed = Random(levelNumber.toLong() * 31337 + 42 + attempt)
             val candidate = build(design, recipe, shape, seed) ?: continue
-            if (best == null || candidate.solution.challenge > best.solution.challenge) {
+
+            val challenge = candidate.solution.challenge
+            val correction = band.correctionFor(challenge)
+
+            if (correction == null) return candidate
+
+            val miss = kotlin.math.abs(correction)
+            if (miss < bestMiss) {
+                bestMiss = miss
                 best = candidate
             }
-            if (candidate.solution.challenge >= GOOD_ENOUGH) break
+            recipe = RecipeNudge.toward(recipe, correction)
         }
+
         best?.let { return it }
 
         // Dots are the only thing that can jam the carve; drop them and the
         // reverse-peel guarantee is back in force.
-        val plain = recipe.copy(deflectors = 0, lockedPairs = 0)
+        val plain = baseRecipe.copy(deflectors = 0, lockedPairs = 0)
         return build(design, plain, shape, Random(levelNumber.toLong()))
             ?: error("Level $levelNumber could not be generated even without furniture")
     }
+
+    /**
+     * Re-sizes a recipe's grid so the board holds roughly the arrow count
+     * [ArrowBudget] asked for, rather than whatever its design happened to
+     * specify.
+     *
+     * The fill ratio has to be measured, not declared, so the shape is
+     * rasterised once at a reference size purely to ask "how much of your
+     * bounding box do you actually use?". That is a cheap answer and it is
+     * the whole correction: a ring and a square then get different grids and
+     * the same amount of game.
+     */
+    private fun LevelRecipe.sizedForBudget(
+        levelNumber: Int,
+        design: LevelDesigns.LevelDesign
+    ): LevelRecipe {
+        if (kind == LevelKind.TUTORIAL) return this
+
+        val probe = ShapeTemplate.scaleTemplate(design.template, FILL_PROBE_GRID, FILL_PROBE_GRID)
+        if (probe.isEmpty()) return this
+        val fillRatio = probe.size.toFloat() / (FILL_PROBE_GRID * FILL_PROBE_GRID)
+
+        val sized = ArrowBudget.gridFor(
+            targetArrows = ArrowBudget.forLevel(levelNumber),
+            fillRatio = fillRatio,
+            averageSnakeLength = ArrowBudget.averageSnakeLength(lengths)
+        )
+        return copy(gridSize = sized)
+    }
+
+    /**
+     * Grid used only to measure a shape's fill ratio. Big enough that a
+     * silhouette is represented fairly, small enough to be free.
+     */
+    private const val FILL_PROBE_GRID = 16
 
     fun generateTutorialLevel(): GeneratedLevel {
         val size = 4

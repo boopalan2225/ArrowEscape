@@ -155,14 +155,7 @@ private fun headPath(
 ): Path? {
     val anchor = body.lastOrNull() ?: return null
     val heading = ArrowHeadGeometry.headingOf(body, arrow.strokeWidth, arrow.direction)
-    // Sized against the body actually being drawn, which during an escape is a
-    // shrinking stub - the head must shrink with it, not swamp what is left.
-    val tri = ArrowHeadGeometry.triangle(
-        anchor,
-        heading,
-        arrow.strokeWidth,
-        ArrowHeadGeometry.pathLength(body)
-    )
+    val tri = ArrowHeadGeometry.triangle(anchor, heading, arrow.strokeWidth)
 
     return Path().apply {
         project(tri.backLeft).let { moveTo(it.x, it.y) }

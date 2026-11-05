@@ -621,8 +621,7 @@ class CurvedGameViewModel(
         // Lunge toward whatever is in the way, touch it, and pull back.
         val distance = ArrowMotion.bumpDistance(
             runwayAhead(arrow, currentState),
-            arrow.strokeWidth,
-            arrow.length
+            arrow.strokeWidth
         )
         viewModelScope.launch {
             animateProgress(ArrowMotion.bumpDurationMs(distance)) { progress ->

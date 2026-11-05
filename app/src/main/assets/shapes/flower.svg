@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Original sample shape for Stage 7's SVG-authoring pipeline - not a copy of
+  any reference illustration, built to the composition B pointed at: a round
+  two-tone flower head (a plain disk, not a scalloped star - that was the
+  mistake in the first draft) on a thin stem, with two large almond-shaped
+  leaves. Geometry only; the arrows inside are still placed by our own
+  generator, not traced from anything.
+
+  Authoring convention: a layer's id is "name[#RRGGBB][@flow][,key=value,...]".
+  See LayerMeta.kt for the grammar, SvgShapeFile.kt for how this file is read.
+-->
+<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- FILL: the flower head - a plain disk. Layer 0: the centre (layer 1)
+       claims its circle first, and this fills around it, which is what
+       turns two overlapping circles into a ring plus a disk instead of the
+       centre disappearing under the head's fill. -->
+  <path id="head#F5D142,layer=0" d="M 182.0 95.0 C 182.0 140.3 145.3 177.0 100.0 177.0 C 54.7 177.0 18.0 140.3 18.0 95.0 C 18.0 49.7 54.7 13.0 100.0 13.0 C 145.3 13.0 182.0 49.7 182.0 95.0 Z"/>
+
+  <!-- FILL: the centre disk, concentric with the head, filled first. -->
+  <path id="center#B5722C,layer=1" d="M 137.0 95.0 C 137.0 115.4 120.4 132.0 100.0 132.0 C 79.6 132.0 63.0 115.4 63.0 95.0 C 63.0 74.6 79.6 58.0 100.0 58.0 C 120.4 58.0 137.0 74.6 137.0 95.0 Z"/>
+
+  <!-- FILL: a short, thin stem connecting the head to the leaves. -->
+  <path id="stem#7CB342,layer=0" d="M 96 177 L 96 220 L 104 220 L 104 177 Z"/>
+
+  <!-- FILL, and the stress case the roadmap calls out: two leaves nowhere
+       near each other, one layer, two <path> children. SvgShapeFile
+       concatenates both into one region's geometry; ShapePath's even-odd
+       fill already treats disjoint contours as independent islands, so
+       nothing special was needed to support this beyond not dropping the
+       second <path>. Each leaf is a proper almond/crescent silhouette - the
+       first draft's leaves were small formless blobs, which was most of why
+       it read as "poor" rather than as a plant. -->
+  <g id="leaves#7CB342,layer=0">
+    <path d="M 98.0 222.0 C 48.2 196.8 19.6 212.5 14.0 268.0 C 48.4 265.1 77.0 249.5 98.0 222.0 Z"/>
+    <path d="M 102.0 222.0 C 151.8 196.8 180.4 212.5 186.0 268.0 C 151.6 265.1 123.0 249.5 102.0 222.0 Z"/>
+  </g>
+
+</svg>

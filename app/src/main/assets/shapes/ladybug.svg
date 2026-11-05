@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Original sample shape - verification content for the SVG-authoring
+  pipeline, not a copy of any reference illustration.
+
+  Almost entirely <ellipse>/<circle>, the same low-risk construction as
+  fish.svg: a ladybug is a body ellipse, a head circle, and a handful of spot
+  circles - there is no freehand curve here to get subtly wrong.
+
+  The "black" parts of a real ladybug are a deep plum here, not true black -
+  a near-black fill is exactly how panda.svg's body nearly vanished into the
+  board's #1A1A1A background, and this file exists to avoid repeating that.
+-->
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Body: bright red, nowhere near the board's near-black background. -->
+  <ellipse id="body" cx="150" cy="170" rx="110" ry="95" fill="#FF3B3B"/>
+
+  <!-- The centre seam where a real ladybug's wing cases meet - a line on
+       purpose, not an area to fill. -->
+  <path id="seam" fill="none" stroke="#3D1A4E" stroke-width="6" stroke-linecap="round"
+      d="M150 90 L150 255"/>
+
+  <!-- Spots: several, deliberately not symmetric either side of the seam,
+       the way a real ladybug's spots are not. -->
+  <circle id="spotTopLeft" cx="100" cy="130" r="22" fill="#3D1A4E"/>
+  <circle id="spotTopRight" cx="205" cy="120" r="18" fill="#3D1A4E"/>
+  <circle id="spotMidLeft" cx="85" cy="195" r="20" fill="#3D1A4E"/>
+  <circle id="spotMidRight" cx="215" cy="200" r="24" fill="#3D1A4E"/>
+  <circle id="spotBottomLeft" cx="120" cy="235" r="16" fill="#3D1A4E"/>
+  <circle id="spotBottomRight" cx="185" cy="240" r="16" fill="#3D1A4E"/>
+
+  <!-- Head: a separate circle up front, with two simple stroke antennae. -->
+  <circle id="head" cx="150" cy="70" r="48" fill="#3D1A4E"/>
+  <path id="antennaLeft" fill="none" stroke="#3D1A4E" stroke-width="6" stroke-linecap="round"
+      d="M125 35 Q110 5 90 10"/>
+  <path id="antennaRight" fill="none" stroke="#3D1A4E" stroke-width="6" stroke-linecap="round"
+      d="M175 35 Q190 5 210 10"/>
+
+  <!-- Eyes: small, bright, so the head reads as a head rather than a blob. -->
+  <circle id="eyeLeft" cx="132" cy="68" r="9" fill="#FFFFFF"/>
+  <circle id="eyeRight" cx="168" cy="68" r="9" fill="#FFFFFF"/>
+
+</svg>

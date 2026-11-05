@@ -8,6 +8,7 @@ import com.clevercorner.arrowescape.crash.CrashReporter
 import com.clevercorner.arrowescape.analytics.Telemetry
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinBank
+import com.clevercorner.arrowescape.game.curve.CurvedAssetShapes
 import com.clevercorner.arrowescape.ui.game.GameFeedback
 import com.clevercorner.arrowescape.ui.milestone.MilestoneData
 
@@ -27,6 +28,14 @@ import com.clevercorner.arrowescape.ui.milestone.MilestoneData
  * process scope, because that is where they belong.
  */
 class ArrowEscapeApplication : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+        // Must run before anything touches ShapeCatalog.ALL (the generator
+        // reads it lazily on first level build, which is always later than
+        // this) - see ShapeCatalog.register's ordering guard.
+        CurvedAssetShapes.loadAndRegister(this)
+    }
 
     /** Built lazily so an empty process (e.g. a content provider) pays nothing. */
     val preferences: GamePreferences by lazy { GamePreferences(applicationContext) }

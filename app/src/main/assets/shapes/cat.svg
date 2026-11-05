@@ -1,0 +1,78 @@
+
+<svg xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 500 600">
+
+  <!-- Body -->
+  <path id="body"
+      fill="#D98B45"
+      d="M150 390
+             C100 420 85 490 100 560
+             L400 560
+             C415 490 400 420 350 390
+             Z"/>
+
+  <!-- Left ear -->
+  <path id="left_ear"
+      fill="#D98B45"
+      d="M100 190
+             L75 35
+             Q70 10 95 30
+             L220 150 Z"/>
+
+  <!-- Right ear -->
+  <path id="right_ear"
+      fill="#D98B45"
+      d="M400 190
+             L425 35
+             Q430 10 405 30
+             L280 150 Z"/>
+
+  <!-- Left inner ear -->
+  <path id="left_inner_ear"
+      fill="#F4B2A0"
+      d="M105 150 L94 65 L180 145 Z"/>
+
+  <!-- Right inner ear -->
+  <path id="right_inner_ear"
+      fill="#F4B2A0"
+      d="M395 150 L406 65 L320 145 Z"/>
+
+  <!-- Head -->
+  <path id="head"
+      fill="#EBA65C"
+      d="M250 125
+             C145 125 90 200 90 300
+             C90 390 155 445 250 445
+             C345 445 410 390 410 300
+             C410 200 355 125 250 125 Z"/>
+
+  <!-- Left eye -->
+  <ellipse id="left_eye"
+      cx="185" cy="280"
+      rx="17" ry="23"
+      fill="#38271F"/>
+
+  <!-- Right eye -->
+  <ellipse id="right_eye"
+      cx="315" cy="280"
+      rx="17" ry="23"
+      fill="#38271F"/>
+
+  <!-- Nose -->
+  <path id="nose"
+      fill="#A85D61"
+      d="M235 325
+             Q250 310 265 325
+             Q250 345 235 325 Z"/>
+
+  <!-- Mouth -->
+  <path id="mouth"
+      fill="none"
+      stroke="#38271F"
+      stroke-width="4"
+      stroke-linecap="round"
+      d="M250 340 L250 355
+             M250 355 Q230 375 215 355
+             M250 355 Q270 375 285 355"/>
+
+</svg>

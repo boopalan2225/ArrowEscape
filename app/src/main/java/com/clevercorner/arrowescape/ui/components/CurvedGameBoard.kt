@@ -77,7 +77,7 @@ private data class ExitPreview(
             // Start at the visible tip so the glow never smears over the head itself.
             val heading = ArrowHeadGeometry.headingOf(arrow.polyline, arrow.strokeWidth, arrow.direction)
             val tip = ArrowHeadGeometry
-                .triangle(arrow.endPoint, heading, arrow.strokeWidth, arrow.length)
+                .triangle(arrow.endPoint, heading, arrow.strokeWidth)
                 .tip
             return ExitPreview(arrow, isClear, tip, exit)
         }
@@ -117,9 +117,20 @@ fun CurvedGameBoard(
     val skinColors = skin.colors()
     val boardDescription = stringResource(R.string.board_content_description)
 
-    /** The colour an arrow should draw in - its own, unless this theme recolours the whole board. */
-    fun recolor(arrow: CurvedArrow): Color? =
-        arrowDuotone?.let { (dark, light) -> duotone(Color(arrow.color), dark, light) }
+    /**
+     * The colour an arrow should draw in - its own, unless this theme
+     * recolours the whole board - and in either case lifted until it is
+     * actually visible against this board. See [ContrastSafe].
+     *
+     * Applied after the duotone rather than before it: the duotone is what
+     * decides the final colour on a themed board, so checking the arrow's
+     * baked colour would be checking something that never gets drawn.
+     */
+    fun recolor(arrow: CurvedArrow): Color {
+        val own = arrowDuotone?.let { (dark, light) -> duotone(Color(arrow.color), dark, light) }
+            ?: Color(arrow.color)
+        return with(ContrastSafe) { own.readableOn(gameColors.boardBackground) }
+    }
 
     // Split once per change rather than once per frame. The canvas repaints
     // continuously while the hint pulses, and re-partitioning a few hundred

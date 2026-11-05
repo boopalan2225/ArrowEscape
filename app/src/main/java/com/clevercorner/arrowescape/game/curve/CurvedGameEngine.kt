@@ -101,7 +101,7 @@ object CurvedGameEngine {
             arrows.map { it.id },
             ArrowSpatialIndex.forArrows(arrows).let { index ->
                 arrows.associate { arrow -> arrow.id to allBlockersFor(arrow, index, board) }
-            }
+            }.withLayerLocks(arrows)
         )
 
         fun blockersOf(id: Int): Set<Int> = blockers[id] ?: emptySet()

@@ -59,8 +59,14 @@ fun MilestoneScreen(
     // The map shows whichever game the player is actually playing.
     val journey = MilestoneData.forMode(prefs.mode)
 
+    // ...and whichever lap of it. A looping journey replays its shapes at
+    // ever harder tiers, so the cards have to follow the player round rather
+    // than keep advertising lap one's levels forever.
+    val lap = journey.lapOf(highestLevel)
+    val chapters = journey.milestonesForLap(lap)
+
     // Auto-scroll to the current chapter.
-    LaunchedEffect(journey) {
+    LaunchedEffect(journey, lap) {
         listState.scrollToItem(journey.chapterIndexOf(highestLevel))
     }
 
@@ -80,7 +86,7 @@ fun MilestoneScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                itemsIndexed(journey.milestones) { _, milestone ->
+                itemsIndexed(chapters) { _, milestone ->
                     ChapterCard(
                         milestone = milestone,
                         color = ChapterColors[milestone.index % ChapterColors.size],

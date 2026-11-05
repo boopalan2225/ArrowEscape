@@ -1,46 +1,30 @@
 package com.clevercorner.arrowescape.game.level
 
 /**
- * Bitmap-based shape templates for pixel-perfect shape rendering.
- * 
+ * Bitmap-authored shape templates: the 25 generic category bitmaps used for
+ * journey-map chapter icons (see [getValidCells]), plus [scaleTemplate] -
+ * shared by those icons and by every per-level design in [LevelDesigns].
+ *
  * Each template is a list of strings where:
  * - '#' = filled cell (arrow can be placed)
  * - '.' = empty cell
- * 
- * Templates are automatically scaled to fit any grid size while
- * preserving the shape's aspect ratio and details.
  */
 object ShapeTemplate {
 
     /**
      * Scales a bitmap template to fit the target grid size.
      * Returns a set of (row, col) pairs that are "inside" the shape.
+     *
+     * Delegates to [TemplateMask], which traces the bitmap's boundary once
+     * and samples that geometry at the target resolution. The previous body
+     * mapped each target cell back to one source cell with integer division,
+     * which is resampling by copying pixels - upscaling a 12-row template
+     * onto a 22-row grid duplicated whole rows verbatim rather than placing a
+     * diagonal edge where it actually belongs. Tracing first and sampling the
+     * trace is what turns a blown-up bitmap into a shape with real edges.
      */
-    fun scaleTemplate(template: List<String>, targetRows: Int, targetCols: Int): Set<Pair<Int, Int>> {
-        if (template.isEmpty()) return emptySet()
-        
-        val srcRows = template.size
-        val srcCols = template.maxOf { it.length }
-        
-        val result = mutableSetOf<Pair<Int, Int>>()
-        
-        for (targetRow in 0 until targetRows) {
-            for (targetCol in 0 until targetCols) {
-                // Map target cell back to source template
-                val srcRow = (targetRow * srcRows) / targetRows
-                val srcCol = (targetCol * srcCols) / targetCols
-                
-                val line = template.getOrNull(srcRow) ?: ""
-                val char = line.getOrNull(srcCol) ?: '.'
-                
-                if (char == '#') {
-                    result.add(targetRow to targetCol)
-                }
-            }
-        }
-        
-        return result
-    }
+    fun scaleTemplate(template: List<String>, targetRows: Int, targetCols: Int): Set<Pair<Int, Int>> =
+        TemplateMask.scaleTemplate(template, targetRows, targetCols)
 
     // ==================== BASIC SHAPES ====================
     

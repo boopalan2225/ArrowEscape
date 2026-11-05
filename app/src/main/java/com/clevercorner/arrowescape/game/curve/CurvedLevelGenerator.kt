@@ -83,6 +83,16 @@ object CurvedLevelGenerator {
      */
     private const val SHUFFLE_TIGHTNESS = 0.5f
 
+    /**
+     * Flow weight for the daily shuffle.
+     *
+     * Lower than any journey tier on purpose. A shuffle starts from random
+     * orientations rather than the flow field's own, so there is no pristine
+     * drawing left to protect - and the player needs to see that something
+     * actually changed.
+     */
+    private const val SHUFFLE_FLOW_WEIGHT = 0.10f
+
     /** Breathing room between the artwork and the board edge. */
     private const val BOARD_PADDING = 28f
 
@@ -116,7 +126,11 @@ object CurvedLevelGenerator {
 
     private fun buildLevel(levelNumber: Int, boardWidth: Float, boardHeight: Float): CurvedLevel {
         val random = Random(levelNumber.toLong() * 31337 + 42)
+        // The tier sets the character of a level; where it sits in its
+        // chapter sets the pace. Without the second, all ten levels of a
+        // shape are the same board wearing a different seed.
         val tuning = DifficultyTuning.forLevel(levelNumber, random)
+            .rampedBy(CurvedJourney.progressThroughChapter(levelNumber))
         val design = CurvedJourney.designFor(levelNumber)
 
         // Solvability must be judged against the BOARD, not the artwork.
@@ -125,6 +139,7 @@ object CurvedLevelGenerator {
 
         val regions = design.ordered
         val outlines = layOutRegions(design, boardWidth, boardHeight)
+            .variedForLap(CurvedJourney.lapOf(levelNumber), boardWidth, boardHeight)
 
         // Fill FRONT-to-BACK: the smallest detail regions (eyes, then belly)
         // claim their space first, and broader layers underneath flow around
@@ -132,6 +147,7 @@ object CurvedLevelGenerator {
         // the body consumed the whole silhouette and every detail region was
         // excluded out of existence.
         val arrows = mutableListOf<CurvedArrow>()
+        val regionMembers = mutableListOf<Set<Int>>()
         val claimed = mutableListOf<ShapePath>()
         val canvas = PackingCanvas(boardWidth, boardHeight)
 
@@ -145,27 +161,55 @@ object CurvedLevelGenerator {
                 colorPalette = ArrowTones.of(region.color)
             )
 
-            val regionArrows = CurveGenerator.generateArrows(
-                shape = outlines[index],
-                config = config,
-                random = random,
-                exclusions = claimed.toList(),
-                startId = arrows.size,
-                canvas = canvas
-            )
+            // What the region *is* decides how it becomes arrows: a mass is
+            // packed, an edge is followed, and a gap is simply left alone.
+            val regionArrows = when (region.kind) {
+                RegionKind.GAP -> emptyList()
+                RegionKind.FILL -> fillRegion(
+                    shape = outlines[index],
+                    config = config,
+                    random = random,
+                    exclusions = claimed.toList(),
+                    startId = arrows.size,
+                    canvas = canvas
+                )
+                RegionKind.OUTLINE, RegionKind.FEATURE -> CurveGenerator.generateContourArrows(
+                    shape = outlines[index],
+                    config = config,
+                    random = random,
+                    exclusions = claimed.toList(),
+                    startId = arrows.size,
+                    canvas = canvas
+                )
+            }
 
             arrows.addAll(regionArrows)
-            claimed.add(outlines[index])
+            regionMembers += regionArrows.mapTo(HashSet()) { it.id }
+            if (region.kind.reservesArea) claimed.add(outlines[index])
         }
 
-        val tuned = searchOrientations(arrows, board, tuning.targetTightness, random)
+        val tuned = searchOrientations(
+            arrows,
+            board,
+            tuning.targetTightness,
+            tuning.flowWeight,
+            random
+        )
+
+        // Locks go on *after* orientations are settled: tiers are derived
+        // from the blocking graph, and flipping an arrow rewrites that graph.
+        // Assigning tiers first would be tiering a board that no longer
+        // exists by the time anyone plays it.
+        val locked = LayerLockPlanner.applyTo(
+            tuned.arrows, tuned.graph, regionMembers, tuning.lockTiers, board
+        )
 
         return CurvedLevel(
             levelNumber = levelNumber,
             shapeName = design.name,
             shape = outlines.first(),
             regionOutlines = outlines,
-            arrows = tuned.arrows,
+            arrows = locked,
             difficulty = tuning.label,
             colorPalette = regions.map { it.color }.distinct(),
             tightness = tuned.result.tightness,
@@ -173,6 +217,83 @@ object CurvedLevelGenerator {
             blockingGraph = tuned.graph,
             droppedArrows = arrows.size - tuned.arrows.size
         )
+    }
+
+    /**
+     * Turn a solid region into arrows.
+     *
+     * [CurveGenerator.FlowType.MEANDER] is the reference art's signature fill -
+     * long switchback serpentines - and it is a separate generator rather
+     * than another angle field, because a turn-rate-capped streamline cannot
+     * hairpin (see [MeanderFill]).
+     *
+     * The two passes are additive rather than either/or, which took a failing
+     * test to get right. A lattice can only be walked where it fits, so on a
+     * spiky shape the meander fills the fat middle and leaves the thin
+     * extremities bare - a star came out with seven arrows and no points.
+     * Running the streamline fill afterwards picks up exactly what the
+     * lattice could not reach, because it reads the same occupancy grid.
+     *
+     * Pleasingly, this does not undo the spacing the meander just created:
+     * the deliberate gap between two lanes is narrower than the streamline
+     * pass's own seed clearance, so it cannot seed there. It fills genuinely
+     * empty space and declines to fill breathing room.
+     */
+    private fun fillRegion(
+        shape: ShapePath,
+        config: CurveGenerator.GenerationConfig,
+        random: Random,
+        exclusions: List<ShapePath>,
+        startId: Int,
+        canvas: PackingCanvas
+    ): List<CurvedArrow> {
+        val meander = if (config.flowType == CurveGenerator.FlowType.MEANDER) {
+            MeanderFill.generateArrows(
+                shape = shape,
+                config = config,
+                random = random,
+                exclusions = exclusions,
+                startId = startId,
+                canvas = canvas
+            )
+        } else {
+            emptyList()
+        }
+
+        val streamlines = CurveGenerator.generateArrows(
+            shape = shape,
+            config = config,
+            random = random,
+            exclusions = exclusions,
+            startId = startId + meander.size,
+            canvas = canvas
+        )
+
+        return meander + streamlines
+    }
+
+    /**
+     * Mirrors or turns an illustration once the journey has looped.
+     *
+     * Meeting Circle again at level 371 is the point of a looping journey;
+     * meeting the *same* Circle is not. A deterministic transform per lap
+     * makes the revisit read as a variation rather than a rerun, and because
+     * it is an isometry of the whole scene it costs nothing in solver terms -
+     * every pairwise blocking relationship survives it exactly.
+     *
+     * Applied to the outlines, before packing, so arrows and artwork are
+     * derived from the same geometry rather than reconciled afterwards.
+     */
+    private fun List<ShapePath>.variedForLap(
+        lap: Int,
+        boardWidth: Float,
+        boardHeight: Float
+    ): List<ShapePath> {
+        if (lap <= 0) return this
+        // Lap 1 mirrors, lap 2 flips, lap 3 turns, lap 4 is lap 0 again.
+        val cycle = BoardTransform.entries
+        val transform = cycle[(lap - 1) % cycle.size]
+        return map { it.transformedBy(transform, boardWidth, boardHeight) }
     }
 
     /**
@@ -257,6 +378,7 @@ object CurvedLevelGenerator {
         arrows: List<CurvedArrow>,
         board: CurvedGameEngine.Board,
         targetTightness: Float,
+        flowWeight: Float,
         random: Random
     ): TunedLevel {
         if (arrows.isEmpty()) {
@@ -268,7 +390,17 @@ object CurvedLevelGenerator {
         }
 
         val graph = CurvedGameEngine.OrientationGraph(arrows, board)
-        val climbed = climb(graph, BooleanArray(arrows.size), targetTightness, random)
+        val climbed = climb(
+            graph = graph,
+            start = BooleanArray(arrows.size),
+            targetTightness = targetTightness,
+            // Starting every flip false means starting from the flow field's
+            // own orientation - the most coherent arrangement there is. The
+            // climb now has to justify walking away from it.
+            flow = FlowCoherence(arrows),
+            flowWeight = flowWeight,
+            random = random
+        )
         // The clear order and the live-play graph are both built here, once,
         // rather than on every candidate the climb looked at.
         val tuned = TunedLevel(
@@ -314,7 +446,14 @@ object CurvedLevelGenerator {
 
         val graph = CurvedGameEngine.OrientationGraph(relocated, board)
         val start = BooleanArray(relocated.size) { random.nextBoolean() }
-        val climbed = climb(graph, start, targetTightness, random)
+        val climbed = climb(
+            graph = graph,
+            start = start,
+            targetTightness = targetTightness,
+            flow = FlowCoherence(relocated),
+            flowWeight = SHUFFLE_FLOW_WEIGHT,
+            random = random
+        )
         if (!climbed.result.solved) return null
 
         return ShuffledBoard(applyFlips(relocated, climbed.flips), graph.blockingGraph(climbed.flips))
@@ -342,16 +481,18 @@ object CurvedLevelGenerator {
         graph: CurvedGameEngine.OrientationGraph,
         start: BooleanArray,
         targetTightness: Float,
+        flow: FlowCoherence,
+        flowWeight: Float,
         random: Random
     ): Climbed {
         var flips = start
-        var best = graph.score(flips)
+        var best = Candidate(graph.score(flips), flow.of(flips))
 
         val budget = (flips.size * STEPS_PER_ARROW).coerceIn(200, 4000)
         var sinceImprovement = 0
 
         for (step in 0 until budget) {
-            if (best.solved && best.tightness >= targetTightness) break
+            if (best.solved && best.stats.tightness >= targetTightness) break
 
             // A hill-climb that has stopped climbing is just burning battery.
             // The high difficulty bands ask for a tightness the scoring
@@ -378,8 +519,8 @@ object CurvedLevelGenerator {
                 candidate[slot] = !candidate[slot]
             }
 
-            val result = graph.score(candidate)
-            if (isBetter(result, best)) {
+            val result = Candidate(graph.score(candidate), flow.of(candidate))
+            if (isBetter(result, best, flowWeight)) {
                 flips = candidate
                 best = result
                 sinceImprovement = 0
@@ -387,12 +528,29 @@ object CurvedLevelGenerator {
                 sinceImprovement++
             }
         }
-        return Climbed(flips, best)
+        return Climbed(flips, best.stats)
     }
 
     /** Applies a flip vector to the arrows. Geometry only - no solving. */
     private fun applyFlips(arrows: List<CurvedArrow>, flips: BooleanArray): List<CurvedArrow> =
         arrows.mapIndexed { slot, arrow -> if (flips[slot]) arrow.reversed() else arrow }
+
+    /**
+     * A scored arrangement: how good a puzzle it is, and how good a drawing.
+     *
+     * The two are measured separately and only combined at the moment of
+     * comparison, so the exchange rate stays one visible number
+     * ([DifficultyTuning.flowWeight]) rather than being baked into the score.
+     */
+    private class Candidate(
+        val stats: CurvedGameEngine.SolveStats,
+        val coherence: Float
+    ) {
+        val solved: Boolean get() = stats.solved
+
+        /** Worth of a *solvable* board: a tight puzzle that still looks drawn. */
+        fun appeal(flowWeight: Float): Float = stats.tightness + coherence * flowWeight
+    }
 
     private class Climbed(val flips: BooleanArray, val result: CurvedGameEngine.SolveStats)
 
@@ -426,17 +584,20 @@ object CurvedLevelGenerator {
     }
 
     /**
-     * Solvability dominates; tightness only breaks ties between solvable
-     * boards. While unsolvable, clearing more arrows is the gradient to climb.
+     * Solvability dominates; among solvable boards, a tight puzzle that still
+     * reads as a drawing beats a tighter one that does not. While unsolvable,
+     * clearing more arrows is the gradient to climb - coherence is no use on
+     * a board nobody can finish.
      */
     private fun isBetter(
-        candidate: CurvedGameEngine.SolveStats,
-        best: CurvedGameEngine.SolveStats
+        candidate: Candidate,
+        best: Candidate,
+        flowWeight: Float
     ): Boolean = when {
         candidate.solved && !best.solved -> true
         !candidate.solved && best.solved -> false
-        candidate.solved -> candidate.tightness > best.tightness
-        else -> candidate.cleared > best.cleared
+        candidate.solved -> candidate.appeal(flowWeight) > best.appeal(flowWeight)
+        else -> candidate.stats.cleared > best.stats.cleared
     }
 
     private data class TunedLevel(

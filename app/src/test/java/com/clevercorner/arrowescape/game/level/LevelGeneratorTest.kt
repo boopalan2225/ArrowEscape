@@ -13,7 +13,7 @@ class LevelGeneratorTest {
             val level = LevelGenerator.generateLevel(n)
             assertTrue(
                 "Level $n should be solvable",
-                GameSolver.isSolvable(level.arrows, level.gridRows, level.gridCols)
+                GameSolver.isSolvable(level.arrows, level.board)
             )
         }
     }

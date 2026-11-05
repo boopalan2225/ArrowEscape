@@ -29,15 +29,30 @@ object GameSolver {
         val order: List<Int>,
         val tightness: Float,
         val forcedRatio: Float,
-        val longestChain: Int
+        val longestChain: Int,
+        /** What the board asks of the player's eye. See [PuzzleMetrics]. */
+        val metrics: PuzzleMetrics = PuzzleMetrics.NONE
     ) {
         /**
-         * One number to rank candidate boards by. Tightness says how little
-         * freedom there was on average; the chain terms say whether that
-         * pressure came in readable runs or in scattered moments.
+         * One number to rank candidate boards by.
+         *
+         * This used to be `tightness*0.45 + forcedRatio*0.35 + chainReach*0.20`,
+         * which is three measurements of the same thing and peaks on a board
+         * where every move is forced - a board with no thinking in it
+         * whatsoever. Maximising it was therefore actively steering toward
+         * the most tedious board the generator could find.
+         *
+         * Perception now carries most of the weight, because under the
+         * current rules no move can be wrong (see [PuzzleMetrics]), so
+         * reading the board *is* the game. Constraint still counts - a board
+         * with no pressure at all is a chore rather than a puzzle - but it no
+         * longer counts three times.
          */
         val challenge: Float
-            get() = tightness * 0.45f + forcedRatio * 0.35f + chainReach * 0.20f
+            get() = tightness * 0.25f +
+                chainReach * 0.10f +
+                metrics.falseAffordanceRate * 0.40f +
+                metrics.visualSearchCost * 0.25f
 
         /** Chains beyond ten moves stop feeling harder and start feeling long. */
         private val chainReach: Float get() = (longestChain / 10f).coerceIn(0f, 1f)
@@ -54,9 +69,14 @@ object GameSolver {
         var forced = 0
         var chain = 0
         var longestChain = 0
+        val recorder = MetricsRecorder(board.rows, board.cols)
 
         while (remaining.isNotEmpty()) {
-            val moves = legalMoves(remaining, board)
+            // One pass of traces serves both purposes: which moves are legal,
+            // and which blocked arrows were pretending to be. Asking twice
+            // would double the cost of every solve for no new information.
+            val step = analyseStep(remaining, board)
+            val moves = step.moves
             if (moves.isEmpty()) return null
 
             val parties = partyCount(remaining)
@@ -72,6 +92,14 @@ object GameSolver {
             }
 
             val chosen = moves.first()
+            val chosenHead = remaining.first { it.id == chosen.first }.head
+            recorder.step(
+                legalMoveCount = moves.size,
+                chosenHead = chosenHead,
+                falseAffordances = step.falseAffordances,
+                remaining = remaining.size
+            )
+
             order.add(chosen.first)
             remaining.removeAll { it.id in chosen.second }
         }
@@ -81,7 +109,8 @@ object GameSolver {
             order = order,
             tightness = (1f - freedomSum / divisor).coerceIn(0f, 1f),
             forcedRatio = forced.toFloat() / divisor,
-            longestChain = longestChain
+            longestChain = longestChain,
+            metrics = recorder.build()
         )
     }
 
@@ -95,16 +124,42 @@ object GameSolver {
     private fun legalMoves(
         remaining: List<Arrow>,
         board: Board
-    ): List<Pair<Int, Set<Int>>> {
+    ): List<Pair<Int, Set<Int>>> = analyseStep(remaining, board).moves
+
+    /** One step's worth of traces, read for both legality and honesty. */
+    private data class StepAnalysis(
+        val moves: List<Pair<Int, Set<Int>>>,
+        val falseAffordances: Int
+    )
+
+    /**
+     * Trace every remaining arrow once, and sort the results into the moves
+     * that work and the ones that only look like they do.
+     */
+    private fun analyseStep(remaining: List<Arrow>, board: Board): StepAnalysis {
         val seen = HashSet<Int>()
         val moves = mutableListOf<Pair<Int, Set<Int>>>()
+        var falseAffordances = 0
+
         for (arrow in remaining) {
             if (arrow.id in seen) continue
-            val escape = CollisionChecker.escapeFor(arrow, remaining, board) ?: continue
-            seen.addAll(escape.arrowIds)
-            moves.add(arrow.id to escape.arrowIds)
+            val traces = CollisionChecker.traceFor(arrow, remaining, board)
+            if (traces.isEmpty()) continue
+
+            if (traces.values.all { it.escaped }) {
+                val ids = traces.keys.toSet()
+                seen.addAll(ids)
+                moves.add(arrow.id to ids)
+            } else {
+                // Blocked - but was it obviously blocked? An arrow stopped by
+                // the neighbour touching it is honest; one that runs several
+                // cells into open board before stopping looked available.
+                val run = traces.values.filter { !it.escaped }.maxOf { it.path.size }
+                if (run >= PuzzleMetrics.FAR_RUN_CELLS) falseAffordances++
+            }
         }
-        return moves
+
+        return StepAnalysis(moves, falseAffordances)
     }
 
     /** Pairs count once: a locked pair is one decision, not two. */

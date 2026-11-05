@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Original sample shape - verification content for the SVG-authoring
+  pipeline, not a copy of any reference illustration.
+
+  A bunch of balloons: five overlapping ellipses plus stroked strings and a
+  knot. Deliberately the simplest possible test of the "many regions, many
+  colours, zero freehand curves" case - every colour is a distinct bright
+  hue, chosen specifically so no single region's fill is ever close to the
+  board's near-black background (the panda.svg lesson this verification
+  batch exists to check against).
+-->
+<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Strings: lines on purpose, drawn first so the knot sits over them. -->
+  <path id="stringLeft" fill="none" stroke="#F2E9DC" stroke-width="4"
+      d="M110 290 Q140 360 195 410"/>
+  <path id="stringCenter" fill="none" stroke="#F2E9DC" stroke-width="4"
+      d="M200 300 L200 410"/>
+  <path id="stringRight" fill="none" stroke="#F2E9DC" stroke-width="4"
+      d="M290 290 Q260 360 205 410"/>
+
+  <!-- Five balloons, five distinct bright hues. -->
+  <ellipse id="balloonRed" cx="110" cy="150" rx="80" ry="100" fill="#FF4D4D"/>
+  <ellipse id="balloonYellow" cx="200" cy="120" rx="85" ry="105" fill="#FFD23F"/>
+  <ellipse id="balloonBlue" cx="290" cy="155" rx="78" ry="98" fill="#3FA7FF"/>
+  <ellipse id="balloonGreen" cx="155" cy="210" rx="60" ry="75" fill="#5FD068"/>
+  <ellipse id="balloonPurple" cx="250" cy="215" rx="58" ry="72" fill="#B06AF2"/>
+
+  <!-- Highlights: a lighter streak on each balloon so the fill reads as a
+       round, glossy surface rather than a flat disc. -->
+  <ellipse id="highlightRed" cx="85" cy="110" rx="18" ry="30" fill="#FF9B9B" transform="rotate(-20 85 110)"/>
+  <ellipse id="highlightYellow" cx="175" cy="78" rx="19" ry="32" fill="#FFE98C" transform="rotate(-20 175 78)"/>
+  <ellipse id="highlightBlue" cx="265" cy="112" rx="17" ry="28" fill="#9ACFFF" transform="rotate(-20 265 112)"/>
+
+  <!-- Knot where the strings meet. -->
+  <circle id="knot" cx="200" cy="415" r="12" fill="#F2E9DC"/>
+
+</svg>

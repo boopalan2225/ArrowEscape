@@ -1,0 +1,122 @@
+
+<svg xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 500 600">
+
+  <!-- Ears -->
+  <circle id="left_ear" cx="115" cy="105" r="75" fill="#28232D"/>
+  <circle id="right_ear" cx="385" cy="105" r="75" fill="#28232D"/>
+
+  <!-- Inner ears -->
+  <circle id="left_inner_ear" cx="115" cy="105" r="43" fill="#FF7891"/>
+  <circle id="right_inner_ear" cx="385" cy="105" r="43" fill="#FF7891"/>
+
+  <!-- Body -->
+  <path id="body" fill="#28232D"
+      d="M105 345
+           C55 390 65 510 120 550
+           Q250 590 380 550
+           C435 510 445 390 395 345 Z"/>
+
+  <!-- Belly -->
+  <path id="belly" fill="#FFF4E7"
+      d="M165 365
+           Q250 335 335 365
+           C380 430 370 520 250 535
+           C130 520 120 430 165 365 Z"/>
+
+  <!-- Head -->
+  <path id="head" fill="#FFF4E7"
+      d="M250 65
+           C120 65 55 160 65 270
+           C70 375 145 415 250 415
+           C355 415 430 375 435 270
+           C445 160 380 65 250 65 Z"/>
+
+  <!-- Left eye patch -->
+  <ellipse id="left_eye_patch"
+      cx="165" cy="230" rx="65" ry="83"
+      transform="rotate(25 165 230)"
+      fill="#28232D"/>
+
+  <!-- Right eye patch -->
+  <ellipse id="right_eye_patch"
+      cx="335" cy="230" rx="65" ry="83"
+      transform="rotate(-25 335 230)"
+      fill="#28232D"/>
+
+  <!-- Eyes -->
+  <circle id="left_eye" cx="177" cy="230" r="29" fill="#FFFFFF"/>
+  <circle id="right_eye" cx="323" cy="230" r="29" fill="#FFFFFF"/>
+
+  <circle id="left_pupil" cx="181" cy="235" r="17" fill="#17141A"/>
+  <circle id="right_pupil" cx="319" cy="235" r="17" fill="#17141A"/>
+
+  <!-- Eye highlights -->
+  <circle id="left_highlight" cx="187" cy="225" r="7" fill="#FFFFFF"/>
+  <circle id="right_highlight" cx="313" cy="225" r="7" fill="#FFFFFF"/>
+
+  <!-- Nose -->
+  <path id="nose" fill="#28232D"
+      d="M225 285 Q250 270 275 285
+           Q250 315 225 285 Z"/>
+
+  <!-- Mouth -->
+  <path id="mouth" fill="none"
+      stroke="#28232D" stroke-width="6"
+      stroke-linecap="round"
+      d="M250 300 L250 315
+           M250 315 Q230 340 210 315
+           M250 315 Q270 340 290 315"/>
+
+  <!-- Cheeks -->
+  <ellipse id="left_cheek" cx="115" cy="300"
+      rx="30" ry="19" fill="#FF8B9B"/>
+  <ellipse id="right_cheek" cx="385" cy="300"
+      rx="30" ry="19" fill="#FF8B9B"/>
+
+  <!-- Left arm -->
+  <path id="left_arm" fill="#28232D"
+      d="M115 365
+           C35 365 55 465 145 470
+           L205 440 L190 390 Z"/>
+
+  <!-- Right arm -->
+  <path id="right_arm" fill="#28232D"
+      d="M385 365
+           C465 365 445 465 355 470
+           L295 440 L310 390 Z"/>
+
+  <!-- Left foot -->
+  <ellipse id="left_foot" cx="110" cy="510"
+      rx="65" ry="75" fill="#28232D"/>
+
+  <!-- Right foot -->
+  <ellipse id="right_foot" cx="390" cy="510"
+      rx="65" ry="75" fill="#28232D"/>
+
+  <!-- Left paw -->
+  <ellipse id="left_paw" cx="110" cy="535"
+      rx="27" ry="30" fill="#FF7891"/>
+
+  <!-- Right paw -->
+  <ellipse id="right_paw" cx="390" cy="535"
+      rx="27" ry="30" fill="#FF7891"/>
+
+  <!-- Bamboo -->
+  <path id="bamboo" fill="#64A927"
+      d="M315 455 L365 420 L405 470 L350 510 Z"/>
+
+  <path id="bamboo_stem" fill="#80C52F"
+      d="M330 460 L390 390 L405 400 L350 475 Z"/>
+
+  <!-- Bamboo leaves -->
+  <path id="leaf_1" fill="#77BD32"
+      d="M385 405 Q390 345 445 335 Q435 385 385 405 Z"/>
+
+  <path id="leaf_2" fill="#5DAD25"
+      d="M390 405 Q450 380 475 420 Q430 445 390 405 Z"/>
+
+  <path id="leaf_3" fill="#91CE38"
+      d="M390 405 Q340 350 330 395 Q350 420 390 405 Z"/>
+
+</svg>

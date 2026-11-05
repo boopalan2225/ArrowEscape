@@ -32,9 +32,9 @@ class GameEngineTest {
     fun `valid move removes arrow`() {
         val arrows = listOf(arrow(0, Direction.UP, 0 to 0))
         val state = engine.createLevel(1, arrows, 3, 3)
-        val (newState, valid) = engine.tapArrow(state, 0)
-        assertTrue(valid)
-        assertEquals(0, newState.remainingCount)
+        val result = engine.tapArrow(state, 0)
+        assertTrue(result.wasValid)
+        assertEquals(0, result.state.remainingCount)
     }
 
     @Test
@@ -44,10 +44,10 @@ class GameEngineTest {
             arrow(1, Direction.UP, 1 to 2)
         )
         val state = engine.createLevel(1, arrows, 3, 3)
-        val (newState, valid) = engine.tapArrow(state, 0)
-        assertFalse(valid)
-        assertEquals(2, newState.lives)
-        assertEquals(2, newState.remainingCount)
+        val result = engine.tapArrow(state, 0)
+        assertFalse(result.wasValid)
+        assertEquals(2, result.state.lives)
+        assertEquals(2, result.state.remainingCount)
     }
 
     @Test
@@ -57,7 +57,7 @@ class GameEngineTest {
             arrow(1, Direction.UP, 1 to 2)
         )
         var state = engine.createLevel(1, arrows, 3, 3)
-        repeat(3) { state = engine.tapArrow(state, 0).first }
+        repeat(3) { state = engine.tapArrow(state, 0).state }
         assertEquals(0, state.lives)
         assertEquals(GameStatus.OUT_OF_LIVES, state.status)
     }
@@ -66,8 +66,8 @@ class GameEngineTest {
     fun `level complete when all removed`() {
         val arrows = listOf(arrow(0, Direction.UP, 0 to 0))
         val state = engine.createLevel(1, arrows, 3, 3)
-        val (newState, _) = engine.tapArrow(state, 0)
-        assertEquals(GameStatus.LEVEL_COMPLETE, newState.status)
+        val result = engine.tapArrow(state, 0)
+        assertEquals(GameStatus.LEVEL_COMPLETE, result.state.status)
     }
 
     @Test
@@ -77,7 +77,7 @@ class GameEngineTest {
             arrow(1, Direction.UP, 1 to 2)
         )
         var state = engine.createLevel(1, arrows, 3, 3)
-        repeat(3) { state = engine.tapArrow(state, 0).first }
+        repeat(3) { state = engine.tapArrow(state, 0).state }
         val restored = engine.restoreLives(state)
         assertEquals(3, restored.lives)
         assertEquals(GameStatus.PLAYING, restored.status)
@@ -86,10 +86,10 @@ class GameEngineTest {
     @Test
     fun `cannot tap when not playing`() {
         val arrows = listOf(arrow(0, Direction.UP, 0 to 0))
-        var state = engine.createLevel(1, arrows, 3, 3).copy(status = GameStatus.PAUSED)
-        val (newState, valid) = engine.tapArrow(state, 0)
-        assertFalse(valid)
-        assertEquals(1, newState.remainingCount)
+        val state = engine.createLevel(1, arrows, 3, 3).copy(status = GameStatus.PAUSED)
+        val result = engine.tapArrow(state, 0)
+        assertFalse(result.wasValid)
+        assertEquals(1, result.state.remainingCount)
     }
 
     @Test
@@ -102,7 +102,7 @@ class GameEngineTest {
         )
         var state = engine.createLevel(1, arrows, 3, 3)
         assertEquals(0, state.clearedPercentage)
-        state = engine.tapArrow(state, 0).first
+        state = engine.tapArrow(state, 0).state
         assertEquals(25, state.clearedPercentage)
     }
 }

@@ -159,7 +159,18 @@ data class CurvedArrow(
     val segments: List<BezierSegment>,
     val color: Long = 0xFF4A90D9, // Default blue
     val strokeWidth: Float = 8f,
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
+    /**
+     * Which layer-lock tier this arrow belongs to; 0 is always open.
+     *
+     * An arrow in tier N cannot leave until every arrow in every lower tier
+     * has gone, which is how a shape's own structure becomes part of the
+     * puzzle. Assigned by [LayerLockPlanner], which derives tiers from the
+     * blocking graph precisely so these extra constraints can never deadlock
+     * a board. Default 0 means "no locks", so every existing level and test
+     * behaves exactly as before.
+     */
+    val lockTier: Int = 0
 ) {
     /**
      * Total approximate length of the arrow.

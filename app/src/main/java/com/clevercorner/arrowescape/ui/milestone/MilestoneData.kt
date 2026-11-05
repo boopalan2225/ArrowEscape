@@ -50,12 +50,42 @@ data class Milestone(
     val levelRange: String get() = "$startLevel-$endLevel"
 }
 
-/** The chapters of one game mode, and everything derived from them. */
-class Journey(val milestones: List<Milestone>) {
+/**
+ * The chapters of one game mode, and everything derived from them.
+ *
+ * [chapterIndex] is supplied rather than assumed, because the two modes end
+ * differently and a map that guesses will eventually guess wrong. The curved
+ * catalogue *loops* - level 371 plays the first shape again - so its map must
+ * loop with it. The grid journey stops, so its map stops. Handing the policy
+ * in means the map and the generator share one answer instead of each holding
+ * their own.
+ *
+ * A looping journey also has **laps**. On lap two the shapes come round again
+ * but the difficulty does not reset, so a chapter card that still advertised
+ * "Circle - Easy" while dealing Circle at Master would be lying about the
+ * only two things it says. [milestonesForLap] re-reads both from the level
+ * numbers that lap actually plays.
+ */
+class Journey(
+    private val chapterIndex: (Int) -> Int,
+    private val lapMilestones: (Int) -> List<Milestone>
+) {
+    /** Lap zero: the journey as first met. */
+    val milestones: List<Milestone> = lapMilestones(0)
+
     val totalLevels: Int = milestones.last().endLevel
 
+    /** Chapter a level belongs to. Always a real index into [milestones]. */
     fun chapterIndexOf(level: Int): Int =
-        ((level - 1) / MilestoneData.LEVELS_PER_MILESTONE).coerceIn(0, milestones.lastIndex)
+        chapterIndex(level).coerceIn(0, milestones.lastIndex)
+
+    /** How many times a player has been round. Zero on the first pass. */
+    fun lapOf(level: Int): Int =
+        ((level - 1).coerceAtLeast(0) / totalLevels)
+
+    /** The chapter cards as they stand on [lap], with that lap's real levels and tiers. */
+    fun milestonesForLap(lap: Int): List<Milestone> =
+        if (lap <= 0) milestones else lapMilestones(lap)
 }
 
 /**
@@ -84,7 +114,12 @@ object MilestoneData {
     )
 
     private val gridJourney = Journey(
-        listOf(
+        // The grid journey ends rather than looping: past the last chapter a
+        // player stays in it. Clamping here matches that, and there is only
+        // ever one lap to show.
+        chapterIndex = { level -> (level - 1).coerceAtLeast(0) / LEVELS_PER_MILESTONE },
+        lapMilestones = {
+            listOf(
             grid(0, R.string.milestone_title_first_steps, LevelShape.SQUARE, "\uD83C\uDF31"),
             grid(1, R.string.milestone_title_rising_up, LevelShape.PYRAMID, "\u2B50"),
             grid(2, R.string.milestone_title_sharp_turns, LevelShape.DIAMOND, "\uD83D\uDD37"),
@@ -101,21 +136,33 @@ object MilestoneData {
             grid(12, R.string.milestone_title_royal_challenge, LevelShape.CROWN, "\uD83D\uDC51"),
             grid(13, R.string.milestone_title_ring_master, LevelShape.RING, "\uD83D\uDCAD"),
             grid(14, R.string.milestone_title_grand_finale, LevelShape.BUTTERFLY, "\uD83E\uDD8B")
-        )
+            )
+        }
     )
 
     private val curvedJourney: Journey by lazy {
         Journey(
-            ShapeCatalog.ALL.mapIndexed { chapter, design ->
-                Milestone(
-                    index = chapter,
-                    startLevel = CurvedJourney.firstLevelOf(chapter),
-                    endLevel = CurvedJourney.lastLevelOf(chapter),
-                    title = MilestoneTitle.Raw(design.name),
-                    subtitle = DifficultyTuning.tierOf(CurvedJourney.firstLevelOf(chapter)),
-                    icon = MilestoneIcon.Curved(design),
-                    emoji = emojiFor(design.name)
-                )
+            // Not a copy of the wrapping arithmetic - the function itself.
+            // The map cannot drift from the shape the generator deals if
+            // both ask the same question of the same object.
+            chapterIndex = CurvedJourney::chapterOf,
+            lapMilestones = { lap ->
+                val offset = lap * CurvedJourney.totalLevels
+                ShapeCatalog.ALL.mapIndexed { chapter, design ->
+                    // Levels and tier both come from the level this chapter
+                    // plays *on this lap*. Shapes come round again; the
+                    // difficulty does not reset, and the card has to say so.
+                    val first = CurvedJourney.firstLevelOf(chapter) + offset
+                    Milestone(
+                        index = chapter,
+                        startLevel = first,
+                        endLevel = CurvedJourney.lastLevelOf(chapter) + offset,
+                        title = MilestoneTitle.Raw(design.name),
+                        subtitle = DifficultyTuning.tierOf(first),
+                        icon = MilestoneIcon.Curved(design),
+                        emoji = emojiFor(design.name)
+                    )
+                }
             }
         )
     }
