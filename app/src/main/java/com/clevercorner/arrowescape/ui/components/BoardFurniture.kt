@@ -189,6 +189,52 @@ object BoardFurniture {
         )
     }
 
+    /**
+     * The number on a sequenced arrow, and whether it is this arrow's turn.
+     *
+     * Drawn as a disc with pips rather than a numeral: this is a Canvas with
+     * no text measurer to hand, and at a third of a cell on a phone a drawn
+     * digit would be a smudge. Pips read instantly at small sizes, which is
+     * the entire job.
+     *
+     * [ready] is the whole fairness argument. An arrow still waiting its turn
+     * is dim and thin-rimmed; the one that may go now is solid and bright.
+     * Without that difference the player taps a clear lane, nothing happens,
+     * and the game looks broken rather than demanding.
+     */
+    fun DrawScope.drawSequenceBadge(
+        center: Offset,
+        cell: Float,
+        key: Int,
+        ready: Boolean,
+        color: Color
+    ) {
+        val radius = cell * 0.30f
+        val alpha = if (ready) 1f else 0.45f
+
+        drawCircle(Color.Black.copy(alpha = 0.55f * alpha), radius, center)
+        drawCircle(
+            color.copy(alpha = alpha),
+            radius,
+            center,
+            style = Stroke(width = cell * (if (ready) 0.09f else 0.06f))
+        )
+
+        // Pips on a ring, clockwise from the top, so counting them is a
+        // glance rather than a puzzle of its own.
+        val pipRadius = cell * 0.055f
+        val ring = radius * 0.52f
+        val count = key.coerceIn(1, 8)
+        for (i in 0 until count) {
+            val angle = -Math.PI / 2 + 2 * Math.PI * i / count
+            val at = center + Offset(
+                (Math.cos(angle) * ring).toFloat(),
+                (Math.sin(angle) * ring).toFloat()
+            )
+            drawCircle(color.copy(alpha = alpha), pipRadius, at)
+        }
+    }
+
     fun unitVector(direction: Direction): Offset = when (direction) {
         Direction.UP -> Offset(0f, -1f)
         Direction.DOWN -> Offset(0f, 1f)

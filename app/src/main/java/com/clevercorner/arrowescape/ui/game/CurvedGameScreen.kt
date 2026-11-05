@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.clevercorner.arrowescape.game.curve.CurvedArrow
-import com.clevercorner.arrowescape.game.curve.CurvedJourney
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.ui.components.*
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
@@ -116,11 +115,7 @@ fun CurvedGameScreen(
                     level = gameState.level,
                     shapeName = gameState.shapeName,
                     difficulty = gameState.difficulty,
-                    arrowCount = gameState.arrows.size,
-                    canGoPrevious = gameState.level > 1,
-                    canGoNext = gameState.level < CurvedJourney.totalLevels,
-                    onPrevious = { viewModel.stepLevel(-1) },
-                    onNext = { viewModel.stepLevel(+1) }
+                    arrowCount = gameState.arrows.size
                 )
             }
 
@@ -130,10 +125,13 @@ fun CurvedGameScreen(
                     .spotlightTarget(SpotlightTarget.HINT),
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
+                // Back to anything already played; forward only as far as
+                // the player has actually earned - except in dev mode, which
+                // has nothing to gate against: curved content never ends.
                 onPreviousLevel = { viewModel.stepLevel(-1) }
                     .takeIf { gameState.level > 1 },
                 onNextLevel = { viewModel.stepLevel(+1) }
-                    .takeIf { gameState.level < prefs.highestLevel },
+                    .takeIf { prefs.devMode || gameState.level < prefs.highestLevel },
                 onHintClick = {
                     if (hintsRemaining > 0) {
                         viewModel.useHint()

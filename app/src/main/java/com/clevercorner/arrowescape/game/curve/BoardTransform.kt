@@ -47,38 +47,3 @@ internal fun List<CurvedArrow>.transformedBy(
     val mapPoint = transform.mapPoint(width, height)
     return map { it.transformed(mapPoint) }
 }
-
-/**
- * The same outline, mirrored or turned about the board.
- *
- * Transforming the *outline* rather than the finished arrows is what keeps a
- * level internally consistent: everything downstream - the pack, the escape
- * rays, the region shapes handed to the renderer - is then derived from one
- * piece of geometry instead of being patched up afterwards.
- */
-internal fun ShapePath.transformedBy(
-    transform: BoardTransform,
-    width: Float,
-    height: Float
-): ShapePath {
-    val mapPoint = transform.mapPoint(width, height)
-    return copy(
-        commands = commands.map { command ->
-            when (command) {
-                is PathCommand.MoveTo -> PathCommand.MoveTo(mapPoint(command.point))
-                is PathCommand.LineTo -> PathCommand.LineTo(mapPoint(command.point))
-                is PathCommand.QuadTo -> PathCommand.QuadTo(
-                    mapPoint(command.control),
-                    mapPoint(command.end)
-                )
-                is PathCommand.CurveTo -> PathCommand.CurveTo(
-                    mapPoint(command.control1),
-                    mapPoint(command.control2),
-                    mapPoint(command.end)
-                )
-                // No points to move.
-                PathCommand.Close -> command
-            }
-        }
-    )
-}

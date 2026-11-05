@@ -93,7 +93,7 @@ fun HomeScreen(
             ProgressCard(
                 mode = prefs.mode,
                 progress = progress,
-                totalLevels = journey.totalLevels,
+                totalLevels = journey.totalLevelsFor(progress.highestLevel),
                 modifier = Modifier.spotlightTarget(SpotlightTarget.PROGRESS)
             )
 

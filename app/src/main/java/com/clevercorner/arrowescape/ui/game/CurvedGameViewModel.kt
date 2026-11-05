@@ -869,17 +869,19 @@ class CurvedGameViewModel(
      * Developer mode: step to the previous (-1) or next (+1) level without
      * touching progress.
      *
-     * Clamped to [CurvedJourney.totalLevels] - that bound exists so the dev
-     * bar can hide Next at the edge; stepping past it here would silently
-     * reopen the dead button.
+     * No upper bound: curved content never ends (see [CurvedJourney]'s own
+     * doc), so clamping to a catalogue size - as this used to, against the
+     * now-removed `CurvedJourney.totalLevels` - meant stepping from level
+     * 500 collapsed straight to 205 and then couldn't move again, because
+     * every step re-clamped back to the same frozen ceiling. A journey that
+     * genuinely has no end should not pretend it has one here either.
      */
     /**
      * Moves [delta] levels and loads that board. See the classic twin: a
      * visit, not a move, so preferences stay where the player left them.
      */
     fun stepLevel(delta: Int) {
-        val target = (_gameState.value.level + delta)
-            .coerceIn(1, CurvedJourney.totalLevels)
+        val target = (_gameState.value.level + delta).coerceAtLeast(1)
         startLevel(target)
     }
 

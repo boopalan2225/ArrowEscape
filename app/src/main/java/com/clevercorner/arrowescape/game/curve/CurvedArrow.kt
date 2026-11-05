@@ -170,7 +170,17 @@ data class CurvedArrow(
      * a board. Default 0 means "no locks", so every existing level and test
      * behaves exactly as before.
      */
-    val lockTier: Int = 0
+    val lockTier: Int = 0,
+    /**
+     * Number shown on the arrow; numbered arrows must leave in ascending
+     * order. Null for the great majority, which stay free.
+     *
+     * Where [lockTier] orders whole regions and only works when the artwork
+     * happens to cooperate, this orders individual arrows chosen on purpose -
+     * which is why it fires on nearly every board instead of one in a
+     * hundred and seventy-five.
+     */
+    val sequenceKey: Int? = null
 ) {
     /**
      * Total approximate length of the arrow.

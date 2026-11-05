@@ -53,6 +53,15 @@ data class LevelRecipe(
     val deflectors: Int,
     /** How many colour-locked pairs to weld together. */
     val lockedPairs: Int,
+    /**
+     * How many arrows to number, forcing them to leave in order.
+     *
+     * Held back until the player has met the base rules, deflectors and
+     * colour locks: a numbered arrow is the first thing in this game that
+     * says "not yet" to an arrow with a clear lane, and that reads as a bug
+     * unless the rest of the board is already understood.
+     */
+    val sequencedArrows: Int,
     val difficultyLabel: String
 ) {
     companion object {
@@ -99,9 +108,34 @@ data class LevelRecipe(
                 tangle = tangleFor(level, kind),
                 deflectors = deflectorBudget(level, kind, ramp, cells),
                 lockedPairs = lockBudget(level, kind, ramp),
+                sequencedArrows = sequenceBudget(level, kind),
                 difficultyLabel = labelFor(design, kind)
             )
         }
+
+        /**
+         * How many numbered arrows a level gets.
+         *
+         * Starts at three, because one or two numbers would be satisfied by
+         * playing normally and would teach the player nothing. Grows slowly:
+         * the sequence is meant to be a spine the player plans around, and a
+         * board where most arrows are numbered is not a puzzle with a
+         * sequence in it, it is a board being read aloud.
+         */
+        private fun sequenceBudget(level: Int, kind: LevelKind): Int = when {
+            kind == LevelKind.TUTORIAL -> 0
+            level < SEQUENCE_FROM -> 0
+            kind == LevelKind.GOD -> 6
+            kind == LevelKind.BOSS -> 5
+            level < 120 -> 3
+            else -> 4
+        }
+
+        /**
+         * First level that can carry numbered arrows. Comfortably past the
+         * introduction of deflectors and colour locks.
+         */
+        private const val SEQUENCE_FROM = 45
 
         /**
          * Tangle is deliberately front-loaded: a level that looks like a

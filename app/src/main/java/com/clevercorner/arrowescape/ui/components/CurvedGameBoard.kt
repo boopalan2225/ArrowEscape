@@ -318,6 +318,16 @@ fun CurvedGameBoard(
                 translate(playOrigin.x, playOrigin.y)
             }) {
                 // Resting arrows first so anything moving is drawn on top.
+                //
+                // Which numbers are live is computed once for the frame
+                // rather than per arrow: it is the same answer for all of
+                // them, and asking per arrow would be a scan inside a scan
+                // on every redraw.
+                val lowestLiveKey = arrows
+                    .filter { it.isActive }
+                    .mapNotNull { it.sequenceKey }
+                    .minOrNull()
+
                 resting.forEach { arrow ->
                     val hinted = arrow.id == hintArrowId
                     val render = {
@@ -327,7 +337,8 @@ fun CurvedGameBoard(
                                 isHinted = hinted,
                                 hintGlow = if (hinted) hintGlow.value else 0f,
                                 haloColor = plaque?.halo ?: skinColors.halo,
-                                colorOverride = recolor(arrow)
+                                colorOverride = recolor(arrow),
+                                sequenceReady = arrow.sequenceKey == lowestLiveKey
                             )
                         )
                     }

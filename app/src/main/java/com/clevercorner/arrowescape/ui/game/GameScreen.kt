@@ -126,11 +126,7 @@ fun GameScreen(
                     difficulty = gameState.difficultyLabel,
                     tightness = levelMetrics.tightness,
                     longestChain = levelMetrics.longestChain,
-                    arrowCount = gameState.arrows.size,
-                    canGoPrevious = gameState.level > 1,
-                    canGoNext = gameState.level < DifficultyConfig.TOTAL_LEVELS,
-                    onPrevious = { viewModel.stepLevel(-1) },
-                    onNext = { viewModel.stepLevel(+1) }
+                    arrowCount = gameState.arrows.size
                 )
             }
 
@@ -141,11 +137,17 @@ fun GameScreen(
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
                 // Back to anything already played; forward only as far as
-                // the player has actually earned.
+                // the player has actually earned - except in dev mode,
+                // which trades that gate for the real ceiling (classic
+                // genuinely ends at TOTAL_LEVELS) so testing isn't stuck
+                // behind whatever the player's own save file happens to say.
                 onPreviousLevel = { viewModel.stepLevel(-1) }
                     .takeIf { gameState.level > 1 },
                 onNextLevel = { viewModel.stepLevel(+1) }
-                    .takeIf { gameState.level < prefs.highestLevel },
+                    .takeIf {
+                        val ceiling = if (prefs.devMode) DifficultyConfig.TOTAL_LEVELS else prefs.highestLevel
+                        gameState.level < ceiling
+                    },
                 onHintClick = {
                     if (hintsRemaining > 0) {
                         viewModel.useHint()

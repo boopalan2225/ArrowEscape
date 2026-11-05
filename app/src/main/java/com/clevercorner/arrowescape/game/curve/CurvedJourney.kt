@@ -10,8 +10,9 @@ package com.clevercorner.arrowescape.game.curve
  * Journey Map, the level generator and the developer picker all read from here
  * and therefore cannot drift apart.
  *
- * Levels past the end wrap round to the first chapter again (at the hardest
- * tier), so the game never runs out.
+ * Levels past the authored catalogue do not wrap - [designFor] keeps
+ * synthesising new shapes forever (see `ShapeSynthesis`), so the journey has
+ * no end to run out of.
  */
 object CurvedJourney {
 
@@ -30,10 +31,6 @@ object CurvedJourney {
      */
     const val LEVELS_PER_CHAPTER = 5
 
-    val chapterCount: Int get() = ShapeCatalog.ALL.size
-
-    val totalLevels: Int get() = chapterCount * LEVELS_PER_CHAPTER
-
     /**
      * Zero-based chapter a level belongs to.
      *
@@ -43,17 +40,6 @@ object CurvedJourney {
      * harder tuning.
      */
     fun chapterOf(level: Int): Int = (level - 1).coerceAtLeast(0) / LEVELS_PER_CHAPTER
-
-    /**
-     * How many times the journey has looped by [level]. Zero on the first
-     * pass through the catalogue.
-     *
-     * Retained because the per-lap mirror/rotation variation still reads
-     * from it, and an authored shape met a second time should still be
-     * presented differently.
-     */
-    fun lapOf(level: Int): Int =
-        (level - 1).coerceAtLeast(0) / totalLevels
 
     fun designFor(level: Int): ShapeDesign = ShapeCatalog.designForChapter(chapterOf(level))
 

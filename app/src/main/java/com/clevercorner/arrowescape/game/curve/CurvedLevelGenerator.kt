@@ -139,7 +139,6 @@ object CurvedLevelGenerator {
 
         val regions = design.ordered
         val outlines = layOutRegions(design, boardWidth, boardHeight)
-            .variedForLap(CurvedJourney.lapOf(levelNumber), boardWidth, boardHeight)
 
         // Fill FRONT-to-BACK: the smallest detail regions (eyes, then belly)
         // claim their space first, and broader layers underneath flow around
@@ -203,18 +202,19 @@ object CurvedLevelGenerator {
         val locked = LayerLockPlanner.applyTo(
             tuned.arrows, tuned.graph, regionMembers, tuning.lockTiers, board
         )
+        val sequenced = CurvedSequencePlanner.apply(locked, tuned.result.order, tuning.sequencedArrows, board)
 
         return CurvedLevel(
             levelNumber = levelNumber,
             shapeName = design.name,
             shape = outlines.first(),
             regionOutlines = outlines,
-            arrows = locked,
+            arrows = sequenced,
             difficulty = tuning.label,
             colorPalette = regions.map { it.color }.distinct(),
             tightness = tuned.result.tightness,
             solutionOrder = tuned.result.order,
-            blockingGraph = tuned.graph,
+            blockingGraph = tuned.graph.withOrdering(sequenced),
             droppedArrows = arrows.size - tuned.arrows.size
         )
     }
@@ -270,30 +270,6 @@ object CurvedLevelGenerator {
         )
 
         return meander + streamlines
-    }
-
-    /**
-     * Mirrors or turns an illustration once the journey has looped.
-     *
-     * Meeting Circle again at level 371 is the point of a looping journey;
-     * meeting the *same* Circle is not. A deterministic transform per lap
-     * makes the revisit read as a variation rather than a rerun, and because
-     * it is an isometry of the whole scene it costs nothing in solver terms -
-     * every pairwise blocking relationship survives it exactly.
-     *
-     * Applied to the outlines, before packing, so arrows and artwork are
-     * derived from the same geometry rather than reconciled afterwards.
-     */
-    private fun List<ShapePath>.variedForLap(
-        lap: Int,
-        boardWidth: Float,
-        boardHeight: Float
-    ): List<ShapePath> {
-        if (lap <= 0) return this
-        // Lap 1 mirrors, lap 2 flips, lap 3 turns, lap 4 is lap 0 again.
-        val cycle = BoardTransform.entries
-        val transform = cycle[(lap - 1) % cycle.size]
-        return map { it.transformedBy(transform, boardWidth, boardHeight) }
     }
 
     /**
@@ -456,7 +432,20 @@ object CurvedLevelGenerator {
         )
         if (!climbed.result.solved) return null
 
-        return ShuffledBoard(applyFlips(relocated, climbed.flips), graph.blockingGraph(climbed.flips))
+        val resolved = applyFlips(relocated, climbed.flips)
+        // The ordering edges travel with the arrows (lockTier/sequenceKey
+        // survive the isometry via copy()), but the hill-climb above scores
+        // purely geometric blocking - it has no idea those fields exist, so
+        // it can happily converge on an arrangement that is geometrically
+        // fine and a deadlock once the existing lock/sequence edges are
+        // folded back in (geometry could now want arrow 3 before arrow 1,
+        // while a sequence key still demands the opposite). Re-verify after
+        // folding rather than trusting the climb's verdict about a graph it
+        // never saw.
+        val ordered = graph.blockingGraph(climbed.flips).withOrdering(resolved)
+        if (!CurvedGameEngine.analyze(ordered).solved) return null
+
+        return ShuffledBoard(resolved, ordered)
     }
 
     /**

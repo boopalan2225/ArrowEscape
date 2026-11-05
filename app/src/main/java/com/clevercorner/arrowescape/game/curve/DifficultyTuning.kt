@@ -42,7 +42,15 @@ data class DifficultyTuning(
      * whose regions all block each other cannot be tiered safely, and gets
      * no locks whatever this says.
      */
-    val lockTiers: Int = 0
+    val lockTiers: Int = 0,
+    /**
+     * How many arrows to number, forcing them to leave in ascending order.
+     *
+     * Unlike [lockTiers] this fires on essentially every board, because the
+     * arrows are chosen rather than discovered - so it is ramped carefully
+     * and starts at zero.
+     */
+    val sequencedArrows: Int = 0
 ) {
 
     /**
@@ -223,7 +231,8 @@ data class DifficultyTuning(
                     flowWeight = 0.26f,
                     // Locks start here, at two tiers: one rule to learn, and
                     // it arrives on a board the player can already read.
-                    lockTiers = 2
+                    lockTiers = 2,
+                    sequencedArrows = 3
                 )
 
                 level <= EXPERT_MAX -> DifficultyTuning(
@@ -241,7 +250,8 @@ data class DifficultyTuning(
                     ),
                     targetTightness = 0.78f,
                     flowWeight = 0.20f,
-                    lockTiers = 3
+                    lockTiers = 3,
+                    sequencedArrows = 4
                 )
 
                 else -> DifficultyTuning(
@@ -259,7 +269,8 @@ data class DifficultyTuning(
                     ),
                     targetTightness = 0.88f,
                     flowWeight = 0.14f,
-                    lockTiers = 4
+                    lockTiers = 4,
+                    sequencedArrows = 5
                 )
             }
         }

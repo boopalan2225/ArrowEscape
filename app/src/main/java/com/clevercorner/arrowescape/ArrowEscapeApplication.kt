@@ -54,7 +54,7 @@ class ArrowEscapeApplication : Application() {
      */
     val coinBank: CoinBank by lazy {
         CoinBank(preferences) { mode, progress ->
-            val chapters = MilestoneData.forMode(mode).milestones.size
+            val chapters = MilestoneData.forMode(mode).chapterCountFor(progress.highestLevel)
             ((progress.highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE).coerceIn(0, chapters)
         }
     }

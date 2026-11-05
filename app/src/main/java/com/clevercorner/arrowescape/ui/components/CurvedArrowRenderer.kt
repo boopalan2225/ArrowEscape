@@ -31,7 +31,15 @@ internal data class ArrowRenderState(
     /** Board colour, drawn as a thin rim round the head so it reads on top of neighbours. */
     val haloColor: Color = Color.Transparent,
     /** Replaces the arrow's own baked colour - how one theme recolours every shape consistently. See [duotone]. */
-    val colorOverride: Color? = null
+    val colorOverride: Color? = null,
+    /**
+     * Whether a numbered arrow's turn has come.
+     *
+     * Supplied by the caller rather than worked out here, because the engine
+     * owns the rule and a badge that disagreed with the tap would be worse
+     * than no badge at all.
+     */
+    val sequenceReady: Boolean = false
 )
 
 /** Flashed over an arrow that was tapped while blocked. */
@@ -71,6 +79,62 @@ internal fun DrawScope.drawArrow(
         }
 
         else -> drawResting(arrow, color, strokePx, state, project)
+    }
+
+    // Badges ride on top of the resting arrow only. During an escape or a
+    // bump the arrow is mid-animation and a numbered disc sliding along with
+    // it reads as debris rather than as information.
+    if (state.escapeProgress == 0f && bump == null) {
+        arrow.sequenceKey?.let { key ->
+            drawSequencePips(
+                centre = project(arrow.startPoint),
+                radiusPx = strokePx * 1.5f,
+                key = key,
+                ready = state.sequenceReady,
+                color = color
+            )
+        }
+    }
+}
+
+/**
+ * The number on a sequenced arrow, as pips on a ring.
+ *
+ * Pips rather than a numeral for the same reason as the classic board: no
+ * text measurer in a DrawScope, and a digit at this size would be a smudge.
+ * Drawn at the arrow's *tail* so it does not sit under the arrowhead, which
+ * is the part the player is reading for direction.
+ *
+ * [ready] carries the whole fairness argument - a numbered arrow waiting its
+ * turn is dim and hollow, the one that may go is solid and bright. Without
+ * that, tapping a clear lane and getting nothing looks like a bug.
+ */
+private fun DrawScope.drawSequencePips(
+    centre: Offset,
+    radiusPx: Float,
+    key: Int,
+    ready: Boolean,
+    color: Color
+) {
+    val alpha = if (ready) 1f else 0.40f
+    drawCircle(Color.Black.copy(alpha = 0.60f * alpha), radiusPx, centre)
+    drawCircle(
+        color.copy(alpha = alpha),
+        radiusPx,
+        centre,
+        style = Stroke(width = radiusPx * (if (ready) 0.30f else 0.18f))
+    )
+
+    val count = key.coerceIn(1, 8)
+    val ring = radiusPx * 0.52f
+    val pip = radiusPx * 0.19f
+    for (i in 0 until count) {
+        val angle = -Math.PI / 2 + 2 * Math.PI * i / count
+        drawCircle(
+            color.copy(alpha = alpha),
+            pip,
+            centre + Offset((Math.cos(angle) * ring).toFloat(), (Math.sin(angle) * ring).toFloat())
+        )
     }
 }
 

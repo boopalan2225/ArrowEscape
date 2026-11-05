@@ -101,10 +101,26 @@ object CurvedGameEngine {
             arrows.map { it.id },
             ArrowSpatialIndex.forArrows(arrows).let { index ->
                 arrows.associate { arrow -> arrow.id to allBlockersFor(arrow, index, board) }
-            }.withLayerLocks(arrows)
+            }.withOrderingRules(arrows)
         )
 
         fun blockersOf(id: Int): Set<Int> = blockers[id] ?: emptySet()
+
+        /**
+         * The same graph with layer-lock and sequence edges folded in.
+         *
+         * Needed because the generator settles orientations - and therefore
+         * builds its graph - *before* it decides which arrows to number, so
+         * the graph it hands to the level would otherwise describe a board
+         * with no ordering rules on it. Live play reads that cached graph to
+         * answer "can I tap this", so skipping this step makes the badge and
+         * the tap disagree: a numbered arrow would show as waiting and move
+         * anyway.
+         *
+         * Geometry-free, so it costs a map rebuild rather than a ray cast.
+         */
+        fun withOrdering(arrows: List<CurvedArrow>): BlockingGraph =
+            BlockingGraph(ids, blockers.withOrderingRules(arrows))
 
         /** An arrow is free when none of its blockers are still on the board. */
         fun isFree(id: Int, remaining: Set<Int>): Boolean =

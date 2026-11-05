@@ -59,15 +59,17 @@ fun MilestoneScreen(
     // The map shows whichever game the player is actually playing.
     val journey = MilestoneData.forMode(prefs.mode)
 
-    // ...and whichever lap of it. A looping journey replays its shapes at
-    // ever harder tiers, so the cards have to follow the player round rather
-    // than keep advertising lap one's levels forever.
-    val lap = journey.lapOf(highestLevel)
-    val chapters = journey.milestonesForLap(lap)
+    // Sized to the player's own progress rather than frozen: curved mode's
+    // content never runs out (see `ShapeSynthesis`), so a fixed chapter list
+    // is a list that eventually can't show a level the player has already
+    // reached. remember() because building it can now mean synthesising
+    // shapes for chapters nobody has authored, and that work should happen
+    // once per progress change, not once per recomposition.
+    val chapters = remember(journey, highestLevel) { journey.milestonesFor(highestLevel) }
 
     // Auto-scroll to the current chapter.
-    LaunchedEffect(journey, lap) {
-        listState.scrollToItem(journey.chapterIndexOf(highestLevel))
+    LaunchedEffect(journey, highestLevel) {
+        listState.scrollToItem(journey.chapterIndexOf(highestLevel, highestLevel))
     }
 
     Box(
@@ -76,7 +78,7 @@ fun MilestoneScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column(Modifier.fillMaxSize()) {
-            JourneyTopBar(highestLevel, journey.totalLevels, prefs.totalLevelsCompleted, onBackClick)
+            JourneyTopBar(highestLevel, journey.totalLevelsFor(highestLevel), prefs.totalLevelsCompleted, onBackClick)
 
             LazyColumn(
                 state = listState,
@@ -172,7 +174,11 @@ private fun ChapterCard(
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
     val unlocked = highestLevel >= milestone.startLevel
-    val done = (highestLevel - milestone.startLevel).coerceIn(0, MilestoneData.LEVELS_PER_MILESTONE)
+    // milestone.levelCount, not the grid-mode constant: curved chapters are
+    // five levels long, grid chapters are ten, and a pill reading "3/10" on
+    // a finished five-level chapter would be telling the player they are 40%
+    // short of something they already cleared.
+    val done = (highestLevel - milestone.startLevel).coerceIn(0, milestone.levelCount)
 
     Card(
         modifier = Modifier
@@ -226,7 +232,7 @@ private fun ChapterCard(
                 // Progress pill
                 Surface(shape = RoundedCornerShape(12.dp), color = color.copy(alpha = 0.15f)) {
                     Text(
-                        "$done/${MilestoneData.LEVELS_PER_MILESTONE}",
+                        "$done/${milestone.levelCount}",
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,

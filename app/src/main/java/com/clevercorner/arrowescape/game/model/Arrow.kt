@@ -18,13 +18,19 @@ data class Cell(val row: Int, val col: Int)
  * [colorGroup] marks a colour-locked pair. Both members leave together or not
  * at all, and they ignore each other while leaving, so the player has to spot
  * two openings at once instead of one.
+ *
+ * [sequenceKey] marks a numbered arrow. Numbered arrows must leave in
+ * ascending order, so a board can demand a plan rather than only a clear
+ * lane - see `SequencePlanner`. Unnumbered arrows are unaffected and stay
+ * free, which keeps the mechanic a seasoning rather than a straitjacket.
  */
 data class Arrow(
     val id: Int,
     val cells: List<Cell>,
     val direction: Direction,
     val isActive: Boolean = true,
-    val colorGroup: Int? = null
+    val colorGroup: Int? = null,
+    val sequenceKey: Int? = null
 ) {
     val head: Cell get() = cells.last()
 

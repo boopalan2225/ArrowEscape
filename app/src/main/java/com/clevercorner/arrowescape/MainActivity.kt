@@ -357,8 +357,9 @@ fun ArrowEscapeApp(
                 // game you beat it in.
                 chaptersCleared = GameMode.entries.sumOf { mode ->
                     val journey = MilestoneData.forMode(mode)
-                    ((prefs.progressOf(mode).highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE)
-                        .coerceIn(0, journey.milestones.size)
+                    val highest = prefs.progressOf(mode).highestLevel
+                    ((highest - 1) / MilestoneData.LEVELS_PER_MILESTONE)
+                        .coerceIn(0, journey.chapterCountFor(highest))
                 },
                 adOffer = CoinRules.adOffer(prefs.wallet, LocalDate.now()),
                 adReady = adManager.isRewardedAdReady(),
@@ -494,7 +495,15 @@ fun ArrowEscapeApp(
                 },
                 onUnlockAllLevels = { mode ->
                     scope.launch {
-                        preferences.unlockAllLevels(mode, MilestoneData.forMode(mode).totalLevels)
+                        // A dev convenience to jump deep into content, not
+                        // tied to this player's own progress. See
+                        // Journey.devUnlockLevelCount for why this scales
+                        // with the live catalogue instead of a fixed level
+                        // number - a fixed number needed hand-retuning twice
+                        // in one session as soon as it stopped matching
+                        // reality, which was the whole bug this fixed.
+                        val maxLevel = MilestoneData.forMode(mode).devUnlockLevelCount()
+                        preferences.unlockAllLevels(mode, maxLevel)
                     }
                 },
                 onResetProgress = { mode ->

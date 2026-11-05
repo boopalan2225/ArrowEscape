@@ -176,7 +176,14 @@ object ShapeSynthesis {
                 )
             )
         }
-        return "Crescent" to points
+        // centreGap is the dominant visual axis - a bigger gap bites deeper
+        // and leaves a thinner sliver. Naming it rather than calling every
+        // instance "Crescent" was the whole fix: 175 chapters of synthesis
+        // produced 47 "Leaf"s and 41 "Pebble"s with zero distinguishing
+        // text, because this family (and leaf, and blob) had exactly one
+        // name no matter what the parameters did.
+        val name = qualified(band(centreGap, 0.34f, 0.46f, "Full", "Slim"), "Crescent")
+        return name to points
     }
 
     private fun leaf(random: Random): Pair<String, List<Point2D>> {
@@ -194,7 +201,11 @@ object ShapeSynthesis {
                 points.add(Point2D(0.5f + side * 0.30f * bulge, 0.04f + t * 0.92f))
             }
         }
-        return "Leaf" to points
+        // Low sharpness blunts the tip toward an oval, high draws it to a
+        // point - the single parameter this family has, now named instead
+        // of discarded.
+        val name = qualified(band(sharpness, 0.7f, 1.5f, "Round", "Pointed"), "Leaf")
+        return name to points
     }
 
     private fun blob(random: Random): Pair<String, List<Point2D>> {
@@ -208,7 +219,10 @@ object ShapeSynthesis {
         val points = radialSmooth(140) { angle ->
             0.5f - a1 * cos(angle * h1 + phase) - a2 * sin(angle * h2)
         }
-        return "Pebble" to points
+        // Total harmonic order is the lobe count: low h1+h2 reads as a
+        // smooth stone, high as something lumpier.
+        val name = qualified(band((h1 + h2).toFloat(), 3f, 9f, "Smooth", "Lumpy"), "Pebble")
+        return name to points
     }
 
     // ── helpers ──────────────────────────────────────────────────────────
@@ -230,6 +244,23 @@ object ShapeSynthesis {
         Point2D(0.5f + cos(angle) * radius, 0.5f + sin(angle) * radius)
 
     private fun word(n: Int): String = WORDS.getOrElse(n - 3) { "$n" }
+
+    /**
+     * Buckets [value] within [low]..[high] into three descriptive bands, the
+     * middle one unnamed - a family's "default" instance should read as
+     * plain "Leaf", not "Medium Leaf".
+     */
+    private fun band(value: Float, low: Float, high: Float, lowWord: String, highWord: String): String {
+        val t = ((value - low) / (high - low)).coerceIn(0f, 1f)
+        return when {
+            t < 0.33f -> lowWord
+            t > 0.67f -> highWord
+            else -> ""
+        }
+    }
+
+    private fun qualified(qualifier: String, noun: String): String =
+        if (qualifier.isEmpty()) noun else "$qualifier $noun"
 
     private fun polygonPath(points: List<Point2D>): String = buildString {
         append("M ${fmt(points.first().x)} ${fmt(points.first().y)}")

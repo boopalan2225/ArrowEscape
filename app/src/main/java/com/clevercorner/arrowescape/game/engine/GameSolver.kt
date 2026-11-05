@@ -143,6 +143,13 @@ object GameSolver {
 
         for (arrow in remaining) {
             if (arrow.id in seen) continue
+
+            // A numbered arrow still waiting its turn is not a move, and it
+            // is not a false affordance either: its badge says exactly why it
+            // will not go. False affordances measure the board *lying* about
+            // what is available, and a visible number is not a lie.
+            if (CollisionChecker.isSequenceBlocked(arrow, remaining)) continue
+
             val traces = CollisionChecker.traceFor(arrow, remaining, board)
             if (traces.isEmpty()) continue
 

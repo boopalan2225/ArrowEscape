@@ -27,9 +27,31 @@ object CollisionChecker {
      * Tapping either half of a colour-locked pair moves both halves.
      */
     fun escapeFor(arrow: Arrow, activeArrows: List<Arrow>, board: Board): Escape? {
+        if (isSequenceBlocked(arrow, activeArrows)) return null
         val traces = traceFor(arrow, activeArrows, board)
         if (traces.isEmpty() || traces.values.any { !it.escaped }) return null
         return Escape(traces.mapValues { it.value.path })
+    }
+
+    /**
+     * Whether [arrow] is waiting its turn in the numbered sequence.
+     *
+     * Checked here rather than in the solver so that one rule serves every
+     * caller: the solver, the hint system, the "can I tap this" test and the
+     * route preview all go through [escapeFor], and a mechanic implemented in
+     * only some of them is a mechanic that contradicts itself on screen.
+     *
+     * A numbered arrow waits for *all* lower numbers rather than only its
+     * immediate predecessor. That costs a scan and buys correctness when a
+     * sequence is broken up by colour locks or a dropped arrow leaves a gap
+     * in the numbering.
+     */
+    fun isSequenceBlocked(arrow: Arrow, activeArrows: List<Arrow>): Boolean {
+        val key = arrow.sequenceKey ?: return false
+        return activeArrows.any { other ->
+            other.isActive && other.id != arrow.id &&
+                (other.sequenceKey ?: Int.MAX_VALUE) < key
+        }
     }
 
     /**

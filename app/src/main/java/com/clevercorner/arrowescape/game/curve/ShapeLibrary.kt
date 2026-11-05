@@ -558,13 +558,25 @@ object ShapeCatalog {
     fun designForChapter(chapter: Int): ShapeDesign {
         if (chapter < ALL.size) return ALL[chapter]
 
+        // Memoised: the Journey Map now calls this for every chapter it
+        // shows (not just the one being played), so a chapter's shape would
+        // otherwise be re-walked and re-rejected from scratch on every
+        // recomposition. The function is pure, so caching by the requested
+        // chapter - not by the internal retry index - is exactly safe.
+        synthesizedCache[chapter]?.let { return it }
+
         var index = chapter - ALL.size
         repeat(SYNTHESIS_ATTEMPTS) {
-            ShapeSynthesis.synthesize(index)?.let { return it }
+            ShapeSynthesis.synthesize(index)?.let {
+                synthesizedCache[chapter] = it
+                return it
+            }
             index++
         }
         return ALL[chapter % ALL.size]
     }
+
+    private val synthesizedCache = HashMap<Int, ShapeDesign>()
 
     /** How far to walk past a rejected candidate before giving up and looping. */
     private const val SYNTHESIS_ATTEMPTS = 24

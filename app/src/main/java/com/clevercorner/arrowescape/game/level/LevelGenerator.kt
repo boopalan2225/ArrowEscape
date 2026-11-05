@@ -207,15 +207,26 @@ object LevelGenerator {
         // Locks are safe by construction, but construction arguments have a
         // habit of being wrong; the solver gets the final word.
         val verified = GameSolver.solve(locked, board)
+        val settled = if (verified != null) locked else carved
+        val settledSolution = verified ?: solution
+
+        // Numbers go on last, against the order that actually cleared this
+        // board. Numbering before the colour locks were welded would be
+        // numbering a board that no longer exists - welding changes which
+        // arrows leave together, and therefore the order itself.
+        val sequenced = SequencePlanner.apply(
+            settled, settledSolution.order, recipe.sequencedArrows, random
+        )
+        val afterSequence = GameSolver.solve(sequenced, board)
 
         return GeneratedLevel(
-            arrows = if (verified != null) locked else carved,
+            arrows = if (afterSequence != null) sequenced else settled,
             board = board,
             shape = shape,
             shapeName = design.shapeName,
             difficultyLabel = recipe.difficultyLabel,
             kind = recipe.kind,
-            solution = verified ?: solution
+            solution = afterSequence ?: settledSolution
         )
     }
 

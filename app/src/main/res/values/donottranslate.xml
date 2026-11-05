@@ -13,8 +13,6 @@
     <string name="settings_debug_reset_subtitle" translatable="false">Start %1$s from level 1</string>
 
     <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
-    <string name="dev_nav_prev" translatable="false">\u25C0 Prev</string>
-    <string name="dev_nav_next" translatable="false">Next \u25B6</string>
     <string name="dev_level_shape" translatable="false">L%1$d \u00B7 %2$s</string>
     <string name="dev_difficulty_arrows" translatable="false">%1$s \u00B7 %2$d arrows</string>
     <string name="dev_level_field_label" translatable="false">Level (1-%1$d)</string>
@@ -24,7 +22,6 @@
     <string name="dev_chapter_levels" translatable="false">Levels %1$d\u2013%2$d \u00B7 %3$s</string>
     <string name="dev_level_button_first" translatable="false">First</string>
     <string name="dev_level_button_last" translatable="false">Last</string>
-    <string name="dev_level_button_master" translatable="false">Master</string>
     <string name="dev_header_title" translatable="false">Developer \u00B7 Levels</string>
 
     <!--

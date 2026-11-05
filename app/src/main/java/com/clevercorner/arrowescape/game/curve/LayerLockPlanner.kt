@@ -241,18 +241,24 @@ object LayerLockPlanner {
 }
 
 /**
- * Folds layer-lock tiers into a geometric blocking map, so a locked arrow is
- * simply an arrow with more blockers.
+ * Folds layer-lock tiers and numbered sequences into a geometric blocking
+ * map, so an ordered arrow is simply an arrow with more blockers.
  *
- * Expressing locks as edges rather than as a separate legality rule means the
- * solver, the hint system, the "why can't I tap this" feedback and the
+ * Expressing ordering as edges rather than as a separate legality rule means
+ * the solver, the hint system, the "why can't I tap this" feedback and the
  * never-unsolvable guarantee all keep working untouched - they already handle
- * "blocked by something still on the board", and that is exactly what a lock
- * is. A parallel rule would have needed every one of them taught about it.
+ * "blocked by something still on the board", and that is exactly what an
+ * ordering constraint is. A parallel rule would have needed every one of
+ * them taught about it.
  *
- * Returns the map unchanged when nothing is locked, which is the common case.
+ * Returns the map unchanged when nothing is ordered, which is the common case
+ * for tiers and the rare one for sequences.
  */
-internal fun Map<Int, Set<Int>>.withLayerLocks(
+internal fun Map<Int, Set<Int>>.withOrderingRules(
+    arrows: List<CurvedArrow>
+): Map<Int, Set<Int>> = withLayerLocks(arrows).withSequenceKeys(arrows)
+
+private fun Map<Int, Set<Int>>.withLayerLocks(
     arrows: List<CurvedArrow>
 ): Map<Int, Set<Int>> {
     if (arrows.none { it.lockTier > 0 }) return this
@@ -272,5 +278,26 @@ internal fun Map<Int, Set<Int>>.withLayerLocks(
     return mapValues { (id, blockers) ->
         val below = tierBelow[tierOf[id]]
         if (below == null) blockers else blockers + byTier[below].orEmpty()
+    }
+}
+
+/**
+ * Adds "wait for every lower number" edges for sequenced arrows.
+ *
+ * Every lower number is named rather than only the immediate predecessor.
+ * The transitive shortcut used for tiers is not safe here: the orientation
+ * search and the packer can both drop an arrow after keys are assigned, and
+ * a hole in the numbering would silently release everything above it.
+ */
+private fun Map<Int, Set<Int>>.withSequenceKeys(
+    arrows: List<CurvedArrow>
+): Map<Int, Set<Int>> {
+    val keyed = arrows.filter { it.sequenceKey != null }
+    if (keyed.isEmpty()) return this
+
+    val keyOf = keyed.associate { it.id to it.sequenceKey!! }
+    return mapValues { (id, blockers) ->
+        val key = keyOf[id] ?: return@mapValues blockers
+        blockers + keyed.filter { (keyOf[it.id] ?: 0) < key }.map { it.id }
     }
 }

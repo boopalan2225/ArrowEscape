@@ -146,7 +146,7 @@ fun SettingsScreen(
                     ModeStatsRow(
                         mode = mode,
                         progress = prefs.progressOf(mode),
-                        totalLevels = MilestoneData.forMode(mode).totalLevels,
+                        totalLevels = MilestoneData.forMode(mode).totalLevelsFor(prefs.progressOf(mode).highestLevel),
                         isActive = mode == prefs.mode
                     )
                 }
@@ -221,7 +221,9 @@ fun SettingsScreen(
                                     subtitle = stringResource(
                                         R.string.settings_debug_unlock_all_subtitle,
                                         modeLabel,
-                                        MilestoneData.forMode(mode).totalLevels
+                                        // Matches what onUnlockAllLevels actually grants -
+                                        // see Journey.devUnlockLevelCount.
+                                        MilestoneData.forMode(mode).devUnlockLevelCount()
                                     ),
                                     onClick = { onUnlockAllLevels(mode) }
                                 )

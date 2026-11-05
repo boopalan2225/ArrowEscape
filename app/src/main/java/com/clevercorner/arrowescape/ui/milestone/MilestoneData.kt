@@ -35,7 +35,9 @@ fun MilestoneTitle.resolve(): String = when (this) {
 }
 
 /**
- * A chapter in the player's journey (every [MilestoneData.LEVELS_PER_MILESTONE] levels).
+ * A chapter in the player's journey (every [MilestoneData.LEVELS_PER_MILESTONE] levels
+ * in grid mode; [com.clevercorner.arrowescape.game.curve.CurvedJourney.LEVELS_PER_CHAPTER]
+ * in curved mode - the two differ, so nothing here should assume a constant).
  */
 data class Milestone(
     val index: Int,
@@ -48,44 +50,88 @@ data class Milestone(
     val emoji: String
 ) {
     val levelRange: String get() = "$startLevel-$endLevel"
+
+    /** How many levels this chapter actually spans - see the class doc on why this isn't a constant. */
+    val levelCount: Int get() = endLevel - startLevel + 1
 }
 
 /**
  * The chapters of one game mode, and everything derived from them.
  *
- * [chapterIndex] is supplied rather than assumed, because the two modes end
- * differently and a map that guesses will eventually guess wrong. The curved
- * catalogue *loops* - level 371 plays the first shape again - so its map must
- * loop with it. The grid journey stops, so its map stops. Handing the policy
- * in means the map and the generator share one answer instead of each holding
- * their own.
+ * A chapter list used to be a fixed snapshot, which is exactly how the
+ * Journey Map ended up unable to show a level the player had already reached:
+ * curved mode's content is unbounded (see `ShapeSynthesis`), so any frozen
+ * list is a list that is eventually wrong. [milestonesFor] therefore takes
+ * the player's own progress and sizes itself to it - never fewer chapters
+ * than exist to show, and a lookahead buffer so "Coming Soon" always sits
+ * comfortably ahead rather than immediately behind the player's last step.
  *
- * A looping journey also has **laps**. On lap two the shapes come round again
- * but the difficulty does not reset, so a chapter card that still advertised
- * "Circle - Easy" while dealing Circle at Master would be lying about the
- * only two things it says. [milestonesForLap] re-reads both from the level
- * numbers that lap actually plays.
+ * [minChapters] is the floor: a mode whose content genuinely ends (grid) just
+ * reports its full fixed list regardless of how many are asked for, while a
+ * mode whose content does not (curved) grows past it.
  */
 class Journey(
     private val chapterIndex: (Int) -> Int,
-    private val lapMilestones: (Int) -> List<Milestone>
+    private val milestonesUpTo: (chapterCount: Int) -> List<Milestone>,
+    private val minChapters: Int
 ) {
-    /** Lap zero: the journey as first met. */
-    val milestones: List<Milestone> = lapMilestones(0)
+    /**
+     * Chapters that exist to show right now: every one up to and including
+     * the player's own highest level, plus [LOOKAHEAD_CHAPTERS] more so the
+     * map always previews real upcoming content rather than ending exactly
+     * where the player happens to be standing.
+     */
+    fun chapterCountFor(highestLevel: Int): Int =
+        maxOf(minChapters, chapterIndex(highestLevel) + 1 + LOOKAHEAD_CHAPTERS)
 
-    val totalLevels: Int = milestones.last().endLevel
+    /** The chapter cards to show for a player at [highestLevel]. See [chapterCountFor]. */
+    fun milestonesFor(highestLevel: Int): List<Milestone> = milestonesUpTo(chapterCountFor(highestLevel))
 
-    /** Chapter a level belongs to. Always a real index into [milestones]. */
-    fun chapterIndexOf(level: Int): Int =
-        chapterIndex(level).coerceIn(0, milestones.lastIndex)
+    /** Chapter [level] belongs to, clamped to what [milestonesFor] would show for [highestLevel]. */
+    fun chapterIndexOf(level: Int, highestLevel: Int): Int =
+        chapterIndex(level).coerceIn(0, chapterCountFor(highestLevel) - 1)
 
-    /** How many times a player has been round. Zero on the first pass. */
-    fun lapOf(level: Int): Int =
-        ((level - 1).coerceAtLeast(0) / totalLevels)
+    /** How many levels are currently shown as real chapters for a player at [highestLevel]. */
+    fun totalLevelsFor(highestLevel: Int): Int = milestonesFor(highestLevel).last().endLevel
 
-    /** The chapter cards as they stand on [lap], with that lap's real levels and tiers. */
-    fun milestonesForLap(lap: Int): List<Milestone> =
-        if (lap <= 0) milestones else lapMilestones(lap)
+    /**
+     * Levels the developer "unlock all" tool should currently grant.
+     *
+     * Deliberately NOT a fixed level number - that was tried twice in the
+     * same session (1000, then 400) and both needed a human to come back
+     * and retune them as soon as the authored catalogue's real size made
+     * the arithmetic land somewhere unintended. [catalogueMultiple] scales
+     * against [minChapters] instead, so this grows automatically whenever
+     * the catalogue does, with nothing here to ever come back and edit.
+     *
+     * For grid mode this has no effect: [milestonesUpTo] ignores whatever
+     * chapter count it is asked for and always returns the real, finite
+     * list - asking for more chapters than exist just asks for the same
+     * list again, because past the real ending there is only a repeating
+     * fallback square to unlock, not new content.
+     */
+    fun devUnlockLevelCount(catalogueMultiple: Int = DEV_UNLOCK_CATALOGUE_MULTIPLE): Int =
+        milestonesUpTo(minChapters * catalogueMultiple).last().endLevel
+
+    companion object {
+        /**
+         * Real chapters materialised ahead of the player's own progress.
+         * Generous on purpose: the map should read as "here is what's next",
+         * not as a wall that happens to sit exactly one level past wherever
+         * the player last stopped.
+         */
+        const val LOOKAHEAD_CHAPTERS = 20
+
+        /**
+         * How many times the current authored catalogue [devUnlockLevelCount]
+         * reaches for on an endless journey (curved). 3x today's 41 authored
+         * chapters lands at 615 levels - comfortably inside the 500-600
+         * target measured as the point where synthesised names ("Pebble",
+         * "Leaf") start repeating more than they're fresh - and stays there
+         * proportionally if the authored catalogue grows later.
+         */
+        const val DEV_UNLOCK_CATALOGUE_MULTIPLE = 3
+    }
 }
 
 /**
@@ -113,13 +159,7 @@ object MilestoneData {
         emoji = emoji
     )
 
-    private val gridJourney = Journey(
-        // The grid journey ends rather than looping: past the last chapter a
-        // player stays in it. Clamping here matches that, and there is only
-        // ever one lap to show.
-        chapterIndex = { level -> (level - 1).coerceAtLeast(0) / LEVELS_PER_MILESTONE },
-        lapMilestones = {
-            listOf(
+    private val GRID_CHAPTERS: List<Milestone> = listOf(
             grid(0, R.string.milestone_title_first_steps, LevelShape.SQUARE, "\uD83C\uDF31"),
             grid(1, R.string.milestone_title_rising_up, LevelShape.PYRAMID, "\u2B50"),
             grid(2, R.string.milestone_title_sharp_turns, LevelShape.DIAMOND, "\uD83D\uDD37"),
@@ -136,34 +176,48 @@ object MilestoneData {
             grid(12, R.string.milestone_title_royal_challenge, LevelShape.CROWN, "\uD83D\uDC51"),
             grid(13, R.string.milestone_title_ring_master, LevelShape.RING, "\uD83D\uDCAD"),
             grid(14, R.string.milestone_title_grand_finale, LevelShape.BUTTERFLY, "\uD83E\uDD8B")
-            )
-        }
+    )
+
+    private val gridJourney = Journey(
+        // The grid journey ends rather than looping: past the last chapter a
+        // player stays in it. Clamping here matches that, and there is only
+        // ever one lap to show.
+        chapterIndex = { level -> (level - 1).coerceAtLeast(0) / LEVELS_PER_MILESTONE },
+        // Ignores the requested chapter count on purpose: the grid game's
+        // content genuinely stops here (see `LevelDesigns.forLevel`'s
+        // fallback), so there is nothing further to materialise no matter
+        // how far ahead the caller asks to look.
+        milestonesUpTo = { GRID_CHAPTERS },
+        minChapters = GRID_CHAPTERS.size
     )
 
     private val curvedJourney: Journey by lazy {
         Journey(
-            // Not a copy of the wrapping arithmetic - the function itself.
+            // Not a copy of the chapter arithmetic - the function itself.
             // The map cannot drift from the shape the generator deals if
             // both ask the same question of the same object.
             chapterIndex = CurvedJourney::chapterOf,
-            lapMilestones = { lap ->
-                val offset = lap * CurvedJourney.totalLevels
-                ShapeCatalog.ALL.mapIndexed { chapter, design ->
-                    // Levels and tier both come from the level this chapter
-                    // plays *on this lap*. Shapes come round again; the
-                    // difficulty does not reset, and the card has to say so.
-                    val first = CurvedJourney.firstLevelOf(chapter) + offset
+            milestonesUpTo = { count ->
+                (0 until count).map { chapter ->
+                    // designForChapter is the exact function the generator
+                    // calls to decide what a level plays - authored shape or
+                    // synthesised one, it makes no difference here. That is
+                    // the whole fix: the map can show every chapter that is
+                    // actually playable, not just the hand-authored ones.
+                    val design = ShapeCatalog.designForChapter(chapter)
+                    val first = CurvedJourney.firstLevelOf(chapter)
                     Milestone(
                         index = chapter,
                         startLevel = first,
-                        endLevel = CurvedJourney.lastLevelOf(chapter) + offset,
+                        endLevel = CurvedJourney.lastLevelOf(chapter),
                         title = MilestoneTitle.Raw(design.name),
                         subtitle = DifficultyTuning.tierOf(first),
                         icon = MilestoneIcon.Curved(design),
                         emoji = emojiFor(design.name)
                     )
                 }
-            }
+            },
+            minChapters = ShapeCatalog.authoredChapterCount
         )
     }
 

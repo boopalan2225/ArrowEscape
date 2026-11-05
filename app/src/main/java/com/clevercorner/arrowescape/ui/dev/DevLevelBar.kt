@@ -1,15 +1,9 @@
 package com.clevercorner.arrowescape.ui.dev
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,11 +16,16 @@ import com.clevercorner.arrowescape.R
 
 /**
  * In-game strip shown only in developer mode: what level/shape/tier this is,
- * how many arrows it has, and previous/next buttons to flip through levels.
+ * and how many arrows it has.
  *
- * A side with nowhere to go is left BLANK rather than greyed out - at level 1
- * only Next shows, at the last defined level only Prev shows - so the bar
- * never implies a destination that does not exist.
+ * Used to also carry its own Prev/Next buttons, stacked right above
+ * [com.clevercorner.arrowescape.ui.components.GameBottomBar]'s own
+ * prev/next-beside-hint icons - two separate controls doing the same job
+ * with different, disagreeing bounds (this bar's against a now-removed
+ * catalogue constant, the other against the player's real progress). Dev
+ * mode now just widens *that one* control's bound instead of drawing a
+ * second one; see the `devMode` check around `onNextLevel` in
+ * `GameScreen`/`CurvedGameScreen`.
  */
 @Composable
 fun DevLevelBar(
@@ -34,77 +33,39 @@ fun DevLevelBar(
     shapeName: String,
     difficulty: String,
     arrowCount: Int,
-    canGoPrevious: Boolean,
-    canGoNext: Boolean,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit,
     modifier: Modifier = Modifier,
     /** How forced the solution is, 0..1. Null hides the read-out. */
     tightness: Float? = null,
     /** Longest run of moves with exactly one legal option. */
     longestChain: Int = 0
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (canGoPrevious) {
-            OutlinedButton(
-                onClick = onPrevious,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                Text(stringResource(R.string.dev_nav_prev))
-            }
-        } else {
-            NavSlotSpacer()
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Text(
+            text = stringResource(R.string.dev_level_shape, level, shapeName),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = stringResource(R.string.dev_difficulty_arrows, difficulty, arrowCount),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        // Generator read-out: the two numbers worth tuning against.
+        if (tightness != null) {
             Text(
-                text = stringResource(R.string.dev_level_shape, level, shapeName),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = stringResource(R.string.dev_difficulty_arrows, difficulty, arrowCount),
+                text = "tight ${"%.2f".format(tightness)} \u00B7 chain $longestChain",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-            // Generator read-out: the two numbers worth tuning against.
-            if (tightness != null) {
-                Text(
-                    text = "tight ${"%.2f".format(tightness)} \u00B7 chain $longestChain",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        if (canGoNext) {
-            OutlinedButton(
-                onClick = onNext,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                Text(stringResource(R.string.dev_nav_next))
-            }
-        } else {
-            NavSlotSpacer()
         }
     }
-}
-
-/** Keeps the centre label centred when one side's button is hidden. */
-@Composable
-private fun NavSlotSpacer() {
-    Spacer(Modifier.width(1.dp))
 }

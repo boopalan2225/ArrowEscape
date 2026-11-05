@@ -123,7 +123,6 @@ fun DevLevelScreen(
 private fun ChapterRow(chapter: Int, name: String, onPlayLevel: (Int) -> Unit) {
     val first = CurvedJourney.firstLevelOf(chapter)
     val last = CurvedJourney.lastLevelOf(chapter)
-    val master = DevLevels.masterReplay(chapter)
 
     Surface(
         shape = RoundedCornerShape(14.dp),
@@ -146,8 +145,6 @@ private fun ChapterRow(chapter: Int, name: String, onPlayLevel: (Int) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 LevelButton(stringResource(R.string.dev_level_button_first), first, onPlayLevel, Modifier.weight(1f))
                 LevelButton(stringResource(R.string.dev_level_button_last), last, onPlayLevel, Modifier.weight(1f))
-                // Same shape, one lap later - always the hardest tier.
-                LevelButton(stringResource(R.string.dev_level_button_master), master, onPlayLevel, Modifier.weight(1f))
             }
         }
     }

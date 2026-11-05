@@ -38,6 +38,7 @@ import com.clevercorner.arrowescape.game.model.Deflector
 import com.clevercorner.arrowescape.game.model.Direction
 import com.clevercorner.arrowescape.ui.components.BoardFurniture.drawDeflector
 import com.clevercorner.arrowescape.ui.components.BoardFurniture.drawLockBadge
+import com.clevercorner.arrowescape.ui.components.BoardFurniture.drawSequenceBadge
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -305,6 +306,18 @@ fun GameBoard(
 
                     drawSnakeArrow(points, arrow.direction, cell, c1, c2)
                     if (lock != null) drawLockBadge(points.first(), cell, lock.first)
+                    arrow.sequenceKey?.let { key ->
+                        // "Ready" is asked of the engine rather than worked
+                        // out here, so the badge and the tap can never
+                        // disagree about whose turn it is.
+                        drawSequenceBadge(
+                            center = points.last(),
+                            cell = cell,
+                            key = key,
+                            ready = !CollisionChecker.isSequenceBlocked(arrow, arrows),
+                            color = gameColors.arrowHint
+                        )
+                    }
                 }
 
                 preview?.forEach { (arrowId, trace) ->
