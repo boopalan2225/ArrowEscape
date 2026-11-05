@@ -354,11 +354,13 @@ fun ArrowEscapeApp(
                 wallet = prefs.wallet,
                 daily = prefs.daily,
                 // Both journeys count: a chapter is a chapter, whichever
-                // game you beat it in.
+                // game you beat it in. Each mode's own chapter length, via
+                // chaptersClearedFor - see ArrowEscapeApplication.coinBank
+                // for why a single shared constant here was wrong.
                 chaptersCleared = GameMode.entries.sumOf { mode ->
                     val journey = MilestoneData.forMode(mode)
                     val highest = prefs.progressOf(mode).highestLevel
-                    ((highest - 1) / MilestoneData.LEVELS_PER_MILESTONE)
+                    journey.chaptersClearedFor(highest)
                         .coerceIn(0, journey.chapterCountFor(highest))
                 },
                 adOffer = CoinRules.adOffer(prefs.wallet, LocalDate.now()),

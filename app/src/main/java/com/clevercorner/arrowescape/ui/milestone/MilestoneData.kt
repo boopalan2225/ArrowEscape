@@ -24,13 +24,22 @@ sealed interface MilestoneIcon {
  * independently translatable without a larger catalog rework).
  */
 sealed interface MilestoneTitle {
-    data class Localized(@StringRes val resId: Int) : MilestoneTitle
+    /**
+     * @param part Which section of this title's shape this is, 1-based, or
+     *   null for a title that is not split. Grid mode's hand-authored themes
+     *   outnumber its shapes-per-section, so one theme now spans
+     *   [MilestoneData.SECTIONS_PER_THEME] sections rather than one - this is
+     *   what keeps two adjacent sections reading as "First Steps, Part 1" and
+     *   "First Steps, Part 2" instead of two identically-titled cards.
+     */
+    data class Localized(@StringRes val resId: Int, val part: Int? = null) : MilestoneTitle
     data class Raw(val value: String) : MilestoneTitle
 }
 
 @Composable
 fun MilestoneTitle.resolve(): String = when (this) {
-    is MilestoneTitle.Localized -> stringResource(resId)
+    is MilestoneTitle.Localized -> part?.let { stringResource(R.string.milestone_title_part, stringResource(resId), it) }
+        ?: stringResource(resId)
     is MilestoneTitle.Raw -> value
 }
 
@@ -79,6 +88,29 @@ class Journey(
     private val minChapters: Int
 ) {
     /**
+     * Whole chapters a player who has reached [highestLevel] has finished.
+     *
+     * A coin-economy question, not a map one - [chapterIndexOf] answers
+     * "which chapter card should be showing right now", clamped to what the
+     * map actually draws; this is unclamped and asks something different:
+     * how many chapters are fully *behind* this player. The level they are
+     * currently on is still in progress, so its own zero-based chapter
+     * index already is that count (a player on the first level of chapter 3
+     * has finished chapters 0 through 2 - three of them, which is chapter
+     * index 3).
+     *
+     * Exists because this used to be reimplemented at every call site as
+     * `(highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE` - a classic-
+     * only constant applied to both modes. Curved's real chapter is half
+     * that size, so curved players were being credited for finishing half
+     * as many chapters as they actually had. Routing through each journey's
+     * own [chapterIndex] fixes that, and means a future change to either
+     * mode's chapter length - like this one - cannot silently throw the
+     * coin economy out of step with the map again.
+     */
+    fun chaptersClearedFor(highestLevel: Int): Int = chapterIndex(highestLevel)
+
+    /**
      * Chapters that exist to show right now: every one up to and including
      * the player's own highest level, plus [LOOKAHEAD_CHAPTERS] more so the
      * map always previews real upcoming content rather than ending exactly
@@ -111,7 +143,7 @@ class Journey(
      * **The authored catalogue, and nothing beyond it.** A dev tool exists to
      * remove the app's own roadblocks, not to invent content past them, so
      * the answer is simply where the hand-made chapters stop: 215 for curved
-     * (43 catalogue shapes x 5), 150 for grid (15 chapters x 10). Both
+     * (43 catalogue shapes x 5), 150 for grid (15 themes x 2 sections x 5). Both
      * numbers come from the catalogue itself, so neither can go stale when
      * shapes are added - and [milestonesUpTo] enforces the same ceiling on
      * everything else this class answers, so this number, [totalLevelsFor]
@@ -169,41 +201,76 @@ class Journey(
  */
 object MilestoneData {
 
-    const val LEVELS_PER_MILESTONE = 10
+    /**
+     * Levels in one chapter card - 5, the same cadence [CurvedJourney] uses,
+     * so neither journey feels slower than the other to walk through.
+     *
+     * Used to be 10. Classic's actual content has no matching concept of
+     * "one chapter, one shape" to preserve - [LevelDesigns.forLevel] gives
+     * every individual level its own unique shape already, so the grid
+     * journey's chapter theme was always a narrative label over that, never
+     * a literal description of what plays. Halving it does not touch a
+     * single generated board; it only redraws the map.
+     */
+    const val LEVELS_PER_MILESTONE = 5
 
-    private fun grid(
-        index: Int,
-        @StringRes titleRes: Int,
-        shape: LevelShape,
-        emoji: String
-    ) = Milestone(
-        index = index,
-        startLevel = index * LEVELS_PER_MILESTONE + 1,
-        endLevel = (index + 1) * LEVELS_PER_MILESTONE,
-        title = MilestoneTitle.Localized(titleRes),
-        subtitle = shape.displayName,
-        icon = MilestoneIcon.Grid(shape),
-        emoji = emoji
+    /**
+     * How many chapter cards share one hand-authored theme.
+     *
+     * There are only [GRID_THEMES]`.size` hand-written titles, and at 5
+     * levels a chapter that is now half as many levels as a theme used to
+     * cover - so each theme now spans this many consecutive cards rather
+     * than one, told apart by [MilestoneTitle.Localized]'s `part` number.
+     */
+    private const val SECTIONS_PER_THEME = 2
+
+    /** One hand-authored theme: a title, a representative shape, an emoji. */
+    private class GridTheme(
+        @StringRes val titleRes: Int,
+        val shape: LevelShape,
+        val emoji: String
     )
 
-    private val GRID_CHAPTERS: List<Milestone> = listOf(
-            grid(0, R.string.milestone_title_first_steps, LevelShape.SQUARE, "\uD83C\uDF31"),
-            grid(1, R.string.milestone_title_rising_up, LevelShape.PYRAMID, "\u2B50"),
-            grid(2, R.string.milestone_title_sharp_turns, LevelShape.DIAMOND, "\uD83D\uDD37"),
-            grid(3, R.string.milestone_title_full_circle, LevelShape.CIRCLE, "\uD83D\uDD35"),
-            grid(4, R.string.milestone_title_heartfelt, LevelShape.HEART, "\u2764\uFE0F"),
-            grid(5, R.string.milestone_title_crossroads, LevelShape.CROSS, "\u271A"),
-            grid(6, R.string.milestone_title_hexa_hive, LevelShape.HEXAGON, "\u2B22"),
-            grid(7, R.string.milestone_title_star_power, LevelShape.STAR, "\uD83C\uDF1F"),
-            grid(8, R.string.milestone_title_eclipse, LevelShape.CRESCENT, "\uD83C\uDF19"),
-            grid(9, R.string.milestone_title_x_marks_it, LevelShape.LETTER_X, "\u2716\uFE0F"),
+    private val GRID_THEMES: List<GridTheme> = listOf(
+            GridTheme(R.string.milestone_title_first_steps, LevelShape.SQUARE, "\uD83C\uDF31"),
+            GridTheme(R.string.milestone_title_rising_up, LevelShape.PYRAMID, "\u2B50"),
+            GridTheme(R.string.milestone_title_sharp_turns, LevelShape.DIAMOND, "\uD83D\uDD37"),
+            GridTheme(R.string.milestone_title_full_circle, LevelShape.CIRCLE, "\uD83D\uDD35"),
+            GridTheme(R.string.milestone_title_heartfelt, LevelShape.HEART, "\u2764\uFE0F"),
+            GridTheme(R.string.milestone_title_crossroads, LevelShape.CROSS, "\u271A"),
+            GridTheme(R.string.milestone_title_hexa_hive, LevelShape.HEXAGON, "\u2B22"),
+            GridTheme(R.string.milestone_title_star_power, LevelShape.STAR, "\uD83C\uDF1F"),
+            GridTheme(R.string.milestone_title_eclipse, LevelShape.CRESCENT, "\uD83C\uDF19"),
+            GridTheme(R.string.milestone_title_x_marks_it, LevelShape.LETTER_X, "\u2716\uFE0F"),
             // Hard category shapes
-            grid(10, R.string.milestone_title_spiral_madness, LevelShape.SPIRAL, "\uD83C\uDF00"),
-            grid(11, R.string.milestone_title_storm_surge, LevelShape.LIGHTNING, "\u26A1"),
-            grid(12, R.string.milestone_title_royal_challenge, LevelShape.CROWN, "\uD83D\uDC51"),
-            grid(13, R.string.milestone_title_ring_master, LevelShape.RING, "\uD83D\uDCAD"),
-            grid(14, R.string.milestone_title_grand_finale, LevelShape.BUTTERFLY, "\uD83E\uDD8B")
+            GridTheme(R.string.milestone_title_spiral_madness, LevelShape.SPIRAL, "\uD83C\uDF00"),
+            GridTheme(R.string.milestone_title_storm_surge, LevelShape.LIGHTNING, "\u26A1"),
+            GridTheme(R.string.milestone_title_royal_challenge, LevelShape.CROWN, "\uD83D\uDC51"),
+            GridTheme(R.string.milestone_title_ring_master, LevelShape.RING, "\uD83D\uDCAD"),
+            GridTheme(R.string.milestone_title_grand_finale, LevelShape.BUTTERFLY, "\uD83E\uDD8B")
     )
+
+    /**
+     * [GRID_THEMES], expanded into [SECTIONS_PER_THEME] 5-level cards each -
+     * 30 cards covering the same 150 levels the old 15 ten-level cards did.
+     * `grid()`'s old per-call index/title bookkeeping is gone because it is
+     * now entirely mechanical: section `n` of theme `t` is always chapter
+     * `t * SECTIONS_PER_THEME + n`, titled with the theme's name and `n + 1`.
+     */
+    private val GRID_CHAPTERS: List<Milestone> = GRID_THEMES.flatMapIndexed { themeIndex, theme ->
+        (0 until SECTIONS_PER_THEME).map { section ->
+            val index = themeIndex * SECTIONS_PER_THEME + section
+            Milestone(
+                index = index,
+                startLevel = index * LEVELS_PER_MILESTONE + 1,
+                endLevel = (index + 1) * LEVELS_PER_MILESTONE,
+                title = MilestoneTitle.Localized(theme.titleRes, part = section + 1),
+                subtitle = theme.shape.displayName,
+                icon = MilestoneIcon.Grid(theme.shape),
+                emoji = theme.emoji
+            )
+        }
+    }
 
     private val gridJourney = Journey(
         // The grid journey ends rather than looping: past the last chapter a

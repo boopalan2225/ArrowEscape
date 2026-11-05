@@ -3,6 +3,7 @@ package com.clevercorner.arrowescape.ui.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,10 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +32,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,43 +46,57 @@ import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 import com.clevercorner.arrowescape.ui.theme.GameColors
 
 /**
- * A chip that opens the board's legend in a dialog.
+ * A compact button that opens the board's legend in a dialog.
  *
- * Sits on its own row just under the header (see [BoardLegendRow]) so it
- * never competes with the title or the header's trailing widgets.
+ * Sized and styled to match [GameTopBar]'s own back button - a 40dp circle,
+ * not a labelled chip - so it fits that header's trailing slot instead of
+ * needing a whole row of its own underneath it. A legend is reference
+ * material a player checks once in a while, not a headline; it should cost
+ * the header a glance, not a line.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoardLegendButton(mode: GameMode, modifier: Modifier = Modifier) {
     var open by remember { mutableStateOf(false) }
+    val legendDescription = stringResource(R.string.legend_open_label)
 
-    AssistChip(
+    FilledIconButton(
         onClick = { open = true },
-        colors = AssistChipDefaults.assistChipColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            labelColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        label = {
-            Text(
-                text = stringResource(R.string.legend_open_label),
-                style = MaterialTheme.typography.labelMedium
-            )
-        },
         modifier = modifier
-    )
+            .size(40.dp)
+            .semantics { contentDescription = legendDescription },
+        shape = CircleShape,
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    ) {
+        // A plain glyph rather than a Material icon import - the rest of the
+        // board HUD already draws its symbols this way (see the arrow glyph
+        // in GameStatsRow), so this needs nothing extra on the classpath.
+        // The glyph carries no label of its own, hence the contentDescription
+        // above - a screen reader still needs to hear "Legend", even though
+        // sighted players now see a symbol instead of that word.
+        Text(text = "\u2139", fontSize = 18.sp)
+    }
 
     if (open) {
         BoardLegendDialog(mode = mode, onDismiss = { open = false })
     }
 }
 
-/** The legend button, right-aligned on its own slim row beneath a header. */
+/**
+ * The legend button on its own slim row beneath a header.
+ *
+ * For screens whose header has no [GameTopBar]-style trailing slot to tuck
+ * the button into (daily mode's `DailyHud` is the one caller left) - see
+ * [BoardLegendButton] for the button itself.
+ */
 @Composable
 fun BoardLegendRow(mode: GameMode, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 18.dp, end = 25.dp),
+            .padding(top = 10.dp, end = 25.dp),
         horizontalArrangement = Arrangement.End
     ) {
         BoardLegendButton(mode)

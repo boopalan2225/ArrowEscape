@@ -16,13 +16,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.BuildConfig
+import com.clevercorner.arrowescape.ads.BannerAdView
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.curve.CurvedArrow
 import com.clevercorner.arrowescape.game.curve.CurvedJourney
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.ui.components.*
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
-import com.clevercorner.arrowescape.ui.dev.DevLevelBar
 import com.clevercorner.arrowescape.ui.tutorial.SpotlightTarget
 import com.clevercorner.arrowescape.ui.tutorial.spotlightTarget
 
@@ -86,7 +87,8 @@ fun CurvedGameScreen(
                     GameTopBar(
                         level = gameState.level,
                         subtitle = "${gameState.difficulty} \u00B7 ${gameState.shapeName}",
-                        onBackClick = onBackClick
+                        onBackClick = onBackClick,
+                        trailing = { BoardLegendButton(GameMode.CURVED) }
                     )
 
                     GameStatsRow(
@@ -98,8 +100,6 @@ fun CurvedGameScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
-
-            BoardLegendRow(GameMode.CURVED)
 
             // Game board - centered with the curved arrows
             CurvedBoardArea(
@@ -114,19 +114,8 @@ fun CurvedGameScreen(
                     .spotlightTarget(SpotlightTarget.BOARD)
             )
 
-            if (prefs.devMode) {
-                DevLevelBar(
-                    level = gameState.level,
-                    shapeName = gameState.shapeName,
-                    difficulty = gameState.difficulty,
-                    arrowCount = gameState.arrows.size
-                )
-            }
-
             GameBottomBar(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .spotlightTarget(SpotlightTarget.HINT),
+                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
                 // Back to anything already played; forward only as far as
@@ -149,6 +138,13 @@ fun CurvedGameScreen(
                         activity?.let { viewModel.onWatchAdForHints(it) }
                     }
                 }
+            )
+
+            // True bottom of the screen, below everything else including
+            // the hint bar - same spot the system nav bar sits just under.
+            BannerAdView(
+                adUnitId = BuildConfig.BANNER_AD_UNIT_ID,
+                modifier = Modifier.navigationBarsPadding()
             )
         }
 

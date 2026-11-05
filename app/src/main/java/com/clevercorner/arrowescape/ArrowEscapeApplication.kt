@@ -54,8 +54,13 @@ class ArrowEscapeApplication : Application() {
      */
     val coinBank: CoinBank by lazy {
         CoinBank(preferences) { mode, progress ->
-            val chapters = MilestoneData.forMode(mode).chapterCountFor(progress.highestLevel)
-            ((progress.highestLevel - 1) / MilestoneData.LEVELS_PER_MILESTONE).coerceIn(0, chapters)
+            // Each mode answers "how many chapters cleared" against its own
+            // chapter length - see Journey.chaptersClearedFor. Dividing by a
+            // single shared constant here used to under-count curved, whose
+            // chapters are half as long as classic's.
+            val journey = MilestoneData.forMode(mode)
+            journey.chaptersClearedFor(progress.highestLevel)
+                .coerceIn(0, journey.chapterCountFor(progress.highestLevel))
         }
     }
 

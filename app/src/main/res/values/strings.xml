@@ -49,6 +49,8 @@
     <string name="milestone_title_royal_challenge">Royal Challenge</string>
     <string name="milestone_title_ring_master">Ring Master</string>
     <string name="milestone_title_grand_finale">Grand Finale</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Part %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">ARROW</string>

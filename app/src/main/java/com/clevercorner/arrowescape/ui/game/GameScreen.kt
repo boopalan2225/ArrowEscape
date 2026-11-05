@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.clevercorner.arrowescape.BuildConfig
+import com.clevercorner.arrowescape.ads.BannerAdView
 import com.clevercorner.arrowescape.game.level.DifficultyConfig
 import com.clevercorner.arrowescape.game.level.LevelShape
 import com.clevercorner.arrowescape.data.GameMode
@@ -27,7 +29,6 @@ import com.clevercorner.arrowescape.game.model.Direction
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.ui.components.*
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
-import com.clevercorner.arrowescape.ui.dev.DevLevelBar
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 import com.clevercorner.arrowescape.ui.tutorial.SpotlightTarget
 import com.clevercorner.arrowescape.ui.tutorial.spotlightTarget
@@ -43,7 +44,6 @@ fun GameScreen(
     val shapeName by viewModel.shapeName.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val combo by viewModel.combo.collectAsState()
-    val levelMetrics by viewModel.levelMetrics.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
 
     val context = LocalContext.current
@@ -93,7 +93,8 @@ fun GameScreen(
                         // Difficulty and shape are static facts about the
                         // level - one quiet line, not two loud chips.
                         subtitle = "${gameState.difficultyLabel} \u00B7 $shapeName",
-                        onBackClick = onBackClick
+                        onBackClick = onBackClick,
+                        trailing = { BoardLegendButton(GameMode.CLASSIC) }
                     )
 
                     GameStatsRow(
@@ -105,8 +106,6 @@ fun GameScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
-
-            BoardLegendRow(GameMode.CLASSIC)
 
             // Game board - centered, fills available space
             ClassicBoardArea(
@@ -122,21 +121,8 @@ fun GameScreen(
                     .spotlightTarget(SpotlightTarget.BOARD)
             )
 
-            if (prefs.devMode) {
-                DevLevelBar(
-                    level = gameState.level,
-                    shapeName = shapeName,
-                    difficulty = gameState.difficultyLabel,
-                    tightness = levelMetrics.tightness,
-                    longestChain = levelMetrics.longestChain,
-                    arrowCount = gameState.arrows.size
-                )
-            }
-
             GameBottomBar(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .spotlightTarget(SpotlightTarget.HINT),
+                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
                 // Back to anything already played; forward only as far as
@@ -158,6 +144,13 @@ fun GameScreen(
                         activity?.let { viewModel.onWatchAdForHints(it) }
                     }
                 }
+            )
+
+            // True bottom of the screen, below everything else including
+            // the hint bar - same spot the system nav bar sits just under.
+            BannerAdView(
+                adUnitId = BuildConfig.BANNER_AD_UNIT_ID,
+                modifier = Modifier.navigationBarsPadding()
             )
         }
 

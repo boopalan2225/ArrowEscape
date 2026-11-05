@@ -21,7 +21,8 @@ data class AnalyticsEvent(
  */
 enum class AdFormat(val reportingName: String) {
     REWARDED("rewarded"),
-    INTERSTITIAL("interstitial")
+    INTERSTITIAL("interstitial"),
+    BANNER("banner")
 }
 
 /** Parameter keys. Firebase truncates at 40 chars - these stay well short. */

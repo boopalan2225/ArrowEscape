@@ -104,6 +104,7 @@ android {
             // Use test ad unit IDs in debug
             buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/5224354917\"")
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
+            buildConfigField("String", "BANNER_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "true")
             // Placeholder google-services.json is checked in, so nothing is
             // sent anywhere until a real Firebase project replaces it. Flip
@@ -128,6 +129,7 @@ android {
             // Replace these with your production ad unit IDs
             buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"YOUR_PRODUCTION_REWARDED_AD_UNIT_ID\"")
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"YOUR_PRODUCTION_INTERSTITIAL_AD_UNIT_ID\"")
+            buildConfigField("String", "BANNER_AD_UNIT_ID", "\"YOUR_PRODUCTION_BANNER_AD_UNIT_ID\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "false")
             // Set to true together with a real google-services.json.
             buildConfigField("Boolean", "FIREBASE_ENABLED", "false")

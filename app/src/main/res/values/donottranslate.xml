@@ -18,8 +18,6 @@
     <string name="dev_daily_layout_journey" translatable="false">Journey</string>
     <string name="dev_daily_design_label" translatable="false">Design (dev)</string>
     <string name="dev_daily_design_today" translatable="false">Today’s puzzle</string>
-    <string name="dev_level_shape" translatable="false">L%1$d \u00B7 %2$s</string>
-    <string name="dev_difficulty_arrows" translatable="false">%1$s \u00B7 %2$d arrows</string>
     <string name="dev_level_field_label" translatable="false">Level (1-%1$d)</string>
     <string name="dev_open_button" translatable="false">Open</string>
     <string name="dev_jump_to_shape_header" translatable="false">OR JUMP TO A SHAPE\'S CHAPTER</string>
