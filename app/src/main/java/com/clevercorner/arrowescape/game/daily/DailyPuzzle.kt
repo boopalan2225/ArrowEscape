@@ -145,6 +145,20 @@ data class DailyProgress(
     }
 }
 
+/**
+ * Where a daily board is framed. Production always uses [PLAQUE]; the others
+ * exist so a developer can validate how a different layout plays.
+ *
+ * [PLAQUE] is square because the daily's plaque artwork is square and that
+ * plaque *is* the four walls the arrows escape past. A 2:3 playfield inside
+ * a 1:1 frame can only spill over it or float in it, so the plaque layout
+ * keeps the square. [JOURNEY] is the journey's own board, for comparison.
+ */
+enum class DailyBoardLayout(val width: Float, val height: Float) {
+    PLAQUE(width = 500f, height = 500f),
+    JOURNEY(width = 400f, height = 600f)
+}
+
 /** The four states a date can be in, from the player's point of view. */
 enum class DailyStatus {
     /** Today, and not yet solved. The only state you can play in. */

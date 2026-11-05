@@ -13,6 +13,11 @@
     <string name="settings_debug_reset_subtitle" translatable="false">Start %1$s from level 1</string>
 
     <!-- ======================= Developer tools (devMode only, still shipped) ======================= -->
+    <string name="dev_daily_layout_label" translatable="false">Board (dev)</string>
+    <string name="dev_daily_layout_plaque" translatable="false">Plaque</string>
+    <string name="dev_daily_layout_journey" translatable="false">Journey</string>
+    <string name="dev_daily_design_label" translatable="false">Design (dev)</string>
+    <string name="dev_daily_design_today" translatable="false">Today’s puzzle</string>
     <string name="dev_level_shape" translatable="false">L%1$d \u00B7 %2$s</string>
     <string name="dev_difficulty_arrows" translatable="false">%1$s \u00B7 %2$d arrows</string>
     <string name="dev_level_field_label" translatable="false">Level (1-%1$d)</string>

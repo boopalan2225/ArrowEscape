@@ -12,6 +12,7 @@ import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.game.Scoring
 import com.clevercorner.arrowescape.game.curve.*
+import com.clevercorner.arrowescape.game.daily.DailyBoardLayout
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.daily.DailyShuffle
 import com.clevercorner.arrowescape.game.model.GameStatus
@@ -91,16 +92,8 @@ class CurvedGameViewModel(
         private const val DEFAULT_LIVES = 3
         private const val HINTS_PER_LEVEL = 2
         /** The journey's board: a tall card that fills a phone screen. */
-        private const val JOURNEY_BOARD_WIDTH = 400f
+private const val JOURNEY_BOARD_WIDTH = 400f
         private const val JOURNEY_BOARD_HEIGHT = 600f
-
-        /**
-         * The daily's board is square, because the daily's plaque artwork is
-         * square and that plaque *is* the four walls the arrows escape past.
-         * A 2:3 playfield inside a 1:1 frame can only ever spill over it or
-         * float in the middle of it; neither reads as one board.
-         */
-        private const val DAILY_BOARD_SIDE = 500f
 
         /** Half a shuffle: fold away, then unfold into the new arrangement. */
         private const val SHUFFLE_FOLD_MS = 420L
@@ -191,6 +184,7 @@ class CurvedGameViewModel(
 
     /** Non-null only while a daily board is being played. */
     private var dailyPuzzle: DailyPuzzle? = null
+    private var dailyLayout: DailyBoardLayout = DailyBoardLayout.PLAQUE
 
     /**
      * Precomputed blocking graph for the level. Built once - arrow geometry
@@ -252,12 +246,13 @@ class CurvedGameViewModel(
      *
      * The daily also gets the shuffle clock - see [runShuffleClock].
      */
-    fun startDaily(puzzle: DailyPuzzle) {
+    fun startDaily(puzzle: DailyPuzzle, layout: DailyBoardLayout = DailyBoardLayout.PLAQUE) {
         session = CurvedSession.DAILY
         dailyPuzzle = puzzle
+        dailyLayout = layout
         journeyLevel = null
         viewModelScope.launch { bestRunKnown = preferences.prefs.filterNotNull().first().daily.bestRun }
-        useBoard(DAILY_BOARD_SIDE, DAILY_BOARD_SIDE)
+        useBoard(layout.width, layout.height)
         loadBoard(puzzle.levelSeed)
         runShuffleClock()
     }
@@ -832,7 +827,7 @@ class CurvedGameViewModel(
         // Retrying a daily must stay a daily - restarting through the journey
         // path would quietly turn today's puzzle into a journey level.
         val daily = dailyPuzzle
-        if (session == CurvedSession.DAILY && daily != null) startDaily(daily)
+        if (session == CurvedSession.DAILY && daily != null) startDaily(daily, dailyLayout)
         else startLevel(currentLevel)
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import kotlinx.coroutines.delay
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinGrant
+import com.clevercorner.arrowescape.game.daily.DailyBoardLayout
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
@@ -114,7 +116,20 @@ fun DailyScreen(
     // mode deliberately never writes any.
     var showRecord by remember(puzzle.stamp) { mutableStateOf(false) }
 
-    LaunchedEffect(puzzle.stamp) { if (playable) viewModel.startDaily(puzzle) }
+    // Developer-only framing. Production never leaves PLAQUE; the switch exists
+    // so a developer can see how the same puzzle plays on the journey's board.
+    var layout by rememberSaveable { mutableStateOf(DailyBoardLayout.PLAQUE) }
+
+    // Developer-only: play a chosen journey design here instead of today's
+    // puzzle. Same daily frame and shuffle; the level number carries the tier.
+    var designLevel by rememberSaveable { mutableStateOf<Int?>(null) }
+    val effectivePuzzle = designLevel?.let { puzzle.copy(levelSeed = it) } ?: puzzle
+
+    LaunchedEffect(puzzle.stamp, layout, designLevel) {
+        if (playable) viewModel.startDaily(effectivePuzzle, layout)
+    }
+
+    // The shuffle clock belongs to this screen; it must not outlive it.
 
     // The shuffle clock belongs to this screen; it must not outlive it.
     DisposableEffect(Unit) {
@@ -167,6 +182,19 @@ fun DailyScreen(
                 onBackClick = onBackClick
             )
 
+            if (prefs.devMode) {
+                DevLayoutChooser(
+                    selected = layout,
+                    onSelect = { layout = it },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                DevDesignPicker(
+                    selectedLevel = designLevel,
+                    onSelect = { designLevel = it },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
             // The board takes every pixel the chrome does not need. The
             // plaque is square and width-bound, so each dp of side padding
             // costs a dp off BOTH its edges - keep it to a hairline and let
@@ -197,7 +225,7 @@ fun DailyScreen(
                         // The daily's whole identity: a frosted glass pane
                         // over the theme's own scene, not a flat square card.
                         skin = BoardSkin.DAILY,
-                        plaque = boardPlaque,
+                        plaque = if (layout == DailyBoardLayout.PLAQUE) boardPlaque else null,
                         arrowDuotone = dailyStyle.arrowDuotone
                     )
                 }
