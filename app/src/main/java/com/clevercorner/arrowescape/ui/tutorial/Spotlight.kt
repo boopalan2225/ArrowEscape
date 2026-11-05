@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import com.clevercorner.arrowescape.R
+import com.clevercorner.arrowescape.data.GameMode
 
 /** The real controls a coach mark can point at. */
 enum class SpotlightTarget { MODES, PROGRESS, PLAY, JOURNEY, SETTINGS, BOARD, LIVES, HINT }
@@ -23,7 +24,15 @@ data class TutorialStep(
     @StringRes val titleRes: Int,
     @StringRes val bodyRes: Int,
     /** Interactive steps let taps through to the control underneath. */
-    val interactive: Boolean = false
+    val interactive: Boolean = false,
+    /**
+     * A worked example played out on a miniature board inside the card.
+     *
+     * Reserved for the rules that a sentence cannot carry - "matching rings
+     * leave together" is a fact a player nods at and forgets, where a hand
+     * tapping one ring and watching both go is a rule they have seen work.
+     */
+    val demo: TutorialDemo? = null
 )
 
 /** Where each control ended up on screen, measured by the controls themselves. */
@@ -82,9 +91,19 @@ object HomeTour {
     )
 }
 
-/** The in-game tour: two guided moves, then the things around the board. */
+/**
+ * The in-game tour: two guided moves, the mechanics that the board legend
+ * lists, then the things around the board.
+ *
+ * Mode-aware, because the legend is. Turn pads and locked pairs exist only
+ * on the classic grid, and a lesson about furniture a player will never
+ * meet is worse than no lesson - it teaches them that the tutorial is not
+ * about the game in front of them.
+ */
 object GameTour {
-    val steps = listOf(
+
+    /** Learn the verb first. Nothing else makes sense before the tap does. */
+    private val opening = listOf(
         TutorialStep(
             target = SpotlightTarget.BOARD,
             titleRes = R.string.tour_game_board1_title,
@@ -96,16 +115,52 @@ object GameTour {
             titleRes = R.string.tour_game_board2_title,
             bodyRes = R.string.tour_game_board2_body,
             interactive = true
-        ),
+        )
+    )
+
+    /**
+     * The two lessons that are really about the HUD, each carrying the
+     * demonstration that belongs with it: hearts are what a blocked tap
+     * costs, and a hint is a glow on the board rather than a button that
+     * solves things.
+     */
+    private val closing = listOf(
         TutorialStep(
             target = SpotlightTarget.LIVES,
             titleRes = R.string.tour_game_lives_title,
-            bodyRes = R.string.tour_game_lives_body
+            bodyRes = R.string.tour_game_lives_body,
+            demo = TutorialDemo.BLOCKED
         ),
         TutorialStep(
             target = SpotlightTarget.HINT,
             titleRes = R.string.tour_game_hint_title,
-            bodyRes = R.string.tour_game_hint_body
+            bodyRes = R.string.tour_game_hint_body,
+            demo = TutorialDemo.HINT_GLOW
         )
     )
+
+    fun steps(mode: GameMode): List<TutorialStep> = opening + mechanics(mode) + closing
+
+    /**
+     * One step per rule the board legend bothers to list, in the order a
+     * player will trip over them. The spotlight stays on the board for all
+     * of these: the card is doing the teaching, and the hole keeps the
+     * player's eye on the thing being taught about.
+     */
+    private fun mechanics(mode: GameMode): List<TutorialStep> = buildList {
+        if (mode == GameMode.CLASSIC) {
+            add(lesson(R.string.tour_game_turnpad_title, R.string.tour_game_turnpad_body, TutorialDemo.TURN_PAD))
+            add(lesson(R.string.tour_game_lock_title, R.string.tour_game_lock_body, TutorialDemo.LOCK_PAIR))
+        }
+        add(lesson(R.string.tour_game_order_title, R.string.tour_game_order_body, TutorialDemo.SEQUENCE))
+        add(lesson(R.string.tour_game_route_title, R.string.tour_game_route_body, TutorialDemo.ROUTE_PREVIEW))
+    }
+
+    private fun lesson(@StringRes title: Int, @StringRes body: Int, demo: TutorialDemo) =
+        TutorialStep(
+            target = SpotlightTarget.BOARD,
+            titleRes = title,
+            bodyRes = body,
+            demo = demo
+        )
 }

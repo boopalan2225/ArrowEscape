@@ -264,6 +264,18 @@
     <string name="tour_game_board1_body">Find an arrow with a clear run to the edge it points at, and tap it. Go on - the board is live.</string>
     <string name="tour_game_board2_title">Now one more</string>
     <string name="tour_game_board2_body">Every arrow that leaves opens a path for another. Tap a second one and watch the board loosen up.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Turn pads bend the run</string>
+    <string name="tour_game_turnpad_body">An arrow that reaches a pad carries on the way the pad points. Lanes that look blocked often are not.</string>
+    <string name="tour_game_lock_title">Locked pairs move as one</string>
+    <string name="tour_game_lock_body">Two rings in the same colour leave together, or not at all. Tap either one - but both need a clear run first.</string>
+    <string name="tour_game_order_title">Numbers take their turn</string>
+    <string name="tour_game_order_body">Numbered arrows leave in order. A dim badge is still waiting; a bright one is ready to go.</string>
+    <string name="tour_game_route_title">Check before you tap</string>
+    <string name="tour_game_route_body">Press and hold an arrow to trace its route. Green runs clear off the board; red stops at the cell marked with a cross.</string>
     <string name="tour_game_lives_title">Arrows left, and lives</string>
     <string name="tour_game_lives_body">Tap a blocked arrow and it shakes instead of leaving - and costs one of these three hearts.</string>
     <string name="tour_game_hint_title">Stuck? Take a hint</string>

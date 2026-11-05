@@ -444,7 +444,10 @@ fun ArrowEscapeApp(
 
                         SpotlightOverlay(
                             state = spotlight,
-                            steps = GameTour.steps,
+                            // The tour is cut to the mode being played:
+                            // curved boards have no turn pads or locked
+                            // pairs to teach.
+                            steps = GameTour.steps(prefs.mode),
                             progress = arrowsLeft,
                             onFinish = {
                                 scope.launch { preferences.setGameTourDone(true) }

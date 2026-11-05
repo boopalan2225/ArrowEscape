@@ -72,8 +72,14 @@ private val CARD_GAP = 20.dp
  * gap bigger than the window, and the card was pushed off the top edge
  * taking the Skip button with it. Reserving space is the fix: the tour must
  * never be able to hide its own way out.
+ *
+ * A card carrying a demonstration needs noticeably more of it, so the
+ * reservation is asked of the step rather than fixed - one number for two
+ * very different cards would either crop the animation or waste half the
+ * screen on the steps that have none.
  */
 private val CARD_MIN_SPACE = 230.dp
+private val DEMO_CARD_MIN_SPACE = 420.dp
 
 /**
  * Dims the screen and cuts a hole around one real control at a time, with a
@@ -177,6 +183,19 @@ fun SpotlightOverlay(
         // starts a level by reading about the Play button.
         if (!step.interactive) {
             Blocker(left, top, right - left, bottom - top, advance)
+        } else {
+            // An interactive step asks for a move, so it shows one being
+            // made. The hand is drawn over the live control and never
+            // intercepts anything - the tap it mimes still has to be the
+            // player's own.
+            TapHintFinger(
+                modifier = Modifier
+                    .offset(x = left, y = top)
+                    .size(width = right - left, height = bottom - top),
+                ink = MaterialTheme.colorScheme.onSurface,
+                fill = MaterialTheme.colorScheme.surface,
+                ripple = ArrowEscapeTheme.gameColors.arrowHint
+            )
         }
 
         // The card goes in whichever gap is bigger, and the gap is capped so
@@ -188,7 +207,8 @@ fun SpotlightOverlay(
         val spaceAbove = top
         val spaceBelow = maxHeight - bottom
         val below = spaceBelow >= spaceAbove
-        val headroom = (maxHeight - CARD_MIN_SPACE).coerceAtLeast(0.dp)
+        val reserved = if (step.demo != null) DEMO_CARD_MIN_SPACE else CARD_MIN_SPACE
+        val headroom = (maxHeight - reserved).coerceAtLeast(0.dp)
         val gap = (if (below) bottom else maxHeight - top).plus(CARD_GAP).coerceIn(0.dp, headroom)
 
         TourCard(
@@ -264,6 +284,14 @@ private fun TourCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = ArrowEscapeTheme.gameColors.textSecondary
             )
+
+            // The rule, performed. Sits under the words rather than
+            // replacing them: the animation answers "what does that look
+            // like", and only the sentence answers "what is it called".
+            step.demo?.let { demo ->
+                Spacer(Modifier.height(14.dp))
+                TutorialDemoStage(demo)
+            }
 
             Spacer(Modifier.height(14.dp))
 
