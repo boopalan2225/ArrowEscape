@@ -88,7 +88,26 @@ data class BezierSegment(
     }
     
     /**
+     * Arc length of this segment, measured once.
+     *
+     * [approximateLength] walks the curve in twenty steps, allocating a
+     * [Point2D] at each - and the sampler calls it *per segment, per sampled
+     * point*, so flattening one arrow used to run eight thousand bezier
+     * evaluations to answer a question with one fixed answer. A segment's
+     * control points are immutable, so its length is a constant; this is the
+     * same number, computed once.
+     *
+     * [LazyThreadSafetyMode.PUBLICATION] because arrows are read from the
+     * generator thread, the prefetch thread and the UI: the value is worth
+     * computing twice in a race, but it is not worth a lock on every read,
+     * and a plain field would risk publishing a half-written float.
+     */
+    val length: Float by lazy(LazyThreadSafetyMode.PUBLICATION) { approximateLength() }
+
+    /**
      * Approximate arc length of this segment.
+     *
+     * Prefer [length] unless you genuinely need a different [steps].
      */
     fun approximateLength(steps: Int = 20): Float {
         var length = 0f
@@ -186,7 +205,7 @@ data class CurvedArrow(
      * Total approximate length of the arrow.
      */
     val length: Float by lazy {
-        segments.sumOf { it.approximateLength().toDouble() }.toFloat()
+        segments.sumOf { it.length.toDouble() }.toFloat()
     }
     
     /**
@@ -228,7 +247,7 @@ data class CurvedArrow(
         var accumulated = 0f
         
         for (segment in segments) {
-            val segLen = segment.approximateLength()
+            val segLen = segment.length
             if (accumulated + segLen >= targetLen) {
                 val localT = (targetLen - accumulated) / segLen
                 return segment.pointAt(localT)
@@ -252,7 +271,7 @@ data class CurvedArrow(
         var accumulated = 0f
         
         for (segment in segments) {
-            val segLen = segment.approximateLength()
+            val segLen = segment.length
             if (accumulated + segLen >= targetLen) {
                 val localT = (targetLen - accumulated) / segLen
                 return segment.tangentAt(localT)

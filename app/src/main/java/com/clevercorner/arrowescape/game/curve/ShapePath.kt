@@ -155,7 +155,7 @@ data class ShapePath(
                 if (current.size >= 3) rings.add(current)
                 current = mutableListOf()
             }
-            val steps = (segment.approximateLength() / 4f).toInt().coerceIn(6, 48)
+            val steps = (segment.length / 4f).toInt().coerceIn(6, 48)
             for (i in 0..steps) current.add(segment.pointAt(i.toFloat() / steps))
         }
         if (current.size >= 3) rings.add(current)
@@ -165,28 +165,28 @@ data class ShapePath(
     private val outlinePoints: List<Point2D> by lazy { contours.flatten() }
 
     /**
+     * Spatial index over [contours], built on first use.
+     *
+     * The flow field asks for the nearest outline point once per sample of
+     * every streamline it traces; a scan of two thousand points per question
+     * was the single largest cost in generating a level. See [OutlineIndex].
+     */
+    private val outlineIndex: OutlineIndex by lazy { OutlineIndex(contours) }
+
+    /**
+     * Containment index over [contours], built on first use.
+     *
+     * Region filling asks "is this inside?" thousands of times per level.
+     * See [ContourCrossings].
+     */
+    private val crossings: ContourCrossings by lazy { ContourCrossings(contours) }
+
+    /**
      * Check if a point is inside the shape, using even-odd across all
      * contours. Even-odd means an inner ring punches a hole, which is exactly
      * the behaviour interior detail regions need.
      */
-    fun contains(point: Point2D): Boolean {
-        var inside = false
-
-        for (ring in contours) {
-            var j = ring.size - 1
-            for (i in ring.indices) {
-                val pi = ring[i]
-                val pj = ring[j]
-                if ((pi.y > point.y) != (pj.y > point.y)) {
-                    val x = pi.x + (point.y - pi.y) / (pj.y - pi.y) * (pj.x - pi.x)
-                    if (x > point.x) inside = !inside
-                }
-                j = i
-            }
-        }
-
-        return inside
-    }
+    fun contains(point: Point2D): Boolean = crossings.contains(point.x, point.y)
 
     /**
      * Actual bounding box of the outline. Shapes get translated onto the board,
@@ -205,24 +205,8 @@ data class ShapePath(
     /**
      * Nearest outline point to [point], across every contour.
      */
-    private fun nearestOutline(point: Point2D): Pair<List<Point2D>, Int>? {
-        var bestRing: List<Point2D>? = null
-        var bestIndex = 0
-        var bestDistance = Float.MAX_VALUE
-
-        for (ring in contours) {
-            for (i in ring.indices) {
-                val d = ring[i].distanceTo(point)
-                if (d < bestDistance) {
-                    bestDistance = d
-                    bestRing = ring
-                    bestIndex = i
-                }
-            }
-        }
-
-        return bestRing?.let { it to bestIndex }
-    }
+    private fun nearestOutline(point: Point2D): Pair<List<Point2D>, Int>? =
+        outlineIndex.nearest(point.x, point.y)
 
     /**
      * Approximate distance from [point] to the nearest outline point.

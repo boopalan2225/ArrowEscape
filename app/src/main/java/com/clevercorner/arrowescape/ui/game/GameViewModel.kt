@@ -15,6 +15,8 @@ import com.clevercorner.arrowescape.game.engine.CollisionChecker
 import com.clevercorner.arrowescape.game.engine.GameEngine
 import com.clevercorner.arrowescape.game.engine.GameSolver
 import com.clevercorner.arrowescape.game.level.DifficultyConfig
+import com.clevercorner.arrowescape.game.level.GenerationDispatchers
+import com.clevercorner.arrowescape.game.level.GenerationGuard
 import com.clevercorner.arrowescape.game.level.LevelGenerator
 import com.clevercorner.arrowescape.game.model.Arrow
 import com.clevercorner.arrowescape.game.model.Cell
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -135,10 +138,11 @@ class GameViewModel(
         viewModelScope.launch {
             // Generate off the main thread to keep the UI smooth.
             val generated = withContext(Dispatchers.Default) {
+                val guard = guardFor(coroutineContext.job)
                 if (level == 1) {
                     LevelGenerator.generateTutorialLevel()
                 } else {
-                    LevelGenerator.generateLevel(level)
+                    LevelGenerator.generateLevel(level, guard)
                 }
             }
 
@@ -181,19 +185,27 @@ class GameViewModel(
      *
      * The generator caches what it builds, so this only has to warm that
      * cache - there is no second copy of the result to keep in sync here.
-     * Cancelled the moment a real load starts, so speculative work never
-     * delays the level actually being waited on.
+     *
+     * Two things keep this bet from ever costing the player: it runs on one
+     * low-priority thread ([GenerationDispatchers.prefetch]) rather than
+     * across every core, and it hands the generator a [GenerationGuard] so
+     * cancelling the job actually stops the arithmetic - `cancel()` alone
+     * does nothing to a long non-suspending loop.
      */
     private fun prefetchNeighbours(level: Int) {
-        prefetchJob = viewModelScope.launch(Dispatchers.Default) {
+        prefetchJob = viewModelScope.launch(GenerationDispatchers.prefetch) {
             delay(PREFETCH_GRACE_MS)
+            val guard = guardFor(coroutineContext.job)
             for (neighbour in listOf(level + 1, level - 1)) {
                 if (neighbour < 2) continue
                 ensureActive()
-                LevelGenerator.generateLevel(neighbour)
+                LevelGenerator.generateLevel(neighbour, guard)
             }
         }
     }
+
+    /** Ties a generator's "is anybody still waiting?" to the job doing the waiting. */
+    private fun guardFor(job: Job) = GenerationGuard { !job.isActive }
 
     /**
      * Developer mode: step to the previous (-1) or next (+1) level without

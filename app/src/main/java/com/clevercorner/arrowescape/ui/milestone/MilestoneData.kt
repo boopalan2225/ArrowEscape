@@ -58,17 +58,20 @@ data class Milestone(
 /**
  * The chapters of one game mode, and everything derived from them.
  *
- * A chapter list used to be a fixed snapshot, which is exactly how the
- * Journey Map ended up unable to show a level the player had already reached:
- * curved mode's content is unbounded (see `ShapeSynthesis`), so any frozen
- * list is a list that is eventually wrong. [milestonesFor] therefore takes
- * the player's own progress and sizes itself to it - never fewer chapters
- * than exist to show, and a lookahead buffer so "Coming Soon" always sits
- * comfortably ahead rather than immediately behind the player's last step.
+ * A chapter list used to be a fixed snapshot, which is how the Journey Map
+ * once ended up unable to show a level the player had already reached: a
+ * frozen list is a list that goes stale the moment the catalogue it was
+ * drawn from grows. [milestonesFor] takes the player's own progress and
+ * sizes itself to it instead - never fewer chapters than exist to show.
  *
- * [minChapters] is the floor: a mode whose content genuinely ends (grid) just
- * reports its full fixed list regardless of how many are asked for, while a
- * mode whose content does not (curved) grows past it.
+ * [minChapters] is the ceiling as well as the floor: every [milestonesUpTo]
+ * implementation here returns at most that many chapters regardless of how
+ * many are asked for, because the number of chapters that exist to show is
+ * a property of the catalogue, not of how far ahead a caller asks to look.
+ * A mode whose content genuinely ends (grid) and a mode whose generator
+ * could keep inventing shapes forever (curved) therefore behave identically
+ * from this class's point of view: both report a fixed, finite list, and
+ * both stop exactly where their own catalogue does.
  */
 class Journey(
     private val chapterIndex: (Int) -> Int,
@@ -87,42 +90,63 @@ class Journey(
     /** The chapter cards to show for a player at [highestLevel]. See [chapterCountFor]. */
     fun milestonesFor(highestLevel: Int): List<Milestone> = milestonesUpTo(chapterCountFor(highestLevel))
 
-    /** Chapter [level] belongs to, clamped to what [milestonesFor] would show for [highestLevel]. */
+    /**
+     * Chapter [level] belongs to, clamped to what [milestonesFor] actually
+     * returns for [highestLevel] - the real list size, not the chapter count
+     * requested of it. A journey is free to hand back fewer chapters than
+     * asked (curved does, once the authored catalogue runs out), and a
+     * clamp against the request rather than the result would point this at
+     * a card that was never drawn.
+     */
     fun chapterIndexOf(level: Int, highestLevel: Int): Int =
-        chapterIndex(level).coerceIn(0, chapterCountFor(highestLevel) - 1)
+        chapterIndex(level).coerceIn(0, milestonesFor(highestLevel).size - 1)
 
     /** How many levels are currently shown as real chapters for a player at [highestLevel]. */
     fun totalLevelsFor(highestLevel: Int): Int = milestonesFor(highestLevel).last().endLevel
 
     /**
-     * Levels the developer "unlock all" tool should currently grant for a
-     * player whose own progress is [currentHighestLevel].
+     * Levels the developer "unlock all" tool should grant for a player whose
+     * own progress is [currentHighestLevel].
      *
-     * Two different staleness bugs lived here before, and this fixes both
-     * by never trusting a single frozen number:
+     * **The authored catalogue, and nothing beyond it.** A dev tool exists to
+     * remove the app's own roadblocks, not to invent content past them, so
+     * the answer is simply where the hand-made chapters stop: 215 for curved
+     * (43 catalogue shapes x 5), 150 for grid (15 chapters x 10). Both
+     * numbers come from the catalogue itself, so neither can go stale when
+     * shapes are added - and [milestonesUpTo] enforces the same ceiling on
+     * everything else this class answers, so this number, [totalLevelsFor]
+     * and the Journey Map's own chapter list can never disagree.
      *
-     * 1. An absolute level constant (1000, then 400) needed hand-retuning
-     *    the moment the authored catalogue's real size made the arithmetic
-     *    land somewhere unintended. [catalogueMultiple] against [minChapters]
-     *    fixed that - it scales with the catalogue automatically.
-     * 2. That alone still went stale the moment a *player* stepped past it:
-     *    once dev-mode stepping stopped being bounded (see
-     *    `CurvedGameViewModel.stepLevel`), a developer could walk to level
-     *    715 by hand while "unlock all" kept offering 615 - correct for the
-     *    catalogue, wrong for where this player actually is. Taking the
-     *    larger of the two fixes it: unlock-all can never offer *less* than
-     *    a level this player has already legitimately reached, the same
-     *    guarantee [totalLevelsFor] already gives the Journey Map.
+     * Curved levels used to continue past 215 for a live player, with
+     * [ShapeCatalog.designForChapter] synthesising a shape for whatever came
+     * next. That generator capability still exists - it is how a developer
+     * previews a chapter before it is authored - but it is no longer
+     * reachable by playing: see [CurvedJourney.authoredLevelCount].
      *
-     * For grid mode neither term can push past the real ending:
-     * [milestonesUpTo] ignores whatever chapter count either one asks for
-     * and always returns the same finite list, because past that ending
-     * there is only a repeating fallback square to unlock, not new content.
+     * Three staleness bugs have lived here, and each one came from trusting
+     * a number that was true when it was written:
+     *
+     * 1. An absolute constant (1000, then 400) needed hand-retuning whenever
+     *    the catalogue's real size moved. Now nothing is written down.
+     * 2. Scaling off the catalogue still went stale when a *player* stepped
+     *    past it: a developer could walk past the catalogue by hand and
+     *    then be demoted by the very button meant to help them. Hence
+     *    [maxOf] - unlock-all may never offer *less* than a level this
+     *    player has already reached.
+     * 3. Taking that second term from [totalLevelsFor] made the button
+     *    **ratchet**. That function is the Journey Map's, and the map adds
+     *    [LOOKAHEAD_CHAPTERS] on purpose so "Coming Soon" sits ahead of the
+     *    player rather than underfoot. As a target it reads "a hundred
+     *    levels past wherever you are" - and clicking moves where you are,
+     *    so every click added another hundred: 645, 745, 845. Lookahead is
+     *    right for a map and wrong for a target.
+     *
+     * The result is a **fixed point**: grant it, ask again, same answer.
      */
-    fun devUnlockLevelCount(currentHighestLevel: Int, catalogueMultiple: Int = DEV_UNLOCK_CATALOGUE_MULTIPLE): Int {
-        val catalogueTarget = milestonesUpTo(minChapters * catalogueMultiple).last().endLevel
-        val progressTarget = totalLevelsFor(currentHighestLevel)
-        return maxOf(catalogueTarget, progressTarget)
+    fun devUnlockLevelCount(currentHighestLevel: Int): Int {
+        val authoredTarget = milestonesUpTo(minChapters).last().endLevel
+        val reachedTarget = milestonesUpTo(chapterIndex(currentHighestLevel) + 1).last().endLevel
+        return maxOf(authoredTarget, reachedTarget)
     }
 
 
@@ -134,16 +158,6 @@ class Journey(
          * the player last stopped.
          */
         const val LOOKAHEAD_CHAPTERS = 20
-
-        /**
-         * How many times the current authored catalogue [devUnlockLevelCount]
-         * reaches for on an endless journey (curved). 3x today's 41 authored
-         * chapters lands at 615 levels - comfortably inside the 500-600
-         * target measured as the point where synthesised names ("Pebble",
-         * "Leaf") start repeating more than they're fresh - and stays there
-         * proportionally if the authored catalogue grows later.
-         */
-        const val DEV_UNLOCK_CATALOGUE_MULTIPLE = 3
     }
 }
 
@@ -210,13 +224,22 @@ object MilestoneData {
             // The map cannot drift from the shape the generator deals if
             // both ask the same question of the same object.
             chapterIndex = CurvedJourney::chapterOf,
+            // Clamped to the authored catalogue on purpose: the catalogue
+            // *is* the roadblock a dev tool should enable and a player
+            // should eventually clear, so the chapter list - and everything
+            // derived from it, including [Journey.totalLevelsFor] - stops
+            // exactly where [CurvedJourney.authoredLevelCount] does. Past
+            // that, `designForChapter` could still synthesise a card, but a
+            // card for content nobody has shipped is not a preview, it is a
+            // promise this list cannot keep - see [ComingSoonCard] for the
+            // promise this journey is allowed to make instead.
             milestonesUpTo = { count ->
-                (0 until count).map { chapter ->
+                (0 until minOf(count, ShapeCatalog.authoredChapterCount)).map { chapter ->
                     // designForChapter is the exact function the generator
-                    // calls to decide what a level plays - authored shape or
-                    // synthesised one, it makes no difference here. That is
-                    // the whole fix: the map can show every chapter that is
-                    // actually playable, not just the hand-authored ones.
+                    // calls to decide what a level plays, so a card can never
+                    // show a shape the generator wouldn't. The chapter range
+                    // above is what stops it being called for chapters that
+                    // are not yet authored.
                     val design = ShapeCatalog.designForChapter(chapter)
                     val first = CurvedJourney.firstLevelOf(chapter)
                     Milestone(

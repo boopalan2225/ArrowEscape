@@ -141,6 +141,11 @@ object GameSolver {
         val moves = mutableListOf<Pair<Int, Set<Int>>>()
         var falseAffordances = 0
 
+        // The board is the same for every arrow in this step, so index it
+        // once. It used to be indexed per arrow, which is where classic
+        // generation's garbage came from - see [CellOccupancy].
+        val occupancy = CellOccupancy.of(remaining, board)
+
         for (arrow in remaining) {
             if (arrow.id in seen) continue
 
@@ -150,7 +155,7 @@ object GameSolver {
             // what is available, and a visible number is not a lie.
             if (CollisionChecker.isSequenceBlocked(arrow, remaining)) continue
 
-            val traces = CollisionChecker.traceFor(arrow, remaining, board)
+            val traces = CollisionChecker.traceFor(arrow, remaining, board, occupancy)
             if (traces.isEmpty()) continue
 
             if (traces.values.all { it.escaped }) {

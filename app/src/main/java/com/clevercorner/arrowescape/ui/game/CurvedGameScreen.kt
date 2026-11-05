@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.clevercorner.arrowescape.data.GameMode
 import com.clevercorner.arrowescape.game.curve.CurvedArrow
+import com.clevercorner.arrowescape.game.curve.CurvedJourney
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.ui.components.*
 import com.clevercorner.arrowescape.review.ReviewPromptEffect
@@ -129,12 +130,18 @@ fun CurvedGameScreen(
                 hintsRemaining = hintsRemaining,
                 isHintAdAvailable = viewModel.isRewardedAdAvailable(),
                 // Back to anything already played; forward only as far as
-                // the player has actually earned - except in dev mode, which
-                // has nothing to gate against: curved content never ends.
+                // the player has actually earned - except in dev mode,
+                // which trades that gate for the real ceiling (curved
+                // genuinely ends at CurvedJourney.authoredLevelCount, same
+                // as classic's own dev ceiling) so testing isn't stuck
+                // behind whatever the player's own save file happens to say.
                 onPreviousLevel = { viewModel.stepLevel(-1) }
                     .takeIf { gameState.level > 1 },
                 onNextLevel = { viewModel.stepLevel(+1) }
-                    .takeIf { prefs.devMode || gameState.level < prefs.highestLevel },
+                    .takeIf {
+                        val ceiling = if (prefs.devMode) CurvedJourney.authoredLevelCount else prefs.highestLevel
+                        gameState.level < ceiling
+                    },
                 onHintClick = {
                     if (hintsRemaining > 0) {
                         viewModel.useHint()
@@ -212,9 +219,23 @@ fun CurvedGameScreen(
                     shapeName = gameState.shapeName,
                     difficultyLabel = gameState.difficulty,
                     onNextLevel = {
+                        // The authored catalogue ends somewhere (see
+                        // CurvedJourney.authoredLevelCount), and this overlay
+                        // has no "that was the last one" state of its own to
+                        // show instead - it was built back when curved
+                        // content had no end. Routing home rather than
+                        // calling onNextLevel's no-op past the ceiling means
+                        // the tap still goes somewhere: Home shows the
+                        // player's progress at a genuine 100%, with the
+                        // Journey Map's own "more is coming" card one tap
+                        // away. A dedicated end-of-catalogue moment on this
+                        // overlay itself would read better; this is the
+                        // interim until that is designed.
+                        val finishedCatalogue = gameState.level >= CurvedJourney.authoredLevelCount
+                        val proceed = if (finishedCatalogue) onHomeClick else viewModel::onNextLevel
                         activity?.let { act ->
-                            viewModel.showInterstitialIfNeeded(act) { viewModel.onNextLevel() }
-                        } ?: viewModel.onNextLevel()
+                            viewModel.showInterstitialIfNeeded(act, proceed)
+                        } ?: proceed()
                     },
                     onHome = onHomeClick
                 )

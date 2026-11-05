@@ -1,6 +1,7 @@
 package com.clevercorner.arrowescape.game.curve
 
 import com.clevercorner.arrowescape.game.LevelHeader
+import com.clevercorner.arrowescape.game.level.GenerationGuard
 import com.clevercorner.arrowescape.game.level.LevelCache
 import kotlin.random.Random
 
@@ -79,15 +80,26 @@ object CurvedLevelGenerator {
     /** Attempts per shuffle before it is skipped. See [reshuffle]. */
     private const val SHUFFLE_ATTEMPTS = 4
 
+    /** How often the climb asks whether anybody is still waiting for it. */
+    private const val CHECK_EVERY_STEPS = 256
+
     /** Breathing room between the artwork and the board edge. */
     private const val BOARD_PADDING = 28f
 
     /**
      * Generate a complete level.
+     *
+     * [guard] lets a caller that has stopped caring say so - see
+     * [GenerationGuard]. Speculative callers should always pass one.
      */
-    fun generateLevel(levelNumber: Int, boardWidth: Float = 400f, boardHeight: Float = 600f): CurvedLevel =
+    fun generateLevel(
+        levelNumber: Int,
+        boardWidth: Float = 400f,
+        boardHeight: Float = 600f,
+        guard: GenerationGuard = GenerationGuard.NEVER
+    ): CurvedLevel =
         cache.getOrPut(CacheKey(levelNumber, boardWidth, boardHeight)) {
-            buildLevel(levelNumber, boardWidth, boardHeight)
+            buildLevel(levelNumber, boardWidth, boardHeight, guard)
         }
 
     /**
@@ -124,7 +136,12 @@ object CurvedLevelGenerator {
 
     private fun levelSeed(levelNumber: Int): Long = levelNumber.toLong() * 31337 + 42
 
-    private fun buildLevel(levelNumber: Int, boardWidth: Float, boardHeight: Float): CurvedLevel {
+    private fun buildLevel(
+        levelNumber: Int,
+        boardWidth: Float,
+        boardHeight: Float,
+        guard: GenerationGuard
+    ): CurvedLevel {
         val random = Random(levelSeed(levelNumber))
         // Same tuning as tuningFor(levelNumber), which is why that function
         // builds its own Random from the same seed: the two stay in step.
@@ -150,6 +167,11 @@ object CurvedLevelGenerator {
         val canvas = PackingCanvas(boardWidth, boardHeight)
 
         for (index in regions.indices.reversed()) {
+            // One region is the unit of abandonable work on this path: each
+            // is a self-contained fill, and checking between them stops a
+            // doomed build without putting a question inside the packer's
+            // inner loops.
+            guard.check()
             val region = regions[index]
             val config = tuning.config.copy(
                 strokeWidth = tuning.config.strokeWidth * region.strokeScale,
@@ -191,7 +213,8 @@ object CurvedLevelGenerator {
             board,
             tuning.targetTightness,
             tuning.flowWeight,
-            random
+            random,
+            guard
         )
 
         // Locks go on *after* orientations are settled: tiers are derived
@@ -354,7 +377,8 @@ object CurvedLevelGenerator {
         board: CurvedGameEngine.Board,
         targetTightness: Float,
         flowWeight: Float,
-        random: Random
+        random: Random,
+        guard: GenerationGuard = GenerationGuard.NEVER
     ): TunedLevel {
         if (arrows.isEmpty()) {
             return TunedLevel(
@@ -374,7 +398,8 @@ object CurvedLevelGenerator {
             // climb now has to justify walking away from it.
             flow = FlowCoherence(arrows),
             flowWeight = flowWeight,
-            random = random
+            random = random,
+            guard = guard
         )
         // The clear order and the live-play graph are both built here, once,
         // rather than on every candidate the climb looked at.
@@ -485,7 +510,8 @@ object CurvedLevelGenerator {
         targetTightness: Float,
         flow: FlowCoherence,
         flowWeight: Float,
-        random: Random
+        random: Random,
+        guard: GenerationGuard = GenerationGuard.NEVER
     ): Climbed {
         var flips = start
         var best = Candidate(graph.score(flips), flow.of(flips))
@@ -494,6 +520,10 @@ object CurvedLevelGenerator {
         var sinceImprovement = 0
 
         for (step in 0 until budget) {
+            // Every so often, not every step: the question costs more than a
+            // sweep does, and the longest the climb can overrun by is one
+            // block of steps.
+            if (step % CHECK_EVERY_STEPS == 0) guard.check()
             if (best.solved && best.stats.tightness >= targetTightness) break
 
             // A hill-climb that has stopped climbing is just burning battery.

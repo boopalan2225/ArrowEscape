@@ -10,9 +10,12 @@ package com.clevercorner.arrowescape.game.curve
  * Journey Map, the level generator and the developer picker all read from here
  * and therefore cannot drift apart.
  *
- * Levels past the authored catalogue do not wrap - [designFor] keeps
- * synthesising new shapes forever (see `ShapeSynthesis`), so the journey has
- * no end to run out of.
+ * Production progression stops at [authoredLevelCount] - the authored
+ * catalogue is the roadblock, the same way [DifficultyConfig.TOTAL_LEVELS]
+ * is grid mode's. [designFor] can still synthesise a shape for any chapter
+ * past that point; that capability is what lets a developer preview
+ * chapters before they are authored. It is deliberately not something a
+ * live player's save file, or anything navigation offers them, can reach.
  */
 object CurvedJourney {
 
@@ -46,6 +49,18 @@ object CurvedJourney {
     fun firstLevelOf(chapter: Int): Int = chapter * LEVELS_PER_CHAPTER + 1
 
     fun lastLevelOf(chapter: Int): Int = firstLevelOf(chapter) + LEVELS_PER_CHAPTER - 1
+
+    /**
+     * The last level the authored catalogue covers - 215 today
+     * ([ShapeCatalog.authoredChapterCount] x [LEVELS_PER_CHAPTER]).
+     *
+     * Derived, never written down, so it moves on its own the moment a shape
+     * is added. This is the number "unlock all" grants, the number dev
+     * stepping refuses to cross, and the number the Journey Map's progress
+     * bar fills up at - one source, so none of them can read differently
+     * from what the player's own save file is allowed to reach.
+     */
+    val authoredLevelCount: Int get() = lastLevelOf(ShapeCatalog.authoredChapterCount - 1)
 
     /**
      * How far through its chapter a level sits: 0 at the first, 1 at the last.

@@ -65,8 +65,11 @@ object LevelGenerator {
     /** Recently built boards, so stepping back a level is instant. */
     private val cache = LevelCache<Int, GeneratedLevel>()
 
-    fun generateLevel(levelNumber: Int): GeneratedLevel = cache.getOrPut(levelNumber) {
-        buildLevel(levelNumber)
+    fun generateLevel(
+        levelNumber: Int,
+        guard: GenerationGuard = GenerationGuard.NEVER
+    ): GeneratedLevel = cache.getOrPut(levelNumber) {
+        buildLevel(levelNumber, guard)
     }
 
     /** Level 1 is hand-made, so its header is a constant rather than a lookup. */
@@ -85,7 +88,7 @@ object LevelGenerator {
         return LevelHeader(design.shapeName, LevelRecipe.forLevel(levelNumber, design).difficultyLabel)
     }
 
-    private fun buildLevel(levelNumber: Int): GeneratedLevel {
+    private fun buildLevel(levelNumber: Int, guard: GenerationGuard): GeneratedLevel {
         val design = LevelDesigns.forLevel(levelNumber)
         val baseRecipe = LevelRecipe.forLevel(levelNumber, design).sizedForBudget(levelNumber, design)
         val shape = mapCategoryToShape(design.category, design.shapeName)
@@ -99,6 +102,10 @@ object LevelGenerator {
         var bestMiss = Float.MAX_VALUE
 
         for (attempt in 0 until MAX_CANDIDATES) {
+            // One candidate is the unit of abandonable work here: a carve
+            // plus a solve, and up to seven of them. Nobody should wait on a
+            // board that is no longer wanted.
+            guard.check()
             val seed = Random(levelNumber.toLong() * 31337 + 42 + attempt)
             val candidate = build(design, recipe, shape, seed) ?: continue
 
@@ -206,7 +213,13 @@ object LevelGenerator {
         val locked = ColorLockPlanner.weld(carved, solution.order, recipe.lockedPairs, random)
         // Locks are safe by construction, but construction arguments have a
         // habit of being wrong; the solver gets the final word.
-        val verified = GameSolver.solve(locked, board)
+        //
+        // Unless there was nothing to say: the planners hand back the very
+        // list they were given when the recipe asks for no furniture, and
+        // re-solving a board that did not change can only produce the answer
+        // we already have. Identity, not equality - a planner that returns a
+        // copy is telling us it changed something.
+        val verified = if (locked === carved) solution else GameSolver.solve(locked, board)
         val settled = if (verified != null) locked else carved
         val settledSolution = verified ?: solution
 
@@ -217,7 +230,8 @@ object LevelGenerator {
         val sequenced = SequencePlanner.apply(
             settled, settledSolution.order, recipe.sequencedArrows, random
         )
-        val afterSequence = GameSolver.solve(sequenced, board)
+        val afterSequence =
+            if (sequenced === settled) settledSolution else GameSolver.solve(sequenced, board)
 
         return GeneratedLevel(
             arrows = if (afterSequence != null) sequenced else settled,

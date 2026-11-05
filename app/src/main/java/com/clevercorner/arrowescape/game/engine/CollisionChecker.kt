@@ -64,16 +64,26 @@ object CollisionChecker {
         arrow: Arrow,
         activeArrows: List<Arrow>,
         board: Board
+    ): Map<Int, ExitSimulator.Trace> =
+        traceFor(arrow, activeArrows, board, CellOccupancy.of(activeArrows, board))
+
+    /**
+     * As above, against a board state that has already been indexed.
+     *
+     * The solver asks this for every arrow at every step, and the board is
+     * the same for all of them - so it builds one [CellOccupancy] per step
+     * and passes it in. See that class for what the old per-arrow sets cost.
+     */
+    fun traceFor(
+        arrow: Arrow,
+        activeArrows: List<Arrow>,
+        board: Board,
+        occupancy: CellOccupancy
     ): Map<Int, ExitSimulator.Trace> {
         if (!arrow.isActive) return emptyMap()
 
         val party = partyOf(arrow, activeArrows)
-        val partyIds = party.mapTo(HashSet()) { it.id }
-        val blocked = HashSet<Cell>()
-        for (other in activeArrows) {
-            if (!other.isActive || other.id in partyIds) continue
-            blocked.addAll(other.cells)
-        }
+        val blocked = occupancy.blockingAllBut(party)
 
         return party.associate { member ->
             member.id to ExitSimulator.trace(member.head, member.direction, board, blocked)

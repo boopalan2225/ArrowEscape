@@ -15,6 +15,8 @@ import com.clevercorner.arrowescape.game.curve.*
 import com.clevercorner.arrowescape.game.daily.DailyBoardLayout
 import com.clevercorner.arrowescape.game.daily.DailyPuzzle
 import com.clevercorner.arrowescape.game.daily.DailyShuffle
+import com.clevercorner.arrowescape.game.level.GenerationDispatchers
+import com.clevercorner.arrowescape.game.level.GenerationGuard
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPrompter
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
@@ -412,7 +415,12 @@ private const val JOURNEY_BOARD_WIDTH = 400f
             // relationships as part of the orientation search - so the board
             // arrives with its graph already measured.
             val curvedLevel = withContext(Dispatchers.Default) {
-                CurvedLevelGenerator.generateLevel(level, _boardWidth.value, _boardHeight.value)
+                CurvedLevelGenerator.generateLevel(
+                    level,
+                    _boardWidth.value,
+                    _boardHeight.value,
+                    guardFor(coroutineContext.job)
+                )
             }
             val graph = curvedLevel.blockingGraph
 
@@ -492,17 +500,32 @@ private const val JOURNEY_BOARD_WIDTH = 400f
      * hundred curves, and starting two more searches in that exact window
      * means the speculative work competes with the frame the player is
      * actually waiting on.
+     *
+     * It runs on one low-priority thread ([GenerationDispatchers.prefetch])
+     * rather than across every core, and hands the generator a
+     * [GenerationGuard] so that cancelling the job actually stops the
+     * arithmetic - `cancel()` alone does nothing to a long non-suspending
+     * loop, which is why a "cancelled" prefetch used to run to completion.
      */
     private fun prefetchNeighbours(level: Int) {
-        prefetchJob = viewModelScope.launch(Dispatchers.Default) {
+        prefetchJob = viewModelScope.launch(GenerationDispatchers.prefetch) {
             delay(PREFETCH_GRACE_MS)
+            val guard = guardFor(coroutineContext.job)
             for (neighbour in listOf(level + 1, level - 1)) {
                 if (neighbour < 1) continue
                 ensureActive()
-                CurvedLevelGenerator.generateLevel(neighbour, _boardWidth.value, _boardHeight.value)
+                CurvedLevelGenerator.generateLevel(
+                    neighbour,
+                    _boardWidth.value,
+                    _boardHeight.value,
+                    guard
+                )
             }
         }
     }
+
+    /** Ties a generator's "is anybody still waiting?" to the job doing the waiting. */
+    private fun guardFor(job: Job) = GenerationGuard { !job.isActive }
 
     // ─────────────────────────────────────────────────────────────────────
     // Gameplay
@@ -701,7 +724,12 @@ private const val JOURNEY_BOARD_WIDTH = 400f
             // above, before dev mode had a chance to veto it.
             if (daily == null) {
                 preferences.saveLevelStars(MODE, state.level, stars)
-                preferences.setCurrentLevel(MODE, state.level + 1)
+                // Clamped so the save file itself can never claim a level
+                // past the authored catalogue - see [CurvedJourney.authoredLevelCount].
+                // A player on the last authored level who presses on simply
+                // stays recorded on it; [onNextLevel] is what decides what
+                // that moment actually looks like on screen.
+                preferences.setCurrentLevel(MODE, (state.level + 1).coerceAtMost(CurvedJourney.authoredLevelCount))
                 preferences.incrementTotalLevelsCompleted(MODE)
                 preferences.incrementLevelsSinceInterstitial()
                 preferences.clearSavedGame()
@@ -831,8 +859,20 @@ private const val JOURNEY_BOARD_WIDTH = 400f
         else startLevel(currentLevel)
     }
 
+    /**
+     * Deals the next level - unless the authored catalogue has already run
+     * out, in which case there is nothing further to deal. See
+     * [CurvedJourney.authoredLevelCount].
+     *
+     * A screen-level caller can offer something better for that moment (the
+     * Journey Map's own "more is coming" card is the natural fit - see
+     * `ComingSoonCard`); this guard exists underneath that so a missed or
+     * future screen change can never generate or save a level past the
+     * catalogue by calling straight through here.
+     */
     fun onNextLevel() {
         val nextLevel = _gameState.value.level + 1
+        if (nextLevel > CurvedJourney.authoredLevelCount) return
         startLevel(nextLevel)
     }
 
@@ -840,9 +880,16 @@ private const val JOURNEY_BOARD_WIDTH = 400f
      * Way out of a board that cannot be finished. It counts as passed - the
      * player did nothing wrong, so they must not lose their place - except in
      * developer mode, which never touches saved progress.
+     *
+     * Clamped at [CurvedJourney.authoredLevelCount] for the same reason
+     * [onNextLevel] is. If the stuck board *is* the last authored level,
+     * this re-deals that same level rather than reaching past it - a level
+     * stuck at the very end of the catalogue is a generator bug worth fixing
+     * on its own merits, not something this guard should paper over by
+     * handing out unauthored content instead.
      */
     fun onSkipStuckLevel() {
-        val nextLevel = _gameState.value.level + 1
+        val nextLevel = (_gameState.value.level + 1).coerceAtMost(CurvedJourney.authoredLevelCount)
         if (!prefs.value.devMode) {
             viewModelScope.launch { preferences.setCurrentLevel(MODE, nextLevel) }
         }
@@ -869,19 +916,16 @@ private const val JOURNEY_BOARD_WIDTH = 400f
      * Developer mode: step to the previous (-1) or next (+1) level without
      * touching progress.
      *
-     * No upper bound: curved content never ends (see [CurvedJourney]'s own
-     * doc), so clamping to a catalogue size - as this used to, against the
-     * now-removed `CurvedJourney.totalLevels` - meant stepping from level
-     * 500 collapsed straight to 205 and then couldn't move again, because
-     * every step re-clamped back to the same frozen ceiling. A journey that
-     * genuinely has no end should not pretend it has one here either.
-     */
-    /**
-     * Moves [delta] levels and loads that board. See the classic twin: a
-     * visit, not a move, so preferences stay where the player left them.
+     * Clamped to [CurvedJourney.authoredLevelCount] - the same ceiling
+     * [onNextLevel] and real progression obey. This used to be unbounded on
+     * the reasoning that curved content never ends (the generator still
+     * doesn't, see `ShapeSynthesis`), but a dev tool exists to walk the
+     * app's *shipped* roadblocks, and nothing past the authored catalogue is
+     * one. A visit, not a move either way: preferences stay where the
+     * player left them, same as the classic twin.
      */
     fun stepLevel(delta: Int) {
-        val target = (_gameState.value.level + delta).coerceAtLeast(1)
+        val target = (_gameState.value.level + delta).coerceIn(1, CurvedJourney.authoredLevelCount)
         startLevel(target)
     }
 

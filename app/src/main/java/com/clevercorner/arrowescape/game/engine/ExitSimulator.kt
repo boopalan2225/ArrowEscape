@@ -5,6 +5,18 @@ import com.clevercorner.arrowescape.game.model.Cell
 import com.clevercorner.arrowescape.game.model.Direction
 
 /**
+ * Whatever stands in an arrow's way.
+ *
+ * Declared by the walk rather than by its callers, because the walk is the
+ * only thing that needs to ask: it wants a yes or no per cell and has no
+ * business knowing whether the answer comes from a set, a grid index or a
+ * single rule. [CellOccupancy] is the usual source.
+ */
+fun interface BlockedCells {
+    fun blocks(cell: Cell): Boolean
+}
+
+/**
  * Walks the route an arrow head would carve on its way off the board.
  *
  * This is the single definition of "can it get out?" in the game. The
@@ -45,6 +57,14 @@ object ExitSimulator {
         direction: Direction,
         board: Board,
         blocked: Set<Cell>
+    ): Trace = trace(head, direction, board, BlockedCells { it in blocked })
+
+    /** As above, for callers that can answer "blocked?" without a set. */
+    fun trace(
+        head: Cell,
+        direction: Direction,
+        board: Board,
+        blocked: BlockedCells
     ): Trace {
         val path = mutableListOf<Cell>()
         // Only a deflector can bend a route back on itself, so a plain board
@@ -69,7 +89,7 @@ object ExitSimulator {
                 dir = bend
                 continue
             }
-            if (cell in blocked) return Trace(path, cell)
+            if (blocked.blocks(cell)) return Trace(path, cell)
         }
     }
 
