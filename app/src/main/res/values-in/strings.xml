@@ -188,6 +188,8 @@
     <string name="settings_toggle_sound_subtitle">Putar suara saat mengetuk panah</string>
     <string name="settings_toggle_haptics_title">Umpan Balik Haptik</string>
     <string name="settings_toggle_haptics_subtitle">Bergetar saat berinteraksi</string>
+    <string name="settings_toggle_notifications_title">Pengingat Harian</string>
+    <string name="settings_toggle_notifications_subtitle">Ingatkan saya untuk menyelesaikan teka-teki harian</string>
     <string name="settings_section_progress">Kemajuan</string>
     <string name="settings_badge_playing">BERMAIN</string>
     <string name="settings_stat_current">Saat ini</string>

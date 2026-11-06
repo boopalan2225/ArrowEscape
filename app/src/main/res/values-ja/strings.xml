@@ -188,6 +188,8 @@
     <string name="settings_toggle_sound_subtitle">矢印をタップすると音を鳴らす</string>
     <string name="settings_toggle_haptics_title">触覚フィードバック</string>
     <string name="settings_toggle_haptics_subtitle">インタラクション時に振動する</string>
+    <string name="settings_toggle_notifications_title">デイリーリマインダー</string>
+    <string name="settings_toggle_notifications_subtitle">デイリーパズルを解くよう通知する</string>
     <string name="settings_section_progress">進捗状況</string>
     <string name="settings_badge_playing">遊ぶ</string>
     <string name="settings_stat_current">現在</string>

@@ -188,6 +188,8 @@
     <string name="settings_toggle_sound_subtitle">เล่นเสียงเมื่อแตะลูกศร</string>
     <string name="settings_toggle_haptics_title">การตอบสนองแบบสัมผัส</string>
     <string name="settings_toggle_haptics_subtitle">สั่นเมื่อมีปฏิสัมพันธ์</string>
+    <string name="settings_toggle_notifications_title">การแจ้งเตือนรายวัน</string>
+    <string name="settings_toggle_notifications_subtitle">เตือนฉันให้แก้ปริศนารายวัน</string>
     <string name="settings_section_progress">ความคืบหน้า</string>
     <string name="settings_badge_playing">กำลังเล่น</string>
     <string name="settings_stat_current">ปัจจุบัน</string>

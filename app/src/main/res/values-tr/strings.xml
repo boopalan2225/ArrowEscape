@@ -188,6 +188,8 @@
     <string name="settings_toggle_sound_subtitle">Oklara dokunduğunuzda ses çalın</string>
     <string name="settings_toggle_haptics_title">Dokunsal Geribildirim</string>
     <string name="settings_toggle_haptics_subtitle">Etkileşimlerde titreşim</string>
+    <string name="settings_toggle_notifications_title">Günlük Hatırlatıcılar</string>
+    <string name="settings_toggle_notifications_subtitle">Günlük bulmacayı çözmemi hatırlat</string>
     <string name="settings_section_progress">İlerleme</string>
     <string name="settings_badge_playing">OYNANIYOR</string>
     <string name="settings_stat_current">Mevcut</string>

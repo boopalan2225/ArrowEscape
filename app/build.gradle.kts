@@ -223,6 +223,9 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.6")
 
+    // WorkManager (local background daily reminder)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

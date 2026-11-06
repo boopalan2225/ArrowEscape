@@ -11,6 +11,7 @@ import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.game.curve.CurvedAssetShapes
 import com.clevercorner.arrowescape.notifications.AppNotifications
 import com.clevercorner.arrowescape.notifications.DailyReminderUseCase
+import com.clevercorner.arrowescape.notifications.DailyReminderWorker
 import com.clevercorner.arrowescape.notifications.LocalNotificationTokenProvider
 import com.clevercorner.arrowescape.notifications.NotificationTokenProvider
 import com.clevercorner.arrowescape.notifications.SystemAppNotifications
@@ -50,6 +51,9 @@ class ArrowEscapeApplication : Application() {
         // forget plumbing-proving - nothing downstream reads it yet, but the
         // day something does, it will already be sitting in [preferences].
         appNotifications.ensureChannel(this)
+        if (preferences.prefsOrDefault.value.notificationsEnabled) {
+            DailyReminderWorker.schedule(this)
+        }
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             notificationTokenProvider.getOrCreateToken()
         }

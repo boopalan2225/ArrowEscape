@@ -37,6 +37,8 @@ import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.economy.CoinRules
 import com.clevercorner.arrowescape.game.daily.DailyCalendar
+import com.clevercorner.arrowescape.notifications.DailyReminderWorker
+import com.clevercorner.arrowescape.notifications.rememberNotificationPermissionLauncher
 import com.clevercorner.arrowescape.review.ReviewPolicy
 import com.clevercorner.arrowescape.review.ReviewState
 import com.clevercorner.arrowescape.ui.coins.CoinRewardHost
@@ -464,8 +466,14 @@ fun ArrowEscapeApp(
         composable("settings") {
             val scope = rememberCoroutineScope()
             val account by cloudSave.account.collectAsState()
-            val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
+            val activity = context as? android.app.Activity
             val auditionTheme = rememberThemeAudition(feedback)
+            val requestNotificationPermission = rememberNotificationPermissionLauncher { granted ->
+                if (granted) {
+                    scope.launch { preferences.setNotificationsEnabled(true) }
+                    DailyReminderWorker.schedule(context.applicationContext)
+                }
+            }
             SettingsScreen(
                 prefs = prefs,
                 account = account,
@@ -476,6 +484,16 @@ fun ArrowEscapeApp(
                 },
                 onHapticsToggle = { enabled ->
                     gameViewModel.setHapticsEnabled(enabled)
+                },
+                onNotificationsToggle = { enabled ->
+                    if (enabled) {
+                        requestNotificationPermission()
+                        scope.launch { preferences.setNotificationsEnabled(true) }
+                        DailyReminderWorker.schedule(context.applicationContext)
+                    } else {
+                        scope.launch { preferences.setNotificationsEnabled(false) }
+                        DailyReminderWorker.cancel(context.applicationContext)
+                    }
                 },
                 onDevModeToggle = { enabled ->
                     scope.launch { preferences.setDevMode(enabled) }

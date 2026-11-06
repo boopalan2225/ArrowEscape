@@ -35,5 +35,5 @@
       (confirmed on-device: "expected String but value was a java.lang.Integer").
       A placeholder - sign-in will not work until this is a real app ID.
     -->
-    <string name="game_services_app_id" translatable="false">000000000000</string>
+    <string name="game_services_app_id" translatable="false">974485904294</string>
 </resources>

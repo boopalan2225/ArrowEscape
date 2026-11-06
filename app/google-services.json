@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "arrowescape-placeholder",
-    "storage_bucket": "arrowescape-placeholder.appspot.com"
+    "project_number": "974485904294",
+    "project_id": "arrow-escape-84fcc",
+    "storage_bucket": "arrow-escape-84fcc.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:974485904294:android:5b604840d3c3409901cd67",
         "android_client_info": {
           "package_name": "com.clevercorner.arrowescape"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDUMMY-REPLACE-WITH-REAL-KEY-000000"
+          "current_key": "AIzaSyCoUn7daHJqwpw7IdmhDLIdrNRMaFbjh7Y"
         }
       ],
       "services": {
@@ -26,7 +26,7 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:1111111111111111111111",
+        "mobilesdk_app_id": "1:974485904294:android:4001896b78b40bc001cd67",
         "android_client_info": {
           "package_name": "com.clevercorner.arrowescape.debug"
         }
@@ -34,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDUMMY-REPLACE-WITH-REAL-KEY-111111"
+          "current_key": "AIzaSyCoUn7daHJqwpw7IdmhDLIdrNRMaFbjh7Y"
         }
       ],
       "services": {

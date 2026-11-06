@@ -43,6 +43,7 @@ import com.clevercorner.arrowescape.ui.components.BoardPlaque
 import com.clevercorner.arrowescape.ui.components.BoardSkin
 import com.clevercorner.arrowescape.ui.components.ConfettiBurst
 import com.clevercorner.arrowescape.ui.coins.CoinIcon
+import com.clevercorner.arrowescape.notifications.rememberNotificationPermissionLauncher
 import com.clevercorner.arrowescape.ui.components.CurvedGameBoard
 import com.clevercorner.arrowescape.ui.components.OutOfLivesModal
 import com.clevercorner.arrowescape.ui.components.PuzzleStuckModal
@@ -92,6 +93,12 @@ fun DailyScreen(
     val isGenerating by viewModel.isGenerating.collectAsState()
     val activity = LocalContext.current as? Activity
     val dailyStyle = LocalThemePersona.current.dailyHeader
+
+    // Request notification permission politely when entering Daily Mode (Android 13+)
+    val requestNotificationPermission = rememberNotificationPermissionLauncher { /* no-op */ }
+    LaunchedEffect(Unit) {
+        requestNotificationPermission()
+    }
 
     // This theme's painted board, if it has one: the artwork and how much of
     // it the puzzle may use travel together, because they describe one object.

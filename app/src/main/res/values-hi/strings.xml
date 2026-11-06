@@ -188,6 +188,8 @@
     <string name="settings_toggle_sound_subtitle">तीरों को टैप करते समय ध्वनियाँ बजाएँ</string>
     <string name="settings_toggle_haptics_title">हैप्टिक फीडबैक</string>
     <string name="settings_toggle_haptics_subtitle">बातचीत पर कंपन करें</string>
+    <string name="settings_toggle_notifications_title">दैनिक रिमाइंडर</string>
+    <string name="settings_toggle_notifications_subtitle">मुझे दैनिक पहेली हल करने की याद दिलाएं</string>
     <string name="settings_section_progress">प्रगति</string>
     <string name="settings_badge_playing">बजाना</string>
     <string name="settings_stat_current">वर्तमान</string>

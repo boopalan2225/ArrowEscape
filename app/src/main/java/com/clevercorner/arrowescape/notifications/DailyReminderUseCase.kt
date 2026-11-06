@@ -3,6 +3,8 @@ package com.clevercorner.arrowescape.notifications
 import android.content.Context
 import com.clevercorner.arrowescape.R
 import com.clevercorner.arrowescape.data.GamePreferences
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 /**
@@ -25,19 +27,18 @@ class DailyReminderUseCase(
 
     /**
      * Shows the reminder if, and only if, there is still something to remind
-     * about.
+     * about (permission is granted and today's puzzle is not yet cleared).
      *
-     * Nothing currently calls this on a schedule - that piece (a daily
-     * trigger, most naturally `WorkManager`'s `PeriodicWorkRequest`) is
-     * intentionally not part of this change; see the package's notification
-     * stack for what exists so far and wire a trigger to this method when
-     * ready.
+     * @param ignoreClearedForTesting Set to true during test cycles so notifications
+     * can be validated without needing an uncompleted daily board.
      */
-    fun maybeShow(context: Context) {
+    suspend fun maybeShow(context: Context, ignoreClearedForTesting: Boolean = false) {
+        val currentPrefs = preferences.prefs.filterNotNull().first()
+        if (!currentPrefs.notificationsEnabled) return
         if (!notifications.hasPermission(context)) return
 
-        val today = preferences.prefsOrDefault.value.daily
-        if (today.isCleared(LocalDate.now())) return
+        val today = currentPrefs.daily
+        if (!ignoreClearedForTesting && today.isCleared(LocalDate.now())) return
 
         notifications.show(
             context = context,

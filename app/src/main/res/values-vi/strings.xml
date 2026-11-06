@@ -188,6 +188,8 @@
     <string name="settings_toggle_sound_subtitle">Phát âm thanh khi chạm vào mũi tên</string>
     <string name="settings_toggle_haptics_title">Phản hồi xúc giác</string>
     <string name="settings_toggle_haptics_subtitle">Rung khi tương tác</string>
+    <string name="settings_toggle_notifications_title">Lời nhắc hàng ngày</string>
+    <string name="settings_toggle_notifications_subtitle">Nhắc tôi giải câu đố hàng ngày</string>
     <string name="settings_section_progress">Tiến độ</string>
     <string name="settings_badge_playing">ĐANG CHƠI</string>
     <string name="settings_stat_current">hiện tại</string>

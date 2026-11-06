@@ -43,6 +43,7 @@ class GamePreferences(
         // ── Global settings ──────────────────────────────────────────────
         private val KEY_SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
         private val KEY_HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
+        private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         private val KEY_LEVELS_SINCE_INTERSTITIAL = intPreferencesKey("levels_since_interstitial")
         private val KEY_DEV_MODE = booleanPreferencesKey("dev_mode") // Open any level, no progress changes
         private val KEY_THEME = stringPreferencesKey("theme") // AppTheme.id; absent = match the phone
@@ -142,6 +143,7 @@ class GamePreferences(
         val progress: Map<GameMode, ModeProgress> = emptyMap(),
         val soundEnabled: Boolean = true,
         val hapticsEnabled: Boolean = true,
+        val notificationsEnabled: Boolean = true,
         val levelsSinceInterstitial: Int = 0,
         /** Developer mode: level picker, prev/next, and play never touches saved progress. */
         val devMode: Boolean = false,
@@ -190,6 +192,7 @@ class GamePreferences(
                 progress = GameMode.entries.associateWith { stored.progressOf(it) },
                 soundEnabled = stored[KEY_SOUND_ENABLED] ?: true,
                 hapticsEnabled = stored[KEY_HAPTICS_ENABLED] ?: true,
+                notificationsEnabled = stored[KEY_NOTIFICATIONS_ENABLED] ?: true,
                 levelsSinceInterstitial = stored[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
                 devMode = stored[KEY_DEV_MODE] ?: false,
                 themeId = stored[KEY_THEME],
@@ -495,6 +498,12 @@ class GamePreferences(
     suspend fun setHapticsEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_HAPTICS_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_NOTIFICATIONS_ENABLED] = enabled
         }
     }
 

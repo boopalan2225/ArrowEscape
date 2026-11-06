@@ -56,6 +56,7 @@ fun SettingsScreen(
     onSignOutClick: () -> Unit = {},
     onSoundToggle: (Boolean) -> Unit,
     onHapticsToggle: (Boolean) -> Unit,
+    onNotificationsToggle: (Boolean) -> Unit = {},
     onDevModeToggle: (Boolean) -> Unit = {},
     /** Receives an [AppTheme] id, or [AppTheme.SYSTEM_ID] to follow the phone. */
     onThemeSelect: (String) -> Unit = {},
@@ -134,6 +135,14 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_toggle_haptics_subtitle),
                     checked = prefs.hapticsEnabled,
                     onCheckedChange = onHapticsToggle
+                )
+
+                SettingsToggleItem(
+                    icon = "\uD83D\uDD14",
+                    title = stringResource(R.string.settings_toggle_notifications_title),
+                    subtitle = stringResource(R.string.settings_toggle_notifications_subtitle),
+                    checked = prefs.notificationsEnabled,
+                    onCheckedChange = onNotificationsToggle
                 )
             }
 
