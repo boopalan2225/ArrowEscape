@@ -8,6 +8,12 @@
     <string name="play_button">플레이</string>
     <string name="continue_button">계속</string>
     <string name="restart_level">재시작 레벨</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Arrow Escape 알림 및 업데이트</string>
+    <string name="notification_daily_reminder_title">오늘의 퍼즐이 기다리고 있습니다</string>
+    <string name="notification_daily_reminder_body">연속 기록을 이어가세요 — 오늘의 보드를 풀어보세요.</string>
     <string name="next_level_button">다음 레벨</string>
     <string name="about_title">소개</string>
     <string name="privacy_policy_title">개인 정보 보호 정책</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">로얄 챌린지</string>
     <string name="milestone_title_ring_master">링 마스터</string>
     <string name="milestone_title_grand_finale">그랜드 피날레</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 파트 %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">화살표</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">다음 레벨로 건너뛰기</string>
     <string name="puzzle_stuck_retry">재시도 수준</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">화살표 보드. 화살표를 탭하여 발사하고, 길게 눌러 경로를 미리 보고, 핀치하여 확대/축소하고 드래그하여 이동할 수 있습니다.</string>
     <string name="board_zoom_hint">핀치하여 확대/축소 \u00B7 드래그하여 이동</string>
     <string name="board_reset_view">보기 재설정</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">클래식: 그리드 위의 화살표, 셀에 그려진 모양.</string>
     <string name="about_bullet_curved">곡선: 화살표가 그려진 그림의 선을 따라 흐릅니다.</string>
     <string name="about_two_ways_body">각 모드는 자체 진행 상황을 유지하므로 전환에 비용이 들지 않습니다.</string>
+    <string name="about_card_coins_title">코인</string>
+    <string name="about_coins_body">코인으로 유료 테마를 잠금 해제할 수 있습니다. 반복 플레이가 아닌 꾸준한 플레이로 획득할 수 있으며, 이미 깬 레벨을 다시 플레이해도 코인은 지급되지 않습니다.</string>
+    <string name="about_bullet_coins_daily">일일 퍼즐 풀기: 8코인, 실수 없이 풀면 15코인.</string>
+    <string name="about_bullet_coins_streak">3, 7, 14, 30, 60 또는 100일 연속 달성 시 특별 보너스 지급.</string>
+    <string name="about_bullet_coins_chapter">여정 맵의 챕터 완료 시: 20코인.</string>
+    <string name="about_bullet_coins_invite">친구의 초대 코드 최초 등록 시: 50코인.</string>
+    <string name="about_bullet_coins_ads">더 빨리 모으고 싶으신가요? 하루 두 번의 선택형 광고로 각 12코인을 받고 일일 퍼즐 보상을 2배로 늘릴 수 있습니다. 광고 시청을 필수로 요구하는 요소는 없습니다.</string>
     <string name="about_card_make_it_yours_title">당신의 것으로 만드세요</string>
     <string name="about_make_it_yours_body">다섯 가지 모양(클래식, 자정, 일몰, 해적, 잉크)에는 각각 고유한 홈 화면, 모션 및 사운드가 있습니다. 휴대전화를 팔로우하는 것을 선호하시나요? 설정에서 시스템을 선택하세요.</string>
     <string name="about_card_progress_safe_title">당신의 진행 상황은 안전합니다</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">우리는 귀하의 이름, 이메일 또는 전화번호를 요구하지 않으며 귀하에 관한 어떤 것도 판매하지 않습니다. 게임은 오프라인으로 실행됩니다. 기기에서 나가는 유일한 데이터는 광고와 선택적 Play 게임 로그인에 필요한 것입니다.</string>
     <string name="privacy_card_device_title">기기에 남아 있는 내용</string>
     <string name="privacy_bullet_progress">각 모드의 현재 레벨, 최고 레벨 및 별.</string>
+    <string name="privacy_bullet_coins">일일 퍼즐 기록 및 연속 기록, 코인 잔액 및 잠금 해제한 테마.</string>
+    <string name="privacy_bullet_invite_code">회원님의 초대 코드 — 기기에서 생성된 6자리 무작위 문자입니다. 이름, 계정, 전화번호와 무관하며 공유하기로 선택한 경우에만 전송됩니다.</string>
     <string name="privacy_bullet_settings">설정: 테마, 사운드, 햅틱.</string>
     <string name="privacy_device_body">이는 앱의 개인 저장소에 있으며 게임을 제거하면 제거됩니다.</string>
     <string name="privacy_card_ads_title">광고</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">해결됨</string>
     <string name="daily_streak_days">%1$d일 연속</string>
     <string name="daily_come_back_tomorrow">내일 다시 오세요</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">일일 기록</string>
+    <string name="daily_history_day_solved">%1$s · 별 %2$d개로 해결</string>
+    <string name="daily_history_day_missed">%1$s · 놓침</string>
+    <string name="daily_history_day_locked">%1$s · 아직 열리지 않음</string>
+    <string name="daily_history_day_open">%1$s · 오늘의 퍼즐</string>
+    <string name="daily_history_summary">%1$d개 해결 · %2$d일 연속</string>
     <string name="daily_done_button">완료</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">이전 레벨</string>
+    <string name="level_next">다음 레벨</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">일일</string>
+    <string name="daily_shuffle_in">%1$s 후 셔플</string>
+    <string name="daily_shuffle_count">%1$d\u00D7 셔플됨</string>
+    <string name="daily_shuffle_flash">보드가 셔플되었습니다!</string>
+    <string name="daily_stat_lives">남은 하트</string>
+    <string name="daily_stat_best_run">최고 기록</string>
+    <string name="daily_stat_streak">연속 일수</string>
+    <string name="daily_undo">실행 취소</string>
+    <string name="daily_restart">다시 시작</string>
+    <string name="daily_hint">힌트</string>
+    <string name="daily_hint_left">남은 힌트 %1$d개</string>
+    <string name="daily_hint_watch_ad">광고 보고 힌트 받기</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">출시 예정</string>
     <string name="coming_soon_title">워크샵에는 더 많은 장이 있습니다.</string>
     <string name="coming_soon_body">당신은 지금까지 우리가 쌓아온 모든 것을 정리했습니다. 새로운 모양과 더욱 까다로운 탈출 방법이 곧 출시됩니다. 배송 당일에 도착할 수 있도록 앱을 최신 상태로 유지하세요.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">게임을 선택하세요</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">가리키는 가장자리까지 뚜렷한 화살표가 있는 화살표를 찾아서 누릅니다. 계속하세요 - 보드가 살아있습니다.</string>
     <string name="tour_game_board2_title">이제 하나 더</string>
     <string name="tour_game_board2_body">떠나는 모든 화살은 다른 화살의 길을 열어줍니다. 두 번째 것을 탭하고 보드가 느슨해지는 것을 지켜보세요.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">회전 패드는 진행 방향을 바꿉니다</string>
+    <string name="tour_game_turnpad_body">패드에 도달한 화살표는 패드가 가리키는 방향으로 진행합니다. 막힌 것처럼 보이는 경로도 열려 있는 경우가 많습니다.</string>
+    <string name="tour_game_lock_title">잠긴 쌍은 함께 움직입니다</string>
+    <string name="tour_game_lock_body">같은 색상의 두 링은 함께 나가거나 전혀 나가지 못합니다. 둘 중 하나를 탭하세요 — 단, 둘 다 경로가 먼저 확보되어야 합니다.</string>
+    <string name="tour_game_order_title">숫자는 순서대로 진행합니다</string>
+    <string name="tour_game_order_body">번호가 매겨진 화살표는 순서대로 빠져나갑니다. 흐린 배지는 대기 중이며, 밝은 배지는 출발 준비가 된 상태입니다.</string>
+    <string name="tour_game_route_title">탭하기 전에 확인하세요</string>
+    <string name="tour_game_route_body">화살표를 길게 눌러 이동 경로를 추적하세요. 녹색은 보드 밖으로 탈출하며, 빨간색은 X 표시된 칸에서 멈춥니다.</string>
     <string name="tour_game_lives_title">화살은 남았고, 살았다</string>
     <string name="tour_game_lives_body">막힌 화살을 탭하면 떠나는 대신 흔들리고 하트 세 개 중 하나가 소모됩니다.</string>
     <string name="tour_game_hint_title">갇힌? 힌트를 받아보세요</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">%2$d의 %1$d 단계</string>
     <string name="tour_skip">건너뛰기</string>
+    <string name="tour_skip_all">튜토리얼 건너뛰기</string>
     <string name="tour_got_it">알았어요</string>
     <string name="tour_skip_move">이동 건너뛰기</string>
     <string name="tour_next">다음</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">취소</string>
+    <string name="coins_title">코인</string>
+    <string name="coins_balance_subtitle">보유 코인 %1$d개</string>
+    <string name="coins_lifetime">총 획득 %1$d · 사용 %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">웰컴 보너스</string>
+    <string name="coin_reason_daily">일일 퍼즐 해결</string>
+    <string name="coin_reason_streak">%1$d일 연속 달성!</string>
+    <string name="coin_reason_chapter">챕터 %1$d 완료</string>
+    <string name="coin_reason_referral">초대 코드 등록 완료</string>
+    <string name="coin_reason_ad">시청해 주셔서 감사합니다</string>
+
+    <string name="coins_earn_title">코인 획득 방법</string>
+    <string name="coins_earn_welcome_detail">시작을 돕는 작은 선물</string>
+    <string name="coins_earn_daily_title">일일 퍼즐</string>
+    <string name="coins_earn_daily_detail">%1$d일 해결 — 실수 없이 탈출하면 보상이 더 커집니다</string>
+    <string name="coins_earn_streak_title">일일 연속 기록</string>
+    <string name="coins_earn_streak_detail">%1$d일 연속 — 다음 보상은 %2$d일째</string>
+    <string name="coins_earn_streak_maxed">모든 연속 보상 획득 완료</string>
+    <string name="coins_earn_chapter_title">여정 챕터</string>
+    <string name="coins_earn_chapter_detail">%1$d개 챕터 완료</string>
+    <string name="coins_earn_referral_title">친구 초대</string>
+    <string name="coins_earn_referral_detail">친구 코드 등록 (최초 1회)</string>
+
+    <string name="coins_invite_title">친구 초대</string>
+    <string name="coins_invite_subtitle">내 코드로 시작한 친구는 %1$d코인을 받습니다</string>
+    <string name="coins_invite_share">내 코드 공유하기</string>
+    <string name="coins_invite_message">Arrow Escape 플레이 중! 시작할 때 제 코드 %1$s 를 입력하고 보너스 코인을 받아보세요: %2$s</string>
+    <string name="coins_redeem_label">친구 코드</string>
+    <string name="coins_redeem_button">등록</string>
+    <string name="coins_redeem_ok">완료 — %1$d코인이 추가되었습니다</string>
+    <string name="coins_redeem_bad">올바른 코드가 아닙니다</string>
+    <string name="coins_redeem_own">본인의 코드는 등록할 수 없습니다</string>
+    <string name="coins_redeem_already">초대 보너스를 이미 받았습니다</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">광고 보고 %1$d코인 받기</string>
+    <string name="coins_ad_button">보기</string>
+    <string name="coins_ad_left">오늘 남은 횟수 %1$d회</string>
+    <string name="coins_ad_spent">오늘의 %1$d회를 모두 사용했습니다 — 내일 다시 오세요</string>
+    <string name="coins_ad_not_ready">현재 준비된 광고가 없습니다</string>
+    <string name="daily_double_title">오늘의 코인 2배 받기</string>
+    <string name="daily_double_body">짧은 광고를 시청하고 추가로 %1$d코인을 받으세요.</string>
+    <string name="daily_double_button">보기 · +%1$d</string>
+    <string name="daily_double_done">2배 적립 완료. 멋지네요!</string>
+
+    <string name="coins_shelf_title">테마 잠금 해제</string>
+    <string name="coins_shelf_subtitle">원하는 테마 선택 — 가격은 이미 보유한 테마 수에 따라 달라집니다</string>
+    <string name="coins_shelf_rung">테마 %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">%1$s 잠금 해제</string>
+    <string name="theme_locked_body">%1$d코인으로 잠금 해제 가능합니다.</string>
+    <string name="theme_locked_short">%1$d코인이 더 필요합니다. 일일 연속 기록을 이어가세요.</string>
+    <string name="theme_unlocked_title">%1$s 잠금 해제 완료!</string>
+    <string name="theme_unlocked_body">새로운 분위기를 즐겨보세요.</string>
+    <string name="theme_unlock_button">잠금 해제 · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">코인 초기화</string>
+    <string name="settings_debug_reset_coins_subtitle">코인을 비우고, 기록을 지우며, 모든 유료 테마를 다시 잠급니다</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Arrow Escape가 마음에 드시나요?</string>
+    <string name="rating_body">평가 작성은 10초면 충분하며 소규모 인디 게임이 새로운 플레이어를 찾는 데 큰 힘이 됩니다.</string>
+    <string name="rating_cta">Google Play에서 평가하기</string>
+    <string name="rating_later">나중에</string>
+    <string name="rating_invite_title">정말 훌륭한 실력이네요!</string>
+    <string name="rating_invite_body">게임에 평점을 남겨주시겠어요?</string>
+    <string name="settings_item_rate_title">Arrow Escape 평가하기</string>
+    <string name="settings_item_rate_subtitle">Google Play에 리뷰 남기기</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">설명</string>
+    <string name="legend_open_label">설명</string>
+    <string name="legend_close">확인</string>
+    <string name="legend_arrow">화살표: 경로가 비어 있으면 보드 밖으로 빠져나갑니다</string>
+    <string name="legend_blocked">막힘: 경로에 장애물이 있으면 깜빡입니다</string>
+    <string name="legend_turn_pad">회전 패드: 도달한 화살표가 패드의 방향으로 진행합니다</string>
+    <string name="legend_lock_pair">잠긴 쌍: 같은 색상의 링이 함께 나갑니다</string>
+    <string name="legend_sequence">숫자 화살표: 번호 순서대로 나갑니다. 밝은 것은 내 차례, 흐린 것은 대기</string>
+    <string name="legend_route">경로: 녹색은 탈출 가능, 빨간색은 막힘</string>
+    <string name="legend_hint">반짝임: 다음에 움직여야 할 화살표</string>
 </resources>

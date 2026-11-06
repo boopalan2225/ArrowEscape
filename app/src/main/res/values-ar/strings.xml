@@ -8,6 +8,12 @@
     <string name="play_button">العب</string>
     <string name="continue_button">متابعة</string>
     <string name="restart_level">إعادة تشغيل المستوى</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">تذكيرات وتحديثات من Arrow Escape</string>
+    <string name="notification_daily_reminder_title">لغز اليوم بانتظارك</string>
+    <string name="notification_daily_reminder_body">حافظ على سلسلة أيامك — تعال وحل لوحة اليوم.</string>
     <string name="next_level_button">المستوى التالي</string>
     <string name="about_title">حول</string>
     <string name="privacy_policy_title">سياسة الخصوصية</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">التحدي الملكي</string>
     <string name="milestone_title_ring_master">سيد الدائري</string>
     <string name="milestone_title_grand_finale">النهاية الكبرى</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 الجزء %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">سهم</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">انتقل إلى المستوى التالي</string>
     <string name="puzzle_stuck_retry">إعادة محاولة المستوى</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">لوحة السهم. اضغط على السهم لإطلاقه، واستمر في الضغط عليه لمعاينة مساره، ثم قم بضم إصبعيك للتكبير/التصغير، ثم اسحب للتنقل.</string>
     <string name="board_zoom_hint">قرصة للتكبير \u00B7 اسحب للتحرك</string>
     <string name="board_reset_view">إعادة ضبط العرض</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">الكلاسيكية: أسهم على الشبكة، وأشكال مرسومة في الخلايا.</string>
     <string name="about_bullet_curved">منحني: الأسهم تتدفق على طول خطوط الشكل المرسوم.</string>
     <string name="about_two_ways_body">يحتفظ كل وضع بتقدمه الخاص، لذا لا يكلف التبديل أي مستوى أبدًا.</string>
+    <string name="about_card_coins_title">العملات</string>
+    <string name="about_coins_body">تفتح العملات المظاهر المميزة. تأتي من اللعب اليومي المنتظم وليس التكرار المستمر — إعادة لعب مستوى تم حله بالفعل لا تمنحك شيئًا.</string>
+    <string name="about_bullet_coins_daily">حل اللغز اليومي: 8 عملات، أو 15 بدون أي خطأ.</string>
+    <string name="about_bullet_coins_streak">الوصول إلى 3 أو 7 أو 14 أو 30 أو 60 أو 100 يوم على التوالي للحصول على مكافأة لمرة واحدة.</string>
+    <string name="about_bullet_coins_chapter">إكمال فصل من أي خريطة رحلة: 20 عملة.</string>
+    <string name="about_bullet_coins_invite">استخدام رمز دعوة صديق لمرة واحدة: 50 عملة.</string>
+    <string name="about_bullet_coins_ads">هل تفضل الإسراع؟ إعلانان اختياريان يوميًا يمنح كل منهما 12 عملة، ويمكن مضاعفة جائزة اللغز اليومي. لا يوجد شيء في اللعبة محجوب خلف إعلان.</string>
     <string name="about_card_make_it_yours_title">اجعلها لك</string>
     <string name="about_make_it_yours_body">خمس مظاهر - Classic، وMidnight، وSunset، وPirate، وInk - كل منها مزود بشاشته الرئيسية وحركته وصوته. هل تفضل متابعة هاتفك؟ اختر النظام في الإعدادات.</string>
     <string name="about_card_progress_safe_title">تقدمك آمن</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">نحن لا نطلب اسمك أو بريدك الإلكتروني أو رقم هاتفك، ولا نبيع أي شيء عنك. اللعبة تعمل دون اتصال بالإنترنت. البيانات الوحيدة التي تخرج من جهازك هي ما تحتاجه الإعلانات وتسجيل الدخول الاختياري لألعاب Play.</string>
     <string name="privacy_card_device_title">ما يبقى على جهازك</string>
     <string name="privacy_bullet_progress">المستوى الحالي وأفضل مستوى والنجوم لكل وضع.</string>
+    <string name="privacy_bullet_coins">سجلك وسلسلة أيامك في اللغز اليومي، ورصيد العملات، والمظاهر التي قمت بفتحها.</string>
+    <string name="privacy_bullet_invite_code">رمز دعوتك — ستة أحرف عشوائية تم إنشاؤها على جهازك. لا يرتبط باسمك أو حسابك أو هاتفك، ولا يغادر جهازك إلا إذا اخترت مشاركته.</string>
     <string name="privacy_bullet_settings">إعداداتك: السمة والصوت والحس اللمسي.</string>
     <string name="privacy_device_body">يوجد هذا في مساحة التخزين الخاصة بالتطبيق ويتم إزالته عند إلغاء تثبيت اللعبة.</string>
     <string name="privacy_card_ads_title">الإعلان</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">تم الحل</string>
     <string name="daily_streak_days">%1$d أيام متتالية</string>
     <string name="daily_come_back_tomorrow">أعود غدا</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">سجلك اليومي</string>
+    <string name="daily_history_day_solved">%1$s · تم الحل مع %2$d نجوم</string>
+    <string name="daily_history_day_missed">%1$s · فائت</string>
+    <string name="daily_history_day_locked">%1$s · غير متاح بعد</string>
+    <string name="daily_history_day_open">%1$s · لغز اليوم</string>
+    <string name="daily_history_summary">تم حل %1$d · سلسلة %2$d أيام</string>
     <string name="daily_done_button">تم</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">المستوى السابق</string>
+    <string name="level_next">المستوى التالي</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">يومي</string>
+    <string name="daily_shuffle_in">خلط خلال %1$s</string>
+    <string name="daily_shuffle_count">تم الخلط %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">تم خلط اللوحة!</string>
+    <string name="daily_stat_lives">الأرواح المتبقية</string>
+    <string name="daily_stat_best_run">أفضل جولة</string>
+    <string name="daily_stat_streak">أيام متتالية</string>
+    <string name="daily_undo">تراجع</string>
+    <string name="daily_restart">إعادة التشغيل</string>
+    <string name="daily_hint">تلميح</string>
+    <string name="daily_hint_left">بقي %1$d تلميحات</string>
+    <string name="daily_hint_watch_ad">شاهد إعلانًا للحصول على تلميح</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">قريبا</string>
     <string name="coming_soon_title">المزيد من الفصول في ورشة العمل</string>
     <string name="coming_soon_body">لقد قمت بمسح كل ما بنيناه حتى الآن. هناك أشكال جديدة وعمليات هروب أكثر تعقيدًا في الطريق - حافظ على تحديث التطبيق حتى يصلوا في يوم الشحن.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">اختر لعبتك</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">ابحث عن سهم بمدى واضح إلى الحافة التي يشير إليها، ثم اضغط عليه. استمر - اللوحة حية.</string>
     <string name="tour_game_board2_title">الآن واحد آخر</string>
     <string name="tour_game_board2_body">كل سهم يغادر يفتح طريقا لآخر. اضغط على واحدة ثانية وشاهد اللوحة ترتخي.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">منصات الانعطاف تغير المسار</string>
+    <string name="tour_game_turnpad_body">السهم الذي يصل إلى المنصة يتابع في الاتجاه الذي تشير إليه. المسارات التي تبدو مغلقة غالبًا ما تكون سالكة.</string>
+    <string name="tour_game_lock_title">الأزواج المقفلة تتحرك معًا</string>
+    <string name="tour_game_lock_body">حلقتان من نفس اللون تغادران معًا أو لا تغادران على الإطلاق. اضغط على أي منهما — لكن كلاهما يحتاج إلى مسار خالٍ أولاً.</string>
+    <string name="tour_game_order_title">الأرقام تتحرك بالدور</string>
+    <string name="tour_game_order_body">تغادر الأسهم المرقمة بالترتيب. الشارة الباهتة لا تزال تنتظر؛ والشارة المضيئة جاهزة للانطلاق.</string>
+    <string name="tour_game_route_title">تحقق قبل الضغط</string>
+    <string name="tour_game_route_body">اضغط مطولاً على السهم لتتبع مساره. المسار الأخضر يخرج من اللوحة؛ والمسار الأحمر يتوقف عند الخلية المحددة بعلامة خطأ.</string>
     <string name="tour_game_lives_title">السهام اليسار، ويعيش</string>
     <string name="tour_game_lives_body">اضغط على السهم المحظور وسيهتز بدلاً من المغادرة - ويكلف واحدًا من هذه القلوب الثلاثة.</string>
     <string name="tour_game_hint_title">عالق؟ خذ تلميحا</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">الخطوة %1$d من %2$d</string>
     <string name="tour_skip">تخطي</string>
+    <string name="tour_skip_all">تخطي التعليمات</string>
     <string name="tour_got_it">حصلت عليه</string>
     <string name="tour_skip_move">تخطي التحرك</string>
     <string name="tour_next">التالي</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">إلغاء</string>
+    <string name="coins_title">العملات</string>
+    <string name="coins_balance_subtitle">%1$d في محفظتك</string>
+    <string name="coins_lifetime">تم كسب %1$d إجمالاً · تم إنفاق %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">مكافأة ترحيبية</string>
+    <string name="coin_reason_daily">تم حل اللغز اليومي</string>
+    <string name="coin_reason_streak">%1$d أيام متتالية!</string>
+    <string name="coin_reason_chapter">اكتمل الفصل %1$d</string>
+    <string name="coin_reason_referral">تم استخدام الدعوة</string>
+    <string name="coin_reason_ad">شكرًا للمشاهدة</string>
+
+    <string name="coins_earn_title">طرق الكسب</string>
+    <string name="coins_earn_welcome_detail">هدية صغيرة للبدء</string>
+    <string name="coins_earn_daily_title">اللغز اليومي</string>
+    <string name="coins_earn_daily_detail">تم حل %1$d أيام — الهروب بدون أخطاء يمنح مكافأة أكبر</string>
+    <string name="coins_earn_streak_title">السلسلة اليومية</string>
+    <string name="coins_earn_streak_detail">%1$d أيام متتالية — المكافأة التالية عند %2$d</string>
+    <string name="coins_earn_streak_maxed">تمت المطالبة بجميع مكافآت السلسلة</string>
+    <string name="coins_earn_chapter_title">فصول الرحلة</string>
+    <string name="coins_earn_chapter_detail">تم اجتياز %1$d فصول</string>
+    <string name="coins_earn_referral_title">دعوة صديق</string>
+    <string name="coins_earn_referral_detail">استخدم رمز صديقك — لمرة واحدة فقط</string>
+
+    <string name="coins_invite_title">دعوة صديق</string>
+    <string name="coins_invite_subtitle">الصديق الذي يبدأ برمزك يحصل على %1$d عملة</string>
+    <string name="coins_invite_share">مشاركة الرمز الخاص بي</string>
+    <string name="coins_invite_message">أنا ألعب Arrow Escape — استخدم رمزي %1$s عند البدء واحصل على عملات إضافية: %2$s</string>
+    <string name="coins_redeem_label">رمز الصديق</string>
+    <string name="coins_redeem_button">استرداد</string>
+    <string name="coins_redeem_ok">رائع — تمت إضافة %1$d عملة</string>
+    <string name="coins_redeem_bad">يبدو أن هذا الرمز غير صحيح</string>
+    <string name="coins_redeem_own">هذا هو رمزك الخاص</string>
+    <string name="coins_redeem_already">تمت المطالبة بمكافأة الدعوة بالفعل</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">شاهد إعلانًا مقابل %1$d عملة</string>
+    <string name="coins_ad_button">مشاهدة</string>
+    <string name="coins_ad_left">بقي اليوم %1$d</string>
+    <string name="coins_ad_spent">انتهت %1$d المخصصة لليوم — عد غدًا</string>
+    <string name="coins_ad_not_ready">لا توجد إعلانات جاهزة الآن</string>
+    <string name="daily_double_title">مضاعفة عملات اليوم</string>
+    <string name="daily_double_body">شاهد إعلانًا قصيرًا للحصول على %1$d إضافية.</string>
+    <string name="daily_double_button">مشاهدة · +%1$d</string>
+    <string name="daily_double_done">تمت المضاعفة. عمل رائع!</string>
+
+    <string name="coins_shelf_title">فتح المظاهر</string>
+    <string name="coins_shelf_subtitle">أي مظهر يعجبك — السعر يعتمد على عدد المظاهر التي تمتلكها بالفعل</string>
+    <string name="coins_shelf_rung">المظهر %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">فتح %1$s</string>
+    <string name="theme_locked_body">يمكنك الحصول عليه مقابل %1$d عملة.</string>
+    <string name="theme_locked_short">بقي %1$d عملة للمتابعة. حافظ على سلسلتك اليومية.</string>
+    <string name="theme_unlocked_title">تم فتح %1$s!</string>
+    <string name="theme_unlocked_body">استمتع بالمظهر الجديد.</string>
+    <string name="theme_unlock_button">فتح · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">إعادة تعيين العملات</string>
+    <string name="settings_debug_reset_coins_subtitle">تفريغ المحفظة ومسح السجل وقفل جميع المظاهر المدفوعة مرة أخرى</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">هل تستمتع بـ Arrow Escape؟</string>
+    <string name="rating_body">التقييم يستغرق عشر ثوانٍ فقط ويساعد لعبة صغيرة ومستقلة على الوصول إلى لاعبين جدد.</string>
+    <string name="rating_cta">التقييم على Google Play</string>
+    <string name="rating_later">ليس الآن</string>
+    <string name="rating_invite_title">أنت في تقدم مستمر!</string>
+    <string name="rating_invite_body">هل ترغب في ترك تقييم للعبة؟</string>
+    <string name="settings_item_rate_title">تقييم Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">اترك تقييمًا على Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">دليل الرموز</string>
+    <string name="legend_open_label">دليل الرموز</string>
+    <string name="legend_close">فهمت ذلك</string>
+    <string name="legend_arrow">السهم: ينزلق خارج اللوحة عندما يكون مساره سالكًا</string>
+    <string name="legend_blocked">محظور: يومض عندما يكون مساره مغلقًا</string>
+    <string name="legend_turn_pad">منصة انعطاف: السهم الذي يصل إليها يخرج في اتجاه المنصة</string>
+    <string name="legend_lock_pair">زوج مقفل: الحلقات المتطابقة تخرج معًا</string>
+    <string name="legend_sequence">مرقم: يتم الخروج بالترتيب. المضيء دوره الآن، الباهت عليه الانتظار</string>
+    <string name="legend_route">المسار: الأخضر سالك، الأحمر مغلق</string>
+    <string name="legend_hint">توهج: السهم التالي الذي يمكن تحريكه</string>
 </resources>

@@ -8,6 +8,12 @@
     <string name="play_button">JOUER</string>
     <string name="continue_button">CONTINUER</string>
     <string name="restart_level">Niveau de redémarrage</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Rappels et actualités d\'Arrow Escape</string>
+    <string name="notification_daily_reminder_title">Le casse-tête du jour vous attend</string>
+    <string name="notification_daily_reminder_body">Gardez votre série active : venez résoudre le plateau d\'aujourd\'hui.</string>
     <string name="next_level_button">NIVEAU SUIVANT</string>
     <string name="about_title">À propos</string>
     <string name="privacy_policy_title">Politique de confidentialité</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Défi Royal</string>
     <string name="milestone_title_ring_master">Maître des anneaux</string>
     <string name="milestone_title_grand_finale">Grande Finale</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Partie %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">FLÈCHE</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Passer au niveau suivant</string>
     <string name="puzzle_stuck_retry">Niveau de nouvelle tentative</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Tableau de flèches. Appuyez sur une flèche pour la tirer, maintenez-la enfoncée pour prévisualiser son chemin, pincez pour zoomer et faites glisser pour vous déplacer.</string>
     <string name="board_zoom_hint">Pincez pour zoomer \u00B7 faites glisser pour déplacer</string>
     <string name="board_reset_view">Réinitialiser la vue</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Classique : flèches sur une grille, formes dessinées dans des cellules.</string>
     <string name="about_bullet_curved">Courbe : les flèches suivent les lignes d\'une figure dessinée.</string>
     <string name="about_two_ways_body">Chaque mode conserve sa propre progression, donc changer de niveau ne coûte jamais.</string>
+    <string name="about_card_coins_title">Pièces</string>
+    <string name="about_coins_body">Les pièces débloquent les apparences payantes. On les obtient par la régularité plutôt qu\'en répétant les niveaux : rejouer un niveau déjà terminé ne rapporte rien.</string>
+    <string name="about_bullet_coins_daily">Résolvez le casse-tête quotidien : 8 pièces, ou 15 sans aucune faute.</string>
+    <string name="about_bullet_coins_streak">Atteignez 3, 7, 14, 30, 60 ou 100 jours consécutifs pour obtenir un bonus unique.</string>
+    <string name="about_bullet_coins_chapter">Terminez un chapitre d\'une carte d\'aventure : 20 pièces.</string>
+    <string name="about_bullet_coins_invite">Utilisez le code d\'invitation d\'un ami une fois : 50 pièces.</string>
+    <string name="about_bullet_coins_ads">Envie d\'aller plus vite ? Deux publicités facultatives par jour rapportent 12 pièces chacune, et le casse-tête quotidien peut être doublé. Aucun contenu n\'est bloqué derrière une publicité.</string>
     <string name="about_card_make_it_yours_title">Faites-le vôtre</string>
     <string name="about_make_it_yours_body">Cinq apparitions : Classique, Minuit, Coucher de soleil, Pirate et Encre - chacune avec son propre écran d\'accueil, son propre mouvement et son propre son. Vous préférez suivre votre téléphone ? Choisissez Système dans Paramètres.</string>
     <string name="about_card_progress_safe_title">Votre progression est sécurisée</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Nous ne vous demandons pas votre nom, votre email ou votre numéro de téléphone, et nous ne vendons rien à votre sujet. Le jeu fonctionne hors ligne ; les seules données qui quittent votre appareil sont celles dont les annonces et la connexion facultative à Play Games ont besoin.</string>
     <string name="privacy_card_device_title">Ce qui reste sur votre appareil</string>
     <string name="privacy_bullet_progress">Niveau actuel, meilleur niveau et étoiles, pour chaque mode.</string>
+    <string name="privacy_bullet_coins">Votre historique et série du casse-tête quotidien, votre solde de pièces et les apparences débloquées.</string>
+    <string name="privacy_bullet_invite_code">Votre code d\'invitation : six caractères aléatoires générés sur votre appareil. Il n\'est pas dérivé de votre nom, de votre compte ni de votre téléphone, et ne quitte votre appareil que si vous choisissez de le partager.</string>
     <string name="privacy_bullet_settings">Vos paramètres : thème, son et haptique.</string>
     <string name="privacy_device_body">Celui-ci se trouve dans le stockage privé de l\'application et est supprimé lorsque vous désinstallez le jeu.</string>
     <string name="privacy_card_ads_title">Publicité</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Résolu</string>
     <string name="daily_streak_days">%1$d jours consécutifs</string>
     <string name="daily_come_back_tomorrow">Reviens demain</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Votre historique quotidien</string>
+    <string name="daily_history_day_solved">%1$s · Résolu avec %2$d étoiles</string>
+    <string name="daily_history_day_missed">%1$s · Manqué</string>
+    <string name="daily_history_day_locked">%1$s · Pas encore ouvert</string>
+    <string name="daily_history_day_open">%1$s · Casse-tête du jour</string>
+    <string name="daily_history_summary">%1$d résolus · Série de %2$d jours</string>
     <string name="daily_done_button">Terminé</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Niveau précédent</string>
+    <string name="level_next">Niveau suivant</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Quotidien</string>
+    <string name="daily_shuffle_in">Mélange dans %1$s</string>
+    <string name="daily_shuffle_count">Mélangé %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">Plateau mélangé !</string>
+    <string name="daily_stat_lives">Vies restantes</string>
+    <string name="daily_stat_best_run">Meilleure série</string>
+    <string name="daily_stat_streak">Série de jours</string>
+    <string name="daily_undo">Annuler</string>
+    <string name="daily_restart">Recommencer</string>
+    <string name="daily_hint">Indice</string>
+    <string name="daily_hint_left">%1$d indices restants</string>
+    <string name="daily_hint_watch_ad">Regarder une pub pour un indice</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">À VENIR</string>
     <string name="coming_soon_title">D\'autres chapitres sont dans l\'atelier</string>
     <string name="coming_soon_body">Vous avez nettoyé tout ce que nous avons construit jusqu\'à présent. De nouvelles formes et des évasions plus délicates sont en route – gardez l\'application à jour afin qu\'elles atterrissent le jour de leur expédition.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Choisissez votre jeu</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">Trouvez une flèche avec une course claire vers le bord vers lequel elle pointe et appuyez dessus. Allez-y, le forum est en direct.</string>
     <string name="tour_game_board2_title">Maintenant un de plus</string>
     <string name="tour_game_board2_body">Chaque flèche qui part ouvre un chemin pour une autre. Appuyez sur un deuxième et regardez le tableau se détendre.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Les tremplins dévient la trajectoire</string>
+    <string name="tour_game_turnpad_body">Une flèche qui atteint un tremplin continue dans la direction indiquée par celui-ci. Les voies qui semblent bloquées ne le sont souvent pas.</string>
+    <string name="tour_game_lock_title">Les paires verrouillées bougent ensemble</string>
+    <string name="tour_game_lock_body">Deux anneaux de même couleur partent ensemble ou restent. Touchez l\'un ou l\'autre, mais les deux doivent avoir la voie libre d\'abord.</string>
+    <string name="tour_game_order_title">Les numéros passent à leur tour</string>
+    <string name="tour_game_order_body">Les flèches numérotées partent dans l\'ordre. Un badge estompé attend encore ; un badge brillant est prêt à partir.</string>
+    <string name="tour_game_route_title">Vérifiez avant de toucher</string>
+    <string name="tour_game_route_body">Maintenez une flèche pour tracer son parcours. La ligne verte sort du plateau ; la rouge s\'arrête sur la case marquée d\'une croix.</string>
     <string name="tour_game_lives_title">Flèches à gauche et vies</string>
     <string name="tour_game_lives_body">Appuyez sur une flèche bloquée et elle tremble au lieu de partir - et coûte l\'un de ces trois cœurs.</string>
     <string name="tour_game_hint_title">Bloqué? Prends un indice</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">ÉTAPE %1$d DE %2$d</string>
     <string name="tour_skip">Sauter</string>
+    <string name="tour_skip_all">Passer le didacticiel</string>
     <string name="tour_got_it">Je l\'ai compris</string>
     <string name="tour_skip_move">Sauter le déplacement</string>
     <string name="tour_next">Suivant</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Annuler</string>
+    <string name="coins_title">Pièces</string>
+    <string name="coins_balance_subtitle">%1$d dans votre bourse</string>
+    <string name="coins_lifetime">%1$d gagnées au total · %2$d dépensées</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Bonus de bienvenue</string>
+    <string name="coin_reason_daily">Casse-tête quotidien résolu</string>
+    <string name="coin_reason_streak">%1$d jours d\'affilée !</string>
+    <string name="coin_reason_chapter">Chapitre %1$d terminé</string>
+    <string name="coin_reason_referral">Invitation utilisée</string>
+    <string name="coin_reason_ad">Merci d\'avoir regardé</string>
+
+    <string name="coins_earn_title">Moyens de gagner</string>
+    <string name="coins_earn_welcome_detail">Un petit quelque chose pour commencer</string>
+    <string name="coins_earn_daily_title">Casse-tête quotidien</string>
+    <string name="coins_earn_daily_detail">%1$d jours résolus — un sans-faute rapporte plus</string>
+    <string name="coins_earn_streak_title">Série quotidienne</string>
+    <string name="coins_earn_streak_detail">%1$d jours d\'affilée — prochaine récompense à %2$d</string>
+    <string name="coins_earn_streak_maxed">Toutes les récompenses de série obtenues</string>
+    <string name="coins_earn_chapter_title">Chapitres d\'aventure</string>
+    <string name="coins_earn_chapter_detail">%1$d chapitres terminés</string>
+    <string name="coins_earn_referral_title">Inviter un ami</string>
+    <string name="coins_earn_referral_detail">Utilisez le code d\'un ami (une seule fois)</string>
+
+    <string name="coins_invite_title">Inviter un ami</string>
+    <string name="coins_invite_subtitle">Un ami débutant avec votre code reçoit %1$d pièces</string>
+    <string name="coins_invite_share">Partager mon code</string>
+    <string name="coins_invite_message">Je m\'évade sur Arrow Escape — utilise mon code %1$s au démarrage pour obtenir des pièces bonus : %2$s</string>
+    <string name="coins_redeem_label">Code d\'un ami</string>
+    <string name="coins_redeem_button">Utiliser</string>
+    <string name="coins_redeem_ok">Super — %1$d pièces ajoutées</string>
+    <string name="coins_redeem_bad">Ce code semble incorrect</string>
+    <string name="coins_redeem_own">C\'est votre propre code</string>
+    <string name="coins_redeem_already">Bonus d\'invitation déjà réclamé</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Regarder une pub pour %1$d pièces</string>
+    <string name="coins_ad_button">Regarder</string>
+    <string name="coins_ad_left">%1$d restantes aujourd\'hui</string>
+    <string name="coins_ad_spent">Les %1$d d\'aujourd\'hui sont terminées — à demain</string>
+    <string name="coins_ad_not_ready">Aucune publicité disponible pour l\'instant</string>
+    <string name="daily_double_title">Doubler les pièces du jour</string>
+    <string name="daily_double_body">Regardez une courte vidéo pour %1$d pièces de plus.</string>
+    <string name="daily_double_button">Regarder · +%1$d</string>
+    <string name="daily_double_done">Doublé. Bien joué !</string>
+
+    <string name="coins_shelf_title">Débloquer des thèmes</string>
+    <string name="coins_shelf_subtitle">Le thème de votre choix — le prix dépend du nombre déjà possédé</string>
+    <string name="coins_shelf_rung">Thème %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">Débloquer %1$s</string>
+    <string name="theme_locked_body">À vous pour %1$d pièces.</string>
+    <string name="theme_locked_short">Encore %1$d pièces nécessaires. Maintenez cette série quotidienne.</string>
+    <string name="theme_unlocked_title">%1$s débloqué !</string>
+    <string name="theme_unlocked_body">Profitez de cette nouvelle ambiance.</string>
+    <string name="theme_unlock_button">Débloquer · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Réinitialiser les pièces</string>
+    <string name="settings_debug_reset_coins_subtitle">Vider la bourse, effacer l\'historique et reverrouiller tous les thèmes payants</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Vous aimez Arrow Escape ?</string>
+    <string name="rating_body">Une évaluation prend dix secondes et aide grandement un petit jeu à trouver son public.</string>
+    <string name="rating_cta">Noter sur Google Play</string>
+    <string name="rating_later">Pas maintenant</string>
+    <string name="rating_invite_title">Vous assurez !</string>
+    <string name="rating_invite_body">Envie de laisser une note au jeu ?</string>
+    <string name="settings_item_rate_title">Noter Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">Laisser un avis sur Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Légende</string>
+    <string name="legend_open_label">Légende</string>
+    <string name="legend_close">Compris</string>
+    <string name="legend_arrow">Flèche : glisse hors du plateau quand la voie est libre</string>
+    <string name="legend_blocked">Bloquée : clignote quand un obstacle se trouve sur son chemin</string>
+    <string name="legend_turn_pad">Tremplin : une flèche qui l\'atteint part dans la direction indiquée</string>
+    <string name="legend_lock_pair">Paire liée : les anneaux assortis partent ensemble</string>
+    <string name="legend_sequence">Numérotée : libérez dans l\'ordre. Lumineux à votre tour, estompé doit attendre</string>
+    <string name="legend_route">Trajet : vert libère, rouge est bloqué</string>
+    <string name="legend_hint">Lueur : la prochaine flèche à déplacer</string>
 </resources>

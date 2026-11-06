@@ -339,7 +339,8 @@
     <string name="daily_double_button">Watch · +%1$d</string>
     <string name="daily_double_done">Doubled. Nice one.</string>
 
-    <string name="coins_shelf_title">Unlocking looks</string>    <string name="coins_shelf_subtitle">Any theme you like — the price is how many you already own</string>
+    <string name="coins_shelf_title">Unlocking looks</string>
+    <string name="coins_shelf_subtitle">Any theme you like — the price is how many you already own</string>
     <string name="coins_shelf_rung">Theme %1$d</string>
 
     <!-- The theme shop, which is the theme picker wearing a price tag. -->

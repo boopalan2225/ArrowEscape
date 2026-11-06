@@ -8,6 +8,12 @@
     <string name="play_button">JOGAR</string>
     <string name="continue_button">CONTINUAR</string>
     <string name="restart_level">Nível de reinicialização</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Lembretes e novidades do Arrow Escape</string>
+    <string name="notification_daily_reminder_title">O quebra-cabeça de hoje está esperando</string>
+    <string name="notification_daily_reminder_body">Mantenha sua sequência viva: venha resolver o tabuleiro de hoje.</string>
     <string name="next_level_button">PRÓXIMO NÍVEL</string>
     <string name="about_title">Sobre</string>
     <string name="privacy_policy_title">Política de Privacidade</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Desafio Real</string>
     <string name="milestone_title_ring_master">Mestre do Anel</string>
     <string name="milestone_title_grand_finale">Grande Final</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Parte %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">SETA</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Pular para o próximo nível</string>
     <string name="puzzle_stuck_retry">Nível de nova tentativa</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Placa de seta. Toque em uma seta para dispará-la, segure para visualizar seu caminho, aperte para ampliar e arraste para se movimentar.</string>
     <string name="board_zoom_hint">Aperte para ampliar \u00B7 arraste para mover</string>
     <string name="board_reset_view">Redefinir visualização</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Clássico: setas em uma grade, formas desenhadas em células.</string>
     <string name="about_bullet_curved">Curvo: as setas fluem ao longo das linhas de uma figura desenhada.</string>
     <string name="about_two_ways_body">Cada modo mantém seu próprio progresso, então mudar nunca custa um nível.</string>
+    <string name="about_card_coins_title">Moedas</string>
+    <string name="about_coins_body">As moedas desbloqueiam os visuais pagos. Elas vêm da sua dedicação diária em vez de repetições: rejogar um nível já concluído não rende nada.</string>
+    <string name="about_bullet_coins_daily">Resolva o quebra-cabeça diário: 8 moedas, ou 15 sem cometer erros.</string>
+    <string name="about_bullet_coins_streak">Alcance 3, 7, 14, 30, 60 ou 100 dias seguidos para um bônus exclusivo.</string>
+    <string name="about_bullet_coins_chapter">Conclua um capítulo de qualquer mapa da jornada: 20 moedas.</string>
+    <string name="about_bullet_coins_invite">Resgate o código de convite de um amigo uma vez: 50 moedas.</string>
+    <string name="about_bullet_coins_ads">Prefere acelerar? Dois anúncios opcionais por dia pagam 12 cada, e o quebra-cabeça diário pode ser dobrado. Nada no jogo é bloqueado por anúncios.</string>
     <string name="about_card_make_it_yours_title">Faça com que seja seu</string>
     <string name="about_make_it_yours_body">Cinco aparências - Classic, Midnight, Sunset, Pirate e Ink - cada uma com sua própria tela inicial, movimento e som. Prefere seguir seu telefone? Escolha Sistema em Configurações.</string>
     <string name="about_card_progress_safe_title">Seu progresso está seguro</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Não pedimos seu nome, e-mail ou número de telefone e não vendemos nada sobre você. O jogo funciona offline; os únicos dados que saem do seu dispositivo são os que os anúncios e o login opcional do Play Games precisam.</string>
     <string name="privacy_card_device_title">O que permanece no seu dispositivo</string>
     <string name="privacy_bullet_progress">Nível atual, melhor nível e estrelas, para cada modo.</string>
+    <string name="privacy_bullet_coins">Seu registro e sequência do quebra-cabeça diário, seu saldo de moedas e os visuais desbloqueados.</string>
+    <string name="privacy_bullet_invite_code">Seu código de convite: seis caracteres aleatórios gerados no seu dispositivo. Ele não vem do seu nome, conta ou telefone, e só sai do seu aparelho se você decidir compartilhá-lo.</string>
     <string name="privacy_bullet_settings">Suas configurações: tema, som e sensação tátil.</string>
     <string name="privacy_device_body">Ele fica no armazenamento privado do aplicativo e é removido quando você desinstala o jogo.</string>
     <string name="privacy_card_ads_title">Publicidade</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Resolvido</string>
     <string name="daily_streak_days">%1$d dias seguidos</string>
     <string name="daily_come_back_tomorrow">Volte amanhã</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Seu histórico diário</string>
+    <string name="daily_history_day_solved">%1$s · Resolvido com %2$d estrelas</string>
+    <string name="daily_history_day_missed">%1$s · Perdido</string>
+    <string name="daily_history_day_locked">%1$s · Ainda não disponível</string>
+    <string name="daily_history_day_open">%1$s · Quebra-cabeça de hoje</string>
+    <string name="daily_history_summary">%1$d resolvidos · Sequência de %2$d dias</string>
     <string name="daily_done_button">Concluído</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Nível anterior</string>
+    <string name="level_next">Próximo nível</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Diário</string>
+    <string name="daily_shuffle_in">Embaralhar em %1$s</string>
+    <string name="daily_shuffle_count">Embaralhado %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">Tabuleiro embaralhado!</string>
+    <string name="daily_stat_lives">Vidas restantes</string>
+    <string name="daily_stat_best_run">Melhor sequência</string>
+    <string name="daily_stat_streak">Sequência de dias</string>
+    <string name="daily_undo">Desfazer</string>
+    <string name="daily_restart">Reiniciar</string>
+    <string name="daily_hint">Dica</string>
+    <string name="daily_hint_left">%1$d dicas restantes</string>
+    <string name="daily_hint_watch_ad">Assistir a um anúncio para obter dica</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">EM BREVE</string>
     <string name="coming_soon_title">Mais capítulos estão no workshop</string>
     <string name="coming_soon_body">Você limpou tudo o que construímos até agora. Novas formas e fugas mais complicadas estão a caminho - mantenha o aplicativo atualizado para que cheguem no dia do envio.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Escolha seu jogo</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">Encontre uma seta com uma linha clara até a borda para a qual aponta e toque nela. Vá em frente - o quadro está ativo.</string>
     <string name="tour_game_board2_title">Agora mais um</string>
     <string name="tour_game_board2_body">Cada flecha que sai abre caminho para outra. Toque em um segundo e observe a prancha se soltar.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Plataformas de curva mudam a rota</string>
+    <string name="tour_game_turnpad_body">Uma seta que alcança a plataforma segue na direção apontada por ela. Caminhos que parecem bloqueados muitas vezes não estão.</string>
+    <string name="tour_game_lock_title">Pares travados movem-se juntos</string>
+    <string name="tour_game_lock_body">Dois anéis da mesma cor saem juntos ou não saem. Toque em qualquer um, mas ambos precisam do caminho livre primeiro.</string>
+    <string name="tour_game_order_title">Números seguem a ordem</string>
+    <string name="tour_game_order_body">Setas numeradas saem em sequência. Um ícone apagado ainda aguarda; um brilhante está pronto para sair.</string>
+    <string name="tour_game_route_title">Confira antes de tocar</string>
+    <string name="tour_game_route_body">Mantenha uma seta pressionada para traçar sua rota. O caminho verde sai do tabuleiro; o vermelho para na célula marcada com um X.</string>
     <string name="tour_game_lives_title">Setas para a esquerda e vidas</string>
     <string name="tour_game_lives_body">Toque em uma seta bloqueada e ela treme em vez de sair – e custa um desses três corações.</string>
     <string name="tour_game_hint_title">Preso? Dê uma dica</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">ETAPA %1$d DE %2$d</string>
     <string name="tour_skip">Pular</string>
+    <string name="tour_skip_all">Pular tutorial</string>
     <string name="tour_got_it">Entendi</string>
     <string name="tour_skip_move">Pular movimento</string>
     <string name="tour_next">Próximo</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Cancelar</string>
+    <string name="coins_title">Moedas</string>
+    <string name="coins_balance_subtitle">%1$d na sua carteira</string>
+    <string name="coins_lifetime">%1$d ganhas no total · %2$d gastas</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Bônus de boas-vindas</string>
+    <string name="coin_reason_daily">Quebra-cabeça diário resolvido</string>
+    <string name="coin_reason_streak">%1$d dias seguidos!</string>
+    <string name="coin_reason_chapter">Capítulo %1$d concluído</string>
+    <string name="coin_reason_referral">Convite resgatado</string>
+    <string name="coin_reason_ad">Obrigado por assistir</string>
+
+    <string name="coins_earn_title">Como ganhar</string>
+    <string name="coins_earn_welcome_detail">Um presentinho para começar</string>
+    <string name="coins_earn_daily_title">Quebra-cabeça diário</string>
+    <string name="coins_earn_daily_detail">%1$d dias resolvidos — uma fuga perfeita rende mais</string>
+    <string name="coins_earn_streak_title">Sequência diária</string>
+    <string name="coins_earn_streak_detail">%1$d dias seguidos — próxima recompensa em %2$d</string>
+    <string name="coins_earn_streak_maxed">Todas as recompensas de sequência resgatadas</string>
+    <string name="coins_earn_chapter_title">Capítulos da jornada</string>
+    <string name="coins_earn_chapter_detail">%1$d capítulos concluídos</string>
+    <string name="coins_earn_referral_title">Convidar um amigo</string>
+    <string name="coins_earn_referral_detail">Resgate o código de um amigo (uma única vez)</string>
+
+    <string name="coins_invite_title">Convidar um amigo</string>
+    <string name="coins_invite_subtitle">Um amigo que começar com seu código ganha %1$d moedas</string>
+    <string name="coins_invite_share">Compartilhar meu código</string>
+    <string name="coins_invite_message">Estou jogando Arrow Escape — use meu código %1$s ao começar para ganhar moedas de bônus: %2$s</string>
+    <string name="coins_redeem_label">Código do amigo</string>
+    <string name="coins_redeem_button">Resgatar</string>
+    <string name="coins_redeem_ok">Legal — %1$d moedas adicionadas</string>
+    <string name="coins_redeem_bad">Esse código parece incorreto</string>
+    <string name="coins_redeem_own">Esse é o seu próprio código</string>
+    <string name="coins_redeem_already">Bônus de convite já resgatado</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Assistir a um anúncio por %1$d moedas</string>
+    <string name="coins_ad_button">Assistir</string>
+    <string name="coins_ad_left">%1$d restantes hoje</string>
+    <string name="coins_ad_spent">As %1$d de hoje acabaram — volte amanhã</string>
+    <string name="coins_ad_not_ready">Nenhum anúncio disponível no momento</string>
+    <string name="daily_double_title">Dobrar as moedas de hoje</string>
+    <string name="daily_double_body">Assista a um vídeo curto para ganhar mais %1$d.</string>
+    <string name="daily_double_button">Assistir · +%1$d</string>
+    <string name="daily_double_done">Dobrado. Mandou bem!</string>
+
+    <string name="coins_shelf_title">Desbloquear visuais</string>
+    <string name="coins_shelf_subtitle">Qualquer tema que desejar — o preço varia conforme os que você já possui</string>
+    <string name="coins_shelf_rung">Tema %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">Desbloquear %1$s</string>
+    <string name="theme_locked_body">Seu por %1$d moedas.</string>
+    <string name="theme_locked_short">Faltam %1$d moedas. Mantenha essa sequência diária.</string>
+    <string name="theme_unlocked_title">%1$s desbloqueado!</string>
+    <string name="theme_unlocked_body">Aproveite o novo cenário.</string>
+    <string name="theme_unlock_button">Desbloquear · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Redefinir moedas</string>
+    <string name="settings_debug_reset_coins_subtitle">Esvaziar carteira, apagar histórico e rebloquear temas pagos</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Curtindo o Arrow Escape?</string>
+    <string name="rating_body">Uma avaliação leva dez segundos e ajuda imensamente um jogo independente a encontrar novos jogadores.</string>
+    <string name="rating_cta">Avaliar no Google Play</string>
+    <string name="rating_later">Agora não</string>
+    <string name="rating_invite_title">Você está arrasando!</string>
+    <string name="rating_invite_body">Que tal avaliar o jogo?</string>
+    <string name="settings_item_rate_title">Avaliar o Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">Deixar uma avaliação no Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Legenda</string>
+    <string name="legend_open_label">Legenda</string>
+    <string name="legend_close">Entendido</string>
+    <string name="legend_arrow">Seta: desliza para fora do tabuleiro quando o caminho está livre</string>
+    <string name="legend_blocked">Bloqueada: pisca quando o caminho está obstruído</string>
+    <string name="legend_turn_pad">Plataforma de curva: a seta que a alcança segue na direção indicada</string>
+    <string name="legend_lock_pair">Par travado: anéis correspondentes saem juntos</string>
+    <string name="legend_sequence">Numerada: elimine em ordem. Brilhante é a sua vez, opaca deve aguardar</string>
+    <string name="legend_route">Rota: verde está livre, vermelho está bloqueado</string>
+    <string name="legend_hint">Brilho: a próxima seta a ser movida</string>
 </resources>

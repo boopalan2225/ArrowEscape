@@ -8,6 +8,12 @@
     <string name="play_button">เล่น</string>
     <string name="continue_button">ดำเนินการต่อ</string>
     <string name="restart_level">รีสตาร์ทระดับ</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">การแจ้งเตือนและการอัปเดตจาก Arrow Escape</string>
+    <string name="notification_daily_reminder_title">ปริศนาประจำวันนี้กำลังรอคุณอยู่</string>
+    <string name="notification_daily_reminder_body">รักษาการเล่นต่อเนื่องของคุณ — มาไขปริศนากระดานวันนี้กัน</string>
     <string name="next_level_button">ระดับต่อไป</string>
     <string name="about_title">เกี่ยวกับ</string>
     <string name="privacy_policy_title">นโยบายความเป็นส่วนตัว</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">รอยัลท้าทาย</string>
     <string name="milestone_title_ring_master">ริงมาสเตอร์</string>
     <string name="milestone_title_grand_finale">รอบชิงชนะเลิศ</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 ตอนที่ %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">ลูกศร</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">ข้ามไปยังระดับถัดไป</string>
     <string name="puzzle_stuck_retry">ระดับลองอีกครั้ง</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">กระดานลูกศร. แตะลูกศรเพื่อยิง กดค้างไว้เพื่อดูตัวอย่างเส้นทาง บีบนิ้วเพื่อซูม และลากเพื่อเคลื่อนที่ไปรอบๆ</string>
     <string name="board_zoom_hint">บีบนิ้วเพื่อซูม \u00B7 ลากเพื่อย้าย</string>
     <string name="board_reset_view">รีเซ็ตมุมมอง</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">คลาสสิก: ลูกศรบนตาราง รูปร่างที่วาดในเซลล์</string>
     <string name="about_bullet_curved">โค้ง: ลูกศรไหลไปตามเส้นของรูปที่วาด</string>
     <string name="about_two_ways_body">แต่ละโหมดจะรักษาความก้าวหน้าของตัวเองไว้ ดังนั้นการสลับจะไม่เสียค่าใช้จ่ายแม้แต่ระดับเดียว</string>
+    <string name="about_card_coins_title">เหรียญ</string>
+    <string name="about_coins_body">เหรียญใช้สำหรับปลดล็อกธีมรูปแบบพิเศษ เหรียญได้มาจากการเข้าเล่นเป็นประจำมากกว่าการเล่นซ้ำ — การเล่นซ้ำระดับที่ผ่านแล้วจะไม่ได้รับเหรียญ</string>
+    <string name="about_bullet_coins_daily">แก้ปริศนารายวัน: รับ 8 เหรียญ หรือ 15 เหรียญหากไม่ผิดเลย</string>
+    <string name="about_bullet_coins_streak">เล่นติดต่อกันครบ 3, 7, 14, 30, 60 หรือ 100 วันเพื่อรับโบนัสพิเศษ</string>
+    <string name="about_bullet_coins_chapter">จบแต่ละบทของแผนที่การเดินทาง: รับ 20 เหรียญ</string>
+    <string name="about_bullet_coins_invite">แลกรหัสเชิญของเพื่อนครั้งแรก: รับ 50 เหรียญ</string>
+    <string name="about_bullet_coins_ads">ต้องการเร็วขึ้นหรือไม่? รับชมโฆษณาเสริม 2 ครั้งต่อวัน ได้รับครั้งละ 12 เหรียญ และสามารถเพิ่มเหรียญปริศนารายวันเป็นสองเท่า ไม่มีเนื้อหาใดถูกล็อกหลังโฆษณา</string>
     <string name="about_card_make_it_yours_title">ทำให้มันเป็นของคุณ</string>
     <string name="about_make_it_yours_body">การปรากฏตัวของห้าครั้ง - คลาสสิก, เที่ยงคืน, พระอาทิตย์ตก, โจรสลัดและหมึก - แต่ละรายการมีหน้าจอหลัก การเคลื่อนไหว และเสียงของตัวเอง ต้องการติดตามโทรศัพท์ของคุณหรือไม่? เลือกระบบในการตั้งค่า</string>
     <string name="about_card_progress_safe_title">ความก้าวหน้าของคุณปลอดภัย</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">เราไม่ขอชื่อ อีเมล หรือหมายเลขโทรศัพท์ของคุณ และเราจะไม่ขายสิ่งใดเกี่ยวกับคุณ เกมดังกล่าวดำเนินไปแบบออฟไลน์ ข้อมูลเดียวที่ออกจากอุปกรณ์ของคุณคือโฆษณาและการลงชื่อเข้าใช้ Play Games ที่เป็นตัวเลือก</string>
     <string name="privacy_card_device_title">สิ่งที่ยังคงอยู่บนอุปกรณ์ของคุณ</string>
     <string name="privacy_bullet_progress">ระดับปัจจุบัน ระดับที่ดีที่สุด และดาว สำหรับแต่ละโหมด</string>
+    <string name="privacy_bullet_coins">ประวัติการเล่นและสถิติปริศนารายวัน ยอดเหรียญของคุณ และธีมที่ปลดล็อกแล้ว</string>
+    <string name="privacy_bullet_invite_code">รหัสเชิญของคุณ — อักขระสุ่ม 6 ตัวที่สร้างขึ้นบนอุปกรณ์ของคุณ ไม่ได้มาจากชื่อ บัญชี หรือข้อมูลโทรศัพท์ และจะถูกส่งออกจากเครื่องเมื่อคุณเลือกแชร์เท่านั้น</string>
     <string name="privacy_bullet_settings">การตั้งค่าของคุณ: ธีม เสียง และการสัมผัส</string>
     <string name="privacy_device_body">ข้อมูลนี้อยู่ในพื้นที่เก็บข้อมูลส่วนตัวของแอป และจะถูกลบออกเมื่อคุณถอนการติดตั้งเกม</string>
     <string name="privacy_card_ads_title">การโฆษณา</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">แก้ไขแล้ว</string>
     <string name="daily_streak_days">%1$d วันติดต่อกัน</string>
     <string name="daily_come_back_tomorrow">พรุ่งนี้กลับมาใหม่</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">บันทึกรายวันของคุณ</string>
+    <string name="daily_history_day_solved">%1$s · ผ่านแล้ว รับ %2$d ดาว</string>
+    <string name="daily_history_day_missed">%1$s · พลาดไป</string>
+    <string name="daily_history_day_locked">%1$s · ยังไม่เปิด</string>
+    <string name="daily_history_day_open">%1$s · ปริศนาวันนี้</string>
+    <string name="daily_history_summary">ผ่านแล้ว %1$d · ต่อเนื่อง %2$d วัน</string>
     <string name="daily_done_button">เสร็จแล้ว</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">ระดับก่อนหน้า</string>
+    <string name="level_next">ระดับถัดไป</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">รายวัน</string>
+    <string name="daily_shuffle_in">สลับในอีก %1$s</string>
+    <string name="daily_shuffle_count">สลับแล้ว %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">สลับกระดานแล้ว!</string>
+    <string name="daily_stat_lives">ชีวิตที่เหลือ</string>
+    <string name="daily_stat_best_run">สถิติดีที่สุด</string>
+    <string name="daily_stat_streak">สตรีควัน</string>
+    <string name="daily_undo">เลิกทำ</string>
+    <string name="daily_restart">เริ่มใหม่</string>
+    <string name="daily_hint">คำใบ้</string>
+    <string name="daily_hint_left">เหลือคำใบ้ %1$d ครั้ง</string>
+    <string name="daily_hint_watch_ad">ดูโฆษณาเพื่อรับคำใบ้</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">มาเร็ว ๆ นี้</string>
     <string name="coming_soon_title">มีบทอื่นๆ อยู่ในเวิร์กช็อป</string>
     <string name="coming_soon_body">คุณได้เคลียร์ทุกสิ่งที่เราสร้างมาจนถึงตอนนี้แล้ว รูปร่างใหม่และการหลบหนีที่ซับซ้อนยิ่งขึ้นกำลังมาถึงแล้ว - อัปเดตแอปอยู่เสมอเพื่อให้มาถึงในวันที่จัดส่ง</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">เลือกเกมของคุณ</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">ค้นหาลูกศรที่มีระยะที่ชัดเจนจนถึงขอบที่มันชี้ไป แล้วแตะมัน ไปต่อ - บอร์ดถ่ายทอดสดแล้ว</string>
     <string name="tour_game_board2_title">ตอนนี้อีกหนึ่ง</string>
     <string name="tour_game_board2_body">ลูกธนูทุกลูกที่ออกไปจะเปิดทางให้อีกลูกหนึ่ง แตะอันที่สองแล้วดูกระดานคลายตัว</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">แป้นเลี้ยวเปลี่ยนทิศทางการวิ่ง</string>
+    <string name="tour_game_turnpad_body">ลูกศรที่ไปถึงแป้นจะวิ่งต่อไปตามทิศทางที่แป้นชี้ เส้นทางที่ดูเหมือนถูกบล็อกมักจะไม่บล็อกจริง</string>
+    <string name="tour_game_lock_title">คู่ที่ล็อกจะขยับไปด้วยกัน</string>
+    <string name="tour_game_lock_body">วงแหวนสีเดียวกันสองวงจะออกไปด้วยกันหรือไม่ก็ไม่ออกเลย แตะวงไหนก็ได้ แต่ทั้งคู่ต้องมีทางวิ่งที่โล่งก่อน</string>
+    <string name="tour_game_order_title">ตัวเลขจะออกตามลำดับ</string>
+    <string name="tour_game_order_body">ลูกศรที่มีตัวเลขจะออกตามลำดับ ป้ายที่หม่นกำลังรอคิว ส่วนป้ายที่สว่างพร้อมออกแล้ว</string>
+    <string name="tour_game_route_title">ตรวจสอบก่อนแตะ</string>
+    <string name="tour_game_route_body">กดลูกศรค้างไว้เพื่อดูเส้นทางวิ่ง เส้นสีเขียวจะวิ่งออกจากกระดาน เส้นสีแดงจะหยุดที่ช่องที่มีเครื่องหมายกากบาท</string>
     <string name="tour_game_lives_title">ลูกศรซ้ายและชีวิต</string>
     <string name="tour_game_lives_body">แตะลูกศรที่ถูกบล็อกแล้วมันจะสั่นแทนที่จะออกไป - และเสียหนึ่งในสามหัวใจนี้</string>
     <string name="tour_game_hint_title">ติดอยู่? ใช้คำใบ้</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">ขั้นตอนที่ %1$d จาก %2$d</string>
     <string name="tour_skip">ข้าม</string>
+    <string name="tour_skip_all">ข้ามบทเรียน</string>
     <string name="tour_got_it">เข้าใจแล้ว</string>
     <string name="tour_skip_move">ข้ามการเคลื่อนไหว</string>
     <string name="tour_next">ถัดไป</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">ยกเลิก</string>
+    <string name="coins_title">เหรียญ</string>
+    <string name="coins_balance_subtitle">%1$d ในกระเป๋าของคุณ</string>
+    <string name="coins_lifetime">ได้รับทั้งหมด %1$d · ใช้ไป %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">โบนัสต้อนรับ</string>
+    <string name="coin_reason_daily">แก้ปริศนารายวันสำเร็จ</string>
+    <string name="coin_reason_streak">เล่นติดต่อกัน %1$d วันแล้ว!</string>
+    <string name="coin_reason_chapter">บทที่ %1$d สำเร็จ</string>
+    <string name="coin_reason_referral">แลกรหัสเชิญแล้ว</string>
+    <string name="coin_reason_ad">ขอบคุณที่รับชม</string>
+
+    <string name="coins_earn_title">วิธีรับเหรียญ</string>
+    <string name="coins_earn_welcome_detail">ของขวัญเล็กน้อยสำหรับเริ่มต้น</string>
+    <string name="coins_earn_daily_title">ปริศนารายวัน</string>
+    <string name="coins_earn_daily_detail">แก้ปริศนาได้ %1$d วัน — เล่นไม่ผิดเลยได้เหรียญมากขึ้น</string>
+    <string name="coins_earn_streak_title">สตรีครายวัน</string>
+    <string name="coins_earn_streak_detail">%1$d วันติดต่อกัน — รางวัลถัดไปที่ %2$d วัน</string>
+    <string name="coins_earn_streak_maxed">รับรางวัลสตรีคครบทั้งหมดแล้ว</string>
+    <string name="coins_earn_chapter_title">บทการเดินทาง</string>
+    <string name="coins_earn_chapter_detail">ผ่านแล้ว %1$d บท</string>
+    <string name="coins_earn_referral_title">ชวนเพื่อน</string>
+    <string name="coins_earn_referral_detail">แลกรหัสของเพื่อน — ได้เพียงครั้งเดียว</string>
+
+    <string name="coins_invite_title">ชวนเพื่อน</string>
+    <string name="coins_invite_subtitle">เพื่อนที่เริ่มเล่นด้วยรหัสของคุณจะได้รับ %1$d เหรียญ</string>
+    <string name="coins_invite_share">แชร์รหัสของฉัน</string>
+    <string name="coins_invite_message">ฉันกำลังเล่น Arrow Escape — ใส่รหัสของฉัน %1$s เมื่อเริ่มเล่นเพื่อรับเหรียญโบนัส: %2$s</string>
+    <string name="coins_redeem_label">รหัสของเพื่อน</string>
+    <string name="coins_redeem_button">แลกรับ</string>
+    <string name="coins_redeem_ok">ยอดเยี่ยม — เพิ่ม %1$d เหรียญแล้ว</string>
+    <string name="coins_redeem_bad">รหัสนั้นดูไม่ถูกต้อง</string>
+    <string name="coins_redeem_own">นั่นเป็นรหัสของคุณเอง</string>
+    <string name="coins_redeem_already">รับโบนัสการเชิญไปแล้ว</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">ดูโฆษณาเพื่อรับ %1$d เหรียญ</string>
+    <string name="coins_ad_button">ดู</string>
+    <string name="coins_ad_left">วันนี้เหลืออีก %1$d ครั้ง</string>
+    <string name="coins_ad_spent">%1$d ครั้งของวันนี้หมดแล้ว — พรุ่งนี้กลับมาใหม่</string>
+    <string name="coins_ad_not_ready">ยังไม่มีโฆษณาพร้อมในขณะนี้</string>
+    <string name="daily_double_title">เพิ่มเหรียญวันนี้เป็น 2 เท่า</string>
+    <string name="daily_double_body">ดูโฆษณาสั้นๆ เพื่อรับเพิ่มอีก %1$d เหรียญ</string>
+    <string name="daily_double_button">ดู · +%1$d</string>
+    <string name="daily_double_done">เพิ่มเป็นสองเท่าแล้ว ยอดเยี่ยม!</string>
+
+    <string name="coins_shelf_title">ปลดล็อกรูปลักษณ์</string>
+    <string name="coins_shelf_subtitle">ธีมใดก็ได้ที่คุณชอบ — ราคาขึ้นอยู่กับจำนวนที่คุณเป็นเจ้าของแล้ว</string>
+    <string name="coins_shelf_rung">ธีม %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">ปลดล็อก %1$s</string>
+    <string name="theme_locked_body">เป็นเจ้าของได้ในราคา %1$d เหรียญ</string>
+    <string name="theme_locked_short">ต้องการอีก %1$d เหรียญ รักษาการเล่นรายวันให้ต่อเนื่อง</string>
+    <string name="theme_unlocked_title">ปลดล็อก %1$s แล้ว!</string>
+    <string name="theme_unlocked_body">เพลิดเพลินกับบรรยากาศใหม่</string>
+    <string name="theme_unlock_button">ปลดล็อก · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">รีเซ็ตเหรียญ</string>
+    <string name="settings_debug_reset_coins_subtitle">ล้างกระเป๋าเงิน ลบประวัติ และล็อกธีมที่ซื้อทั้งหมดอีกครั้ง</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">สนุกกับ Arrow Escape ไหม?</string>
+    <string name="rating_body">การให้คะแนนใช้เวลาเพียงสิบวินาที และช่วยให้เกมอินดี้เล็กๆ นี้เข้าถึงผู้เล่นใหม่ๆ ได้อย่างมาก</string>
+    <string name="rating_cta">ให้คะแนนบน Google Play</string>
+    <string name="rating_later">ไว้คราวหลัง</string>
+    <string name="rating_invite_title">คุณกำลังเล่นได้ยอดเยี่ยม!</string>
+    <string name="rating_invite_body">อยากช่วยให้คะแนนเกมนี้ไหม?</string>
+    <string name="settings_item_rate_title">ให้คะแนน Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">เขียนรีวิวบน Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">สัญลักษณ์</string>
+    <string name="legend_open_label">สัญลักษณ์</string>
+    <string name="legend_close">เข้าใจแล้ว</string>
+    <string name="legend_arrow">ลูกศร: เลื่อนออกจากกระดานเมื่อเส้นทางโล่ง</string>
+    <string name="legend_blocked">ถูกบล็อก: กะพริบเมื่อเส้นทางมีสิ่งกีดขวาง</string>
+    <string name="legend_turn_pad">แป้นเลี้ยว: ลูกศรที่มาถึงจะออกไปตามทิศทางแป้น</string>
+    <string name="legend_lock_pair">คู่ล็อก: วงแหวนสีเดียวกันจะออกไปด้วยกัน</string>
+    <string name="legend_sequence">มีตัวเลข: เคลียร์ตามลำดับ สว่างคือถึงตาคุณ หม่นต้องรอ</string>
+    <string name="legend_route">เส้นทาง: สีเขียวออกได้ สีแดงติดขัด</string>
+    <string name="legend_hint">เรืองแสง: ลูกศรถัดไปที่ควรขยับ</string>
 </resources>

@@ -8,6 +8,12 @@
     <string name="play_button">MAINKAN</string>
     <string name="continue_button">LANJUTKAN</string>
     <string name="restart_level">Mulai Ulang Tingkat</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Pengingat dan pembaruan dari Arrow Escape</string>
+    <string name="notification_daily_reminder_title">Teka-teki hari ini sedang menunggu</string>
+    <string name="notification_daily_reminder_body">Jaga rekor harimu tetap aktif — mari selesaikan papan hari ini.</string>
     <string name="next_level_button">TINGKAT BERIKUTNYA</string>
     <string name="about_title">Tentang</string>
     <string name="privacy_policy_title">Kebijakan Privasi</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Tantangan Kerajaan</string>
     <string name="milestone_title_ring_master">Tuan Cincin</string>
     <string name="milestone_title_grand_finale">Grand Final</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Bagian %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">PANAH</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Lewati ke tingkat berikutnya</string>
     <string name="puzzle_stuck_retry">Coba lagi tingkatnya</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Papan panah. Ketuk panah untuk menembakkannya, tahan untuk melihat pratinjau jalurnya, cubit untuk memperbesar, dan seret untuk bergerak.</string>
     <string name="board_zoom_hint">Cubit untuk memperbesar \u00B7 seret untuk bergerak</string>
     <string name="board_reset_view">Setel ulang tampilan</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Klasik: panah pada kisi, bentuk yang digambar dalam sel.</string>
     <string name="about_bullet_curved">Melengkung: panah mengalir sepanjang garis gambar yang digambar.</string>
     <string name="about_two_ways_body">Setiap mode menyimpan kemajuannya sendiri, sehingga peralihan tidak memerlukan biaya apa pun.</string>
+    <string name="about_card_coins_title">Koin</string>
+    <string name="about_coins_body">Koin membuka tampilan tema berbayar. Koin didapat dari bermain setiap hari, bukan mengulang level — memainkan kembali level yang sudah selesai tidak menghasilkan apa-apa.</string>
+    <string name="about_bullet_coins_daily">Selesaikan teka-teki harian: 8 koin, atau 15 koin tanpa kesalahan.</string>
+    <string name="about_bullet_coins_streak">Capai 3, 7, 14, 30, 60, atau 100 hari berturut-turut untuk bonus sekali dapat.</string>
+    <string name="about_bullet_coins_chapter">Selesaikan bab dari salah satu peta perjalanan: 20 koin.</string>
+    <string name="about_bullet_coins_invite">Tukarkan kode undangan teman sekali: 50 koin.</string>
+    <string name="about_bullet_coins_ads">Ingin lebih cepat? Dua iklan opsional per hari masing-masing bernilai 12 koin, dan koin teka-teki harian bisa digandakan. Tidak ada fitur yang terkunci di balik iklan.</string>
     <string name="about_card_make_it_yours_title">Jadikan itu milikmu</string>
     <string name="about_make_it_yours_body">Lima penampilan - Klasik, Tengah Malam, Matahari Terbenam, Bajak Laut, dan Tinta - masing-masing dengan layar beranda, gerakan, dan suaranya sendiri. Lebih suka mengikuti ponsel Anda? Pilih Sistem di Pengaturan.</string>
     <string name="about_card_progress_safe_title">Kemajuan Anda aman</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Kami tidak menanyakan nama, email, atau nomor telepon Anda, dan kami tidak menjual apa pun tentang Anda. Permainan berjalan offline; satu-satunya data yang tersisa dari perangkat Anda adalah iklan dan kebutuhan masuk Play Game opsional.</string>
     <string name="privacy_card_device_title">Apa yang tersisa di perangkat Anda</string>
     <string name="privacy_bullet_progress">Level saat ini, level dan bintang terbaik, untuk setiap mode.</string>
+    <string name="privacy_bullet_coins">Catatan dan rekor teka-teki harian, saldo koin, dan tampilan tema yang telah dibuka.</string>
+    <string name="privacy_bullet_invite_code">Kode undangan Anda — enam karakter acak yang dibuat di perangkat Anda. Kode ini tidak berasal dari nama, akun, atau nomor telepon Anda, dan hanya dikirim jika Anda memilih untuk membagikannya.</string>
     <string name="privacy_bullet_settings">Pengaturan Anda: tema, suara, dan haptik.</string>
     <string name="privacy_device_body">Ini ada di penyimpanan pribadi aplikasi dan dihapus saat Anda mencopot pemasangan game.</string>
     <string name="privacy_card_ads_title">Periklanan</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Terpecahkan</string>
     <string name="daily_streak_days">%1$d hari berturut-turut</string>
     <string name="daily_come_back_tomorrow">Kembalilah besok</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Catatan harian Anda</string>
+    <string name="daily_history_day_solved">%1$s · Selesai dengan %2$d bintang</string>
+    <string name="daily_history_day_missed">%1$s · Terlewat</string>
+    <string name="daily_history_day_locked">%1$s · Belum dibuka</string>
+    <string name="daily_history_day_open">%1$s · Teka-teki hari ini</string>
+    <string name="daily_history_summary">%1$d selesai · Rekor %2$d hari</string>
     <string name="daily_done_button">Selesai</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Tingkat sebelumnya</string>
+    <string name="level_next">Tingkat berikutnya</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Harian</string>
+    <string name="daily_shuffle_in">Acak dalam %1$s</string>
+    <string name="daily_shuffle_count">Diacak %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">Papan diacak!</string>
+    <string name="daily_stat_lives">Sisa nyawa</string>
+    <string name="daily_stat_best_run">Rekor terbaik</string>
+    <string name="daily_stat_streak">Rekor hari</string>
+    <string name="daily_undo">Urungkan</string>
+    <string name="daily_restart">Mulai ulang</string>
+    <string name="daily_hint">Petunjuk</string>
+    <string name="daily_hint_left">Sisa %1$d petunjuk</string>
+    <string name="daily_hint_watch_ad">Tonton iklan untuk petunjuk</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">SEGERA DATANG</string>
     <string name="coming_soon_title">Lebih banyak bab ada di bengkel</string>
     <string name="coming_soon_body">Anda telah menyelesaikan semua yang telah kami bangun sejauh ini. Bentuk baru dan jalan keluar yang lebih rumit akan segera hadir - terus perbarui aplikasi agar dapat mendarat pada hari pengirimannya.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Pilih permainan Anda</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">Temukan panah dengan garis yang jelas ke tepi yang ditunjuknya, lalu ketuk panah tersebut. Ayo - papannya aktif.</string>
     <string name="tour_game_board2_title">Sekarang satu lagi</string>
     <string name="tour_game_board2_body">Setiap anak panah yang lepas membuka jalan bagi anak panah lainnya. Ketuk yang kedua dan lihat papannya mengendur.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Bantalan belok mengubah arah</string>
+    <string name="tour_game_turnpad_body">Panah yang mencapai bantalan akan berbelok mengikuti arah yang ditunjuk bantalan. Jalur yang tampak buntu sering kali bisa dilewati.</string>
+    <string name="tour_game_lock_title">Pasangan terkunci bergerak bersama</string>
+    <string name="tour_game_lock_body">Dua cincin dengan warna sama harus keluar bersama, atau tidak sama sekali. Ketuk salah satunya — tetapi keduanya butuh jalur bebas terlebih dahulu.</string>
+    <string name="tour_game_order_title">Angka bergerak sesuai giliran</string>
+    <string name="tour_game_order_body">Panah bernomor keluar berurutan. Lambang redup masih menunggu; lambang terang siap bergerak.</string>
+    <string name="tour_game_route_title">Periksa sebelum mengetuk</string>
+    <string name="tour_game_route_body">Tekan dan tahan panah untuk melihat jalurnya. Garis hijau berarti keluar dari papan; garis merah berhenti di kotak bertanda silang.</string>
     <string name="tour_game_lives_title">Panah ke kiri, dan hidup</string>
     <string name="tour_game_lives_body">Ketuk panah yang diblokir dan panah itu bergetar alih-alih keluar - dan menghabiskan salah satu dari tiga hati ini.</string>
     <string name="tour_game_hint_title">Terjebak? Ambil petunjuk</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">LANGKAH %1$d DARI %2$d</string>
     <string name="tour_skip">Lewati</string>
+    <string name="tour_skip_all">Lewati tutorial</string>
     <string name="tour_got_it">Mengerti</string>
     <string name="tour_skip_move">Lewati langkah</string>
     <string name="tour_next">Selanjutnya</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Batal</string>
+    <string name="coins_title">Koin</string>
+    <string name="coins_balance_subtitle">%1$d di dompet Anda</string>
+    <string name="coins_lifetime">%1$d total didapat · %2$d digunakan</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Bonus selamat datang</string>
+    <string name="coin_reason_daily">Teka-teki harian selesai</string>
+    <string name="coin_reason_streak">%1$d hari berturut-turut!</string>
+    <string name="coin_reason_chapter">Bab %1$d selesai</string>
+    <string name="coin_reason_referral">Undangan ditukarkan</string>
+    <string name="coin_reason_ad">Terima kasih telah menonton</string>
+
+    <string name="coins_earn_title">Cara mendapatkan</string>
+    <string name="coins_earn_welcome_detail">Hadiah kecil untuk memulai</string>
+    <string name="coins_earn_daily_title">Teka-teki harian</string>
+    <string name="coins_earn_daily_detail">%1$d hari diselesaikan — solusi sempurna menghasilkan lebih banyak</string>
+    <string name="coins_earn_streak_title">Rekor harian</string>
+    <string name="coins_earn_streak_detail">%1$d hari berturut-turut — hadiah berikutnya pada %2$d</string>
+    <string name="coins_earn_streak_maxed">Semua hadiah rekor telah diklaim</string>
+    <string name="coins_earn_chapter_title">Bab perjalanan</string>
+    <string name="coins_earn_chapter_detail">%1$d bab diselesaikan</string>
+    <string name="coins_earn_referral_title">Undang teman</string>
+    <string name="coins_earn_referral_detail">Tukarkan kode teman — hanya sekali</string>
+
+    <string name="coins_invite_title">Undang teman</string>
+    <string name="coins_invite_subtitle">Teman yang mulai bermain dengan kodemu mendapat %1$d koin</string>
+    <string name="coins_invite_share">Bagikan kode saya</string>
+    <string name="coins_invite_message">Ayo main Arrow Escape — gunakan kode saya %1$s saat mulai untuk mendapatkan bonus koin: %2$s</string>
+    <string name="coins_redeem_label">Kode teman</string>
+    <string name="coins_redeem_button">Tukarkan</string>
+    <string name="coins_redeem_ok">Bagus — %1$d koin ditambahkan</string>
+    <string name="coins_redeem_bad">Kode tersebut tampaknya salah</string>
+    <string name="coins_redeem_own">Itu adalah kode milik Anda sendiri</string>
+    <string name="coins_redeem_already">Bonus undangan sudah diklaim</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Tonton iklan untuk %1$d koin</string>
+    <string name="coins_ad_button">Tonton</string>
+    <string name="coins_ad_left">Sisa %1$d hari ini</string>
+    <string name="coins_ad_spent">%1$d koin hari ini sudah selesai — kembali lagi besok</string>
+    <string name="coins_ad_not_ready">Belum ada iklan yang siap saat ini</string>
+    <string name="daily_double_title">Gandakan koin hari ini</string>
+    <string name="daily_double_body">Tonton iklan singkat untuk mendapatkan %1$d koin tambahan.</string>
+    <string name="daily_double_button">Tonton · +%1$d</string>
+    <string name="daily_double_done">Berhasil digandakan. Mantap!</string>
+
+    <string name="coins_shelf_title">Membuka tema</string>
+    <string name="coins_shelf_subtitle">Tema apa pun yang Anda suka — harga ditentukan oleh jumlah yang sudah Anda miliki</string>
+    <string name="coins_shelf_rung">Tema %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">Buka %1$s</string>
+    <string name="theme_locked_body">Miliki seharga %1$d koin.</string>
+    <string name="theme_locked_short">Kurang %1$d koin lagi. Pertahankan rekor harianmu.</string>
+    <string name="theme_unlocked_title">%1$s terbuka!</string>
+    <string name="theme_unlocked_body">Nikmati tampilan baru.</string>
+    <string name="theme_unlock_button">Buka · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Atur ulang koin</string>
+    <string name="settings_debug_reset_coins_subtitle">Kosongkan dompet, hapus riwayat, dan kunci kembali tema berbayar</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Suka dengan Arrow Escape?</string>
+    <string name="rating_body">Memberi ulasan hanya butuh sepuluh detik dan sangat membantu game mandiri ini menjangkau pemain baru.</string>
+    <string name="rating_cta">Beri Nilai di Google Play</string>
+    <string name="rating_later">Nanti saja</string>
+    <string name="rating_invite_title">Luar biasa!</string>
+    <string name="rating_invite_body">Maukah Anda memberikan ulasan untuk game ini?</string>
+    <string name="settings_item_rate_title">Beri Nilai Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">Tinggalkan ulasan di Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Legenda</string>
+    <string name="legend_open_label">Legenda</string>
+    <string name="legend_close">Mengerti</string>
+    <string name="legend_arrow">Panah: meluncur keluar papan jika jalurnya terbuka</string>
+    <string name="legend_blocked">Terhalang: berkedip saat jalurnya masih tertutup</string>
+    <string name="legend_turn_pad">Bantalan belok: panah meluncur ke arah yang ditunjuk bantalan</string>
+    <string name="legend_lock_pair">Pasangan terkunci: cincin dengan warna sama keluar bersama</string>
+    <string name="legend_sequence">Bernomor: bersihkan secara berurutan. Terang giliran Anda, redup harus menunggu</string>
+    <string name="legend_route">Rute: hijau bebas, merah terhalang</string>
+    <string name="legend_hint">Kilau: panah berikutnya yang bisa digerakkan</string>
 </resources>

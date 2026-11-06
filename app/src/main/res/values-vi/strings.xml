@@ -8,6 +8,12 @@
     <string name="play_button">CHƠI</string>
     <string name="continue_button">TIẾP TỤC</string>
     <string name="restart_level">Khởi động lại cấp độ</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Lời nhắc và thông tin cập nhật từ Arrow Escape</string>
+    <string name="notification_daily_reminder_title">Câu đố hôm nay đang chờ bạn</string>
+    <string name="notification_daily_reminder_body">Duy trì chuỗi chiến thắng của bạn — hãy vào giải bảng hôm nay.</string>
     <string name="next_level_button">CẤP TIẾP THEO</string>
     <string name="about_title">Giới thiệu</string>
     <string name="privacy_policy_title">Chính sách bảo mật</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Thử thách hoàng gia</string>
     <string name="milestone_title_ring_master">Bậc thầy nhẫn</string>
     <string name="milestone_title_grand_finale">Đêm chung kết</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Phần %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">MŨI TÊN</string>
@@ -67,7 +75,7 @@
     <string name="combo_label">COMBO x%1$d</string>
     <string name="shape_label">HÌNH DÁNG</string>
     <string name="out_of_lives_title">Hết cuộc sống!</string>
-    <string name="cleared_percent">__V1_%% đã xóa</string>
+    <string name="cleared_percent">%1$d%% đã xóa</string>
     <string name="watch_ad_to_continue">Xem quảng cáo để tiếp tục</string>
     <string name="restore_lives_hint">Khôi phục cả 3 mạng sống</string>
     <string name="continue_unavailable">Tiếp tục hiện không có sẵn</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Chuyển sang cấp độ tiếp theo</string>
     <string name="puzzle_stuck_retry">Thử lại cấp độ</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Bảng mũi tên. Nhấn vào một mũi tên để bắn nó, giữ để xem trước đường đi của nó, chụm để thu phóng và kéo để di chuyển xung quanh.</string>
     <string name="board_zoom_hint">Chụm để thu phóng \u00B7 kéo để di chuyển</string>
     <string name="board_reset_view">Đặt lại chế độ xem</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Cổ điển: mũi tên trên lưới, hình dạng được vẽ trong ô.</string>
     <string name="about_bullet_curved">Cong: mũi tên chảy dọc theo đường của hình vẽ.</string>
     <string name="about_two_ways_body">Mỗi chế độ có tiến trình riêng nên việc chuyển đổi không bao giờ tốn một cấp độ.</string>
+    <string name="about_card_coins_title">Xu</string>
+    <string name="about_coins_body">Xu dùng để mở khóa các giao diện trả phí. Xu nhận được nhờ điểm danh đều đặn thay vì cày cuốc — chơi lại cấp độ đã vượt qua không nhận được gì.</string>
+    <string name="about_bullet_coins_daily">Giải câu đố hàng ngày: 8 xu, hoặc 15 xu nếu không phạm lỗi.</string>
+    <string name="about_bullet_coins_streak">Đạt chuỗi 3, 7, 14, 30, 60 hoặc 100 ngày liên tiếp để nhận thưởng một lần.</string>
+    <string name="about_bullet_coins_chapter">Hoàn thành một chương của bản đồ hành trình bất kỳ: 20 xu.</string>
+    <string name="about_bullet_coins_invite">Nhập mã mời của bạn bè một lần: 50 xu.</string>
+    <string name="about_bullet_coins_ads">Muốn nhanh hơn? Hai quảng cáo tùy chọn mỗi ngày thưởng 12 xu mỗi lượt, và phần thưởng câu đố hàng ngày có thể nhân đôi. Không có nội dung nào trong trò chơi bị khóa sau quảng cáo.</string>
     <string name="about_card_make_it_yours_title">Biến nó thành của bạn</string>
     <string name="about_make_it_yours_body">Năm lần xuất hiện - Cổ điển, Nửa đêm, Hoàng hôn, Cướp biển và Mực - mỗi lần có màn hình chính, chuyển động và âm thanh riêng. Thích theo dõi điện thoại của bạn? Chọn Hệ thống trong Cài đặt.</string>
     <string name="about_card_progress_safe_title">Tiến trình của bạn được an toàn</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Chúng tôi không hỏi tên, email hoặc số điện thoại của bạn và chúng tôi không bán bất cứ điều gì về bạn. Trò chơi chạy ngoại tuyến; dữ liệu duy nhất rời khỏi thiết bị của bạn là quảng cáo và thông tin đăng nhập Play Trò chơi tùy chọn cần.</string>
     <string name="privacy_card_device_title">Những gì còn lại trên thiết bị của bạn</string>
     <string name="privacy_bullet_progress">Cấp độ hiện tại, cấp độ tốt nhất và số sao cho từng chế độ.</string>
+    <string name="privacy_bullet_coins">Kỷ lục và chuỗi ngày giải câu đố hàng ngày, số dư xu và các giao diện bạn đã mở khóa.</string>
+    <string name="privacy_bullet_invite_code">Mã mời của bạn — sáu ký tự ngẫu nhiên được tạo trên thiết bị. Mã không liên quan đến tên, tài khoản hay điện thoại của bạn và chỉ rời khỏi thiết bị khi bạn chia sẻ nó.</string>
     <string name="privacy_bullet_settings">Cài đặt của bạn: chủ đề, âm thanh và xúc giác.</string>
     <string name="privacy_device_body">Điều này nằm trong bộ nhớ riêng của ứng dụng và bị xóa khi bạn gỡ cài đặt trò chơi.</string>
     <string name="privacy_card_ads_title">Quảng cáo</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Đã giải quyết</string>
     <string name="daily_streak_days">%1$d ngày liên tiếp</string>
     <string name="daily_come_back_tomorrow">Hãy quay lại vào ngày mai</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Nhật ký hàng ngày của bạn</string>
+    <string name="daily_history_day_solved">%1$s · Đã giải được %2$d sao</string>
+    <string name="daily_history_day_missed">%1$s · Bỏ lỡ</string>
+    <string name="daily_history_day_locked">%1$s · Chưa mở</string>
+    <string name="daily_history_day_open">%1$s · Câu đố hôm nay</string>
+    <string name="daily_history_summary">%1$d đã giải · Chuỗi %2$d ngày</string>
     <string name="daily_done_button">Xong</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Cấp trước</string>
+    <string name="level_next">Cấp tiếp theo</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Hàng ngày</string>
+    <string name="daily_shuffle_in">Xáo trộn sau %1$s</string>
+    <string name="daily_shuffle_count">Đã xáo trộn %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">Bảng đã được xáo trộn!</string>
+    <string name="daily_stat_lives">Số mạng còn lại</string>
+    <string name="daily_stat_best_run">Chuỗi tốt nhất</string>
+    <string name="daily_stat_streak">Chuỗi ngày</string>
+    <string name="daily_undo">Hoàn tác</string>
+    <string name="daily_restart">Chơi lại</string>
+    <string name="daily_hint">Gợi ý</string>
+    <string name="daily_hint_left">Còn %1$d gợi ý</string>
+    <string name="daily_hint_watch_ad">Xem quảng cáo để nhận gợi ý</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">SẮP CÓ</string>
     <string name="coming_soon_title">Nhiều chương hơn có trong hội thảo</string>
     <string name="coming_soon_body">Bạn đã xóa mọi thứ chúng tôi đã xây dựng cho đến nay. Những hình dạng mới và những lối thoát phức tạp hơn đang được triển khai - hãy cập nhật ứng dụng để chúng cập bến vào ngày giao hàng.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Chọn trò chơi của bạn</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">Tìm một mũi tên có đường chạy rõ ràng đến cạnh mà nó chỉ vào và nhấn vào mũi tên đó. Tiếp tục - bảng đang hoạt động.</string>
     <string name="tour_game_board2_title">Bây giờ thêm một cái nữa</string>
     <string name="tour_game_board2_body">Mỗi mũi tên rời đi sẽ mở ra một con đường cho người khác. Nhấn vào cái thứ hai và xem bảng nới lỏng.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Đệm chuyển hướng đổi đường chạy</string>
+    <string name="tour_game_turnpad_body">Mũi tên chạm vào đệm sẽ tiếp tục đi theo hướng đệm chỉ. Các đường tưởng chừng bị chặn thường vẫn đi được.</string>
+    <string name="tour_game_lock_title">Cặp khóa di chuyển cùng nhau</string>
+    <string name="tour_game_lock_body">Hai vòng cùng màu sẽ rời bảng cùng nhau hoặc đứng yên. Chạm vào một trong hai — nhưng cả hai đều cần đường trống trước.</string>
+    <string name="tour_game_order_title">Mũi tên số đi theo lượt</string>
+    <string name="tour_game_order_body">Mũi tên có số rời đi theo thứ tự. Biểu tượng mờ vẫn đang chờ; biểu tượng sáng đã sẵn sàng xuất phát.</string>
+    <string name="tour_game_route_title">Kiểm tra trước khi chạm</string>
+    <string name="tour_game_route_body">Nhấn và giữ mũi tên để xem trước đường đi. Vạch xanh thoát khỏi bảng; vạch đỏ dừng lại tại ô có dấu gạch chéo.</string>
     <string name="tour_game_lives_title">Mũi tên trái và sự sống</string>
     <string name="tour_game_lives_body">Nhấn vào một mũi tên bị chặn và nó sẽ rung chuyển thay vì rời đi - và phải trả giá bằng một trong ba trái tim này.</string>
     <string name="tour_game_hint_title">Mắc kẹt? Hãy gợi ý</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">BƯỚC %1$d CỦA %2$d</string>
     <string name="tour_skip">Bỏ qua</string>
+    <string name="tour_skip_all">Bỏ qua hướng dẫn</string>
     <string name="tour_got_it">Hiểu rồi</string>
     <string name="tour_skip_move">Bỏ qua di chuyển</string>
     <string name="tour_next">Tiếp theo</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Hủy</string>
+    <string name="coins_title">Xu</string>
+    <string name="coins_balance_subtitle">%1$d xu trong túi của bạn</string>
+    <string name="coins_lifetime">Tổng kiếm được %1$d · Đã tiêu %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Thưởng chào mừng</string>
+    <string name="coin_reason_daily">Đã giải câu đố hàng ngày</string>
+    <string name="coin_reason_streak">%1$d ngày liên tiếp!</string>
+    <string name="coin_reason_chapter">Hoàn thành chương %1$d</string>
+    <string name="coin_reason_referral">Đã đổi mã giới thiệu</string>
+    <string name="coin_reason_ad">Cảm ơn bạn đã xem</string>
+
+    <string name="coins_earn_title">Cách kiếm xu</string>
+    <string name="coins_earn_welcome_detail">Một chút quà tặng để bắt đầu</string>
+    <string name="coins_earn_daily_title">Câu đố hàng ngày</string>
+    <string name="coins_earn_daily_detail">%1$d ngày đã giải — giải không lỗi nhận nhiều hơn</string>
+    <string name="coins_earn_streak_title">Chuỗi ngày hàng ngày</string>
+    <string name="coins_earn_streak_detail">%1$d ngày liên tiếp — phần thưởng tiếp theo ở mốc %2$d</string>
+    <string name="coins_earn_streak_maxed">Đã nhận tất cả phần thưởng chuỗi ngày</string>
+    <string name="coins_earn_chapter_title">Các chương hành trình</string>
+    <string name="coins_earn_chapter_detail">%1$d chương đã hoàn thành</string>
+    <string name="coins_earn_referral_title">Mời bạn bè</string>
+    <string name="coins_earn_referral_detail">Đổi mã của bạn bè — chỉ một lần</string>
+
+    <string name="coins_invite_title">Mời bạn bè</string>
+    <string name="coins_invite_subtitle">Bạn bè bắt đầu chơi với mã của bạn sẽ nhận được %1$d xu</string>
+    <string name="coins_invite_share">Chia sẻ mã của tôi</string>
+    <string name="coins_invite_message">Tôi đang chơi Arrow Escape — hãy nhập mã %1$s của tôi khi bắt đầu để nhận xu thưởng nhé: %2$s</string>
+    <string name="coins_redeem_label">Mã của bạn bè</string>
+    <string name="coins_redeem_button">Đổi</string>
+    <string name="coins_redeem_ok">Tuyệt vời — đã cộng %1$d xu</string>
+    <string name="coins_redeem_bad">Mã đó có vẻ không đúng</string>
+    <string name="coins_redeem_own">Đó là mã của chính bạn</string>
+    <string name="coins_redeem_already">Đã nhận thưởng giới thiệu trước đó</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Xem quảng cáo nhận %1$d xu</string>
+    <string name="coins_ad_button">Xem</string>
+    <string name="coins_ad_left">Hôm nay còn %1$d lượt</string>
+    <string name="coins_ad_spent">Đã hết %1$d lượt hôm nay — mai quay lại nhé</string>
+    <string name="coins_ad_not_ready">Chưa có quảng cáo sẵn sàng lúc này</string>
+    <string name="daily_double_title">Nhân đôi xu hôm nay</string>
+    <string name="daily_double_body">Xem quảng cáo ngắn để nhận thêm %1$d xu.</string>
+    <string name="daily_double_button">Xem · +%1$d</string>
+    <string name="daily_double_done">Đã nhân đôi. Quá tuyệt!</string>
+
+    <string name="coins_shelf_title">Mở khóa giao diện</string>
+    <string name="coins_shelf_subtitle">Bất kỳ chủ đề nào bạn thích — giá phụ thuộc vào số chủ đề bạn đã sở hữu</string>
+    <string name="coins_shelf_rung">Chủ đề %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">Mở khóa %1$s</string>
+    <string name="theme_locked_body">Sở hữu ngay với %1$d xu.</string>
+    <string name="theme_locked_short">Còn thiếu %1$d xu. Hãy duy trì chuỗi ngày hàng ngày nhé.</string>
+    <string name="theme_unlocked_title">Đã mở khóa %1$s!</string>
+    <string name="theme_unlocked_body">Tận hưởng giao diện mới mẻ.</string>
+    <string name="theme_unlock_button">Mở khóa · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Đặt lại xu</string>
+    <string name="settings_debug_reset_coins_subtitle">Làm trống túi xu, xóa lịch sử và khóa lại tất cả chủ đề trả phí</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Bạn thích Arrow Escape chứ?</string>
+    <string name="rating_body">Đánh giá chỉ mất mười giây nhưng thực sự giúp trò chơi độc lập này tiếp cận thêm nhiều người chơi mới.</string>
+    <string name="rating_cta">Đánh giá trên Google Play</string>
+    <string name="rating_later">Để sau</string>
+    <string name="rating_invite_title">Bạn chơi đỉnh thật đấy!</string>
+    <string name="rating_invite_body">Bạn có muốn để lại đánh giá cho trò chơi không?</string>
+    <string name="settings_item_rate_title">Đánh giá Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">Để lại đánh giá trên Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Chú giải</string>
+    <string name="legend_open_label">Chú giải</string>
+    <string name="legend_close">Đã hiểu</string>
+    <string name="legend_arrow">Mũi tên: trượt khỏi bảng khi đường đi thông thoáng</string>
+    <string name="legend_blocked">Bị chặn: nhấp nháy khi đường đi có vật cản</string>
+    <string name="legend_turn_pad">Đệm chuyển hướng: mũi tên tới đây sẽ đi theo hướng đệm</string>
+    <string name="legend_lock_pair">Cặp khóa: các vòng cùng màu sẽ rời đi cùng nhau</string>
+    <string name="legend_sequence">Có số: xóa theo thứ tự. Sáng là tới lượt, mờ phải chờ</string>
+    <string name="legend_route">Đường đi: xanh là thoát được, đỏ là bị chặn</string>
+    <string name="legend_hint">Phát sáng: mũi tên tiếp theo nên di chuyển</string>
 </resources>

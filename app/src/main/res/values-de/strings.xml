@@ -8,6 +8,12 @@
     <string name="play_button">SPIELEN</string>
     <string name="continue_button">WEITER</string>
     <string name="restart_level">Ebene neu starten</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Erinnerungen und Neuigkeiten von Arrow Escape</string>
+    <string name="notification_daily_reminder_title">Das heutige Rätsel wartet</string>
+    <string name="notification_daily_reminder_body">Halte deine Serie am Leben – löse das heutige Spielfeld.</string>
     <string name="next_level_button">NÄCHSTE EBENE</string>
     <string name="about_title">Über</string>
     <string name="privacy_policy_title">Datenschutzrichtlinie</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Königliche Herausforderung</string>
     <string name="milestone_title_ring_master">Ringmeister</string>
     <string name="milestone_title_grand_finale">Großes Finale</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Teil %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">PFEIL</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Springe zum nächsten Level</string>
     <string name="puzzle_stuck_retry">Wiederholungsebene</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Pfeilbrett. Tippen Sie auf einen Pfeil, um ihn abzufeuern, halten Sie ihn gedrückt, um eine Vorschau seines Pfads anzuzeigen, ziehen Sie ihn zusammen, um zu zoomen, und ziehen Sie, um ihn zu bewegen.</string>
     <string name="board_zoom_hint">Zum Zoomen kneifen, zum Verschieben ziehen</string>
     <string name="board_reset_view">Ansicht zurücksetzen</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Klassisch: Pfeile auf einem Raster, in Zellen gezeichnete Formen.</string>
     <string name="about_bullet_curved">Gebogen: Pfeile fließen entlang der Linien einer gezeichneten Figur.</string>
     <string name="about_two_ways_body">Jeder Modus behält seinen eigenen Fortschritt bei, sodass das Wechseln nie ein Level kostet.</string>
+    <string name="about_card_coins_title">Münzen</string>
+    <string name="about_coins_body">Münzen schalten die Designs frei. Man erhält sie durch regelmäßiges Spielen statt durch Grinden – das Wiederholen bereits gemeisterter Level bringt nichts ein.</string>
+    <string name="about_bullet_coins_daily">Tägliches Rätsel lösen: 8 Münzen, oder 15 ohne Fehler.</string>
+    <string name="about_bullet_coins_streak">Erreiche 3, 7, 14, 30, 60 oder 100 Tage in Folge für einen einmaligen Bonus.</string>
+    <string name="about_bullet_coins_chapter">Schließe ein Kapitel einer Abenteuerkarte ab: 20 Münzen.</string>
+    <string name="about_bullet_coins_invite">Löse den Einladungscode eines Freundes einmal ein: 50 Münzen.</string>
+    <string name="about_bullet_coins_ads">Lieber schneller vorankommen? Zwei optionale Werbevideos pro Tag bringen je 12 Münzen, und das Tagesrätsel kann verdoppelt werden. Nichts im Spiel ist hinter Werbung gesperrt.</string>
     <string name="about_card_make_it_yours_title">Machen Sie es zu Ihrem</string>
     <string name="about_make_it_yours_body">Fünf Auftritte – Classic, Midnight, Sunset, Pirate und Ink – jeweils mit eigenem Startbildschirm, eigener Bewegung und eigenem Ton. Folgen Sie lieber Ihrem Telefon? Wählen Sie „System“ in den Einstellungen.</string>
     <string name="about_card_progress_safe_title">Ihr Fortschritt ist sicher</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Wir fragen Sie nicht nach Ihrem Namen, Ihrer E-Mail-Adresse oder Telefonnummer und verkaufen nichts über Sie. Das Spiel läuft offline; Die einzigen Daten, die Ihr Gerät verlassen, sind die für Werbung und die optionale Play Games-Anmeldung erforderlichen Daten.</string>
     <string name="privacy_card_device_title">Was auf Ihrem Gerät bleibt</string>
     <string name="privacy_bullet_progress">Aktuelles Level, bestes Level und Sterne für jeden Modus.</string>
+    <string name="privacy_bullet_coins">Dein Tagesrätsel-Fortschritt und deine Serie, dein Münzstand sowie deine freigeschalteten Designs.</string>
+    <string name="privacy_bullet_invite_code">Dein Einladungscode: sechs zufällige Zeichen, die auf deinem Gerät generiert werden. Er wird nicht aus deinem Namen, Konto oder Telefon abgeleitet und verlässt dein Gerät nur, wenn du ihn teilst.</string>
     <string name="privacy_bullet_settings">Ihre Einstellungen: Thema, Sound und Haptik.</string>
     <string name="privacy_device_body">Diese befindet sich im privaten Speicher der App und wird entfernt, wenn Sie das Spiel deinstallieren.</string>
     <string name="privacy_card_ads_title">Werbung</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Gelöst</string>
     <string name="daily_streak_days">%1$d Tage hintereinander</string>
     <string name="daily_come_back_tomorrow">Komm morgen wieder</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Deine Tagesübersicht</string>
+    <string name="daily_history_day_solved">%1$s · Gelöst für %2$d Sterne</string>
+    <string name="daily_history_day_missed">%1$s · Verpasst</string>
+    <string name="daily_history_day_locked">%1$s · Noch nicht verfügbar</string>
+    <string name="daily_history_day_open">%1$s · Heutiges Rätsel</string>
+    <string name="daily_history_summary">%1$d gelöst · %2$d Tage Serie</string>
     <string name="daily_done_button">Fertig</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Vorheriges Level</string>
+    <string name="level_next">Nächstes Level</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Täglich</string>
+    <string name="daily_shuffle_in">Mischen in %1$s</string>
+    <string name="daily_shuffle_count">%1$d\u00D7 gemischt</string>
+    <string name="daily_shuffle_flash">Feld gemischt!</string>
+    <string name="daily_stat_lives">Verbleibende Leben</string>
+    <string name="daily_stat_best_run">Bester Lauf</string>
+    <string name="daily_stat_streak">Tages-Serie</string>
+    <string name="daily_undo">Rückgängig</string>
+    <string name="daily_restart">Neustart</string>
+    <string name="daily_hint">Hinweis</string>
+    <string name="daily_hint_left">%1$d Hinweise übrig</string>
+    <string name="daily_hint_watch_ad">Video für einen Hinweis ansehen</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">KOMMT BALD</string>
     <string name="coming_soon_title">Weitere Kapitel finden Sie im Workshop</string>
     <string name="coming_soon_body">Sie haben alles, was wir bisher gebaut haben, abgeräumt. Neue Formen und kniffligere Fluchten sind auf dem Weg – halten Sie die App auf dem neuesten Stand, damit sie am Tag der Auslieferung landen.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Wählen Sie Ihr Spiel</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">Suchen Sie einen Pfeil mit einer klaren Linie bis zur Kante, auf die er zeigt, und tippen Sie darauf. Weiter geht\'s – das Board ist live.</string>
     <string name="tour_game_board2_title">Jetzt noch einer</string>
     <string name="tour_game_board2_body">Jeder Pfeil, der weggeht, öffnet den Weg für einen anderen. Tippen Sie auf ein zweites und beobachten Sie, wie sich das Brett lockert.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Drehfelder lenken den Weg um</string>
+    <string name="tour_game_turnpad_body">Ein Pfeil, der ein Drehfeld erreicht, folgt dessen Ausrichtung. Wege, die blockiert wirken, sind es oft gar nicht.</string>
+    <string name="tour_game_lock_title">Verbundene Paare bewegen sich gemeinsam</string>
+    <string name="tour_game_lock_body">Zwei Ringe derselben Farbe verlassen das Feld zusammen oder gar nicht. Tippe einen an – aber beide brauchen freie Bahn.</string>
+    <string name="tour_game_order_title">Nummern sind der Reihe nach dran</string>
+    <string name="tour_game_order_body">Nummerierte Pfeile starten nach Reihenfolge. Ein blasser Button wartet noch; ein leuchtender ist startbereit.</string>
+    <string name="tour_game_route_title">Prüfe vor dem Antippen</string>
+    <string name="tour_game_route_body">Halte einen Pfeil gedrückt, um seinen Weg nachzuzeichnen. Grün verlässt das Feld; Rot stoppt an der markierten Stelle.</string>
     <string name="tour_game_lives_title">Pfeile nach links und Leben</string>
     <string name="tour_game_lives_body">Tippen Sie auf einen blockierten Pfeil und er zittert, anstatt zu verschwinden – und kostet eines dieser drei Herzen.</string>
     <string name="tour_game_hint_title">Gesteckt? Nehmen Sie einen Hinweis</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">SCHRITT %1$d VON %2$d</string>
     <string name="tour_skip">Überspringen</string>
+    <string name="tour_skip_all">Tutorial überspringen</string>
     <string name="tour_got_it">Verstanden</string>
     <string name="tour_skip_move">Zug überspringen</string>
     <string name="tour_next">Als nächstes</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Abbrechen</string>
+    <string name="coins_title">Münzen</string>
+    <string name="coins_balance_subtitle">%1$d in deinem Beutel</string>
+    <string name="coins_lifetime">%1$d insgesamt verdient · %2$d ausgegeben</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Willkommensbonus</string>
+    <string name="coin_reason_daily">Tagesrätsel gelöst</string>
+    <string name="coin_reason_streak">%1$d Tage in Folge!</string>
+    <string name="coin_reason_chapter">Kapitel %1$d abgeschlossen</string>
+    <string name="coin_reason_referral">Einladung eingelöst</string>
+    <string name="coin_reason_ad">Danke fürs Zuschauen</string>
+
+    <string name="coins_earn_title">Verdienstmöglichkeiten</string>
+    <string name="coins_earn_welcome_detail">Ein kleiner Startbonus für dich</string>
+    <string name="coins_earn_daily_title">Tägliches Rätsel</string>
+    <string name="coins_earn_daily_detail">%1$d Tage gelöst – fehlerfreies Lösen bringt mehr</string>
+    <string name="coins_earn_streak_title">Tages-Serie</string>
+    <string name="coins_earn_streak_detail">%1$d Tage in Folge – nächste Belohnung bei %2$d</string>
+    <string name="coins_earn_streak_maxed">Alle Serien-Belohnungen beansprucht</string>
+    <string name="coins_earn_chapter_title">Reise-Kapitel</string>
+    <string name="coins_earn_chapter_detail">%1$d Kapitel abgeschlossen</string>
+    <string name="coins_earn_referral_title">Freunde einladen</string>
+    <string name="coins_earn_referral_detail">Einmalig den Code eines Freundes einlösen</string>
+
+    <string name="coins_invite_title">Freunde einladen</string>
+    <string name="coins_invite_subtitle">Ein Freund, der mit deinem Code startet, erhält %1$d Münzen</string>
+    <string name="coins_invite_share">Code teilen</string>
+    <string name="coins_invite_message">Ich spiele Arrow Escape – nutze meinen Code %1$s beim Start und sichere dir Bonusmünzen: %2$s</string>
+    <string name="coins_redeem_label">Code eines Freundes</string>
+    <string name="coins_redeem_button">Einlösen</string>
+    <string name="coins_redeem_ok">Super – %1$d Münzen gutgeschrieben</string>
+    <string name="coins_redeem_bad">Dieser Code scheint nicht zu stimmen</string>
+    <string name="coins_redeem_own">Das ist dein eigener Code</string>
+    <string name="coins_redeem_already">Einladungsbonus bereits erhalten</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Video für %1$d Münzen ansehen</string>
+    <string name="coins_ad_button">Ansehen</string>
+    <string name="coins_ad_left">%1$d heute übrig</string>
+    <string name="coins_ad_spent">Die heutigen %1$d sind aufgebraucht – morgen wieder da</string>
+    <string name="coins_ad_not_ready">Gerade keine Werbung verfügbar</string>
+    <string name="daily_double_title">Heutige Münzen verdoppeln</string>
+    <string name="daily_double_body">Sieh dir ein kurzes Video für weitere %1$d an.</string>
+    <string name="daily_double_button">Ansehen · +%1$d</string>
+    <string name="daily_double_done">Verdoppelt. Klasse!</string>
+
+    <string name="coins_shelf_title">Designs freischalten</string>
+    <string name="coins_shelf_subtitle">Jedes beliebige Design – der Preis richtet sich nach deinen bisherigen Besitztümern</string>
+    <string name="coins_shelf_rung">Design %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">%1$s freischalten</string>
+    <string name="theme_locked_body">Für %1$d Münzen erhältlich.</string>
+    <string name="theme_locked_short">Noch %1$d Münzen benötigt. Halte deine tägliche Serie aufrecht.</string>
+    <string name="theme_unlocked_title">%1$s freigeschaltet!</string>
+    <string name="theme_unlocked_body">Viel Spaß mit der neuen Optik.</string>
+    <string name="theme_unlock_button">Freischalten · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Münzen zurücksetzen</string>
+    <string name="settings_debug_reset_coins_subtitle">Beutel leeren, Verlauf löschen und alle Bezahl-Designs sperren</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Gefällt dir Arrow Escape?</string>
+    <string name="rating_body">Eine Bewertung dauert zehn Sekunden und hilft einem kleinen Spiel enorm, neue Spieler zu finden.</string>
+    <string name="rating_cta">Bei Google Play bewerten</string>
+    <string name="rating_later">Später</string>
+    <string name="rating_invite_title">Du bist spitze!</string>
+    <string name="rating_invite_body">Möchtest du das Spiel bewerten?</string>
+    <string name="settings_item_rate_title">Arrow Escape bewerten</string>
+    <string name="settings_item_rate_subtitle">Eine Bewertung auf Google Play hinterlassen</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Legende</string>
+    <string name="legend_open_label">Legende</string>
+    <string name="legend_close">Verstanden</string>
+    <string name="legend_arrow">Pfeil: Gleitet vom Feld, wenn sein Pfad frei ist</string>
+    <string name="legend_blocked">Blockiert: Blinkt, wenn der Pfad versperrt ist</string>
+    <string name="legend_turn_pad">Drehfeld: Erreicht ein Pfeil das Feld, folgt er dessen Richtung</string>
+    <string name="legend_lock_pair">Schlosspaar: Passende Ringe bewegen sich zusammen</string>
+    <string name="legend_sequence">Nummeriert: Nach Reihenfolge abräumen. Leuchtend ist am Zug, blass muss warten</string>
+    <string name="legend_route">Route: Grün ist frei, Rot ist blockiert</string>
+    <string name="legend_hint">Leuchten: Der nächste Pfeil, der bewegt werden kann</string>
 </resources>

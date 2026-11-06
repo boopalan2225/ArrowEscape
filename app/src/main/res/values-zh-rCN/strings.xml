@@ -8,6 +8,12 @@
     <string name="play_button">玩</string>
     <string name="continue_button">继续</string>
     <string name="restart_level">重启级别</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Arrow Escape 的提醒与最新动态</string>
+    <string name="notification_daily_reminder_title">今天的谜题已就绪</string>
+    <string name="notification_daily_reminder_body">保持你的连胜纪录 — 快来解开今天的棋盘吧。</string>
     <string name="next_level_button">下一级别</string>
     <string name="about_title">关于</string>
     <string name="privacy_policy_title">隐私政策</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">皇家挑战赛</string>
     <string name="milestone_title_ring_master">指环大师</string>
     <string name="milestone_title_grand_finale">大结局</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 第 %2$d 部分</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">箭头</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">跳到下一个级别</string>
     <string name="puzzle_stuck_retry">重试级别</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">箭头板。点击箭头来发射它，按住以预览其路径，捏合以缩放并拖动以四处移动。</string>
     <string name="board_zoom_hint">捏合缩放 \u00B7 拖动移动</string>
     <string name="board_reset_view">重置视图</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">经典：网格上的箭头，单元格中绘制的形状。</string>
     <string name="about_bullet_curved">弯曲：箭头沿着绘制图形的线条流动。</string>
     <string name="about_two_ways_body">每种模式都有自己的进度，因此切换永远不会花费一个级别。</string>
+    <string name="about_card_coins_title">金币</string>
+    <string name="about_coins_body">金币可用于解锁付费主题外观。金币通过坚持每日游玩获取，而非机械刷关 — 重复游玩已通关的关卡不会获得任何金币。</string>
+    <string name="about_bullet_coins_daily">解开每日谜题：获得 8 枚金币，无失误通关可获得 15 枚金币。</string>
+    <string name="about_bullet_coins_streak">连续达成 3、7、14、30、60 或 100 天可获得一次性丰厚奖励。</string>
+    <string name="about_bullet_coins_chapter">完成任意探索地图的一章：获得 20 枚金币。</string>
+    <string name="about_bullet_coins_invite">兑换一次好友的邀请码：获得 50 枚金币。</string>
+    <string name="about_bullet_coins_ads">想要更快积累？每天观看两次可选广告各得 12 枚金币，每日谜题奖励也可翻倍。游戏内没有任何内容强制看广告解锁。</string>
     <string name="about_card_make_it_yours_title">让它成为你的</string>
     <string name="about_make_it_yours_body">五种外观 - 经典、午夜、日落、海盗和墨水 - 每个都有自己的主屏幕、动作和声音。想要关注您的手机？在设置中选择系统。</string>
     <string name="about_card_progress_safe_title">你的进步是安全的</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">我们不会询问您的姓名、电子邮件或电话号码，也不会出售有关您的任何信息。游戏离线运行；离开您设备的唯一数据是广告和可选的 Play 游戏登录所需的数据。</string>
     <string name="privacy_card_device_title">您的设备上保留的内容</string>
     <string name="privacy_bullet_progress">每种模式的当前等级、最佳等级和星星。</string>
+    <string name="privacy_bullet_coins">您的每日谜题记录与连胜天数、金币余额以及已解锁的主题外观。</string>
+    <string name="privacy_bullet_invite_code">您的邀请码 — 在您的设备上生成的六位随机字符。它并非源自您的姓名、账号或手机信息，且仅在您主动分享时才会发送。</string>
     <string name="privacy_bullet_settings">您的设置：主题、声音和触觉。</string>
     <string name="privacy_device_body">它位于应用程序的私人存储中，并在您卸载游戏时被删除。</string>
     <string name="privacy_card_ads_title">广告</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">解决了</string>
     <string name="daily_streak_days">连续 %1$d 天</string>
     <string name="daily_come_back_tomorrow">明天回来</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">您的每日记录</string>
+    <string name="daily_history_day_solved">%1$s · 已解开（获得 %2$d 颗星）</string>
+    <string name="daily_history_day_missed">%1$s · 已错过</string>
+    <string name="daily_history_day_locked">%1$s · 尚未开放</string>
+    <string name="daily_history_day_open">%1$s · 今日谜题</string>
+    <string name="daily_history_summary">已解决 %1$d 个 · 连续 %2$d 天</string>
     <string name="daily_done_button">完成</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">上一关</string>
+    <string name="level_next">下一关</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">每日</string>
+    <string name="daily_shuffle_in">%1$s 后重新洗牌</string>
+    <string name="daily_shuffle_count">已洗牌 %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">棋盘已重新洗牌！</string>
+    <string name="daily_stat_lives">剩余生命</string>
+    <string name="daily_stat_best_run">最佳连击</string>
+    <string name="daily_stat_streak">连续天数</string>
+    <string name="daily_undo">撤销</string>
+    <string name="daily_restart">重新开始</string>
+    <string name="daily_hint">提示</string>
+    <string name="daily_hint_left">剩余 %1$d 次提示</string>
+    <string name="daily_hint_watch_ad">看广告获取提示</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">即将推出</string>
     <string name="coming_soon_title">更多章节在研讨会中</string>
     <string name="coming_soon_body">您已经清除了我们迄今为止构建的所有内容。新的形状和更棘手的逃脱即将到来 - 保持应用程序更新，以便它们在发货当天着陆。</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">选择你的游戏</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">找到一个明确指向其所指向边缘的箭头，然后点击它。继续 - 董事会已上线。</string>
     <string name="tour_game_board2_title">现在还有一张</string>
     <string name="tour_game_board2_body">每一支离开的箭都会为另一支箭开辟一条道路。点击第二个，观察木板松动。</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">转向板改变行进路线</string>
+    <string name="tour_game_turnpad_body">触及转向板的箭头会顺着转向板所指的方向前进。看似受阻的路径往往畅通无阻。</string>
+    <string name="tour_game_lock_title">锁定对协同移动</string>
+    <string name="tour_game_lock_body">相同颜色的两个圆环要么一起离开，要么都不能走。轻点其中任意一个即可 — 但两者前方都需要通路畅通。</string>
+    <string name="tour_game_order_title">带数字的箭头依序行动</string>
+    <string name="tour_game_order_body">带编号的箭头按顺序离开。较暗的徽章仍在等待；明亮的徽章已准备就绪。</string>
+    <string name="tour_game_route_title">点击前先观察路线</string>
+    <string name="tour_game_route_body">长按箭头可预览其滑行路线。绿色代表可顺利滑出棋盘；红色则会在带有叉号的格子上停下。</string>
     <string name="tour_game_lives_title">箭头向左，生命</string>
     <string name="tour_game_lives_body">点击被阻挡的箭头，它会摇晃而不是离开 - 并花费这三颗心中的一颗。</string>
     <string name="tour_game_hint_title">卡住？接受提示</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">%2$d 的步骤 %1$d</string>
     <string name="tour_skip">跳过</string>
+    <string name="tour_skip_all">跳过教程</string>
     <string name="tour_got_it">明白了</string>
     <string name="tour_skip_move">跳过移动</string>
     <string name="tour_next">下一步</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">取消</string>
+    <string name="coins_title">金币</string>
+    <string name="coins_balance_subtitle">钱包内有 %1$d 枚金币</string>
+    <string name="coins_lifetime">累计赚取 %1$d · 已消费 %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">欢迎奖励</string>
+    <string name="coin_reason_daily">已解开每日谜题</string>
+    <string name="coin_reason_streak">已连续坚持 %1$d 天！</string>
+    <string name="coin_reason_chapter">第 %1$d 章通关</string>
+    <string name="coin_reason_referral">已兑换邀请码</string>
+    <string name="coin_reason_ad">感谢观看</string>
+
+    <string name="coins_earn_title">赚取金币途径</string>
+    <string name="coins_earn_welcome_detail">助你启程的小心意</string>
+    <string name="coins_earn_daily_title">每日谜题</string>
+    <string name="coins_earn_daily_detail">已解开 %1$d 天 — 完美通关获得更多</string>
+    <string name="coins_earn_streak_title">每日连续记录</string>
+    <string name="coins_earn_streak_detail">连续 %1$d 天 — 下一个奖励在第 %2$d 天</string>
+    <string name="coins_earn_streak_maxed">已领取所有连续天数奖励</string>
+    <string name="coins_earn_chapter_title">探索章节</string>
+    <string name="coins_earn_chapter_detail">已通关 %1$d 个章节</string>
+    <string name="coins_earn_referral_title">邀请好友</string>
+    <string name="coins_earn_referral_detail">兑换好友的邀请码（仅限一次）</string>
+
+    <string name="coins_invite_title">邀请好友</string>
+    <string name="coins_invite_subtitle">使用你的邀请码加入的好友可获得 %1$d 枚金币</string>
+    <string name="coins_invite_share">分享我的代码</string>
+    <string name="coins_invite_message">我正在玩 Arrow Escape — 开始游戏时输入我的邀请码 %1$s 即可领取奖励金币：%2$s</string>
+    <string name="coins_redeem_label">好友的代码</string>
+    <string name="coins_redeem_button">兑换</string>
+    <string name="coins_redeem_ok">太棒了 — 已到账 %1$d 枚金币</string>
+    <string name="coins_redeem_bad">该代码似乎无效</string>
+    <string name="coins_redeem_own">这是你自己的邀请码</string>
+    <string name="coins_redeem_already">邀请奖励已领取过</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">看广告赚取 %1$d 枚金币</string>
+    <string name="coins_ad_button">观看</string>
+    <string name="coins_ad_left">今日剩余 %1$d 次</string>
+    <string name="coins_ad_spent">今日 %1$d 次已用完 — 明天再来吧</string>
+    <string name="coins_ad_not_ready">当前暂无可用广告</string>
+    <string name="daily_double_title">今日金币翻倍</string>
+    <string name="daily_double_body">观看简短广告即可额外获得 %1$d 枚金币。</string>
+    <string name="daily_double_button">观看 · +%1$d</string>
+    <string name="daily_double_done">已翻倍。太厉害了！</string>
+
+    <string name="coins_shelf_title">解锁外观</string>
+    <string name="coins_shelf_subtitle">随心选择任意主题 — 价格取决于你已拥有的主题数量</string>
+    <string name="coins_shelf_rung">主题 %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">解锁 %1$s</string>
+    <string name="theme_locked_body">只需 %1$d 枚金币即可拥有。</string>
+    <string name="theme_locked_short">还差 %1$d 枚金币。继续保持每日连胜吧！</string>
+    <string name="theme_unlocked_title">%1$s 已解锁！</string>
+    <string name="theme_unlocked_body">尽情享受全新风格。</string>
+    <string name="theme_unlock_button">解锁 · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">重置金币</string>
+    <string name="settings_debug_reset_coins_subtitle">清空金币、清除记录并重新锁定所有付费主题</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">喜欢 Arrow Escape 吗？</string>
+    <string name="rating_body">留下好评只需十秒钟，却能真正帮助这款小巧的独立游戏找到更多知音。</string>
+    <string name="rating_cta">在 Google Play 上评分</string>
+    <string name="rating_later">稍后再说</string>
+    <string name="rating_invite_title">势如破竹！</string>
+    <string name="rating_invite_body">愿意为游戏留个好评吗？</string>
+    <string name="settings_item_rate_title">评价 Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">在 Google Play 上留下评价</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">图例</string>
+    <string name="legend_open_label">图例</string>
+    <string name="legend_close">知道了</string>
+    <string name="legend_arrow">箭头：前方无阻碍时顺势滑出棋盘</string>
+    <string name="legend_blocked">受阻：路径被阻挡时闪烁提示</string>
+    <string name="legend_turn_pad">转向板：到达此处的箭头会按其所指方向前进</string>
+    <string name="legend_lock_pair">锁定对：相同颜色的圆环必须同时离开</string>
+    <string name="legend_sequence">带编号：按先后顺序移出。亮起轮到它，暗淡须等待</string>
+    <string name="legend_route">路线：绿色畅通无阻，红色受阻不通</string>
+    <string name="legend_hint">高亮：下一步可移动的箭头</string>
 </resources>

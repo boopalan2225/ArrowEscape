@@ -8,6 +8,12 @@
     <string name="play_button">OYNA</string>
     <string name="continue_button">DEVAM ET</string>
     <string name="restart_level">Seviyeyi Yeniden Başlat</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Arrow Escape bildirimleri ve güncellemeleri</string>
+    <string name="notification_daily_reminder_title">Bugünün bulmacası seni bekliyor</string>
+    <string name="notification_daily_reminder_body">Serini koru — gel ve bugünün tahtasını çöz.</string>
     <string name="next_level_button">SONRAKİ SEVİYE</string>
     <string name="about_title">Hakkında</string>
     <string name="privacy_policy_title">Gizlilik Politikası</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Kraliyet Mücadelesi</string>
     <string name="milestone_title_ring_master">Yüzük Ustası</string>
     <string name="milestone_title_grand_finale">Büyük Final</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Bölüm %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">OK</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Sonraki seviyeye atla</string>
     <string name="puzzle_stuck_retry">Seviyeyi yeniden dene</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Ok tahtası. Ateşlemek için bir oka dokunun, yolunu önizlemek için basılı tutun, yakınlaştırmak için sıkıştırın ve hareket etmek için sürükleyin.</string>
     <string name="board_zoom_hint">Yakınlaştırmak için sıkıştırın \u00B7 taşımak için sürükleyin</string>
     <string name="board_reset_view">Görünümü sıfırla</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Klasik: ızgara üzerindeki oklar, hücrelere çizilmiş şekiller.</string>
     <string name="about_bullet_curved">Kavisli: oklar çizilen şeklin çizgileri boyunca akar.</string>
     <string name="about_two_ways_body">Her mod kendi ilerlemesini korur, bu nedenle geçiş yapmak hiçbir zaman bir seviyeye mal olmaz.</string>
+    <string name="about_card_coins_title">Jetonlar</string>
+    <string name="about_coins_body">Jetonlar ücretli temaların kilidini açar. Sürekli seviye tekrarı yerine her gün oyuna girerek kazanılır — tamamlanmış bir seviyeyi tekrar oynamak jeton kazandırmaz.</string>
+    <string name="about_bullet_coins_daily">Günlük bulmacayı çöz: 8 jeton ya da hatasız çözerek 15 jeton kazan.</string>
+    <string name="about_bullet_coins_streak">Tek seferlik bonus için üst üste 3, 7, 14, 30, 60 veya 100 güne ulaş.</string>
+    <string name="about_bullet_coins_chapter">Herhangi bir yolculuk haritasının bir bölümünü tamamla: 20 jeton.</string>
+    <string name="about_bullet_coins_invite">Bir arkadaşının davet kodunu bir kez kullan: 50 jeton.</string>
+    <string name="about_bullet_coins_ads">Daha hızlı mı ilerlemek istiyorsun? Günde iki isteğe bağlı reklamın her biri 12 jeton verir ve günlük bulmaca ödülü ikiye katlanabilir. Oyunda hiçbir içerik reklam arkasına kilitlenmemiştir.</string>
     <string name="about_card_make_it_yours_title">Senin olsun</string>
     <string name="about_make_it_yours_body">Beş görünüm - Klasik, Geceyarısı, Gün Batımı, Korsan ve Mürekkep - her birinin kendi ana ekranı, hareketi ve sesi var. Telefonunuzu takip etmeyi mi tercih ediyorsunuz? Ayarlar\'da Sistem\'i seçin.</string>
     <string name="about_card_progress_safe_title">İlerlemeniz güvende</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Adınızı, e-posta adresinizi veya telefon numaranızı istemiyoruz ve hakkınızda hiçbir şey satmıyoruz. Oyun çevrimdışı çalışır; Cihazınızdan çıkan tek veri, reklamların ve isteğe bağlı Play Oyunlar\'da oturum açmanın ihtiyaç duyduğu verilerdir.</string>
     <string name="privacy_card_device_title">Cihazınızda neler kalır?</string>
     <string name="privacy_bullet_progress">Her mod için mevcut seviye, en iyi seviye ve yıldızlar.</string>
+    <string name="privacy_bullet_coins">Günlük bulmaca kaydın ve serin, jeton bakiyen ve açtığın temalar.</string>
+    <string name="privacy_bullet_invite_code">Davet kodun: Cihazında rastgele oluşturulan altı karakter. Adından, hesabından veya telefonundan türetilmez ve yalnızca paylaşmayı seçersen cihazından dışarı çıkar.</string>
     <string name="privacy_bullet_settings">Ayarlarınız: tema, ses ve dokunma.</string>
     <string name="privacy_device_body">Bu, uygulamanın özel deposunda bulunur ve oyunu kaldırdığınızda kaldırılır.</string>
     <string name="privacy_card_ads_title">Reklam</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Çözüldü</string>
     <string name="daily_streak_days">%1$d gün üst üste</string>
     <string name="daily_come_back_tomorrow">yarın geri gel</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Günlük geçmişin</string>
+    <string name="daily_history_day_solved">%1$s · %2$d yıldızla çözüldü</string>
+    <string name="daily_history_day_missed">%1$s · Kaçırıldı</string>
+    <string name="daily_history_day_locked">%1$s · Henüz açılmadı</string>
+    <string name="daily_history_day_open">%1$s · Bugünün bulmacası</string>
+    <string name="daily_history_summary">%1$d çözüldü · %2$d günlük seri</string>
     <string name="daily_done_button">Bitti</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Önceki seviye</string>
+    <string name="level_next">Sonraki seviye</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Günlük</string>
+    <string name="daily_shuffle_in">%1$s içinde karıştır</string>
+    <string name="daily_shuffle_count">%1$d\u00D7 karıştırıldı</string>
+    <string name="daily_shuffle_flash">Tahta karıştırıldı!</string>
+    <string name="daily_stat_lives">Kalan can</string>
+    <string name="daily_stat_best_run">En iyi seri</string>
+    <string name="daily_stat_streak">Gün serisi</string>
+    <string name="daily_undo">Geri al</string>
+    <string name="daily_restart">Yeniden başlat</string>
+    <string name="daily_hint">İpucu</string>
+    <string name="daily_hint_left">%1$d ipucu kaldı</string>
+    <string name="daily_hint_watch_ad">İpucu için reklam izle</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">ÇOK YAKINDA</string>
     <string name="coming_soon_title">Atölyede daha fazla bölüm var</string>
     <string name="coming_soon_body">Şu ana kadar inşa ettiğimiz her şeyi temizledin. Yeni şekiller ve daha zorlu kaçışlar yolda; uygulamayı güncel tutun ki gönderildiği gün size ulaşsın.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Oyununu seç</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">İşaret ettiği kenara kadar net bir çizgiye sahip bir ok bulun ve ona dokunun. Devam edin, pano yayında.</string>
     <string name="tour_game_board2_title">Şimdi bir tane daha</string>
     <string name="tour_game_board2_body">Dışarı çıkan her ok, bir başkasına yol açar. İkinciye dokunun ve tahtanın gevşemesini izleyin.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Dönüş karoları yönü değiştirir</string>
+    <string name="tour_game_turnpad_body">Karoya ulaşan bir ok, karonun gösterdiği yönde devam eder. Kapalı görünen yollar çoğu zaman açıktır.</string>
+    <string name="tour_game_lock_title">Kilitli çiftler birlikte hareket eder</string>
+    <string name="tour_game_lock_body">Aynı renkteki iki halka birlikte çıkar ya da hiç çıkmaz. İstediğine dokun — ancak önce ikisinin de önü açık olmalı.</string>
+    <string name="tour_game_order_title">Numaralı oklar sırayla çıkar</string>
+    <string name="tour_game_order_body">Numaralı oklar sırayla ayrılır. Sönük rozet henüz bekliyor; parlak olan çıkmaya hazır.</string>
+    <string name="tour_game_route_title">Dokunmadan önce kontrol et</string>
+    <string name="tour_game_route_body">Rotayı görmek için bir oka basılı tut. Yeşil tahtadan çıkar; kırmızı ise çarpı işaretli hücrede durur.</string>
     <string name="tour_game_lives_title">Oklar sola ve yaşıyor</string>
     <string name="tour_game_lives_body">Engellenen bir oka dokunduğunuzda ok ayrılmak yerine sallanır ve bu üç kalpten birine mal olur.</string>
     <string name="tour_game_hint_title">Sıkışmak? Bir ipucu al</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">%2$d ADIMI %1$d</string>
     <string name="tour_skip">Atla</string>
+    <string name="tour_skip_all">Öğreticiyi atla</string>
     <string name="tour_got_it">Anladım</string>
     <string name="tour_skip_move">Taşımayı atla</string>
     <string name="tour_next">Sonraki</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">İptal</string>
+    <string name="coins_title">Jetonlar</string>
+    <string name="coins_balance_subtitle">Kuponunda %1$d var</string>
+    <string name="coins_lifetime">Toplam %1$d kazanıldı · %2$d harcandı</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Hoş geldin bonusu</string>
+    <string name="coin_reason_daily">Günlük bulmaca çözüldü</string>
+    <string name="coin_reason_streak">Üst üste %1$d gün!</string>
+    <string name="coin_reason_chapter">Bölüm %1$d tamamlandı</string>
+    <string name="coin_reason_referral">Davet kullanıldı</string>
+    <string name="coin_reason_ad">İzlediğin için teşekkürler</string>
+
+    <string name="coins_earn_title">Kazanma yolları</string>
+    <string name="coins_earn_welcome_detail">Başlaman için küçük bir hediye</string>
+    <string name="coins_earn_daily_title">Günlük bulmaca</string>
+    <string name="coins_earn_daily_detail">%1$d gün çözüldü — hatasız kaçış daha çok kazandırır</string>
+    <string name="coins_earn_streak_title">Günlük seri</string>
+    <string name="coins_earn_streak_detail">%1$d gün üst üste — sonraki ödül %2$d günde</string>
+    <string name="coins_earn_streak_maxed">Tüm seri ödülleri alındı</string>
+    <string name="coins_earn_chapter_title">Yolculuk bölümleri</string>
+    <string name="coins_earn_chapter_detail">%1$d bölüm tamamlandı</string>
+    <string name="coins_earn_referral_title">Arkadaşını davet et</string>
+    <string name="coins_earn_referral_detail">Arkadaşının kodunu kullan — tek seferlik</string>
+
+    <string name="coins_invite_title">Arkadaşını davet et</string>
+    <string name="coins_invite_subtitle">Kodunla başlayan arkadaşın %1$d jeton kazanır</string>
+    <string name="coins_invite_share">Kodumu paylaş</string>
+    <string name="coins_invite_message">Arrow Escape oynuyorum — başlarken %1$s kodumu kullan ve bonus jeton kazan: %2$s</string>
+    <string name="coins_redeem_label">Arkadaşının kodu</string>
+    <string name="coins_redeem_button">Kullan</string>
+    <string name="coins_redeem_ok">Harika — %1$d jeton eklendi</string>
+    <string name="coins_redeem_bad">Bu kod geçerli görünmüyor</string>
+    <string name="coins_redeem_own">Bu senin kendi kodun</string>
+    <string name="coins_redeem_already">Davet bonusu zaten alındı</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">%1$d jeton için reklam izle</string>
+    <string name="coins_ad_button">İzle</string>
+    <string name="coins_ad_left">Bugün %1$d kaldı</string>
+    <string name="coins_ad_spent">Bugünkü %1$d bitti — yarın tekrar gel</string>
+    <string name="coins_ad_not_ready">Şu anda hazır reklam yok</string>
+    <string name="daily_double_title">Bugünün jetonlarını ikiye katla</string>
+    <string name="daily_double_body">Bir %1$d daha almak için kısa bir reklam izle.</string>
+    <string name="daily_double_button">İzle · +%1$d</string>
+    <string name="daily_double_done">İkiye katlandı. Harika!</string>
+
+    <string name="coins_shelf_title">Temaların kilidini aç</string>
+    <string name="coins_shelf_subtitle">İstediğin tema — fiyat sahip olduğun tema sayısına göre belirlenir</string>
+    <string name="coins_shelf_rung">Tema %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">%1$s kilidini aç</string>
+    <string name="theme_locked_body">%1$d jeton karşılığında senin.</string>
+    <string name="theme_locked_short">%1$d jeton daha gerekiyor. Günlük seriyi bozma.</string>
+    <string name="theme_unlocked_title">%1$s açıldı!</string>
+    <string name="theme_unlocked_body">Yeni görünümün keyfini çıkar.</string>
+    <string name="theme_unlock_button">Kilidi aç · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Jetonları sıfırla</string>
+    <string name="settings_debug_reset_coins_subtitle">Keseyi boşalt, geçmişi sil ve tüm ücretli temaları yeniden kilitle</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Arrow Escape hoşuna gitti mi?</string>
+    <string name="rating_body">Değerlendirme on saniye sürer ve küçük bir bağımsız oyunun yeni oyuncular bulmasına gerçekten yardımcı olur.</string>
+    <string name="rating_cta">Google Play\'de Puan Ver</string>
+    <string name="rating_later">Şimdi değil</string>
+    <string name="rating_invite_title">Harika gidiyorsun!</string>
+    <string name="rating_invite_body">Oyuna bir puan bırakmak ister misin?</string>
+    <string name="settings_item_rate_title">Arrow Escape\'i Değerlendir</string>
+    <string name="settings_item_rate_subtitle">Google Play\'de puan bırak</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Açıklamalar</string>
+    <string name="legend_open_label">Açıklamalar</string>
+    <string name="legend_close">Anladım</string>
+    <string name="legend_arrow">Ok: Yolu açık olduğunda tahtadan kayarak çıkar</string>
+    <string name="legend_blocked">Engelli: Yolu tıkalı olduğunda yanıp söner</string>
+    <string name="legend_turn_pad">Dönüş karosu: Ulaşan ok karonun yönünde devam eder</string>
+    <string name="legend_lock_pair">Kilitli çift: Eşleşen halkalar birlikte ayrılır</string>
+    <string name="legend_sequence">Numaralı: Sırayla temizle. Parlak sıra sende, sönük beklemeli</string>
+    <string name="legend_route">Rota: Yeşil çıkışı gösterir, kırmızı tıkalıdır</string>
+    <string name="legend_hint">Işıltı: Hareket ettirilecek sonraki ok</string>
 </resources>

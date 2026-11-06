@@ -8,6 +8,12 @@
     <string name="play_button">ИГРАТЬ</string>
     <string name="continue_button">ПРОДОЛЖИТЬ</string>
     <string name="restart_level">Уровень перезапуска</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Напоминания и новости Arrow Escape</string>
+    <string name="notification_daily_reminder_title">Сегодняшняя головоломка ждет вас</string>
+    <string name="notification_daily_reminder_body">Сохраняйте серию побед — решите сегодняшнюю головоломку.</string>
     <string name="next_level_button">СЛЕДУЮЩИЙ УРОВЕНЬ</string>
     <string name="about_title">О</string>
     <string name="privacy_policy_title">Политика конфиденциальности</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">Королевский вызов</string>
     <string name="milestone_title_ring_master">Мастер Кольца</string>
     <string name="milestone_title_grand_finale">Гранд Финал</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 Часть %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">СТРЕЛКА</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">Перейти на следующий уровень</string>
     <string name="puzzle_stuck_retry">Уровень повтора</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">Доска со стрелками. Нажмите стрелку, чтобы запустить ее, удерживайте, чтобы просмотреть ее путь, сведите пальцы, чтобы увеличить масштаб, и перетащите, чтобы передвигаться.</string>
     <string name="board_zoom_hint">Сведите пальцы, чтобы увеличить масштаб. \u00B7 перетащите, чтобы переместить.</string>
     <string name="board_reset_view">Сбросить вид</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">Классика: стрелки на сетке, фигуры, нарисованные в ячейках.</string>
     <string name="about_bullet_curved">Изогнутая: стрелки текут по линиям нарисованной фигуры.</string>
     <string name="about_two_ways_body">В каждом режиме сохраняется свой прогресс, поэтому переключение никогда не требует уровня.</string>
+    <string name="about_card_coins_title">Монеты</string>
+    <string name="about_coins_body">Монеты открывают платные темы оформления. Они начисляются за регулярную игру, а не за бесконечные повторы: переигрывание уже пройденного уровня ничего не приносит.</string>
+    <string name="about_bullet_coins_daily">Решите ежедневную головоломку: 8 монет или 15 за прохождение без ошибок.</string>
+    <string name="about_bullet_coins_streak">Достигните серии в 3, 7, 14, 30, 60 или 100 дней подряд для получения разового бонуса.</string>
+    <string name="about_bullet_coins_chapter">Завершите главу любой карты путешествия: 20 монет.</string>
+    <string name="about_bullet_coins_invite">Активируйте код друга один раз: 50 монет.</string>
+    <string name="about_bullet_coins_ads">Хотите быстрее? Две необязательные рекламы в день дают по 12 монет каждая, а награду за ежедневную головоломку можно удвоить. Никакой контент не заблокирован просмотром рекламы.</string>
     <string name="about_card_make_it_yours_title">Сделайте это своим</string>
     <string name="about_make_it_yours_body">Пять обликов — «Классический», «Полночь», «Закат», «Пират» и «Чернила» — каждый со своим домашним экраном, движением и звуком. Предпочитаете следить за своим телефоном? Выберите «Система» в настройках.</string>
     <string name="about_card_progress_safe_title">Ваш прогресс в безопасности</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">Мы не запрашиваем ваше имя, адрес электронной почты или номер телефона и ничего о вас не продаем. Игра работает в автономном режиме; единственные данные, которые покидают ваше устройство, — это информация, необходимая для рекламы и дополнительного входа в Play Игры.</string>
     <string name="privacy_card_device_title">Что остается на вашем устройстве</string>
     <string name="privacy_bullet_progress">Текущий уровень, лучший уровень и звезды для каждого режима.</string>
+    <string name="privacy_bullet_coins">Ваша статистика ежедневных головоломок, серия дней, баланс монет и открытые темы.</string>
+    <string name="privacy_bullet_invite_code">Ваш код приглашения: шесть случайных символов, созданных на вашем устройстве. Он не связан с вашим именем, аккаунтом или телефоном и передается только если вы сами решите им поделиться.</string>
     <string name="privacy_bullet_settings">Ваши настройки: тема, звук и тактильность.</string>
     <string name="privacy_device_body">Он находится в личном хранилище приложения и удаляется при удалении игры.</string>
     <string name="privacy_card_ads_title">Реклама</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">Решено</string>
     <string name="daily_streak_days">%1$d дней подряд</string>
     <string name="daily_come_back_tomorrow">Вернись завтра</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">Ваша история дней</string>
+    <string name="daily_history_day_solved">%1$s · Пройдено на %2$d звезд</string>
+    <string name="daily_history_day_missed">%1$s · Пропущено</string>
+    <string name="daily_history_day_locked">%1$s · Еще не доступно</string>
+    <string name="daily_history_day_open">%1$s · Головоломка дня</string>
+    <string name="daily_history_summary">%1$d решено · Серия: %2$d дн.</string>
     <string name="daily_done_button">Готово</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">Предыдущий уровень</string>
+    <string name="level_next">Следующий уровень</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">Ежедневно</string>
+    <string name="daily_shuffle_in">Перемешивание через %1$s</string>
+    <string name="daily_shuffle_count">Перемешано %1$d\u00D7</string>
+    <string name="daily_shuffle_flash">Поле перемешано!</string>
+    <string name="daily_stat_lives">Осталось жизней</string>
+    <string name="daily_stat_best_run">Лучший результат</string>
+    <string name="daily_stat_streak">Серия дней</string>
+    <string name="daily_undo">Отмена</string>
+    <string name="daily_restart">Заново</string>
+    <string name="daily_hint">Подсказка</string>
+    <string name="daily_hint_left">Осталось подсказок: %1$d</string>
+    <string name="daily_hint_watch_ad">Посмотреть рекламу за подсказку</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">СКОРО</string>
     <string name="coming_soon_title">Остальные главы в мастерской</string>
     <string name="coming_soon_body">Вы очистили все, что мы построили до сих пор. Новые формы и более сложные побеги уже в пути — обновляйте приложение, чтобы они появились в день отправки.</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">Выберите свою игру</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">Найдите стрелку, четко идущую к краю, на который она указывает, и коснитесь ее. Продолжайте – доска жива.</string>
     <string name="tour_game_board2_title">Теперь еще один</string>
     <string name="tour_game_board2_body">Каждая улетающая стрела открывает путь для другой. Нажмите второй и наблюдайте, как доска ослабевает.</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">Площадки поворота меняют направление</string>
+    <string name="tour_game_turnpad_body">Стрелка, достигшая площадки, продолжает движение в указанном направлении. Пути, которые кажутся заблокированными, часто свободны.</string>
+    <string name="tour_game_lock_title">Связанные пары двигаются вместе</string>
+    <string name="tour_game_lock_body">Два кольца одного цвета уходят вместе или остаются. Нажмите на любое, но путь должен быть свободен для обоих.</string>
+    <string name="tour_game_order_title">Числа определяют очередность</string>
+    <string name="tour_game_order_body">Стрелки с номерами уходят по порядку. Тусклый значок еще ждет своей очереди; яркий готов к движению.</string>
+    <string name="tour_game_route_title">Проверьте перед нажатием</string>
+    <string name="tour_game_route_body">Удерживайте стрелку, чтобы проследить ее путь. Зеленая линия выходит за пределы поля; красная останавливается в ячейке с крестиком.</string>
     <string name="tour_game_lives_title">Стрелы ушли, и живёт</string>
     <string name="tour_game_lives_body">Нажмите на заблокированную стрелку, и она начнет трястись, а не уходить — и будет стоить одно из этих трех сердец.</string>
     <string name="tour_game_hint_title">Застрявший? Возьмите подсказку</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">ШАГ %1$d ИЗ %2$d</string>
     <string name="tour_skip">Пропустить</string>
+    <string name="tour_skip_all">Пропустить обучение</string>
     <string name="tour_got_it">понял</string>
     <string name="tour_skip_move">Пропустить ход</string>
     <string name="tour_next">Далее</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">Отмена</string>
+    <string name="coins_title">Монеты</string>
+    <string name="coins_balance_subtitle">%1$d в вашем кошельке</string>
+    <string name="coins_lifetime">%1$d заработано всего · %2$d потрачено</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">Приветственный бонус</string>
+    <string name="coin_reason_daily">Ежедневная головоломка решена</string>
+    <string name="coin_reason_streak">%1$d дней подряд!</string>
+    <string name="coin_reason_chapter">Глава %1$d завершена</string>
+    <string name="coin_reason_referral">Код приглашения активирован</string>
+    <string name="coin_reason_ad">Спасибо за просмотр</string>
+
+    <string name="coins_earn_title">Как заработать</string>
+    <string name="coins_earn_welcome_detail">Небольшой бонус для старта</string>
+    <string name="coins_earn_daily_title">Ежедневная головоломка</string>
+    <string name="coins_earn_daily_detail">%1$d дн. пройдено — решение без ошибок приносит больше</string>
+    <string name="coins_earn_streak_title">Серия дней</string>
+    <string name="coins_earn_streak_detail">%1$d дней подряд — следующая награда на %2$d</string>
+    <string name="coins_earn_streak_maxed">Все награды за серию получены</string>
+    <string name="coins_earn_chapter_title">Главы путешествия</string>
+    <string name="coins_earn_chapter_detail">%1$d глав пройдено</string>
+    <string name="coins_earn_referral_title">Пригласить друга</string>
+    <string name="coins_earn_referral_detail">Активируйте код друга (один раз)</string>
+
+    <string name="coins_invite_title">Пригласить друга</string>
+    <string name="coins_invite_subtitle">Друг, начавший игру с вашим кодом, получит %1$d монет</string>
+    <string name="coins_invite_share">Поделиться кодом</string>
+    <string name="coins_invite_message">Я играю в Arrow Escape! Используй мой код %1$s на старте и получи бонусные монеты: %2$s</string>
+    <string name="coins_redeem_label">Код друга</string>
+    <string name="coins_redeem_button">Активировать</string>
+    <string name="coins_redeem_ok">Отлично — добавлено %1$d монет</string>
+    <string name="coins_redeem_bad">Кажется, код введен неверно</string>
+    <string name="coins_redeem_own">Это ваш собственный код</string>
+    <string name="coins_redeem_already">Бонус по приглашению уже получен</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">Посмотреть рекламу за %1$d монет</string>
+    <string name="coins_ad_button">Смотреть</string>
+    <string name="coins_ad_left">Осталось на сегодня: %1$d</string>
+    <string name="coins_ad_spent">Лимит на сегодня (%1$d) исчерпан — заходите завтра</string>
+    <string name="coins_ad_not_ready">Сейчас нет доступной рекламы</string>
+    <string name="daily_double_title">Удвоить монеты за день</string>
+    <string name="daily_double_body">Посмотрите короткое видео, чтобы получить еще %1$d.</string>
+    <string name="daily_double_button">Смотреть · +%1$d</string>
+    <string name="daily_double_done">Удвоено. Отличная работа!</string>
+
+    <string name="coins_shelf_title">Темы оформления</string>
+    <string name="coins_shelf_subtitle">Любая тема на ваш вкус — цена зависит от количества уже открытых</string>
+    <string name="coins_shelf_rung">Тема %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">Открыть тему «%1$s»</string>
+    <string name="theme_locked_body">Стоимость: %1$d монет.</string>
+    <string name="theme_locked_short">Осталось собрать %1$d монет. Не прерывайте серию дней!</string>
+    <string name="theme_unlocked_title">Тема «%1$s» открыта!</string>
+    <string name="theme_unlocked_body">Наслаждайтесь новым оформлением.</string>
+    <string name="theme_unlock_button">Открыть · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">Сбросить монеты</string>
+    <string name="settings_debug_reset_coins_subtitle">Очистить кошелек, стереть историю и заблокировать платные темы</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Нравится Arrow Escape?</string>
+    <string name="rating_body">Оценка займет всего десять секунд и очень поможет небольшой независимой игре найти игроков.</string>
+    <string name="rating_cta">Оценить в Google Play</string>
+    <string name="rating_later">Не сейчас</string>
+    <string name="rating_invite_title">Отличные успехи!</string>
+    <string name="rating_invite_body">Хотите поставить оценку игре?</string>
+    <string name="settings_item_rate_title">Оценить Arrow Escape</string>
+    <string name="settings_item_rate_subtitle">Оставить отзыв в Google Play</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">Обозначения</string>
+    <string name="legend_open_label">Обозначения</string>
+    <string name="legend_close">Понятно</string>
+    <string name="legend_arrow">Стрелка: вылетает за пределы поля, если путь свободен</string>
+    <string name="legend_blocked">Препятствие: мигает, если путь перекрыт</string>
+    <string name="legend_turn_pad">Площадка поворота: стрелка уходит в сторону ее указателя</string>
+    <string name="legend_lock_pair">Связанная пара: одинаковые кольца уходят только вместе</string>
+    <string name="legend_sequence">Номера: убирайте по порядку. Яркий значок ходит, тусклый ждет</string>
+    <string name="legend_route">Траектория: зеленый — путь свободен, красный — заблокирован</string>
+    <string name="legend_hint">Свечение: стрелка для следующего хода</string>
 </resources>

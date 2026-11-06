@@ -8,6 +8,12 @@
     <string name="play_button">遊ぶ</string>
     <string name="continue_button">続ける</string>
     <string name="restart_level">リスタートレベル</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Arrow Escape からのリマインダーとお知らせ</string>
+    <string name="notification_daily_reminder_title">今日のパズルが待っています</string>
+    <string name="notification_daily_reminder_body">連続記録をキープしましょう — 今日のボードを解きに来てください。</string>
     <string name="next_level_button">次のレベル</string>
     <string name="about_title">について</string>
     <string name="privacy_policy_title">プライバシーポリシー</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">ロイヤルチャレンジ</string>
     <string name="milestone_title_ring_master">リングマスター</string>
     <string name="milestone_title_grand_finale">グランドフィナーレ</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 パート%2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">アロー</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">次のレベルにスキップ</string>
     <string name="puzzle_stuck_retry">リトライレベル</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">矢印ボード。矢印をタップして発射し、長押ししてそのパスをプレビューし、ピンチしてズームし、ドラッグして移動します。</string>
     <string name="board_zoom_hint">ピンチしてズーム \u00B7 ドラッグして移動</string>
     <string name="board_reset_view">ビューをリセット</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">クラシック: グリッド上の矢印、セル内に描画された図形。</string>
     <string name="about_bullet_curved">曲線: 描かれた図形の線に沿って矢印が流れます。</string>
     <string name="about_two_ways_body">各モードは独自の進行状況を維持するため、切り替えにレベルがかかることはありません。</string>
+    <string name="about_card_coins_title">コイン</string>
+    <string name="about_coins_body">コインで有料テーマを解放できます。周回ではなく毎日のプレイで獲得できます — クリア済みレベルを再プレイしてもコインは獲得できません。</string>
+    <string name="about_bullet_coins_daily">デイリーパズルを解く：8コイン、ノーミスなら15コイン。</string>
+    <string name="about_bullet_coins_streak">3日、7日、14日、30日、60日、100日連続達成で特別ボーナス。</string>
+    <string name="about_bullet_coins_chapter">ジャーニーマップのチャプターをクリア：20コイン。</string>
+    <string name="about_bullet_coins_invite">友達の招待コードを1回引き換え：50コイン。</string>
+    <string name="about_bullet_coins_ads">早く集めたい？ 1日2回の任意広告視聴で各12コイン獲得、デイリーパズルも2倍にできます。広告を見ないと進めない要素はありません。</string>
     <string name="about_card_make_it_yours_title">それをあなたのものにしてください</string>
     <string name="about_make_it_yours_body">クラシック、ミッドナイト、サンセット、パイレーツ、インクの 5 つの外観には、それぞれ独自のホーム画面、モーション、サウンドがあります。携帯電話をフォローしたいですか? 「設定」で「システム」を選択します。</string>
     <string name="about_card_progress_safe_title">あなたの進歩は安全です</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">私たちはあなたの名前、メールアドレス、電話番号を尋ねることはありません。また、あなたに関する何かを販売することもありません。ゲームはオフラインで実行されます。デバイスから送信されるデータは、広告とオプションの Play ゲームのサインインに必要なデータだけです。</string>
     <string name="privacy_card_device_title">デバイスに残るもの</string>
     <string name="privacy_bullet_progress">各モードの現在のレベル、最高のレベル、星。</string>
+    <string name="privacy_bullet_coins">デイリーパズルの記録と連続日数、コイン残高、解放したテーマ。</string>
+    <string name="privacy_bullet_invite_code">あなたの招待コード — 端末上で生成された6文字のランダムな文字列です。名前やアカウント、端末情報から生成されたものではなく、共有を選択した場合のみ端末から送信されます。</string>
     <string name="privacy_bullet_settings">設定: テーマ、サウンド、触覚。</string>
     <string name="privacy_device_body">これはアプリのプライベート ストレージに保存され、ゲームをアンインストールすると削除されます。</string>
     <string name="privacy_card_ads_title">広告</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">解決済み</string>
     <string name="daily_streak_days">%1$d日連続</string>
     <string name="daily_come_back_tomorrow">明日また来てね</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">デイリー記録</string>
+    <string name="daily_history_day_solved">%1$s · 星%2$d個でクリア</string>
+    <string name="daily_history_day_missed">%1$s · 未クリア</string>
+    <string name="daily_history_day_locked">%1$s · 未開放</string>
+    <string name="daily_history_day_open">%1$s · 今日のパズル</string>
+    <string name="daily_history_summary">%1$d回クリア · %2$d日連続</string>
     <string name="daily_done_button">完了</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">前のレベル</string>
+    <string name="level_next">次のレベル</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">デイリー</string>
+    <string name="daily_shuffle_in">あと%1$sでシャッフル</string>
+    <string name="daily_shuffle_count">シャッフル%1$d\u00D7</string>
+    <string name="daily_shuffle_flash">ボードがシャッフルされました！</string>
+    <string name="daily_stat_lives">残りライフ</string>
+    <string name="daily_stat_best_run">ベスト記録</string>
+    <string name="daily_stat_streak">連続日数</string>
+    <string name="daily_undo">元に戻す</string>
+    <string name="daily_restart">やり直す</string>
+    <string name="daily_hint">ヒント</string>
+    <string name="daily_hint_left">残りヒント%1$d回</string>
+    <string name="daily_hint_watch_ad">広告を見てヒントを獲得</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">近日公開予定</string>
     <string name="coming_soon_title">ワークショップにはさらに多くの章が含まれています</string>
     <string name="coming_soon_body">これまで構築してきたものをすべてクリアしました。新しい形やよりトリッキーな脱出ゲームが登場します - 出荷日に到着するようにアプリを常に最新の状態に保ってください。</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">ゲームを選んでください</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">矢印が指す端まで明確に伸びている矢印を見つけてタップします。さあ、ボードはライブです。</string>
     <string name="tour_game_board2_title">さあ、もう一つ</string>
     <string name="tour_game_board2_body">離れるすべての矢が、別の矢への道を開きます。 2 番目のボタンをタップして、ボードが緩むのを観察します。</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">ターンパッドが進路を変える</string>
+    <string name="tour_game_turnpad_body">パッドに到達した矢印は、パッドが指す方向に進みます。一見塞がれているように見えても、進める場合が多くあります。</string>
+    <string name="tour_game_lock_title">ロックされたペアは一緒に動く</string>
+    <string name="tour_game_lock_body">同じ色の2つのリングは同時に脱出するか、動かないかのどちらかです。どちらをタップしても構いませんが、両方の進路が空いている必要があります。</string>
+    <string name="tour_game_order_title">数字の順番に進む</string>
+    <string name="tour_game_order_body">番号付きの矢印は順番に脱出します。薄いバッジは待機中、明るいバッジは脱出準備完了です。</string>
+    <string name="tour_game_route_title">タップする前に確認</string>
+    <string name="tour_game_route_body">矢印を長押しすると進路をトレースできます。緑はボード外へ脱出、赤はバツ印のマスで停止します。</string>
     <string name="tour_game_lives_title">矢は残った、そして生きている</string>
     <string name="tour_game_lives_body">ブロックされた矢をタップすると、離れる代わりに揺れ、これら 3 つのハートのいずれかを消費します。</string>
     <string name="tour_game_hint_title">立ち往生？ヒントを得る</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">%2$d のステップ %1$d</string>
     <string name="tour_skip">スキップ</string>
+    <string name="tour_skip_all">チュートリアルをスキップ</string>
     <string name="tour_got_it">わかりました</string>
     <string name="tour_skip_move">スキップ移動</string>
     <string name="tour_next">次へ</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">キャンセル</string>
+    <string name="coins_title">コイン</string>
+    <string name="coins_balance_subtitle">所持コイン: %1$d</string>
+    <string name="coins_lifetime">累計獲得 %1$d · 使用 %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">ウェルカムボーナス</string>
+    <string name="coin_reason_daily">デイリーパズルクリア</string>
+    <string name="coin_reason_streak">%1$d日連続達成！</string>
+    <string name="coin_reason_chapter">チャプター%1$d完了</string>
+    <string name="coin_reason_referral">招待コード適用</string>
+    <string name="coin_reason_ad">ご視聴ありがとうございます</string>
+
+    <string name="coins_earn_title">コインの獲得方法</string>
+    <string name="coins_earn_welcome_detail">スタートを応援するプレゼント</string>
+    <string name="coins_earn_daily_title">デイリーパズル</string>
+    <string name="coins_earn_daily_detail">%1$d日クリア — ノーミスクリアで報酬アップ</string>
+    <string name="coins_earn_streak_title">デイリー連続記録</string>
+    <string name="coins_earn_streak_detail">%1$d日連続 — 次の報酬は%2$d日目</string>
+    <string name="coins_earn_streak_maxed">すべての連続ボーナスを獲得済み</string>
+    <string name="coins_earn_chapter_title">ジャーニーチャプター</string>
+    <string name="coins_earn_chapter_detail">%1$dチャプタークリア済み</string>
+    <string name="coins_earn_referral_title">友達を招待</string>
+    <string name="coins_earn_referral_detail">友達のコードを入力（1回のみ）</string>
+
+    <string name="coins_invite_title">友達を招待</string>
+    <string name="coins_invite_subtitle">あなたのコードを使って始めた友達は%1$dコインを獲得</string>
+    <string name="coins_invite_share">コードを共有</string>
+    <string name="coins_invite_message">Arrow Escapeをプレイ中！開始時に私のコード %1$s を入力してボーナスコインをゲットしよう: %2$s</string>
+    <string name="coins_redeem_label">友達のコード</string>
+    <string name="coins_redeem_button">引き換える</string>
+    <string name="coins_redeem_ok">完了 — %1$dコイン追加されました</string>
+    <string name="coins_redeem_bad">そのコードは正しくないようです</string>
+    <string name="coins_redeem_own">それはあなた自身のコードです</string>
+    <string name="coins_redeem_already">招待ボーナスはすでに獲得済みです</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">広告を見て%1$dコイン獲得</string>
+    <string name="coins_ad_button">見る</string>
+    <string name="coins_ad_left">本日残り%1$d回</string>
+    <string name="coins_ad_spent">本日の%1$d回は終了しました — また明日お試しください</string>
+    <string name="coins_ad_not_ready">現在利用可能な広告がありません</string>
+    <string name="daily_double_title">今日のコインを2倍にする</string>
+    <string name="daily_double_body">短い広告を見てさらに%1$dコイン獲得。</string>
+    <string name="daily_double_button">見る · +%1$d</string>
+    <string name="daily_double_done">2倍になりました！</string>
+
+    <string name="coins_shelf_title">テーマの解放</string>
+    <string name="coins_shelf_subtitle">お好きなテーマを選べます — 価格は所持しているテーマ数によって決まります</string>
+    <string name="coins_shelf_rung">テーマ%1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">%1$sを解放</string>
+    <string name="theme_locked_body">%1$dコインで獲得できます。</string>
+    <string name="theme_locked_short">あと%1$dコイン。デイリー連続記録を続けましょう。</string>
+    <string name="theme_unlocked_title">%1$s解放完了！</string>
+    <string name="theme_unlocked_body">新しいテーマをお楽しみください。</string>
+    <string name="theme_unlock_button">解放 · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">コインをリセット</string>
+    <string name="settings_debug_reset_coins_subtitle">コインをゼロにし、履歴を消去して有料テーマを再ロック</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Arrow Escapeを楽しんでいますか？</string>
+    <string name="rating_body">レビューには10秒しかかかりません。インディーゲームが新しいプレイヤーに出会うための大きな力になります。</string>
+    <string name="rating_cta">Google Playで評価する</string>
+    <string name="rating_later">後で</string>
+    <string name="rating_invite_title">素晴らしいプレイです！</string>
+    <string name="rating_invite_body">ゲームの評価をしていただけませんか？</string>
+    <string name="settings_item_rate_title">Arrow Escapeを評価</string>
+    <string name="settings_item_rate_subtitle">Google Playにレビューを残す</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">図例</string>
+    <string name="legend_open_label">図例</string>
+    <string name="legend_close">了解</string>
+    <string name="legend_arrow">矢印：進路が空いているとボード外へスライド</string>
+    <string name="legend_blocked">衝突：進路が塞がれていると点滅</string>
+    <string name="legend_turn_pad">ターンパッド：到達した矢印がパッドの向きへ進行</string>
+    <string name="legend_lock_pair">ロックペア：同色のリングがペアで脱出</string>
+    <string name="legend_sequence">数字付き：番号順に脱出。明るい矢印が現在の手番</string>
+    <string name="legend_route">ルート：緑は脱出可能、赤は塞がれている</string>
+    <string name="legend_hint">発光：次に動かすべき矢印</string>
 </resources>

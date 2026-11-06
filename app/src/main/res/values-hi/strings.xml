@@ -8,6 +8,12 @@
     <string name="play_button">खेलें</string>
     <string name="continue_button">जारी रखें</string>
     <string name="restart_level">पुनरारंभ स्तर</string>
+
+    <!-- ======================= Notifications ======================= -->
+    <string name="notification_channel_general_name">Arrow Escape</string>
+    <string name="notification_channel_general_description">Arrow Escape से रिमाइंडर और अपडेट</string>
+    <string name="notification_daily_reminder_title">आज की पहेली आपका इंतज़ार कर रही है</string>
+    <string name="notification_daily_reminder_body">अपना सिलसिला जारी रखें — आइए आज का बोर्ड हल करें।</string>
     <string name="next_level_button">अगला स्तर</string>
     <string name="about_title">के बारे में</string>
     <string name="privacy_policy_title">गोपनीयता नीति</string>
@@ -49,6 +55,8 @@
     <string name="milestone_title_royal_challenge">शाही चुनौती</string>
     <string name="milestone_title_ring_master">रिंग मास्टर</string>
     <string name="milestone_title_grand_finale">ग्रैंड फिनाले</string>
+    <!-- %1$s = chapter theme (e.g. "First Steps"), %2$d = 1-based section within it -->
+    <string name="milestone_title_part">%1$s \u00B7 भाग %2$d</string>
 
     <!-- ======================= Home screen ======================= -->
     <string name="home_title_line1">तीर</string>
@@ -83,7 +91,7 @@
     <string name="puzzle_stuck_skip">अगले स्तर पर जाएं</string>
     <string name="puzzle_stuck_retry">पुनः प्रयास स्तर</string>
 
-    <!-- ======================= Curved board accessibility / hints ======================= -->
+    <!-- ======================= Board accessibility / hints ======================= -->
     <string name="board_content_description">तीर बोर्ड. किसी तीर को चलाने के लिए उसे टैप करें, उसके पथ का पूर्वावलोकन करने के लिए दबाए रखें, ज़ूम करने के लिए पिंच करें और चारों ओर घूमने के लिए खींचें।</string>
     <string name="board_zoom_hint">ज़ूम करने के लिए पिंच करें \u00B7 स्थानांतरित करने के लिए खींचें</string>
     <string name="board_reset_view">दृश्य रीसेट करें</string>
@@ -101,6 +109,13 @@
     <string name="about_bullet_classic">क्लासिक: ग्रिड पर तीर, कोशिकाओं में खींची गई आकृतियाँ।</string>
     <string name="about_bullet_curved">घुमावदार: तीर खींची गई आकृति की रेखाओं के अनुदिश बहते हैं।</string>
     <string name="about_two_ways_body">प्रत्येक मोड अपनी प्रगति रखता है, इसलिए स्विचिंग में कभी भी कोई स्तर खर्च नहीं होता है।</string>
+    <string name="about_card_coins_title">सिक्के</string>
+    <string name="about_coins_body">सिक्के खास थीम अनलॉक करते हैं। ये रोज़ खेलने से मिलते हैं, बार-बार एक ही स्तर खेलने से नहीं — पहले से पूरे किए गए स्तर को फिर से खेलने पर कुछ नहीं मिलता।</string>
+    <string name="about_bullet_coins_daily">दैनिक पहेली हल करें: 8 सिक्के, या बिना किसी गलती के 15 सिक्के।</string>
+    <string name="about_bullet_coins_streak">एकमुश्त बोनस के लिए लगातार 3, 7, 14, 30, 60 या 100 दिनों तक खेलें।</string>
+    <string name="about_bullet_coins_chapter">किसी भी यात्रा मानचित्र का एक अध्याय पूरा करें: 20 सिक्के।</string>
+    <string name="about_bullet_coins_invite">किसी मित्र का आमंत्रण कोड एक बार रिडीम करें: 50 सिक्के।</string>
+    <string name="about_bullet_coins_ads">जल्दी आगे बढ़ना चाहते हैं? प्रतिदिन दो वैकल्पिक विज्ञापन 12-12 सिक्के देते हैं, और दैनिक पहेली के सिक्के दोगुने किए जा सकते हैं। गेम में कुछ भी विज्ञापन के पीछे बंद नहीं है।</string>
     <string name="about_card_make_it_yours_title">इसे अपना बनाओ</string>
     <string name="about_make_it_yours_body">पाँच प्रस्तुतियाँ - क्लासिक, मिडनाइट, सनसेट, पाइरेट और इंक - प्रत्येक की अपनी होम स्क्रीन, गति और ध्वनि है। क्या आप अपने फ़ोन का अनुसरण करना पसंद करते हैं? सेटिंग्स में सिस्टम चुनें।</string>
     <string name="about_card_progress_safe_title">आपकी प्रगति सुरक्षित है</string>
@@ -117,6 +132,8 @@
     <string name="privacy_short_body">हम आपका नाम, ईमेल या फोन नंबर नहीं मांगते हैं और हम आपके बारे में कुछ भी नहीं बेचते हैं। गेम ऑफ़लाइन चलता है; आपके डिवाइस से निकलने वाला एकमात्र डेटा विज्ञापनों और वैकल्पिक प्ले गेम्स साइन-इन की आवश्यकता है।</string>
     <string name="privacy_card_device_title">आपके डिवाइस पर क्या रहता है</string>
     <string name="privacy_bullet_progress">प्रत्येक मोड के लिए वर्तमान स्तर, सर्वोत्तम स्तर और सितारे।</string>
+    <string name="privacy_bullet_coins">आपका दैनिक पहेली रिकॉर्ड और सिलसिला, सिक्कों का बैलेंस और अनलॉक की गई थीम।</string>
+    <string name="privacy_bullet_invite_code">आपका आमंत्रण कोड — आपके डिवाइस पर बनाए गए छह यादृच्छिक अक्षर। यह आपके नाम, खाते या फ़ोन से नहीं बनता, और केवल तभी बाहर जाता है जब आप इसे साझा करते हैं।</string>
     <string name="privacy_bullet_settings">आपकी सेटिंग्स: थीम, ध्वनि और हैप्टिक्स।</string>
     <string name="privacy_device_body">यह ऐप के निजी स्टोरेज में रहता है और जब आप गेम को अनइंस्टॉल करते हैं तो इसे हटा दिया जाता है।</string>
     <string name="privacy_card_ads_title">विज्ञापन</string>
@@ -196,12 +213,39 @@
     <string name="daily_solved_title">सुलझ गया</string>
     <string name="daily_streak_days">%1$d लगातार दिन</string>
     <string name="daily_come_back_tomorrow">कल वापस आना</string>
+
+    <!-- Daily history calendar: a record of play, never a second chance at it -->
+    <string name="daily_history_title">आपका दैनिक रिकॉर्ड</string>
+    <string name="daily_history_day_solved">%1$s · %2$d सितारों के साथ हल किया</string>
+    <string name="daily_history_day_missed">%1$s · छूट गया</string>
+    <string name="daily_history_day_locked">%1$s · अभी नहीं खुला</string>
+    <string name="daily_history_day_open">%1$s · आज की पहेली</string>
+    <string name="daily_history_summary">%1$d हल किए · %2$d दिनों का सिलसिला</string>
     <string name="daily_done_button">हो गया</string>
+
+    <!-- ======================= Level navigation ======================= -->
+    <string name="level_previous">पिछला स्तर</string>
+    <string name="level_next">अगला स्तर</string>
+
+    <!-- ======================= Daily shuffle challenge ======================= -->
+    <string name="daily_badge">दैनिक</string>
+    <string name="daily_shuffle_in">%1$s में शफ़ल</string>
+    <string name="daily_shuffle_count">%1$d\u00D7 शफ़ल किया गया</string>
+    <string name="daily_shuffle_flash">बोर्ड शफ़ल हो गया!</string>
+    <string name="daily_stat_lives">बचे हुए जीवन</string>
+    <string name="daily_stat_best_run">सर्वश्रेष्ठ प्रदर्शन</string>
+    <string name="daily_stat_streak">दिनों का सिलसिला</string>
+    <string name="daily_undo">पूर्ववत करें</string>
+    <string name="daily_restart">पुनरारंभ</string>
+    <string name="daily_hint">संकेत</string>
+    <string name="daily_hint_left">%1$d संकेत शेष</string>
+    <string name="daily_hint_watch_ad">संकेत के लिए विज्ञापन देखें</string>
 
     <!-- ======================= Coming soon card (end of Journey map) ======================= -->
     <string name="coming_soon_badge">जल्द आ रहा है</string>
     <string name="coming_soon_title">कार्यशाला में और भी अध्याय हैं</string>
     <string name="coming_soon_body">हमने अब तक जो कुछ भी बनाया है, उसे आपने साफ़ कर दिया है। नए आकार और पेचीदा पलायन रास्ते में हैं - ऐप को अपडेट रखें ताकि वे जहाज वाले दिन ही उतर सकें।</string>
+
 
     <!-- ======================= Onboarding tour (Home) ======================= -->
     <string name="tour_home_modes_title">अपना खेल चुनें</string>
@@ -220,6 +264,18 @@
     <string name="tour_game_board1_body">उस किनारे तक स्पष्ट रूप से चलने वाला एक तीर ढूंढें, जिस पर वह इंगित करता है, और उसे टैप करें। आगे बढ़ें - बोर्ड लाइव है।</string>
     <string name="tour_game_board2_title">अब एक और</string>
     <string name="tour_game_board2_body">प्रत्येक तीर जो निकलता है वह दूसरे के लिए रास्ता खोलता है। दूसरा टैप करें और बोर्ड को ढीला होते हुए देखें।</string>
+
+    <!-- One per rule the board legend lists. Each of these steps plays the
+         rule out on a small board, so the wording stays short on purpose:
+         the animation is doing the explaining. -->
+    <string name="tour_game_turnpad_title">टर्न पैड दिशा बदलते हैं</string>
+    <string name="tour_game_turnpad_body">जो तीर पैड तक पहुंचता है, वह पैड द्वारा दिखाई गई दिशा में आगे बढ़ता है। जो रास्ते बंद दिखते हैं, वे अक्सर खुले होते हैं।</string>
+    <string name="tour_game_lock_title">लॉक किए गए जोड़े साथ चलते हैं</string>
+    <string name="tour_game_lock_body">एक ही रंग के दो छल्ले एक साथ निकलते हैं या बिल्कुल नहीं। किसी पर भी टैप करें — लेकिन पहले दोनों का रास्ता साफ़ होना चाहिए।</string>
+    <string name="tour_game_order_title">संख्याएं अपनी बारी पर चलती हैं</string>
+    <string name="tour_game_order_body">संख्या वाले तीर क्रम से निकलते हैं। एक धुंधला बैज अभी इंतज़ार कर रहा है; चमकदार बैज निकलने के लिए तैयार है।</string>
+    <string name="tour_game_route_title">टैप करने से पहले जांचें</string>
+    <string name="tour_game_route_body">रास्ता देखने के लिए तीर को दबाकर रखें। हरा रास्ता बोर्ड से बाहर जाता है; लाल रास्ता क्रॉस वाले सेल पर रुक जाता है।</string>
     <string name="tour_game_lives_title">बाण छोड़े, और प्राण</string>
     <string name="tour_game_lives_body">एक अवरुद्ध तीर को टैप करें और वह निकलने के बजाय हिल जाता है - और इन तीन दिलों में से एक की कीमत चुकानी पड़ती है।</string>
     <string name="tour_game_hint_title">अटक गया? एक संकेत लीजिए</string>
@@ -228,7 +284,97 @@
     <!-- ======================= Onboarding tour chrome ======================= -->
     <string name="tour_step_counter">%2$d का चरण %1$d</string>
     <string name="tour_skip">छोड़ें</string>
+    <string name="tour_skip_all">ट्यूटोरियल छोड़ें</string>
     <string name="tour_got_it">समझ गया</string>
     <string name="tour_skip_move">चाल छोड़ें</string>
     <string name="tour_next">अगला</string>
+
+
+    <!-- ======================= Coins ======================= -->
+    <string name="cancel">रद्द करें</string>
+    <string name="coins_title">सिक्के</string>
+    <string name="coins_balance_subtitle">आपके बटुए में %1$d सिक्के</string>
+    <string name="coins_lifetime">कुल कमाए %1$d · खर्च किए %2$d</string>
+    <string name="coin_amount_gained">+%1$d</string>
+
+    <!-- Why coins arrived; shown on the reward card and in the earn list. -->
+    <string name="coin_reason_welcome">स्वागत बोनस</string>
+    <string name="coin_reason_daily">दैनिक पहेली हल की</string>
+    <string name="coin_reason_streak">लगातार %1$d दिन!</string>
+    <string name="coin_reason_chapter">अध्याय %1$d पूरा हुआ</string>
+    <string name="coin_reason_referral">आमंत्रण रिडीम किया</string>
+    <string name="coin_reason_ad">देखने के लिए धन्यवाद</string>
+
+    <string name="coins_earn_title">कमाने के तरीके</string>
+    <string name="coins_earn_welcome_detail">शुरुआत के लिए एक छोटा सा उपहार</string>
+    <string name="coins_earn_daily_title">दैनिक पहेली</string>
+    <string name="coins_earn_daily_detail">%1$d दिन हल किए — बिना गलती हल करने पर ज़्यादा सिक्के मिलते हैं</string>
+    <string name="coins_earn_streak_title">दैनिक सिलसिला</string>
+    <string name="coins_earn_streak_detail">लगातार %1$d दिन — अगला इनाम %2$d पर</string>
+    <string name="coins_earn_streak_maxed">सभी सिलसिला इनाम हासिल कर लिए</string>
+    <string name="coins_earn_chapter_title">यात्रा अध्याय</string>
+    <string name="coins_earn_chapter_detail">%1$d अध्याय पूरे किए</string>
+    <string name="coins_earn_referral_title">मित्र को आमंत्रित करें</string>
+    <string name="coins_earn_referral_detail">मित्र का कोड रिडीम करें — केवल एक बार</string>
+
+    <string name="coins_invite_title">मित्र को आमंत्रित करें</string>
+    <string name="coins_invite_subtitle">आपके कोड से शुरुआत करने वाले मित्र को %1$d सिक्के मिलेंगे</string>
+    <string name="coins_invite_share">मेरा कोड साझा करें</string>
+    <string name="coins_invite_message">मैं Arrow Escape खेल रहा हूँ — शुरू करते समय मेरा कोड %1$s इस्तेमाल करें और बोनस सिक्के पाएं: %2$s</string>
+    <string name="coins_redeem_label">मित्र का कोड</string>
+    <string name="coins_redeem_button">रिडीम करें</string>
+    <string name="coins_redeem_ok">बढ़िया — %1$d सिक्के जोड़े गए</string>
+    <string name="coins_redeem_bad">वह कोड सही नहीं लग रहा है</string>
+    <string name="coins_redeem_own">यह आपका अपना कोड है</string>
+    <string name="coins_redeem_already">आमंत्रण बोनस पहले ही लिया जा चुका है</string>
+
+    <!-- The fast lane. Never required for anything, never hidden either. -->
+    <string name="coins_ad_title">%1$d सिक्कों के लिए विज्ञापन देखें</string>
+    <string name="coins_ad_button">देखें</string>
+    <string name="coins_ad_left">आज %1$d बाकी हैं</string>
+    <string name="coins_ad_spent">आज के %1$d पूरे हो गए — कल फिर आएं</string>
+    <string name="coins_ad_not_ready">फिलहाल कोई विज्ञापन उपलब्ध नहीं है</string>
+    <string name="daily_double_title">आज के सिक्के दोगुने करें</string>
+    <string name="daily_double_body">अन्य %1$d सिक्कों के लिए एक छोटा विज्ञापन देखें।</string>
+    <string name="daily_double_button">देखें · +%1$d</string>
+    <string name="daily_double_done">दोगुना हो गया। बहुत बढ़िया!</string>
+
+    <string name="coins_shelf_title">थीम अनलॉक करें</string>
+    <string name="coins_shelf_subtitle">अपनी पसंद की थीम चुनें — कीमत आपके पास पहले से मौजूद थीम की संख्या पर निर्भर करती है</string>
+    <string name="coins_shelf_rung">थीम %1$d</string>
+
+    <!-- The theme shop, which is the theme picker wearing a price tag. -->
+    <string name="theme_locked_title">%1$s अनलॉक करें</string>
+    <string name="theme_locked_body">%1$d सिक्कों में आपकी।</string>
+    <string name="theme_locked_short">%1$d और सिक्के चाहिए। दैनिक सिलसिला जारी रखें।</string>
+    <string name="theme_unlocked_title">%1$s अनलॉक हो गई!</string>
+    <string name="theme_unlocked_body">नए रूप-रंग का आनंद लें।</string>
+    <string name="theme_unlock_button">अनलॉक · %1$d</string>
+
+    <string name="settings_debug_reset_coins_title">सिक्के रीसेट करें</string>
+    <string name="settings_debug_reset_coins_subtitle">बटुआ खाली करें, बहीखाता मिटाएं, सभी सशुल्क थीम पुनः लॉक करें</string>
+
+    <!-- ======================= Rating ======================= -->
+    <!-- Note: the stars on this screen are an affordance, never a filter.
+         Play forbids routing only happy players to the store. -->
+    <string name="rating_title">Arrow Escape पसंद आ रहा है?</string>
+    <string name="rating_body">रेटिंग में सिर्फ दस सेकंड लगते हैं और यह छोटे गेम को नए खिलाड़ियों तक पहुँचाने में बहुत मदद करती है।</string>
+    <string name="rating_cta">Google Play पर रेटिंग दें</string>
+    <string name="rating_later">अभी नहीं</string>
+    <string name="rating_invite_title">आप शानदार खेल रहे हैं!</string>
+    <string name="rating_invite_body">क्या आप गेम को रेटिंग देना चाहेंगे?</string>
+    <string name="settings_item_rate_title">Arrow Escape को रेटिंग दें</string>
+    <string name="settings_item_rate_subtitle">Google Play पर रेटिंग दें</string>
+
+    <!-- Board legend: what each mark on the board means. -->
+    <string name="legend_title">संकेत सूची</string>
+    <string name="legend_open_label">संकेत सूची</string>
+    <string name="legend_close">समझ गया</string>
+    <string name="legend_arrow">तीर: रास्ता साफ़ होने पर बोर्ड से बाहर निकल जाता है</string>
+    <string name="legend_blocked">अवरुद्ध: रास्ता बंद होने पर चमकता है</string>
+    <string name="legend_turn_pad">टर्न पैड: इस पर पहुंचने वाला तीर इसके रुख की दिशा में जाता है</string>
+    <string name="legend_lock_pair">लॉक जोड़ी: मिलते-जुलते छल्ले एक साथ बाहर निकलते हैं</string>
+    <string name="legend_sequence">क्रमांकित: क्रम से हटाएं। चमकदार आपकी बारी है, धुंधले को रुकना होगा</string>
+    <string name="legend_route">रास्ता: हरा साफ़ रास्ता है, लाल अवरुद्ध है</string>
+    <string name="legend_hint">चमक: अगला चलने योग्य तीर</string>
 </resources>
