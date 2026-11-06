@@ -63,96 +63,81 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
+        GameScaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .then(if (shouldBlur) Modifier.blur(8.dp) else Modifier)
-        ) {
-            // Distinct branded header band (rounded bottom + subtle gradient)
-            Surface(
-                shape = RoundedCornerShape(
-                    bottomStart = 28.dp, bottomEnd = 28.dp
-                ),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 3.dp
-            ) {
-                Column(
+                .then(if (shouldBlur) Modifier.blur(8.dp) else Modifier),
+            topBar = {
+                GameTopBar(
+                    modifier = Modifier.readableWidth(BoardSizing.maxExtent),
+                    level = gameState.level,
+                    // Difficulty and shape are static facts about the
+                    // level - one quiet line, not two loud chips.
+                    subtitle = "${gameState.difficultyLabel} \u00B7 $shapeName",
+                    onBackClick = onBackClick,
+                    trailing = { BoardLegendButton(GameMode.CLASSIC) }
+                )
+            },
+            stats = {
+                GameStatsRow(
+                    // Capped to the board's own ceiling rather than the
+                    // prose measure, so the HUD and the board read as
+                    // one column on a wide screen instead of the hearts
+                    // drifting off to a corner of their own.
                     modifier = Modifier
-                        .statusBarsPadding()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                ) {
-                    GameTopBar(
-                        level = gameState.level,
-                        // Difficulty and shape are static facts about the
-                        // level - one quiet line, not two loud chips.
-                        subtitle = "${gameState.difficultyLabel} \u00B7 $shapeName",
-                        onBackClick = onBackClick,
-                        trailing = { BoardLegendButton(GameMode.CLASSIC) }
-                    )
-
-                    GameStatsRow(
-                        modifier = Modifier.spotlightTarget(SpotlightTarget.LIVES),
-                        remainingArrows = gameState.remainingCount,
-                        lives = gameState.lives
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-            }
-
-            // Game board - centered, fills available space
-            ClassicBoardArea(
-                viewModel = viewModel,
-                level = gameState.level,
-                arrows = gameState.arrows,
-                board = gameState.board,
-                hintArrowId = gameState.hintArrowId,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .spotlightTarget(SpotlightTarget.BOARD)
-            )
-
-            GameBottomBar(
-                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
-                hintsRemaining = hintsRemaining,
-                isHintAdAvailable = viewModel.isRewardedAdAvailable(),
-                // Back to anything already played; forward only as far as
-                // the player has actually earned - except in dev mode,
-                // which trades that gate for the real ceiling (classic
-                // genuinely ends at TOTAL_LEVELS) so testing isn't stuck
-                // behind whatever the player's own save file happens to say.
-                onPreviousLevel = { viewModel.stepLevel(-1) }
-                    .takeIf { gameState.level > 1 },
-                onNextLevel = { viewModel.stepLevel(+1) }
-                    .takeIf {
-                        val ceiling = if (prefs.devMode) DifficultyConfig.TOTAL_LEVELS else prefs.highestLevel
-                        gameState.level < ceiling
-                    },
-                onHintClick = {
-                    if (hintsRemaining > 0) {
-                        viewModel.useHint()
-                    } else {
-                        activity?.let { viewModel.onWatchAdForHints(it) }
+                        .readableWidth(BoardSizing.maxExtent)
+                        .spotlightTarget(SpotlightTarget.LIVES),
+                    remainingArrows = gameState.remainingCount,
+                    lives = gameState.lives
+                )
+            },
+            board = { pane ->
+                ClassicBoardArea(
+                    viewModel = viewModel,
+                    level = gameState.level,
+                    arrows = gameState.arrows,
+                    board = gameState.board,
+                    hintArrowId = gameState.hintArrowId,
+                    modifier = pane
+                )
+            },
+            controls = {
+                GameBottomBar(
+                    modifier = Modifier
+                        .readableWidth(BoardSizing.maxExtent)
+                        .spotlightTarget(SpotlightTarget.HINT),
+                    hintsRemaining = hintsRemaining,
+                    isHintAdAvailable = viewModel.isRewardedAdAvailable(),
+                    // Back to anything already played; forward only as far as
+                    // the player has actually earned - except in dev mode,
+                    // which trades that gate for the real ceiling (classic
+                    // genuinely ends at TOTAL_LEVELS) so testing isn't stuck
+                    // behind whatever the player's own save file happens to say.
+                    onPreviousLevel = { viewModel.stepLevel(-1) }
+                        .takeIf { gameState.level > 1 },
+                    onNextLevel = { viewModel.stepLevel(+1) }
+                        .takeIf {
+                            val ceiling = if (prefs.devMode) DifficultyConfig.TOTAL_LEVELS else prefs.highestLevel
+                            gameState.level < ceiling
+                        },
+                    onHintClick = {
+                        if (hintsRemaining > 0) {
+                            viewModel.useHint()
+                        } else {
+                            activity?.let { viewModel.onWatchAdForHints(it) }
+                        }
                     }
-                }
-            )
-
-            // True bottom of the screen, below everything else including
-            // the hint bar - same spot the system nav bar sits just under.
-            BannerAdView(
-                adUnitId = BuildConfig.BANNER_AD_UNIT_ID,
-                modifier = Modifier.navigationBarsPadding()
-            )
-        }
+                )
+            },
+            banner = {
+                // True bottom of the screen, below everything else including
+                // the hint bar - same spot the system nav bar sits just under.
+                BannerAdView(
+                    adUnitId = BuildConfig.BANNER_AD_UNIT_ID,
+                    modifier = Modifier.navigationBarsPadding()
+                )
+            }
+        )
 
         // Combo indicator (floats near the top of the board)
         ComboBadge(
@@ -249,10 +234,18 @@ private fun ClassicBoardArea(
     val onArrowTap = remember(viewModel) { viewModel::onArrowTap }
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        // The spotlight points at the board, not at the slot the board sits
+        // in. Those were the same rectangle until the board gained a
+        // maximum size; on a tablet the slot is far wider, and a tutorial
+        // that cuts its hole around half a screen of empty space either
+        // side of the board is pointing at nothing in particular.
+        val spotlight = Modifier.spotlightTarget(SpotlightTarget.BOARD)
+
         if (isGenerating) {
-            BoardPlaceholder()
+            BoardPlaceholder(modifier = spotlight)
         } else {
             GameBoard(
+                modifier = spotlight,
                 arrows = arrows,
                 board = board,
                 resetKey = level,

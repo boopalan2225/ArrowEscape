@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
+import com.clevercorner.arrowescape.ui.components.FitText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.data.GameMode
@@ -106,19 +107,18 @@ private fun ModeTab(
     ) {
         Text(text = mode.emoji, fontSize = 18.sp)
         Spacer(Modifier.height(2.dp))
-        Text(
+        FitText(
             text = stringResource(mode.labelRes),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            color = labelColor,
-            maxLines = 1
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+            ),
+            color = labelColor
         )
-        Text(
+        FitText(
             text = stringResource(mode.taglineRes),
             style = MaterialTheme.typography.labelSmall,
             color = taglineColor,
-            textAlign = TextAlign.Center,
-            maxLines = 1
+            textAlign = TextAlign.Center
         )
     }
 }

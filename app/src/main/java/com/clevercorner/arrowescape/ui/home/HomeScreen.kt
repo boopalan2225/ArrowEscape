@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.clevercorner.arrowescape.ui.components.readableWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
@@ -74,7 +75,12 @@ fun HomeScreen(
                 .heightIn(min = viewportHeight)
                 .systemBarsPadding()
                 .padding(horizontal = 28.dp, vertical = 20.dp)
-                .entranceAnimation(),
+                .entranceAnimation()
+                // Last in the chain on purpose: the scroll gesture keeps the
+                // whole width, and only the content inside it is capped. Cap
+                // the scroller instead and a tablet owner swiping down the
+                // empty half of the screen gets nothing.
+                .readableWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

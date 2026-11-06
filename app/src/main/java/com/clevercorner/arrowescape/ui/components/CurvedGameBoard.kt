@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -176,13 +177,30 @@ fun CurvedGameBoard(
     val latestExitPoint by rememberUpdatedState(exitPointOf)
 
     Surface(
-        modifier = modifier
+        // The caller's modifier goes LAST, not first. `fillMaxSize()`
+        // reports its OWN size to whatever wraps it as "the full space I
+        // was given" - that is its entire job - regardless of how small
+        // the content it centres inside that space turns out to be. A
+        // caller's `spotlightTarget` placed before `fillMaxSize` was
+        // therefore observing the whole pane, not this board: on a wide
+        // window the tutorial's cut-out hole was the entire half of the
+        // screen, not the small square sitting in the middle of it.
+        // Putting the caller's modifier directly on the Surface - after
+        // every internal size decision has already been made - means
+        // whatever it observes or receives is this board's real, final,
+        // capped shape.
+        modifier = Modifier
             // Fit inside whatever space the chrome leaves, on BOTH axes.
             // Sizing by width alone let a tall board grow past the bottom
             // of its slot, where the parent simply clipped it off.
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .aspectRatio(boardWidth / boardHeight),
+            // Centred inside the space, then capped: past a certain size a
+            // bigger figure is not a better one, it is just further for a
+            // thumb to travel.
+            .sizeIn(maxWidth = BoardSizing.maxExtent, maxHeight = BoardSizing.maxExtent)
+            .aspectRatio(boardWidth / boardHeight)
+            .then(modifier),
         // A plaque brings its own corners; rounding the card again would
         // shave them off. Everything else keeps the house shape.
         shape = if (plaque != null) RectangleShape else MaterialTheme.shapes.extraLarge,

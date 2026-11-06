@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.clevercorner.arrowescape.ui.components.BoardSizing
+import com.clevercorner.arrowescape.ui.components.readableWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
@@ -175,6 +177,9 @@ fun DailyScreen(
 
             Column(modifier = Modifier.fillMaxSize()) {
             DailyHud(
+                // Matched to the board's ceiling so the header and the
+                // plaque below it read as one column on a wide screen.
+                modifier = Modifier.readableWidth(BoardSizing.maxExtent),
                 dateLabel = puzzle.date.format(TITLE_FORMAT),
                 shapeName = gameState.shapeName,
                 lives = gameState.lives,

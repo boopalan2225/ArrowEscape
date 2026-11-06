@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.clevercorner.arrowescape.ui.components.readableWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
@@ -61,7 +62,8 @@ fun DocumentScaffold(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                    .padding(horizontal = 8.dp, vertical = 12.dp)
+                    .readableWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -92,7 +94,12 @@ fun DocumentScaffold(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
-                .padding(20.dp),
+                .padding(20.dp)
+                // Covers the privacy policy, the terms, the licences and
+                // the about page in one go - they all pour their prose
+                // through here, and prose is what suffers most from a
+                // line the width of a tablet.
+                .readableWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             content = content
         )

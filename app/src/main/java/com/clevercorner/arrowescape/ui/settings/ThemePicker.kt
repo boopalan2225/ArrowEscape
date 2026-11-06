@@ -38,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.clevercorner.arrowescape.ui.components.FitText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
@@ -258,18 +259,18 @@ private fun ThemeOption(
 
             // Selection is never colour alone: a tick and a bolder label too.
             val label = stringResource(option.labelRes)
-            Text(
+            FitText(
                 text = when {
                     locked -> "\uD83D\uDD12 $label"
                     isSelected -> "\u2713 $label"
                     else -> label
                 },
-                style = MaterialTheme.typography.labelMedium,
-                fontSize = 11.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 11.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                maxLines = 1
+                textAlign = TextAlign.Center
             )
         }
     }

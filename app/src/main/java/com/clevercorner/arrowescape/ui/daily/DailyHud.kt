@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.clevercorner.arrowescape.ui.components.FitText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
@@ -194,11 +195,10 @@ private fun DailyStatCard(
                     fontWeight = FontWeight.Black,
                     color = style.ink
                 )
-                Text(
+                FitText(
                     text = label,
                     style = MaterialTheme.typography.labelSmall,
-                    color = style.mutedInk,
-                    maxLines = 1
+                    color = style.mutedInk
                 )
             }
         }

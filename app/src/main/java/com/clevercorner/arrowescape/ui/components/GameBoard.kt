@@ -160,6 +160,11 @@ fun GameBoard(
 
     Surface(
         modifier = modifier
+            // The ceiling comes before the fill: a `fillMaxWidth` that has
+            // already fixed the width leaves a later `widthIn` nothing to
+            // constrain. Capped first, the board fills whatever is smaller
+            // - the screen, or what this many cells deserve.
+            .widthIn(max = BoardSizing.maxWidthFor(gridCols))
             .fillMaxWidth()
             .aspectRatio(gridCols.toFloat() / gridRows.toFloat()),
         shape = MaterialTheme.shapes.extraLarge,

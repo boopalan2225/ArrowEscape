@@ -59,94 +59,77 @@ fun CurvedGameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
+        GameScaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .then(if (shouldBlur) Modifier.blur(8.dp) else Modifier)
-        ) {
-            // Header band
-            Surface(
-                shape = RoundedCornerShape(
-                    bottomStart = 28.dp, bottomEnd = 28.dp
-                ),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 3.dp
-            ) {
-                Column(
+                .then(if (shouldBlur) Modifier.blur(8.dp) else Modifier),
+            topBar = {
+                GameTopBar(
+                    modifier = Modifier.readableWidth(BoardSizing.maxExtent),
+                    level = gameState.level,
+                    subtitle = "${gameState.difficulty} \u00B7 ${gameState.shapeName}",
+                    onBackClick = onBackClick,
+                    trailing = { BoardLegendButton(GameMode.CURVED) }
+                )
+            },
+            stats = {
+                GameStatsRow(
+                    // Same reasoning as the classic screen: the chrome
+                    // lines up with the board's ceiling, not the glass.
                     modifier = Modifier
-                        .statusBarsPadding()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                ) {
-                    GameTopBar(
-                        level = gameState.level,
-                        subtitle = "${gameState.difficulty} \u00B7 ${gameState.shapeName}",
-                        onBackClick = onBackClick,
-                        trailing = { BoardLegendButton(GameMode.CURVED) }
-                    )
-
-                    GameStatsRow(
-                        modifier = Modifier.spotlightTarget(SpotlightTarget.LIVES),
-                        remainingArrows = gameState.remainingCount,
-                        lives = gameState.lives
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-            }
-
-            // Game board - centered with the curved arrows
-            CurvedBoardArea(
-                viewModel = viewModel,
-                level = gameState.level,
-                arrows = gameState.arrows,
-                hintArrowId = gameState.hintArrowId,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .spotlightTarget(SpotlightTarget.BOARD)
-            )
-
-            GameBottomBar(
-                modifier = Modifier.spotlightTarget(SpotlightTarget.HINT),
-                hintsRemaining = hintsRemaining,
-                isHintAdAvailable = viewModel.isRewardedAdAvailable(),
-                // Back to anything already played; forward only as far as
-                // the player has actually earned - except in dev mode,
-                // which trades that gate for the real ceiling (curved
-                // genuinely ends at CurvedJourney.authoredLevelCount, same
-                // as classic's own dev ceiling) so testing isn't stuck
-                // behind whatever the player's own save file happens to say.
-                onPreviousLevel = { viewModel.stepLevel(-1) }
-                    .takeIf { gameState.level > 1 },
-                onNextLevel = { viewModel.stepLevel(+1) }
-                    .takeIf {
-                        val ceiling = if (prefs.devMode) CurvedJourney.authoredLevelCount else prefs.highestLevel
-                        gameState.level < ceiling
-                    },
-                onHintClick = {
-                    if (hintsRemaining > 0) {
-                        viewModel.useHint()
-                    } else {
-                        activity?.let { viewModel.onWatchAdForHints(it) }
+                        .readableWidth(BoardSizing.maxExtent)
+                        .spotlightTarget(SpotlightTarget.LIVES),
+                    remainingArrows = gameState.remainingCount,
+                    lives = gameState.lives
+                )
+            },
+            board = { pane ->
+                CurvedBoardArea(
+                    viewModel = viewModel,
+                    level = gameState.level,
+                    arrows = gameState.arrows,
+                    hintArrowId = gameState.hintArrowId,
+                    modifier = pane
+                )
+            },
+            controls = {
+                GameBottomBar(
+                    modifier = Modifier
+                        .readableWidth(BoardSizing.maxExtent)
+                        .spotlightTarget(SpotlightTarget.HINT),
+                    hintsRemaining = hintsRemaining,
+                    isHintAdAvailable = viewModel.isRewardedAdAvailable(),
+                    // Back to anything already played; forward only as far as
+                    // the player has actually earned - except in dev mode,
+                    // which trades that gate for the real ceiling (curved
+                    // genuinely ends at CurvedJourney.authoredLevelCount, same
+                    // as classic's own dev ceiling) so testing isn't stuck
+                    // behind whatever the player's own save file happens to say.
+                    onPreviousLevel = { viewModel.stepLevel(-1) }
+                        .takeIf { gameState.level > 1 },
+                    onNextLevel = { viewModel.stepLevel(+1) }
+                        .takeIf {
+                            val ceiling = if (prefs.devMode) CurvedJourney.authoredLevelCount else prefs.highestLevel
+                            gameState.level < ceiling
+                        },
+                    onHintClick = {
+                        if (hintsRemaining > 0) {
+                            viewModel.useHint()
+                        } else {
+                            activity?.let { viewModel.onWatchAdForHints(it) }
+                        }
                     }
-                }
-            )
-
-            // True bottom of the screen, below everything else including
-            // the hint bar - same spot the system nav bar sits just under.
-            BannerAdView(
-                adUnitId = BuildConfig.BANNER_AD_UNIT_ID,
-                modifier = Modifier.navigationBarsPadding()
-            )
-        }
+                )
+            },
+            banner = {
+                // True bottom of the screen, below everything else including
+                // the hint bar - same spot the system nav bar sits just under.
+                BannerAdView(
+                    adUnitId = BuildConfig.BANNER_AD_UNIT_ID,
+                    modifier = Modifier.navigationBarsPadding()
+                )
+            }
+        )
 
         // Combo badge
         ComboBadge(
@@ -282,10 +265,15 @@ private fun CurvedBoardArea(
     val onArrowTap = remember(viewModel) { viewModel::onArrowTap }
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        // Tags the board rather than the slot it is centred in - see the
+        // same move in the classic screen's board area.
+        val spotlight = Modifier.spotlightTarget(SpotlightTarget.BOARD)
+
         if (isGenerating) {
-            BoardPlaceholder()
+            BoardPlaceholder(modifier = spotlight)
         } else {
             CurvedGameBoard(
+                modifier = spotlight,
                 arrows = arrows,
                 boardWidth = boardWidth,
                 boardHeight = boardHeight,

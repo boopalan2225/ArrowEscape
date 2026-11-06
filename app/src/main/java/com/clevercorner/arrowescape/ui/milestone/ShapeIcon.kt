@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.clevercorner.arrowescape.ui.components.FitText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.game.level.LevelShape
@@ -139,13 +140,14 @@ private fun ShapePreviewItem(shape: LevelShape) {
             )
         }
         Spacer(Modifier.height(4.dp))
-        Text(
+        FitText(
             text = shape.displayName,
-            fontSize = 10.sp,
-            fontWeight = if (isHard) FontWeight.Bold else FontWeight.Normal,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 10.sp,
+                fontWeight = if (isHard) FontWeight.Bold else FontWeight.Normal
+            ),
             color = color,
-            textAlign = TextAlign.Center,
-            maxLines = 1
+            textAlign = TextAlign.Center
         )
     }
 }

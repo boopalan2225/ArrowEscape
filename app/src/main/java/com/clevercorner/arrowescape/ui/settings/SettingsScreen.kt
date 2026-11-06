@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.clevercorner.arrowescape.ui.components.readableWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.BuildConfig
@@ -87,6 +88,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(16.dp)
+                .readableWidth()
         ) {
             SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
                 // The wallet sits above the shop window, where a wallet belongs.
@@ -275,7 +277,8 @@ private fun SettingsHeader(onBackClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 12.dp),
+                .padding(horizontal = 8.dp, vertical = 12.dp)
+                .readableWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(

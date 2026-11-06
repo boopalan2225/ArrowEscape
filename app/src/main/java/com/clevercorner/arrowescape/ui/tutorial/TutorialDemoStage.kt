@@ -1,6 +1,7 @@
 package com.clevercorner.arrowescape.ui.tutorial
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -56,16 +58,26 @@ fun TutorialDemoStage(demo: TutorialDemo, modifier: Modifier = Modifier) {
     val clock = rememberLoopClock(cycle, resetKey = demo)
     val colors = ArrowEscapeTheme.gameColors
     val caption = stringResource(demo.captionRes)
+    val windowHeight = LocalConfiguration.current.screenHeightDp.dp
 
-    Canvas(
-        modifier
-            .fillMaxWidth()
-            .height(STAGE_HEIGHT)
-            .clip(RoundedCornerShape(18.dp))
-            // The hand is a picture, and a picture of a hand tells a screen
-            // reader nothing. The legend's own sentence does.
-            .semantics { contentDescription = caption }
-    ) {
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        // Sized from the room it was actually given, in both directions.
+        // Width keeps the board square-ish inside a narrow card; the share
+        // of window height is what stops a demonstration eating a short
+        // landscape screen, where the buttons underneath matter more than
+        // a big picture does.
+        val stageHeight = minOf(maxWidth * 0.52f, windowHeight * 0.26f)
+            .coerceIn(MIN_STAGE_HEIGHT, MAX_STAGE_HEIGHT)
+
+        Canvas(
+            Modifier
+                .fillMaxWidth()
+                .height(stageHeight)
+                .clip(RoundedCornerShape(18.dp))
+                // The hand is a picture, and a picture of a hand tells a
+                // screen reader nothing. The legend's own sentence does.
+                .semantics { contentDescription = caption }
+        ) {
         val now = clock.longValue.toFloat()
         val at = locate(now, steps)
         val cell = minOf(size.width / scene.board.cols, size.height / scene.board.rows) * 0.86f
@@ -95,7 +107,8 @@ fun TutorialDemoStage(demo: TutorialDemo, modifier: Modifier = Modifier) {
             drawDemoArrow(arrow, at, scene, cell, centreOf, colors)
         }
 
-        drawTouchFeedback(at, cell, centreOf, colors)
+            drawTouchFeedback(at, cell, centreOf, colors)
+        }
     }
 }
 
@@ -265,8 +278,12 @@ private fun DrawScope.drawTouchFeedback(
     }
 }
 
-/** A board that fits on a card without becoming a postage stamp. */
-private val STAGE_HEIGHT = 168.dp
+/**
+ * A board big enough to read on a tablet and small enough to leave room for
+ * the buttons on a short phone in landscape.
+ */
+private val MIN_STAGE_HEIGHT = 104.dp
+private val MAX_STAGE_HEIGHT = 220.dp
 
 // Beat timings, in milliseconds from the start of a step. The hand arrives,
 // presses, and only then does the board react - the order matters, because

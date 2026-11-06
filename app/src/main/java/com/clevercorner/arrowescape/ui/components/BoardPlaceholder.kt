@@ -10,6 +10,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,7 +50,20 @@ fun BoardPlaceholder(modifier: Modifier = Modifier) {
     val color = MaterialTheme.colorScheme.primary
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        // Capped the same way the real board is, and the caller's modifier
+        // applied last for the same reason CurvedGameBoard's is: a plain
+        // `fillMaxSize()` reports the WHOLE given space as its own size to
+        // anything wrapping it, regardless of how small the content drawn
+        // inside it is. A `spotlightTarget` placed before that call would
+        // observe the entire pane rather than this little spinner - and
+        // without the cap at all, the placeholder's footprint would not
+        // match the board that replaces it, producing a visible jump in
+        // size the moment generation finishes.
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .sizeIn(maxWidth = BoardSizing.maxExtent, maxHeight = BoardSizing.maxExtent)
+            .then(modifier),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.size(36.dp)) {

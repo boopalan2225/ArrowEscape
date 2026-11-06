@@ -1,6 +1,34 @@
 package com.clevercorner.arrowescape.ui.components
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.clevercorner.arrowescape.game.curve.Point2D
+
+/**
+ * How much screen a board is allowed to take.
+ *
+ * A board sized purely by "fill the width" is right on a phone and absurd
+ * on a tablet: a four-by-four tutorial grid stretched across 800dp gives
+ * cells the size of a fist, and asks the player's thumb to travel further
+ * than the puzzle is worth. A board should grow with the *puzzle*, not
+ * with the glass.
+ *
+ * Two ceilings, because one does not cover both ends. [MAX_CELL] stops a
+ * small grid inflating; [MAX_BOARD] stops a large one sprawling. Both sit
+ * just above what the biggest phone already produces, so every existing
+ * phone layout is left exactly as it was and only the screen sizes nobody
+ * designed for get reined in.
+ */
+object BoardSizing {
+    private val MAX_CELL = 108.dp
+    private val MAX_BOARD = 520.dp
+
+    /** The widest a grid of [columns] cells should ever be drawn. */
+    fun maxWidthFor(columns: Int): Dp = minOf(MAX_BOARD, MAX_CELL * columns)
+
+    /** The limit for a board with no cells to count - the curved figures. */
+    val maxExtent: Dp = MAX_BOARD
+}
 
 /**
  * The slab of canvas a board's content lives on, and must stay reachable

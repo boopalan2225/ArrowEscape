@@ -188,6 +188,14 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
 
+    // Not used directly - this app has no fragments at all. It is pinned
+    // because Play Services drags in androidx.fragment:1.1.0 transitively
+    // (via play-services-basement), and a 2019 fragment release is both a
+    // Play Console warning and a pointless liability in an app that never
+    // calls it. Declaring the version we want is the whole fix: Gradle's
+    // conflict resolution then picks this over the transitive one.
+    implementation("androidx.fragment:fragment:1.8.6")
+
     // Compose BOM
     implementation(platform("androidx.compose:compose-bom:2024.01.00"))
     implementation("androidx.compose.ui:ui")

@@ -193,11 +193,10 @@ fun GameTopBar(
                 color = MaterialTheme.colorScheme.onBackground
             )
             if (!subtitle.isNullOrBlank()) {
-                Text(
+                FitText(
                     text = subtitle,
                     style = MaterialTheme.typography.labelMedium,
-                    color = ArrowEscapeTheme.gameColors.textSecondary,
-                    maxLines = 1
+                    color = ArrowEscapeTheme.gameColors.textSecondary
                 )
             }
         }

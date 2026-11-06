@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.clevercorner.arrowescape.ui.components.readableWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clevercorner.arrowescape.R
@@ -94,13 +95,22 @@ fun MilestoneScreen(
                         color = ChapterColors[milestone.index % ChapterColors.size],
                         highestLevel = highestLevel,
                         levelStars = levelStars,
-                        onPlayLevel = onPlayLevel
+                        onPlayLevel = onPlayLevel,
+                        // Capped per item rather than on the list, so the
+                        // whole width keeps scrolling. Cap a lazy list
+                        // itself and the dead margins either side of it stop
+                        // responding to a flick, which on a tablet is most
+                        // of the screen.
+                        modifier = Modifier.readableWidth()
                     )
                 }
 
                 // The map never ends on a locked door - it ends on a promise.
                 item {
-                    ComingSoonCard(teasers = TEASER_GLYPHS)
+                    ComingSoonCard(
+                        teasers = TEASER_GLYPHS,
+                        modifier = Modifier.readableWidth()
+                    )
                 }
             }
         }
@@ -125,6 +135,11 @@ private fun JourneyTopBar(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(16.dp)
+                // The band keeps the full width - it is a band. Its
+                // contents line up with the cards below instead, so the
+                // progress track stops running off to both horizons while
+                // the chapters it describes sit in a column in the middle.
+                .readableWidth()
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
@@ -170,7 +185,8 @@ private fun ChapterCard(
     color: Color,
     highestLevel: Int,
     levelStars: Map<Int, Int>,
-    onPlayLevel: (Int) -> Unit
+    onPlayLevel: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val gameColors = ArrowEscapeTheme.gameColors
     val unlocked = highestLevel >= milestone.startLevel
@@ -181,7 +197,7 @@ private fun ChapterCard(
     val done = (highestLevel - milestone.startLevel).coerceIn(0, milestone.levelCount)
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .shadow(4.dp, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
