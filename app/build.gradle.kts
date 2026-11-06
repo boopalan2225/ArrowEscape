@@ -124,10 +124,8 @@ android {
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
             buildConfigField("String", "BANNER_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "true")
-            // Placeholder google-services.json is checked in, so nothing is
-            // sent anywhere until a real Firebase project replaces it. Flip
-            // both of these to true once it does.
-            buildConfigField("Boolean", "FIREBASE_ENABLED", "false")
+            // Enable Firebase for debug telemetry (or false to keep test data clean)
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
 
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 // Debug builds have no symbols worth uploading; skipping keeps
@@ -152,16 +150,12 @@ android {
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"$releaseInterstitialAdUnitId\"")
             buildConfigField("String", "BANNER_AD_UNIT_ID", "\"$releaseBannerAdUnitId\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "false")
-            // Set to true together with a real google-services.json.
-            buildConfigField("Boolean", "FIREBASE_ENABLED", "false")
+            // Production Firebase Analytics & Crashlytics
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
 
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
-                // R8 is on below, so Crashlytics needs the mapping file to
-                // produce readable stack traces - but uploading it talks to
-                // Firebase, which the placeholder credentials cannot do.
-                // Turn this on in the same commit that adds the real
-                // google-services.json.
-                mappingFileUploadEnabled = false
+                // Upload R8 mapping file so Crashlytics produces readable deobfuscated stack traces
+                mappingFileUploadEnabled = true
             }
         }
     }
