@@ -26,6 +26,18 @@ fun getSigningProp(key: String, envVar: String): String? {
         ?: System.getenv(envVar)?.takeIf { it.isNotBlank() }
 }
 
+fun getAdMobProp(key: String, envVar: String, fallback: String): String {
+    return keystoreProperties.getProperty(key)?.takeIf { it.isNotBlank() }
+        ?: providers.gradleProperty(key).orNull?.takeIf { it.isNotBlank() }
+        ?: providers.environmentVariable(envVar).orNull?.takeIf { it.isNotBlank() }
+        ?: fallback
+}
+
+val releaseAdMobAppId = getAdMobProp("admobAppId", "ADMOB_APP_ID", "ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX")
+val releaseRewardedAdUnitId = getAdMobProp("admobRewardedId", "ADMOB_REWARDED_AD_UNIT_ID", "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")
+val releaseInterstitialAdUnitId = getAdMobProp("admobInterstitialId", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")
+val releaseBannerAdUnitId = getAdMobProp("admobBannerId", "ADMOB_BANNER_AD_UNIT_ID", "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")
+
 val storeFilePath = getSigningProp("storeFile", "KEYSTORE_FILE")
 val releaseKeystore: File? = storeFilePath?.let(rootProject::file)?.takeIf { it.exists() }
 val storePasswordVal = getSigningProp("storePassword", "KEYSTORE_PASSWORD")
@@ -73,10 +85,9 @@ android {
             useSupportLibrary = true
         }
 
-        // AdMob App ID - Replace with your production ID before release
-        manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713" // Test ID
         // Play Games Services App ID lives in res/values/strings.xml, not here -
         // see game_services_app_id for why.
+        // AdMob App ID is set per build type below.
     }
 
     signingConfigs {
@@ -106,6 +117,8 @@ android {
             // again silently overwrites (or gets blocked by) a release
             // build already on the phone.
             applicationIdSuffix = ".debug"
+            // AdMob test app ID for debug builds
+            manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713"
             // Use test ad unit IDs in debug
             buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/5224354917\"")
             buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
@@ -131,10 +144,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Replace these with your production ad unit IDs
-            buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"YOUR_PRODUCTION_REWARDED_AD_UNIT_ID\"")
-            buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"YOUR_PRODUCTION_INTERSTITIAL_AD_UNIT_ID\"")
-            buildConfigField("String", "BANNER_AD_UNIT_ID", "\"YOUR_PRODUCTION_BANNER_AD_UNIT_ID\"")
+            // AdMob production configuration:
+            // Dynamically configured via releaseAdMobAppId, releaseRewardedAdUnitId, etc.
+            // Values can be set in keystore.properties, gradle.properties, environment variables, or directly here.
+            manifestPlaceholders["ADMOB_APP_ID"] = releaseAdMobAppId
+            buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"$releaseRewardedAdUnitId\"")
+            buildConfigField("String", "INTERSTITIAL_AD_UNIT_ID", "\"$releaseInterstitialAdUnitId\"")
+            buildConfigField("String", "BANNER_AD_UNIT_ID", "\"$releaseBannerAdUnitId\"")
             buildConfigField("Boolean", "USE_TEST_ADS", "false")
             // Set to true together with a real google-services.json.
             buildConfigField("Boolean", "FIREBASE_ENABLED", "false")
