@@ -33,10 +33,10 @@ fun getAdMobProp(key: String, envVar: String, fallback: String): String {
         ?: fallback
 }
 
-val releaseAdMobAppId = getAdMobProp("admobAppId", "ADMOB_APP_ID", "ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX")
-val releaseRewardedAdUnitId = getAdMobProp("admobRewardedId", "ADMOB_REWARDED_AD_UNIT_ID", "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")
-val releaseInterstitialAdUnitId = getAdMobProp("admobInterstitialId", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")
-val releaseBannerAdUnitId = getAdMobProp("admobBannerId", "ADMOB_BANNER_AD_UNIT_ID", "ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")
+val releaseAdMobAppId = getAdMobProp("admobAppId", "ADMOB_APP_ID", "ca-app-pub-3940256099942544~3347511713")
+val releaseRewardedAdUnitId = getAdMobProp("admobRewardedId", "ADMOB_REWARDED_AD_UNIT_ID", "ca-app-pub-3940256099942544/5224354917")
+val releaseInterstitialAdUnitId = getAdMobProp("admobInterstitialId", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "ca-app-pub-3940256099942544/1033173712")
+val releaseBannerAdUnitId = getAdMobProp("admobBannerId", "ADMOB_BANNER_AD_UNIT_ID", "ca-app-pub-3940256099942544/6300978111")
 
 val storeFilePath = getSigningProp("storeFile", "KEYSTORE_FILE")
 val releaseKeystore: File? = storeFilePath?.let(rootProject::file)?.takeIf { it.exists() }
