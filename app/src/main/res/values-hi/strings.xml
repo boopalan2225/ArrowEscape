@@ -379,4 +379,11 @@
     <string name="legend_sequence">क्रमांकित: क्रम से हटाएं। चमकदार आपकी बारी है, धुंधले को रुकना होगा</string>
     <string name="legend_route">रास्ता: हरा साफ़ रास्ता है, लाल अवरुद्ध है</string>
     <string name="legend_hint">चमक: अगला चलने योग्य तीर</string>
+    <string name="privacy_bullet_notifications">सूचना प्राथमिकताएँ: दैनिक रिमाइंडर डिवाइस पर स्थानीय रूप से प्रबंधित होते हैं। कोई टोकन या पहचानकर्ता बाहरी सर्वर पर नहीं भेजा जाता है।</string>
+    <string name="privacy_card_telemetry_title">एनालिटिक्स और क्रैश डायग्नोस्टिक्स</string>
+    <string name="privacy_telemetry_body">गेमप्ले को सुचारू रखने, बग ठीक करने और कठिनाई को संतुलित करने के लिए हम Google Analytics for Firebase और Firebase Crashlytics का उपयोग करते हैं, जो बिना किसी व्यक्तिगत जानकारी के केवल अज्ञात तकनीकी डेटा एकत्र करते हैं।</string>
+    <string name="privacy_bullet_firebase">Google Firebase — अनाम क्रैश रिपोर्ट और समग्र गेमप्ले डेटा प्रदान करता है।</string>
+    <string name="privacy_bullet_notifications_opt">सूचनाएं: सेटिंग्स में दैनिक रिमाइंडर सूचनाएं चालू या बंद करें।</string>
+    <string name="terms_card_coins_title">आभासी मुद्रा (सिक्के) और पुरस्कार</string>
+    <string name="terms_coins_body">गेम के सिक्के केवल खेलने और वैकल्पिक पुरस्कृत विज्ञापन देखने से अर्जित आभासी आइटम हैं। इनका कोई वास्तविक मौद्रिक मूल्य नहीं है और इन्हें भुनाया या स्थानांतरित नहीं किया जा सकता है।</string>
 </resources>

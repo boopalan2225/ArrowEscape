@@ -379,4 +379,11 @@
     <string name="legend_sequence">มีตัวเลข: เคลียร์ตามลำดับ สว่างคือถึงตาคุณ หม่นต้องรอ</string>
     <string name="legend_route">เส้นทาง: สีเขียวออกได้ สีแดงติดขัด</string>
     <string name="legend_hint">เรืองแสง: ลูกศรถัดไปที่ควรขยับ</string>
+    <string name="privacy_bullet_notifications">การตั้งค่าการแจ้งเตือน: การแจ้งเตือนรายวันได้รับการจัดการภายในอุปกรณ์ ไม่มีการส่งโทเค็นหรือข้อมูลระบุตัวตนไปยังเซิร์ฟเวอร์ภายนอก</string>
+    <string name="privacy_card_telemetry_title">การวิเคราะห์และการวินิจฉัยข้อขัดข้อง</string>
+    <string name="privacy_telemetry_body">เพื่อให้การทำงานของเกมราบรื่น แก้ไขข้อผิดพลาด และปรับสมดุลความยาก เราใช้ Google Analytics for Firebase และ Firebase Crashlytics ซึ่งรวบรวมเฉพาะข้อมูลทางเทคนิคที่ไม่ระบุตัวตน</string>
+    <string name="privacy_bullet_firebase">Google Firebase — ส่งรายงานข้อขัดข้องโดยไม่ระบุชื่อและข้อมูลการเล่นเกมโดยรวม</string>
+    <string name="privacy_bullet_notifications_opt">การแจ้งเตือน: เปิดหรือปิดการแจ้งเตือนรายวันได้ในการตั้งค่า</string>
+    <string name="terms_card_coins_title">สกุลเงินเสมือน (เหรียญ) และรางวัล</string>
+    <string name="terms_coins_body">เหรียญในเกมเป็นไอเทมเสมือนจริงที่ได้รับจากการเล่นเกมและการรับชมโฆษณาตามความสมัครใจ เหรียญไม่มีมูลค่าเป็นเงินจริง ไม่สามารถแลกเปลี่ยนเป็นเงินสด และไม่สามารถโอนย้ายได้</string>
 </resources>

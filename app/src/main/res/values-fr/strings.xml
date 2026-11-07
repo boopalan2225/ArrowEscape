@@ -379,4 +379,11 @@
     <string name="legend_sequence">Numérotée : libérez dans l\'ordre. Lumineux à votre tour, estompé doit attendre</string>
     <string name="legend_route">Trajet : vert libère, rouge est bloqué</string>
     <string name="legend_hint">Lueur : la prochaine flèche à déplacer</string>
+    <string name="privacy_bullet_notifications">Préférences de notification : Le rappel quotidien est géré localement sur l\'appareil. Aucun jeton ni identifiant n\'est envoyé à des serveurs externes.</string>
+    <string name="privacy_card_telemetry_title">Statistiques et diagnostics de plantage</string>
+    <string name="privacy_telemetry_body">Pour garantir une expérience fluide, corriger les bugs et équilibrer la difficulté, nous utilisons Google Analytics pour Firebase et Firebase Crashlytics. Ces outils recueillent des métriques techniques globales et pseudonymes sans données personnelles identifiables.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — Fournit des rapports de plantage anonymes et des statistiques globales de jeu.</string>
+    <string name="privacy_bullet_notifications_opt">Notifications : Activez ou désactivez les rappels quotidiens dans les Paramètres.</string>
+    <string name="terms_card_coins_title">Monnaie virtuelle (pièces) et récompenses</string>
+    <string name="terms_coins_body">Les pièces du jeu sont des éléments virtuels obtenus exclusivement en jouant et via des publicités avec récompense facultatives. Elles n\'ont aucune valeur monétaire réelle, ne sont ni échangeables contre de l\'argent réel ni transférables.</string>
 </resources>

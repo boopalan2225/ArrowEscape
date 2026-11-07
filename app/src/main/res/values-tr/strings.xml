@@ -379,4 +379,11 @@
     <string name="legend_sequence">Numaralı: Sırayla temizle. Parlak sıra sende, sönük beklemeli</string>
     <string name="legend_route">Rota: Yeşil çıkışı gösterir, kırmızı tıkalıdır</string>
     <string name="legend_hint">Işıltı: Hareket ettirilecek sonraki ok</string>
+    <string name="privacy_bullet_notifications">Bildirim Tercihleri: Günlük hatırlatıcılar cihazda yerel olarak yönetilir. Harici sunuculara hiçbir belirteç veya kimlik gönderilmez.</string>
+    <string name="privacy_card_telemetry_title">Analiz ve Çökme Teşhisi</string>
+    <string name="privacy_telemetry_body">Akıcı oyun performansı sağlamak, hataları düzeltmek ve zorluk seviyelerini dengelemek için Google Analytics for Firebase ve Firebase Crashlytics kullanıyoruz. Bu araçlar kişisel veri içermeyen anonim teknik veriler toplar.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — Anonim kilitlenme raporları ve genel oyun verileri sağlar.</string>
+    <string name="privacy_bullet_notifications_opt">Bildirimler: Ayarlar\'dan günlük hatırlatıcı bildirimlerini açın veya kapatın.</string>
+    <string name="terms_card_coins_title">Sanal Para Birimi (Jetonlar) ve Ödüller</string>
+    <string name="terms_coins_body">Oyun içi jetonlar yalnızca oynanarak ve isteğe bağlı ödüllü reklamlar izlenerek kazanılan sanal öğelerdir. Gerçek parasal değerleri yoktur, nakde çevrilemez ve aktarılamazlar.</string>
 </resources>

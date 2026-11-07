@@ -379,4 +379,11 @@
     <string name="legend_sequence">مرقم: يتم الخروج بالترتيب. المضيء دوره الآن، الباهت عليه الانتظار</string>
     <string name="legend_route">المسار: الأخضر سالك، الأحمر مغلق</string>
     <string name="legend_hint">توهج: السهم التالي الذي يمكن تحريكه</string>
+    <string name="privacy_bullet_notifications">تفضيلات الإشعارات: تتم إدارة التذكير اليومي محلياً على الجهاز. لا يتم إرسال أي معرفات إلى خوادم خارجية.</string>
+    <string name="privacy_card_telemetry_title">التحليلات وتشخيص الأعطال</string>
+    <string name="privacy_telemetry_body">لضمان سلاسة الأداء وإصلاح الأخطاء وتوازن الصعوبة، نستخدم Google Analytics for Firebase و Firebase Crashlytics لجمع مؤشرات فنية مجهولة المصدر دون أي بيانات شخصية.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — يقدم تقارير أعطال مجهولة المصدر وبيانات أداء اللعبة.</string>
+    <string name="privacy_bullet_notifications_opt">الإشعارات: يمكنك تفعيل أو تعطيل التذكير اليومي في الإعدادات.</string>
+    <string name="terms_card_coins_title">العملة الافتراضية (العملات) والمكافآت</string>
+    <string name="terms_coins_body">العملات داخل اللعبة عناصر افتراضية تكتسب فقط من اللعب ومشاهدة الإعلانات الاختيارية. ليس لها قيمة مالية حقيقية ولا يمكن استبدالها بنقد أو تحويلها.</string>
 </resources>

@@ -379,4 +379,11 @@
     <string name="legend_sequence">Có số: xóa theo thứ tự. Sáng là tới lượt, mờ phải chờ</string>
     <string name="legend_route">Đường đi: xanh là thoát được, đỏ là bị chặn</string>
     <string name="legend_hint">Phát sáng: mũi tên tiếp theo nên di chuyển</string>
+    <string name="privacy_bullet_notifications">Tùy chọn thông báo: Lời nhắc hàng ngày được quản lý cục bộ trên thiết bị. Không có mã thông báo hoặc mã định danh nào được gửi đến máy chủ bên ngoài.</string>
+    <string name="privacy_card_telemetry_title">Phân tích &amp; Chẩn đoán sự cố</string>
+    <string name="privacy_telemetry_body">Để đảm bảo hiệu suất trò chơi mượt mà, sửa lỗi và cân bằng độ khó, chúng tôi sử dụng Google Analytics for Firebase và Firebase Crashlytics. Các công cụ này chỉ thu thập dữ liệu kỹ thuật ẩn danh mà không có thông tin nhận dạng cá nhân.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — Cung cấp báo cáo sự cố ẩn danh và dữ liệu phân tích trò chơi tổng hợp.</string>
+    <string name="privacy_bullet_notifications_opt">Thông báo: Bật hoặc tắt thông báo nhắc nhở hàng ngày trong Cài đặt.</string>
+    <string name="terms_card_coins_title">Tiền ảo (Xu) &amp; Phần thưởng</string>
+    <string name="terms_coins_body">Xu trong trò chơi là các vật phẩm ảo chỉ kiếm được thông qua việc chơi và xem quảng cáo có tặng thưởng tùy chọn. Chúng không có giá trị tiền mặt thực tế, không thể quy đổi và không thể chuyển nhượng.</string>
 </resources>

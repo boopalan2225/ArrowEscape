@@ -379,4 +379,11 @@
     <string name="legend_sequence">Nummeriert: Nach Reihenfolge abräumen. Leuchtend ist am Zug, blass muss warten</string>
     <string name="legend_route">Route: Grün ist frei, Rot ist blockiert</string>
     <string name="legend_hint">Leuchten: Der nächste Pfeil, der bewegt werden kann</string>
+    <string name="privacy_bullet_notifications">Benachrichtigungseinstellungen: Tägliche Erinnerungen werden lokal auf dem Gerät verwaltet. Es werden keine Tokens oder IDs an externe Server gesendet.</string>
+    <string name="privacy_card_telemetry_title">Analysen &amp; Absturzdiagnose</string>
+    <string name="privacy_telemetry_body">Um eine reibungslose Spielleistung zu gewährleisten, Fehler zu beheben und den Schwierigkeitsgrad anzupassen, verwenden wir Google Analytics for Firebase und Firebase Crashlytics. Diese Tools erfassen aggregierte, pseudonyme technische Messdaten ohne personenbezogene Daten.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — Liefert anonyme Absturzberichte und aggregierte Spieltelemetrie.</string>
+    <string name="privacy_bullet_notifications_opt">Benachrichtigungen: Tägliche Erinnerungen in den Einstellungen ein- oder ausschalten.</string>
+    <string name="terms_card_coins_title">Virtuelle Währung (Münzen) &amp; Belohnungen</string>
+    <string name="terms_coins_body">Münzen im Spiel sind rein virtuelle Unterhaltungsgegenstände, die durch Spielen und optionale Belohnungsvideos verdient werden. Sie besitzen keinen realen Geldwert, können nicht ausgezahlt werden und sind nicht übertragbar.</string>
 </resources>

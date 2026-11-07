@@ -17,5 +17,5 @@ object AppInfo {
     const val COPYRIGHT = "\u00a9 2026 Arrow Escape. All rights reserved."
 
     /** When the Terms and the Privacy Policy were last reworded. */
-    const val LEGAL_LAST_UPDATED = "October 2026"
+    const val LEGAL_LAST_UPDATED = "November 2026"
 }

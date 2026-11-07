@@ -379,4 +379,11 @@
     <string name="legend_sequence">Numerada: elimine em ordem. Brilhante é a sua vez, opaca deve aguardar</string>
     <string name="legend_route">Rota: verde está livre, vermelho está bloqueado</string>
     <string name="legend_hint">Brilho: a próxima seta a ser movida</string>
+    <string name="privacy_bullet_notifications">Preferências de notificação: O lembrete diário é gerenciado localmente no dispositivo. Nenhum token ou identificador é enviado para servidores externos.</string>
+    <string name="privacy_card_telemetry_title">Análise e diagnóstico de falhas</string>
+    <string name="privacy_telemetry_body">Para garantir um desempenho fluido, corrigir erros e calibrar a dificuldade, usamos o Google Analytics para Firebase e o Firebase Crashlytics. Essas ferramentas coletam métricas técnicas agregadas e pseudônimas sem nenhuma informação pessoal identificável.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — Fornece relatórios de erros anônimos e telemetria agregada de jogo.</string>
+    <string name="privacy_bullet_notifications_opt">Notificações: Ative ou desative as notificações de lembrete diário nas Configurações.</string>
+    <string name="terms_card_coins_title">Moeda virtual (moedas) e recompensas</string>
+    <string name="terms_coins_body">As moedas do jogo são itens virtuais obtidos exclusivamente jogando e assistindo a anúncios premiados opcionais. Elas não possuem valor monetário real, não podem ser convertidas em dinheiro e não são transferíveis.</string>
 </resources>

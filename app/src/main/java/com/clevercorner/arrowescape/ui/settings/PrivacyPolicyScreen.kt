@@ -53,7 +53,14 @@ fun PrivacyPolicyScreen(
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_coins))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_invite_code))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_settings))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_notifications))
             DocumentParagraph(stringResource(R.string.privacy_device_body))
+        }
+
+        Spacer(Modifier.height(14.dp))
+
+        DocumentCard(title = stringResource(R.string.privacy_card_telemetry_title)) {
+            DocumentParagraph(stringResource(R.string.privacy_telemetry_body))
         }
 
         Spacer(Modifier.height(14.dp))
@@ -79,6 +86,7 @@ fun PrivacyPolicyScreen(
         DocumentCard(title = stringResource(R.string.privacy_card_choices_title)) {
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_reset))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_signout))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_notifications_opt))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_uninstall))
         }
 
@@ -87,6 +95,7 @@ fun PrivacyPolicyScreen(
         DocumentCard(title = stringResource(R.string.privacy_card_others_title)) {
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_admob))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_playgames))
+            DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_firebase))
             DocumentBullet("\u25CF", stringResource(R.string.privacy_bullet_playstore))
             DocumentParagraph(stringResource(R.string.privacy_others_body))
         }

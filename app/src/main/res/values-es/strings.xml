@@ -379,4 +379,11 @@
     <string name="legend_sequence">Numerada: se despeja en orden. Brillante es tu turno, tenue debe esperar</string>
     <string name="legend_route">Ruta: verde está libre, rojo está bloqueado</string>
     <string name="legend_hint">Brillo: la siguiente flecha a mover</string>
+    <string name="privacy_bullet_notifications">Preferencias de notificación: El recordatorio diario se gestiona localmente en el dispositivo. No se envían tokens ni identificadores a servidores externos.</string>
+    <string name="privacy_card_telemetry_title">Análisis y diagnóstico de fallos</string>
+    <string name="privacy_telemetry_body">Para garantizar un rendimiento fluido, corregir errores y equilibrar la dificultad, utilizamos Google Analytics para Firebase y Firebase Crashlytics. Estas herramientas recopilan métricas técnicas agregadas y seudónimas sin información personal identificable.</string>
+    <string name="privacy_bullet_firebase">Google Firebase: Proporciona informes de fallos anónimos y telemetría agregada del juego.</string>
+    <string name="privacy_bullet_notifications_opt">Notificaciones: Activa o desactiva las notificaciones de recordatorio diario en Ajustes.</string>
+    <string name="terms_card_coins_title">Moneda virtual (monedas) y recompensas</string>
+    <string name="terms_coins_body">Las monedas del juego son elementos virtuales obtenidos exclusivamente jugando y viendo anuncios con recompensa opcionales. No tienen valor monetario real, no se pueden canjear por dinero en efectivo y no son transferibles ni reembolsables.</string>
 </resources>

@@ -379,4 +379,11 @@
     <string name="legend_sequence">数字付き：番号順に脱出。明るい矢印が現在の手番</string>
     <string name="legend_route">ルート：緑は脱出可能、赤は塞がれている</string>
     <string name="legend_hint">発光：次に動かすべき矢印</string>
+    <string name="privacy_bullet_notifications">通知設定：デイリーリマインダーは端末内でローカルに管理されます。プッシュトークンや識別子が外部サーバーに送信されることはありません。</string>
+    <string name="privacy_card_telemetry_title">アナリティクスとクラッシュ診断</string>
+    <string name="privacy_telemetry_body">円滑なゲーム動作、不具合修正、難易度調整のため、Google Analytics for FirebaseおよびFirebase Crashlyticsを使用しています。これらのツールは個人を特定できない匿名の技術的指標を収集します。</string>
+    <string name="privacy_bullet_firebase">Google Firebase — 匿名のクラッシュレポートおよびゲームプレイの統計データを収集します。</string>
+    <string name="privacy_bullet_notifications_opt">通知：設定からデイリーリマインダー通知のオン／オフを切り替えられます。</string>
+    <string name="terms_card_coins_title">仮想通貨（コイン）と報酬</string>
+    <string name="terms_coins_body">ゲーム内コインはゲームプレイおよび任意のリワード広告視聴によってのみ獲得できる仮想アイテムです。現実の金銭的価値はなく、換金や譲渡はできません。</string>
 </resources>

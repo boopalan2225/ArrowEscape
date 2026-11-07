@@ -65,6 +65,12 @@ fun TermsOfServiceScreen(
 
         Spacer(Modifier.height(14.dp))
 
+        DocumentCard(title = stringResource(R.string.terms_card_coins_title)) {
+            DocumentParagraph(stringResource(R.string.terms_coins_body))
+        }
+
+        Spacer(Modifier.height(14.dp))
+
         DocumentCard(title = stringResource(R.string.terms_card_ads_title)) {
             DocumentParagraph(stringResource(R.string.terms_ads_body))
         }

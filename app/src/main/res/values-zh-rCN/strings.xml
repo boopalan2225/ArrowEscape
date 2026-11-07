@@ -379,4 +379,11 @@
     <string name="legend_sequence">带编号：按先后顺序移出。亮起轮到它，暗淡须等待</string>
     <string name="legend_route">路线：绿色畅通无阻，红色受阻不通</string>
     <string name="legend_hint">高亮：下一步可移动的箭头</string>
+    <string name="privacy_bullet_notifications">通知偏好：每日提醒在设备本地管理。不会向外部服务器发送任何推送令牌或个人标识符。</string>
+    <string name="privacy_card_telemetry_title">分析与崩溃诊断</string>
+    <string name="privacy_telemetry_body">为确保游戏流畅运行、修复缺陷并平衡关卡难度，我们使用 Google Analytics for Firebase 和 Firebase Crashlytics。这些工具仅收集汇总的、去标识化的技术指标，不包含任何个人身份信息。</string>
+    <string name="privacy_bullet_firebase">Google Firebase — 提供匿名崩溃报告和汇总游戏数据。</string>
+    <string name="privacy_bullet_notifications_opt">通知：可在设置中开启或关闭每日提醒通知。</string>
+    <string name="terms_card_coins_title">虚拟货币（金币）与奖励</string>
+    <string name="terms_coins_body">游戏内金币仅可通过游玩和观看自选激励广告获得，属于虚拟物品。金币不具有实际货币价值，不能兑换现金，亦不可转让或退款。</string>
 </resources>

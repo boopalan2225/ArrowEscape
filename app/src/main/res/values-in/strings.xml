@@ -379,4 +379,11 @@
     <string name="legend_sequence">Bernomor: bersihkan secara berurutan. Terang giliran Anda, redup harus menunggu</string>
     <string name="legend_route">Rute: hijau bebas, merah terhalang</string>
     <string name="legend_hint">Kilau: panah berikutnya yang bisa digerakkan</string>
+    <string name="privacy_bullet_notifications">Preferensi Notifikasi: Pengingat harian dikelola secara lokal di perangkat. Tidak ada token atau pengenal yang dikirim ke server eksternal.</string>
+    <string name="privacy_card_telemetry_title">Analisis &amp; Diagnostik Kerusakan</string>
+    <string name="privacy_telemetry_body">Untuk memastikan performa game yang lancar, memperbaiki bug, dan menyeimbangkan tingkat kesulitan, kami menggunakan Google Analytics for Firebase dan Firebase Crashlytics. Alat ini mengumpulkan data teknis anonim tanpa informasi identitas pribadi.</string>
+    <string name="privacy_bullet_firebase">Google Firebase — Menyediakan laporan kerusakan anonim dan telemetri game agregat.</string>
+    <string name="privacy_bullet_notifications_opt">Notifikasi: Aktifkan atau nonaktifkan pengingat harian di Pengaturan.</string>
+    <string name="terms_card_coins_title">Mata Uang Virtual (Koin) &amp; Hadiah</string>
+    <string name="terms_coins_body">Koin dalam game adalah item virtual yang diperoleh murni melalui permainan dan menonton iklan berhadiah opsional. Koin tidak memiliki nilai moneter nyata, tidak dapat diuangkan, dan tidak dapat ditransfer.</string>
 </resources>
