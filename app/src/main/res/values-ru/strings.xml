@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Уведомления: включение или отключение ежедневных напоминаний в настройках.</string>
     <string name="terms_card_coins_title">Виртуальная валюта (монеты) и награды</string>
     <string name="terms_coins_body">Монеты в игре являются виртуальными предметами, получаемыми исключительно в процессе игры и за просмотр дополнительной рекламы с вознаграждением. Они не имеют реальной денежной стоимости, не подлежат обмену на реальные деньги и не могут быть переданы.</string>
+    <string name="notification_streak_saver_title">🔥 Не потеряй серию!</string>
+    <string name="notification_streak_saver_body">Твоя серия из %1 дн. ждет тебя. Стрелочки сами себя не распутают!</string>
+    <string name="notification_daily_fun_title">Сегодняшняя головоломка возомнила себя хитрой 😏</string>
+    <string name="notification_daily_fun_body">Новая доска уже готова. Сможешь решить быстрее чем за 2 минуты?</string>
+    <string name="notification_inactivity_title">Стрелочки соскучились! 🏹</string>
+    <string name="notification_inactivity_body">Они запутались и начали спорить. Приходи и распутай их за минуту!</string>
+    <string name="notification_weekend_title">Передышка на выходных ☕</string>
+    <string name="notification_weekend_body">Без спешки и таймеров. Только плавные и приятные головоломки со стрелками.</string>
 </resources>

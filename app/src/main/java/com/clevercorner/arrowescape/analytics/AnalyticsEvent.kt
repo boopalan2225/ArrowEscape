@@ -59,6 +59,7 @@ object Params {
     const val STARS = "stars"
     const val METHOD = "method"
     const val IS_SILENT = "is_silent"
+    const val TYPE = "type"
 }
 
 /**
@@ -220,6 +221,14 @@ object Events {
                 if (source.isNotEmpty()) put(Params.SOURCE, source)
             }
         )
+
+    // ---- Push & Local Notifications ------------------------------------
+
+    fun notificationShown(type: String) =
+        AnalyticsEvent("notification_shown", mapOf(Params.TYPE to type))
+
+    fun notificationOpened(type: String) =
+        AnalyticsEvent("notification_opened", mapOf(Params.TYPE to type))
 
     // ---- Ad funnel, as seen by the game ---------------------------------
 

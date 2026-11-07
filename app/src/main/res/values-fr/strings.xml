@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Notifications : Activez ou désactivez les rappels quotidiens dans les Paramètres.</string>
     <string name="terms_card_coins_title">Monnaie virtuelle (pièces) et récompenses</string>
     <string name="terms_coins_body">Les pièces du jeu sont des éléments virtuels obtenus exclusivement en jouant et via des publicités avec récompense facultatives. Elles n\'ont aucune valeur monétaire réelle, ne sont ni échangeables contre de l\'argent réel ni transférables.</string>
+    <string name="notification_streak_saver_title">🔥 Ne brisez pas votre série !</string>
+    <string name="notification_streak_saver_body">Votre série de %1 jours vous attend. Les flèches ne vont pas se démêler toutes seules !</string>
+    <string name="notification_daily_fun_title">Le puzzle du jour se prend pour un génie 😏</string>
+    <string name="notification_daily_fun_body">Un nouveau plateau vient d\'arriver. Pouvez-vous le résoudre en moins de 2 minutes ?</string>
+    <string name="notification_inactivity_title">Les flèches s\'ennuient sans vous ! 🏹</string>
+    <string name="notification_inactivity_body">Elles se sont emmêlées et se disputent. Venez les démêler en 60 secondes !</string>
+    <string name="notification_weekend_title">Pause détente du week-end ☕</string>
+    <string name="notification_weekend_body">Sans stress ni chrono. Juste le plaisir de débloquer des flèches fluides.</string>
 </resources>

@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">การแจ้งเตือน: เปิดหรือปิดการแจ้งเตือนรายวันได้ในการตั้งค่า</string>
     <string name="terms_card_coins_title">สกุลเงินเสมือน (เหรียญ) และรางวัล</string>
     <string name="terms_coins_body">เหรียญในเกมเป็นไอเทมเสมือนจริงที่ได้รับจากการเล่นเกมและการรับชมโฆษณาตามความสมัครใจ เหรียญไม่มีมูลค่าเป็นเงินจริง ไม่สามารถแลกเปลี่ยนเป็นเงินสด และไม่สามารถโอนย้ายได้</string>
+    <string name="notification_streak_saver_title">🔥 อย่าให้สถิติต่อเนื่องหลุด!</string>
+    <string name="notification_streak_saver_body">สถิติ %1 วันของคุณกำลังรออยู่ ลูกศรไม่ได้คลี่คลายเองนะ!</string>
+    <string name="notification_daily_fun_title">ปริศนาวันนี้ดูท้าทายไม่เบา 😏</string>
+    <string name="notification_daily_fun_body">กระดานใหม่มาแล้ว คุณจะแก้ได้ภายใน 2 นาทีไหม?</string>
+    <string name="notification_inactivity_title">ลูกศรคิดถึงคุณแล้วนะ! 🏹</string>
+    <string name="notification_inactivity_body">พวกมันพันกันยุ่งเหยิงไปหมด มาช่วยคลี่คลายใน 60 วินาทีกันเถอะ!</string>
+    <string name="notification_weekend_title">ผ่อนคลายสมองในวันหยุด ☕</string>
+    <string name="notification_weekend_body">ไม่ต้องรีบ ไม่มีจับเวลา แค่เพลิดเพลินกับปริศนาลูกศรโค้งแสนเพลิน</string>
 </resources>

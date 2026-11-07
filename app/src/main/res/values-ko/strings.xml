@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">알림: 설정에서 일일 리마인더 알림을 켜거나 끌 수 있습니다.</string>
     <string name="terms_card_coins_title">가상 화폐(코인) 및 보상</string>
     <string name="terms_coins_body">게임 내 코인은 게임 플레이 및 선택적 보상형 광고 시청을 통해서만 획득할 수 있는 가상 아이템입니다. 실제 현금 가치가 없으며 환전이나 양도가 불가능합니다.</string>
+    <string name="notification_streak_saver_title">🔥 연속 기록을 지키세요!</string>
+    <string name="notification_streak_saver_body">%1 연속 기록이 기다리고 있어요. 화살표들은 스스로 풀리지 않아요!</string>
+    <string name="notification_daily_fun_title">오늘의 퍼즐이 꽤 까다로워 보이네요 😏</string>
+    <string name="notification_daily_fun_body">새로운 보드가 준비되었습니다. 2분 안에 해결할 수 있을까요?</string>
+    <string name="notification_inactivity_title">화살표들이 기다리고 있어요! 🏹</string>
+    <string name="notification_inactivity_body">화살표들이 뒤엉켜 있어요. 60초 만에 시원하게 풀어보세요!</string>
+    <string name="notification_weekend_title">주말 힐링 퍼즐 타임 ☕</string>
+    <string name="notification_weekend_body">시간제한 없이 여유롭게. 부드럽고 만족스러운 퍼즐을 즐겨보세요.</string>
 </resources>

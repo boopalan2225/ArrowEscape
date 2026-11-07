@@ -54,6 +54,8 @@ class GamePreferences(
 
         // ── Notifications (see notifications.NotificationTokenProvider) ───
         private val KEY_NOTIFICATION_TOKEN = stringPreferencesKey("notification_token")
+        private val KEY_LAST_APP_OPEN_TIME = longPreferencesKey("last_app_open_time")
+        private val KEY_LAST_NOTIFICATION_TIME = longPreferencesKey("last_notification_time")
 
         // ── Store review prompt (see review.ReviewPolicy) ────────────────
         private val KEY_REVIEW_STREAK = intPreferencesKey("review_win_streak")
@@ -506,6 +508,24 @@ class GamePreferences(
             prefs[KEY_NOTIFICATIONS_ENABLED] = enabled
         }
     }
+
+    suspend fun recordAppOpen(timestamp: Long = System.currentTimeMillis()) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_LAST_APP_OPEN_TIME] = timestamp
+        }
+    }
+
+    suspend fun recordNotificationShown(timestamp: Long = System.currentTimeMillis()) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_LAST_NOTIFICATION_TIME] = timestamp
+        }
+    }
+
+    suspend fun getLastAppOpenTime(): Long =
+        context.dataStore.data.first()[KEY_LAST_APP_OPEN_TIME] ?: 0L
+
+    suspend fun getLastNotificationTime(): Long =
+        context.dataStore.data.first()[KEY_LAST_NOTIFICATION_TIME] ?: 0L
 
     suspend fun setTheme(themeId: String) {
         context.dataStore.edit { prefs ->

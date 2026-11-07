@@ -53,9 +53,9 @@ class DailyReminderWorker(
          * Test mode flag:
          * - When `true`: Fires 10 seconds after app launch, then recurs every 10 minutes.
          *   Also displays even if today's puzzle is already cleared.
-         * - When `false`: Standard production 24-hour cycle targeting 7:00 PM.
+         * - When `false`: Production smart cycle evaluating cadence (max 1 per 20 hours).
          */
-        const val TEST_MODE = true
+        const val TEST_MODE = false
 
         /** Cancels any active or scheduled reminders. */
         fun cancel(context: Context) {
@@ -102,19 +102,10 @@ class DailyReminderWorker(
         }
 
         private fun scheduleProduction(context: Context) {
-            val now = LocalDateTime.now()
-            var target = now.with(LocalTime.of(TARGET_HOUR, 0, 0))
-            if (now.isAfter(target)) {
-                target = target.plusDays(1)
-            }
-            val initialDelayMinutes = Duration.between(now, target).toMinutes().coerceAtLeast(0)
-
             val workRequest = PeriodicWorkRequestBuilder<DailyReminderWorker>(
-                24, TimeUnit.HOURS,
-                15, TimeUnit.MINUTES
-            )
-                .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
-                .build()
+                6, TimeUnit.HOURS,
+                1, TimeUnit.HOURS
+            ).build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,

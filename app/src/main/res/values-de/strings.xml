@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Benachrichtigungen: Tägliche Erinnerungen in den Einstellungen ein- oder ausschalten.</string>
     <string name="terms_card_coins_title">Virtuelle Währung (Münzen) &amp; Belohnungen</string>
     <string name="terms_coins_body">Münzen im Spiel sind rein virtuelle Unterhaltungsgegenstände, die durch Spielen und optionale Belohnungsvideos verdient werden. Sie besitzen keinen realen Geldwert, können nicht ausgezahlt werden und sind nicht übertragbar.</string>
+    <string name="notification_streak_saver_title">🔥 Lass deine Serie nicht reißen!</string>
+    <string name="notification_streak_saver_body">Deine Serie von %1 Tagen wartet auf dich. Die Pfeile entwirren sich nicht von allein!</string>
+    <string name="notification_daily_fun_title">Das heutige Rätsel hält sich für schlau 😏</string>
+    <string name="notification_daily_fun_body">Ein neues Spielbrett ist da. Kannst du es in unter 2 Minuten lösen?</string>
+    <string name="notification_inactivity_title">Die Pfeile vermissen dich! 🏹</string>
+    <string name="notification_inactivity_body">Sie haben sich verheddert und streiten schon. Hilf ihnen in 60 Sekunden!</string>
+    <string name="notification_weekend_title">Wochenend-Entspannung für den Kopf ☕</string>
+    <string name="notification_weekend_body">Kein Stress, kein Timer. Einfach herrlich entspannende Pfeilrätsel.</string>
 </resources>

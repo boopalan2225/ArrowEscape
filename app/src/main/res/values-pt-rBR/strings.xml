@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Notificações: Ative ou desative as notificações de lembrete diário nas Configurações.</string>
     <string name="terms_card_coins_title">Moeda virtual (moedas) e recompensas</string>
     <string name="terms_coins_body">As moedas do jogo são itens virtuais obtidos exclusivamente jogando e assistindo a anúncios premiados opcionais. Elas não possuem valor monetário real, não podem ser convertidas em dinheiro e não são transferíveis.</string>
+    <string name="notification_streak_saver_title">🔥 Não quebre sua sequência!</string>
+    <string name="notification_streak_saver_body">Sua sequência de %1 dias está esperando por você. As setas não vão se desatar sozinhas!</string>
+    <string name="notification_daily_fun_title">O quebra-cabeça de hoje se acha esperto 😏</string>
+    <string name="notification_daily_fun_body">Um novo tabuleiro chegou. Consegue resolver em menos de 2 minutos?</string>
+    <string name="notification_inactivity_title">As setas estão com saudades! 🏹</string>
+    <string name="notification_inactivity_body">Elas se enrolaram todas e começaram a brigar. Venha desemaranhar em 60 segundos!</string>
+    <string name="notification_weekend_title">Relaxamento mental de fim de semana ☕</string>
+    <string name="notification_weekend_body">Sem pressa e sem cronômetro. Apenas quebra-cabeças satisfatórios de setas.</string>
 </resources>

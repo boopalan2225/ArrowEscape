@@ -96,8 +96,10 @@ class ArrowEscapeApplication : Application() {
         LocalNotificationTokenProvider(preferences)
     }
 
-    /** The one opinion: remind a player about today's puzzle if they haven't solved it. */
-    val dailyReminder: DailyReminderUseCase by lazy { DailyReminderUseCase(appNotifications, preferences) }
+    /** Smart notification engine: streak saver, inactivity winback, weekend zen. */
+    val dailyReminder: DailyReminderUseCase by lazy {
+        DailyReminderUseCase(appNotifications, preferences, analytics)
+    }
 
     private val telemetry by lazy { Telemetry.create(applicationContext) }
 

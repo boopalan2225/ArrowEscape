@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">通知：設定からデイリーリマインダー通知のオン／オフを切り替えられます。</string>
     <string name="terms_card_coins_title">仮想通貨（コイン）と報酬</string>
     <string name="terms_coins_body">ゲーム内コインはゲームプレイおよび任意のリワード広告視聴によってのみ獲得できる仮想アイテムです。現実の金銭的価値はなく、換金や譲渡はできません。</string>
+    <string name="notification_streak_saver_title">🔥 連続記録を途切れさせないで！</string>
+    <string name="notification_streak_saver_body">%1。矢印たちは自力では脱出できません！</string>
+    <string name="notification_daily_fun_title">今日のパズルは手強そうですよ😏</string>
+    <string name="notification_daily_fun_body">新しいボードが登場しました。2分以内にクリアできますか？</string>
+    <string name="notification_inactivity_title">矢印たちが寂しがっています！🏹</string>
+    <string name="notification_inactivity_body">絡まり合って動けなくなっています。サクッと1分で助け出そう！</string>
+    <string name="notification_weekend_title">週末の脳トレタイム☕</string>
+    <string name="notification_weekend_body">制限時間なし、焦りゼロ。心地よいパズルでリフレッシュしましょう。</string>
 </resources>

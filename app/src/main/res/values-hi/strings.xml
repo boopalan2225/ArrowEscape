@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">सूचनाएं: सेटिंग्स में दैनिक रिमाइंडर सूचनाएं चालू या बंद करें।</string>
     <string name="terms_card_coins_title">आभासी मुद्रा (सिक्के) और पुरस्कार</string>
     <string name="terms_coins_body">गेम के सिक्के केवल खेलने और वैकल्पिक पुरस्कृत विज्ञापन देखने से अर्जित आभासी आइटम हैं। इनका कोई वास्तविक मौद्रिक मूल्य नहीं है और इन्हें भुनाया या स्थानांतरित नहीं किया जा सकता है।</string>
+    <string name="notification_streak_saver_title">🔥 अपनी स्ट्रीक को टूटने न दें!</string>
+    <string name="notification_streak_saver_body">आपकी %1 दिनों की स्ट्रीक आपका इंतज़ार कर रही है। तीर अपने आप नहीं सुलझेंगे!</string>
+    <string name="notification_daily_fun_title">आज की पहेली खुद को बहुत चालाक समझ रही है 😏</string>
+    <string name="notification_daily_fun_body">एक नया बोर्ड तैयार है। क्या आप इसे 2 मिनट में हल कर सकते हैं?</string>
+    <string name="notification_inactivity_title">तीर आपको याद कर रहे हैं! 🏹</string>
+    <string name="notification_inactivity_body">वे आपस में उलझ गए हैं। आइए और 60 सेकंड में उन्हें सुलझाइए!</string>
+    <string name="notification_weekend_title">वीकेंड पर दिमाग को आराम दें ☕</string>
+    <string name="notification_weekend_body">कोई जल्दबाजी नहीं, कोई टाइमर नहीं। बस सुकून देने वाली तीर पहेलियां।</string>
 </resources>

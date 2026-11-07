@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">الإشعارات: يمكنك تفعيل أو تعطيل التذكير اليومي في الإعدادات.</string>
     <string name="terms_card_coins_title">العملة الافتراضية (العملات) والمكافآت</string>
     <string name="terms_coins_body">العملات داخل اللعبة عناصر افتراضية تكتسب فقط من اللعب ومشاهدة الإعلانات الاختيارية. ليس لها قيمة مالية حقيقية ولا يمكن استبدالها بنقد أو تحويلها.</string>
+    <string name="notification_streak_saver_title">🔥 لا تدع سلسلتك تنكسر!</string>
+    <string name="notification_streak_saver_body">سلسلتك لمدة %1 أيام في انتظارك. الأسهم لن تفك تشابكها بنفسها!</string>
+    <string name="notification_daily_fun_title">لغز اليوم يظن نفسه ذكياً 😏</string>
+    <string name="notification_daily_fun_body">لوحة جديدة بانتظارك. هل يمكنك حلها في أقل من دقيقتين؟</string>
+    <string name="notification_inactivity_title">الأسهم تفتقدك! 🏹</string>
+    <string name="notification_inactivity_body">لقد تشابكت وبدأت بالجدال. تعال وحررها في 60 ثانية!</string>
+    <string name="notification_weekend_title">استراحة ذهنية في عطلة نهاية الأسبوع ☕</string>
+    <string name="notification_weekend_body">لا وقت محدد ولا استعجال. فقط ألغاز أسهم مريحة وممتعة.</string>
 </resources>

@@ -41,6 +41,7 @@ import com.clevercorner.arrowescape.data.GamePreferences
 import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.economy.CoinRules
 import com.clevercorner.arrowescape.game.daily.DailyCalendar
+import com.clevercorner.arrowescape.notifications.AppNotifications
 import com.clevercorner.arrowescape.notifications.DailyReminderWorker
 import com.clevercorner.arrowescape.notifications.rememberNotificationPermissionLauncher
 import com.clevercorner.arrowescape.review.ReviewPolicy
@@ -120,6 +121,7 @@ class MainActivity : ComponentActivity() {
             CloudSyncCoordinator(cloudSave, preferences).start(lifecycleScope)
 
             analytics.log(Events.appOpen(isOffline = NetworkUtils.isOffline(applicationContext)))
+            preferences.recordAppOpen()
         }
 
         // Every theme has its own voice. One listener for the whole app -
@@ -193,6 +195,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
 }
 
 @Composable
@@ -223,6 +230,19 @@ fun ArrowEscapeApp(
 
     // Shared ViewModels for game state
     val context = androidx.compose.ui.platform.LocalContext.current
+
+    // Deep linking from smart notifications (e.g. daily challenge)
+    val activity = context as? Activity
+    val deepLinkDestination = activity?.intent?.getStringExtra(AppNotifications.EXTRA_DESTINATION)
+    LaunchedEffect(deepLinkDestination) {
+        if (!deepLinkDestination.isNullOrEmpty()) {
+            analytics.log(Events.notificationOpened(deepLinkDestination))
+            if (deepLinkDestination == "daily") {
+                navController.navigate("daily")
+            }
+            activity.intent.removeExtra(AppNotifications.EXTRA_DESTINATION)
+        }
+    }
 
     // Grid-based (legacy) game ViewModel
     val gameViewModel: GameViewModel = viewModel(

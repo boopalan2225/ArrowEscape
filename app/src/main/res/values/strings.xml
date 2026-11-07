@@ -386,4 +386,12 @@
     <string name="legend_sequence">Numbered: clear in order. Bright is your turn, dim must wait</string>
     <string name="legend_route">Route: green clears, red is blocked</string>
     <string name="legend_hint">Glow: the next arrow to move</string>
+    <string name="notification_streak_saver_title">🔥 Don\'t break your streak!</string>
+    <string name="notification_streak_saver_body">Your %1-day streak is waiting on you. The arrows won\'t untangle themselves!</string>
+    <string name="notification_daily_fun_title">Today\'s puzzle thinks it\'s clever 😏</string>
+    <string name="notification_daily_fun_body">A fresh board just landed. Can you solve it in under 2 minutes?</string>
+    <string name="notification_inactivity_title">The arrows miss your touch! 🏹</string>
+    <string name="notification_inactivity_body">They got tangled up and started arguing. Come untangle them in 60 seconds!</string>
+    <string name="notification_weekend_title">Weekend brain escape ☕</string>
+    <string name="notification_weekend_body">No timers, no rush. Just smooth, satisfying arrow untangling.</string>
 </resources>

@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Notifikasi: Aktifkan atau nonaktifkan pengingat harian di Pengaturan.</string>
     <string name="terms_card_coins_title">Mata Uang Virtual (Koin) &amp; Hadiah</string>
     <string name="terms_coins_body">Koin dalam game adalah item virtual yang diperoleh murni melalui permainan dan menonton iklan berhadiah opsional. Koin tidak memiliki nilai moneter nyata, tidak dapat diuangkan, dan tidak dapat ditransfer.</string>
+    <string name="notification_streak_saver_title">🔥 Jangan putuskan rentetanmu!</string>
+    <string name="notification_streak_saver_body">Rentetan %1 harimu menunggumu. Panah-panah ini tidak bisa lepas sendiri!</string>
+    <string name="notification_daily_fun_title">Teka-teki hari ini merasa pintar 😏</string>
+    <string name="notification_daily_fun_body">Papan baru telah siap. Bisakah kamu menyelesaikannya dalam 2 menit?</string>
+    <string name="notification_inactivity_title">Panah-panah merindukanmu! 🏹</string>
+    <string name="notification_inactivity_body">Mereka kusut dan saling menuduh. Ayo lepaskan mereka dalam 60 detik!</string>
+    <string name="notification_weekend_title">Relaksasi otak akhir pekan ☕</string>
+    <string name="notification_weekend_body">Tanpa buru-buru, tanpa batas waktu. Nikmati teka-teki panah yang memuaskan.</string>
 </resources>

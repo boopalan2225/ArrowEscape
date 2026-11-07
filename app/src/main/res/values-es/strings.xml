@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Notificaciones: Activa o desactiva las notificaciones de recordatorio diario en Ajustes.</string>
     <string name="terms_card_coins_title">Moneda virtual (monedas) y recompensas</string>
     <string name="terms_coins_body">Las monedas del juego son elementos virtuales obtenidos exclusivamente jugando y viendo anuncios con recompensa opcionales. No tienen valor monetario real, no se pueden canjear por dinero en efectivo y no son transferibles ni reembolsables.</string>
+    <string name="notification_streak_saver_title">🔥 ¡No pierdas tu racha!</string>
+    <string name="notification_streak_saver_body">Tu racha de %1 días te está esperando. ¡Las flechas no se van a desenredar solas!</string>
+    <string name="notification_daily_fun_title">El acertijo de hoy se cree muy listo 😏</string>
+    <string name="notification_daily_fun_body">Nuevo tablero disponible. ¿Podrás resolverlo en menos de 2 minutos?</string>
+    <string name="notification_inactivity_title">¡Las flechas te extrañan! 🏹</string>
+    <string name="notification_inactivity_body">Se enredaron y empezaron a discutir. ¡Ven a desenredarlas en 60 segundos!</string>
+    <string name="notification_weekend_title">Descanso mental de fin de semana ☕</string>
+    <string name="notification_weekend_body">Sin prisas ni temporizadores. Solo rompecabezas relajantes y satisfactorios.</string>
 </resources>

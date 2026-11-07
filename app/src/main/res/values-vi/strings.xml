@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Thông báo: Bật hoặc tắt thông báo nhắc nhở hàng ngày trong Cài đặt.</string>
     <string name="terms_card_coins_title">Tiền ảo (Xu) &amp; Phần thưởng</string>
     <string name="terms_coins_body">Xu trong trò chơi là các vật phẩm ảo chỉ kiếm được thông qua việc chơi và xem quảng cáo có tặng thưởng tùy chọn. Chúng không có giá trị tiền mặt thực tế, không thể quy đổi và không thể chuyển nhượng.</string>
+    <string name="notification_streak_saver_title">🔥 Đừng để đứt chuỗi chiến thắng!</string>
+    <string name="notification_streak_saver_body">Chuỗi %1 ngày của bạn đang chờ. Những mũi tên không tự gỡ rối được đâu!</string>
+    <string name="notification_daily_fun_title">Câu đố hôm nay có vẻ rất thông minh 😏</string>
+    <string name="notification_daily_fun_body">Bảng mới đã sẵn sàng. Bạn có thể giải nó trong dưới 2 phút không?</string>
+    <string name="notification_inactivity_title">Những mũi tên đang nhớ bạn đấy! 🏹</string>
+    <string name="notification_inactivity_body">Chúng bị rối vào nhau rồi. Hãy vào gỡ rối chỉ trong 60 giây!</string>
+    <string name="notification_weekend_title">Thư giãn cuối tuần ☕</string>
+    <string name="notification_weekend_body">Không vội vã, không giới hạn thời gian. Chỉ có những mũi tên thư giãn và êm dịu.</string>
 </resources>

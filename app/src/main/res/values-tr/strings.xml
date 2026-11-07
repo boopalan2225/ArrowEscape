@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">Bildirimler: Ayarlar\'dan günlük hatırlatıcı bildirimlerini açın veya kapatın.</string>
     <string name="terms_card_coins_title">Sanal Para Birimi (Jetonlar) ve Ödüller</string>
     <string name="terms_coins_body">Oyun içi jetonlar yalnızca oynanarak ve isteğe bağlı ödüllü reklamlar izlenerek kazanılan sanal öğelerdir. Gerçek parasal değerleri yoktur, nakde çevrilemez ve aktarılamazlar.</string>
+    <string name="notification_streak_saver_title">🔥 Serini kaybetme!</string>
+    <string name="notification_streak_saver_body">%1 günlük serin seni bekliyor. Oklar kendi kendine çözülmeyecek!</string>
+    <string name="notification_daily_fun_title">Bugünün bulmacası kendini akıllı sanıyor 😏</string>
+    <string name="notification_daily_fun_body">Yeni tahta hazır. 2 dakikadan kısa sürede çözebilir misin?</string>
+    <string name="notification_inactivity_title">Oklar seni özledi! 🏹</string>
+    <string name="notification_inactivity_body">Birbirine dolandılar ve tartışıyorlar. Gel ve 60 saniyede onları çöz!</string>
+    <string name="notification_weekend_title">Hafta sonu zihin molası ☕</string>
+    <string name="notification_weekend_body">Acele yok, süre sınırı yok. Sadece rahatlatıcı ve keyifli ok bulmacaları.</string>
 </resources>

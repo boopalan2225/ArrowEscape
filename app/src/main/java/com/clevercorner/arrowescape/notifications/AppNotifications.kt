@@ -33,11 +33,12 @@ interface AppNotifications {
     fun hasPermission(context: Context): Boolean
 
     /** Quietly does nothing if [hasPermission] is false, rather than throwing. */
-    fun show(context: Context, notificationId: Int, title: String, body: String)
+    fun show(context: Context, notificationId: Int, title: String, body: String, destination: String? = null)
 
     companion object {
         /** One channel for now - a game this size has no reason to let players mute half of it. */
         const val CHANNEL_ID_GENERAL = "general"
+        const val EXTRA_DESTINATION = "destination"
     }
 }
 
@@ -70,11 +71,14 @@ class SystemAppNotifications : AppNotifications {
 
     /** Quietly does nothing if [hasPermission] is false, rather than throwing. */
     @android.annotation.SuppressLint("MissingPermission") // guarded by hasPermission() at the call site
-    override fun show(context: Context, notificationId: Int, title: String, body: String) {
+    override fun show(context: Context, notificationId: Int, title: String, body: String, destination: String?) {
         if (!hasPermission(context)) return
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            if (!destination.isNullOrEmpty()) {
+                putExtra(AppNotifications.EXTRA_DESTINATION, destination)
+            }
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -92,6 +96,7 @@ class SystemAppNotifications : AppNotifications {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

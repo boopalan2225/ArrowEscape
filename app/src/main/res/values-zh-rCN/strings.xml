@@ -386,4 +386,12 @@
     <string name="privacy_bullet_notifications_opt">通知：可在设置中开启或关闭每日提醒通知。</string>
     <string name="terms_card_coins_title">虚拟货币（金币）与奖励</string>
     <string name="terms_coins_body">游戏内金币仅可通过游玩和观看自选激励广告获得，属于虚拟物品。金币不具有实际货币价值，不能兑换现金，亦不可转让或退款。</string>
+    <string name="notification_streak_saver_title">🔥 别让连胜纪录断掉！</string>
+    <string name="notification_streak_saver_body">你的 %1 天连胜正在等你。箭头们可不会自己解开！</string>
+    <string name="notification_daily_fun_title">今天的谜题好像有点小聪明 😏</string>
+    <string name="notification_daily_fun_body">新棋盘已就绪。你能在 2 分钟内解开它吗？</string>
+    <string name="notification_inactivity_title">箭头们想念你了！🏹</string>
+    <string name="notification_inactivity_body">它们全缠在一起吵起来了，快来用 60 秒解开它们！</string>
+    <string name="notification_weekend_title">周末大脑放松时光 ☕</string>
+    <string name="notification_weekend_body">无需赶时间，没有倒计时。只有丝滑治愈的箭头解谜。</string>
 </resources>
