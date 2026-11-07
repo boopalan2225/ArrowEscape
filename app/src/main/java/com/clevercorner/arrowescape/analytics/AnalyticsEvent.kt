@@ -44,6 +44,21 @@ object Params {
     const val VALUE_MICROS = "value_micros"
     const val CURRENCY = "currency"
     const val PRECISION = "precision"
+
+    // Custom engagement & segmentation keys
+    const val GAME_MODE = "game_mode"
+    const val IS_OFFLINE = "is_offline"
+    const val THEME_ID = "theme_id"
+    const val COST = "cost"
+    const val DATE = "date"
+    const val REWARD_PURPOSE = "reward_purpose"
+    const val ERROR_TYPE = "error_type"
+    const val CONTEXT = "context"
+    const val ACTION = "action"
+    const val SOURCE = "source"
+    const val STARS = "stars"
+    const val METHOD = "method"
+    const val IS_SILENT = "is_silent"
 }
 
 /**
@@ -57,40 +72,130 @@ object Events {
 
     // ---- Lifecycle / gameplay -------------------------------------------
 
-    fun appOpen() = AnalyticsEvent("app_open")
+    fun appOpen(isOffline: Boolean = false) =
+        AnalyticsEvent("app_open", mapOf(Params.IS_OFFLINE to isOffline))
 
-    fun gameStarted(level: Int) =
-        AnalyticsEvent("game_started", mapOf(Params.LEVEL to level))
-
-    fun levelStarted(level: Int, arrowCount: Int) =
-        AnalyticsEvent("level_started", mapOf(Params.LEVEL to level, Params.ARROWS to arrowCount))
-
-    fun validMove(level: Int, remainingArrows: Int) =
-        AnalyticsEvent("valid_move", mapOf(Params.LEVEL to level, Params.REMAINING to remainingArrows))
-
-    fun invalidMove(level: Int, remainingLives: Int) =
-        AnalyticsEvent("invalid_move", mapOf(Params.LEVEL to level, Params.LIVES to remainingLives))
-
-    fun levelCompleted(level: Int, mistakes: Int, continueUsed: Boolean) =
+    fun login(method: String = "play_games", isSilent: Boolean = false) =
         AnalyticsEvent(
-            "level_completed",
+            "login",
             mapOf(
-                Params.LEVEL to level,
-                Params.MISTAKES to mistakes,
-                Params.CONTINUE_USED to continueUsed
+                Params.METHOD to method,
+                Params.IS_SILENT to isSilent
             )
         )
+
+    fun signOut(method: String = "play_games") =
+        AnalyticsEvent("sign_out", mapOf(Params.METHOD to method))
+
+    fun gameModeChanged(mode: String) =
+        AnalyticsEvent("game_mode_changed", mapOf(Params.GAME_MODE to mode))
+
+    fun gameStarted(level: Int, mode: String = "", isOffline: Boolean = false) =
+        AnalyticsEvent(
+            "game_started",
+            buildMap {
+                put(Params.LEVEL, level)
+                if (mode.isNotEmpty()) put(Params.GAME_MODE, mode)
+                put(Params.IS_OFFLINE, isOffline)
+            }
+        )
+
+    fun levelStarted(
+        level: Int,
+        arrowCount: Int,
+        mode: String = "",
+        isOffline: Boolean = false
+    ) = AnalyticsEvent(
+        "level_started",
+        buildMap {
+            put(Params.LEVEL, level)
+            put(Params.ARROWS, arrowCount)
+            if (mode.isNotEmpty()) put(Params.GAME_MODE, mode)
+            put(Params.IS_OFFLINE, isOffline)
+        }
+    )
+
+    fun levelCompleted(
+        level: Int,
+        mistakes: Int,
+        continueUsed: Boolean,
+        mode: String = "",
+        isOffline: Boolean = false
+    ) = AnalyticsEvent(
+        "level_completed",
+        buildMap {
+            put(Params.LEVEL, level)
+            put(Params.MISTAKES, mistakes)
+            put(Params.CONTINUE_USED, continueUsed)
+            if (mode.isNotEmpty()) put(Params.GAME_MODE, mode)
+            put(Params.IS_OFFLINE, isOffline)
+        }
+    )
 
     fun levelRestarted(level: Int) =
         AnalyticsEvent("level_restarted", mapOf(Params.LEVEL to level))
 
-    fun livesExhausted(level: Int, clearedPercentage: Int) =
+    fun livesExhausted(level: Int, clearedPercentage: Int, isOffline: Boolean = false) =
         AnalyticsEvent(
             "lives_exhausted",
-            mapOf(Params.LEVEL to level, Params.CLEARED_PCT to clearedPercentage)
+            mapOf(
+                Params.LEVEL to level,
+                Params.CLEARED_PCT to clearedPercentage,
+                Params.IS_OFFLINE to isOffline
+            )
         )
 
-    // ---- Store review ----------------------------------------------------
+    // ---- Daily challenge ------------------------------------------------
+
+    fun dailyChallengeStarted(date: String) =
+        AnalyticsEvent("daily_challenge_started", mapOf(Params.DATE to date))
+
+    fun dailyChallengeCompleted(date: String, mistakes: Int, streak: Int) =
+        AnalyticsEvent(
+            "daily_challenge_completed",
+            mapOf(
+                Params.DATE to date,
+                Params.MISTAKES to mistakes,
+                Params.WIN_STREAK to streak
+            )
+        )
+
+    fun dailyChallengeFailed(date: String, clearedPercentage: Int) =
+        AnalyticsEvent(
+            "daily_challenge_failed",
+            mapOf(
+                Params.DATE to date,
+                Params.CLEARED_PCT to clearedPercentage
+            )
+        )
+
+    // ---- Themes ---------------------------------------------------------
+
+    fun themeSelected(themeId: String) =
+        AnalyticsEvent("theme_selected", mapOf(Params.THEME_ID to themeId))
+
+    fun themePurchased(themeId: String, cost: Int = 0) =
+        AnalyticsEvent(
+            "theme_purchased",
+            buildMap {
+                put(Params.THEME_ID, themeId)
+                if (cost > 0) put(Params.COST, cost)
+            }
+        )
+
+    // ---- Errors ---------------------------------------------------------
+
+    fun appError(errorType: String, message: String, context: String = "") =
+        AnalyticsEvent(
+            "app_error",
+            buildMap {
+                put(Params.ERROR_TYPE, errorType)
+                put(Params.ERROR_MESSAGE, message.take(100))
+                if (context.isNotEmpty()) put(Params.CONTEXT, context.take(50))
+            }
+        )
+
+    // ---- Store review & rating ------------------------------------------
 
     /**
      * We decided to show the in-app review flow. Play never tells us what the
@@ -103,31 +208,53 @@ object Events {
             mapOf(Params.LEVELS_CLEARED to levelsCleared, Params.WIN_STREAK to winStreak)
         )
 
+    fun ratingScreenShown(source: String = "home_card") =
+        AnalyticsEvent("rating_screen_shown", mapOf(Params.SOURCE to source))
+
+    fun ratingAction(action: String, stars: Int = 0, source: String = "") =
+        AnalyticsEvent(
+            "rating_action",
+            buildMap {
+                put(Params.ACTION, action)
+                if (stars > 0) put(Params.STARS, stars)
+                if (source.isNotEmpty()) put(Params.SOURCE, source)
+            }
+        )
+
     // ---- Ad funnel, as seen by the game ---------------------------------
 
-    fun rewardedAdOffered(level: Int) =
-        AnalyticsEvent("rewarded_ad_offered", mapOf(Params.LEVEL to level))
+    fun rewardedAdOffered(level: Int, purpose: String = "continue") =
+        AnalyticsEvent(
+            "rewarded_ad_offered",
+            mapOf(Params.LEVEL to level, Params.REWARD_PURPOSE to purpose)
+        )
 
-    fun rewardedAdStarted(level: Int) =
-        AnalyticsEvent("rewarded_ad_started", mapOf(Params.LEVEL to level))
+    fun rewardedAdStarted(level: Int, purpose: String = "continue") =
+        AnalyticsEvent(
+            "rewarded_ad_started",
+            mapOf(Params.LEVEL to level, Params.REWARD_PURPOSE to purpose)
+        )
 
-    fun rewardedAdCompleted(level: Int) =
-        AnalyticsEvent("rewarded_ad_completed", mapOf(Params.LEVEL to level))
+    fun rewardedAdCompleted(level: Int, purpose: String = "continue", rewardAmount: Int = 0) =
+        AnalyticsEvent(
+            "rewarded_ad_completed",
+            buildMap {
+                put(Params.LEVEL, level)
+                put(Params.REWARD_PURPOSE, purpose)
+                if (rewardAmount > 0) put(Params.REWARD_AMOUNT, rewardAmount)
+            }
+        )
 
-    fun rewardedAdFailed(level: Int) =
-        AnalyticsEvent("rewarded_ad_failed", mapOf(Params.LEVEL to level))
+    fun rewardedAdFailed(level: Int, purpose: String = "continue") =
+        AnalyticsEvent(
+            "rewarded_ad_failed",
+            mapOf(Params.LEVEL to level, Params.REWARD_PURPOSE to purpose)
+        )
 
     fun interstitialShown(level: Int) =
         AnalyticsEvent("interstitial_shown", mapOf(Params.LEVEL to level))
 
-    // ---- Ad SDK callbacks, as seen by AdManager --------------------------
-    // These mirror the AdMob callbacks one-for-one so a drop-off in the
-    // funnel (requested -> loaded -> shown -> impression -> dismissed) is
-    // visible without guessing.
-
-    fun adLoadRequested(format: AdFormat) = adEvent("ad_load_requested", format)
-
-    fun adLoaded(format: AdFormat) = adEvent("ad_loaded", format)
+    // ---- Ad Monetization & Core SDK callbacks ----------------------------
 
     fun adLoadFailed(format: AdFormat, errorCode: Int, message: String) =
         adEvent(
@@ -135,10 +262,6 @@ object Events {
             Params.ERROR_CODE to errorCode,
             Params.ERROR_MESSAGE to message.take(100)
         )
-
-    fun adShowRequested(format: AdFormat) = adEvent("ad_show_requested", format)
-
-    fun adNotReady(format: AdFormat) = adEvent("ad_not_ready", format)
 
     fun adShowFailed(format: AdFormat, errorCode: Int, message: String) =
         adEvent(
@@ -150,15 +273,6 @@ object Events {
     fun adImpression(format: AdFormat) = adEvent("ad_impression", format)
 
     fun adClicked(format: AdFormat) = adEvent("ad_clicked", format)
-
-    fun adDismissed(format: AdFormat) = adEvent("ad_dismissed", format)
-
-    fun adRewardEarned(format: AdFormat, type: String, amount: Int) =
-        adEvent(
-            "ad_reward_earned", format,
-            Params.REWARD_TYPE to type,
-            Params.REWARD_AMOUNT to amount
-        )
 
     /** Paid-event callback: the only place real ad revenue is observable. */
     fun adRevenue(format: AdFormat, valueMicros: Long, currency: String, precision: Int) =

@@ -68,24 +68,14 @@ class RateLimitedAnalyticsTracker(
  */
 object AnalyticsLimits {
 
-    /** One per second is plenty to reconstruct pacing; taps can fire far faster. */
-    private val GAMEPLAY_TAPS = LogLimit(maxPerSession = 200, minIntervalMs = 1_000)
-
     /**
      * Ad load/show failures arrive in retry bursts - the first few tell the
      * whole story, the next hundred just burn quota.
      */
     private val AD_FAILURES = LogLimit(maxPerSession = 20, minIntervalMs = 5_000)
 
-    /** Requests are useful as a funnel denominator, but one per load attempt is enough. */
-    private val AD_REQUESTS = LogLimit(maxPerSession = 100, minIntervalMs = 1_000)
-
     val DEFAULTS: Map<String, LogLimit> = mapOf(
-        Events.validMove(0, 0).name to GAMEPLAY_TAPS,
-        Events.invalidMove(0, 0).name to GAMEPLAY_TAPS,
-        Events.adLoadRequested(AdFormat.REWARDED).name to AD_REQUESTS,
         Events.adLoadFailed(AdFormat.REWARDED, 0, "").name to AD_FAILURES,
-        Events.adShowFailed(AdFormat.REWARDED, 0, "").name to AD_FAILURES,
-        Events.adNotReady(AdFormat.REWARDED).name to AD_FAILURES
+        Events.adShowFailed(AdFormat.REWARDED, 0, "").name to AD_FAILURES
     )
 }

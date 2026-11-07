@@ -60,7 +60,6 @@ class AdManagerImpl(
     override fun loadRewardedAd(context: Context) {
         if (isLoadingRewarded || rewardedAd != null) return
         isLoadingRewarded = true
-        analytics.log(Events.adLoadRequested(AdFormat.REWARDED))
 
         RewardedAd.load(
             context,
@@ -69,7 +68,6 @@ class AdManagerImpl(
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     Log.d(TAG, "Rewarded ad loaded")
-                    analytics.log(Events.adLoaded(AdFormat.REWARDED))
                     ad.onPaidEventListener = paidListener(AdFormat.REWARDED)
                     rewardedAd = ad
                     isLoadingRewarded = false
@@ -86,12 +84,9 @@ class AdManagerImpl(
     }
 
     override fun showRewardedAd(activity: Activity, onRewarded: () -> Unit, onFailed: () -> Unit) {
-        analytics.log(Events.adShowRequested(AdFormat.REWARDED))
-
         val ad = rewardedAd
         if (ad == null) {
             Log.w(TAG, "Rewarded ad not ready")
-            analytics.log(Events.adNotReady(AdFormat.REWARDED))
             onFailed()
             return
         }
@@ -110,9 +105,6 @@ class AdManagerImpl(
 
         ad.show(activity) { rewardItem ->
             Log.d(TAG, "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
-            analytics.log(
-                Events.adRewardEarned(AdFormat.REWARDED, rewardItem.type, rewardItem.amount)
-            )
             onRewarded()
         }
     }
@@ -124,7 +116,6 @@ class AdManagerImpl(
     override fun loadInterstitialAd(context: Context) {
         if (isLoadingInterstitial || interstitialAd != null) return
         isLoadingInterstitial = true
-        analytics.log(Events.adLoadRequested(AdFormat.INTERSTITIAL))
 
         InterstitialAd.load(
             context,
@@ -133,7 +124,6 @@ class AdManagerImpl(
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     Log.d(TAG, "Interstitial ad loaded")
-                    analytics.log(Events.adLoaded(AdFormat.INTERSTITIAL))
                     ad.onPaidEventListener = paidListener(AdFormat.INTERSTITIAL)
                     interstitialAd = ad
                     isLoadingInterstitial = false
@@ -152,12 +142,9 @@ class AdManagerImpl(
     }
 
     override fun showInterstitialAd(activity: Activity, onDismissed: () -> Unit) {
-        analytics.log(Events.adShowRequested(AdFormat.INTERSTITIAL))
-
         val ad = interstitialAd
         if (ad == null) {
             Log.w(TAG, "Interstitial ad not ready")
-            analytics.log(Events.adNotReady(AdFormat.INTERSTITIAL))
             onDismissed()
             return
         }
@@ -208,7 +195,6 @@ class AdManagerImpl(
 
         override fun onAdDismissedFullScreenContent() {
             Log.d(TAG, "${format.reportingName} ad dismissed")
-            analytics.log(Events.adDismissed(format))
             onDismissed()
         }
 

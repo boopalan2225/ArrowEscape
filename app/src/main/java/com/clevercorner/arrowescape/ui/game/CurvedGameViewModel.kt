@@ -19,6 +19,7 @@ import com.clevercorner.arrowescape.game.level.GenerationDispatchers
 import com.clevercorner.arrowescape.game.level.GenerationGuard
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPrompter
+import com.clevercorner.arrowescape.util.NetworkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -254,6 +255,7 @@ private const val JOURNEY_BOARD_WIDTH = 400f
         dailyPuzzle = puzzle
         dailyLayout = layout
         journeyLevel = null
+        analytics.log(Events.dailyChallengeStarted(puzzle.date.toString()))
         viewModelScope.launch { bestRunKnown = preferences.prefs.filterNotNull().first().daily.bestRun }
         useBoard(layout.width, layout.height)
         loadBoard(puzzle.levelSeed)
@@ -457,7 +459,14 @@ private const val JOURNEY_BOARD_WIDTH = 400f
             prefetchNeighbours(level)
             // Developer sessions are for looking at levels, not for metrics.
             if (!prefs.value.devMode) {
-                analytics.log(Events.levelStarted(level, curvedLevel.arrows.size))
+                analytics.log(
+                    Events.levelStarted(
+                        level = level,
+                        arrowCount = curvedLevel.arrows.size,
+                        mode = "curved",
+                        isOffline = NetworkUtils.isOffline(context)
+                    )
+                )
             }
         }
     }
@@ -639,8 +648,6 @@ private const val JOURNEY_BOARD_WIDTH = 400f
             status = newStatus
         )
 
-        analytics.log(Events.invalidMove(currentState.level, newLives))
-
         // Lunge toward whatever is in the way, touch it, and pull back.
         val distance = ArrowMotion.bumpDistance(
             runwayAhead(arrow, currentState),
@@ -653,8 +660,23 @@ private const val JOURNEY_BOARD_WIDTH = 400f
             _bumpingArrows.value = _bumpingArrows.value - arrow.id
 
             if (newStatus == GameStatus.OUT_OF_LIVES) {
-                analytics.log(Events.livesExhausted(currentState.level, currentState.clearedPercentage))
-                analytics.log(Events.rewardedAdOffered(currentState.level))
+                val daily = dailyPuzzle.takeIf { session == CurvedSession.DAILY }
+                if (daily != null) {
+                    analytics.log(
+                        Events.dailyChallengeFailed(
+                            date = daily.date.toString(),
+                            clearedPercentage = currentState.clearedPercentage
+                        )
+                    )
+                }
+                analytics.log(
+                    Events.livesExhausted(
+                        level = currentState.level,
+                        clearedPercentage = currentState.clearedPercentage,
+                        isOffline = NetworkUtils.isOffline(context)
+                    )
+                )
+                analytics.log(Events.rewardedAdOffered(currentState.level, purpose = "continue"))
                 reviewPrompter.onLevelFailed(prefs.value.review)
             }
         }
@@ -707,17 +729,28 @@ private const val JOURNEY_BOARD_WIDTH = 400f
         if (daily != null) {
             stopShuffleClock()
             viewModelScope.launch { preferences.markDailyCleared(daily.date, stars) }
+            analytics.log(
+                Events.dailyChallengeCompleted(
+                    date = daily.date.toString(),
+                    mistakes = state.mistakes,
+                    streak = prefs.value.daily.streak
+                )
+            )
         }
 
         // Developer mode never changes saved progress, stars or ad counters.
         if (prefs.value.devMode) return
 
         viewModelScope.launch {
-            analytics.log(Events.levelCompleted(
-                state.level,
-                state.mistakes,
-                continueUsedThisLevel
-            ))
+            analytics.log(
+                Events.levelCompleted(
+                    level = state.level,
+                    mistakes = state.mistakes,
+                    continueUsed = continueUsedThisLevel,
+                    mode = "curved",
+                    isOffline = NetworkUtils.isOffline(context)
+                )
+            )
 
             // A daily owes the journey nothing: no level bump, no stars on
             // the map, no interstitial counter. Its own record was written
@@ -808,17 +841,17 @@ private const val JOURNEY_BOARD_WIDTH = 400f
      */
     fun onWatchAdForHints(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.log(Events.rewardedAdStarted(currentLevel))
+        analytics.log(Events.rewardedAdStarted(currentLevel, purpose = "hint"))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.log(Events.rewardedAdCompleted(currentLevel))
+                analytics.log(Events.rewardedAdCompleted(currentLevel, purpose = "hint", rewardAmount = HINTS_PER_LEVEL))
                 _hintsRemaining.value = HINTS_PER_LEVEL
                 adManager.loadRewardedAd(context)
             },
             onFailed = {
-                analytics.log(Events.rewardedAdFailed(currentLevel))
+                analytics.log(Events.rewardedAdFailed(currentLevel, purpose = "hint"))
             }
         )
     }
@@ -829,12 +862,12 @@ private const val JOURNEY_BOARD_WIDTH = 400f
 
     fun onContinueWithAd(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.log(Events.rewardedAdStarted(currentLevel))
+        analytics.log(Events.rewardedAdStarted(currentLevel, purpose = "continue"))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.log(Events.rewardedAdCompleted(currentLevel))
+                analytics.log(Events.rewardedAdCompleted(currentLevel, purpose = "continue", rewardAmount = DEFAULT_LIVES))
                 continueUsedThisLevel = true
                 _gameState.value = _gameState.value.copy(
                     lives = DEFAULT_LIVES,
@@ -843,7 +876,7 @@ private const val JOURNEY_BOARD_WIDTH = 400f
                 adManager.loadRewardedAd(context)
             },
             onFailed = {
-                analytics.log(Events.rewardedAdFailed(currentLevel))
+                analytics.log(Events.rewardedAdFailed(currentLevel, purpose = "continue"))
             }
         )
     }

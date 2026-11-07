@@ -110,11 +110,11 @@ class RateLimitedAnalyticsTrackerTest {
         // A tight retry loop: same millisecond, over and over.
         repeat(100) {
             tracker.log(Events.adLoadFailed(AdFormat.INTERSTITIAL, 0, "network error"))
-            tracker.log(Events.adNotReady(AdFormat.REWARDED))
+            tracker.log(Events.adShowFailed(AdFormat.REWARDED, 0, "show error"))
         }
 
         assertEquals(1, sink.countOf("ad_load_failed"))
-        assertEquals(1, sink.countOf("ad_not_ready"))
+        assertEquals(1, sink.countOf("ad_show_failed"))
     }
 }
 

@@ -2,6 +2,9 @@ package com.clevercorner.arrowescape.cloud
 
 import android.app.Activity
 import android.util.Log
+import com.clevercorner.arrowescape.analytics.AnalyticsTracker
+import com.clevercorner.arrowescape.analytics.Events
+import com.clevercorner.arrowescape.analytics.NoOpAnalyticsTracker
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
 import com.google.android.gms.games.SnapshotsClient
@@ -20,7 +23,9 @@ import kotlinx.coroutines.tasks.await
  * (see the GAMES_APP_ID comment in build.gradle.kts) should see nothing worse
  * than "cloud save isn't available" - never a crash, and never a blocked game.
  */
-class PlayGamesCloudSave : CloudSave {
+class PlayGamesCloudSave(
+    private val analytics: AnalyticsTracker = NoOpAnalyticsTracker
+) : CloudSave {
 
     companion object {
         private const val TAG = "PlayGamesCloudSave"
@@ -53,7 +58,12 @@ class PlayGamesCloudSave : CloudSave {
             PlayGames.getGamesSignInClient(act).isAuthenticated
                 .addOnCompleteListener { task ->
                     val authenticated = task.isSuccessful && task.result?.isAuthenticated == true
-                    if (authenticated) onAuthenticated(act) else _account.value = null
+                    if (authenticated) {
+                        analytics.log(Events.login(isSilent = true))
+                        onAuthenticated(act)
+                    } else {
+                        _account.value = null
+                    }
                 }
         }.onFailure { Log.w(TAG, "Silent sign-in failed", it) }
     }
@@ -64,15 +74,26 @@ class PlayGamesCloudSave : CloudSave {
             PlayGames.getGamesSignInClient(activity).signIn()
                 .addOnCompleteListener { task ->
                     val authenticated = task.isSuccessful && task.result?.isAuthenticated == true
-                    if (authenticated) onAuthenticated(activity) else _account.value = null
+                    if (authenticated) {
+                        analytics.log(Events.login(isSilent = false))
+                        onAuthenticated(activity)
+                    } else {
+                        _account.value = null
+                        val error = task.exception?.message ?: "Sign-in cancelled or failed"
+                        analytics.log(Events.appError("sign_in_failed", error, context = "settings"))
+                    }
                 }
-        }.onFailure { Log.w(TAG, "Sign-in failed", it) }
+        }.onFailure {
+            Log.w(TAG, "Sign-in failed", it)
+            analytics.log(Events.appError("sign_in_failed", it.message ?: "Sign-in exception", context = "settings"))
+        }
     }
 
     override fun signOut() {
         // Play Games Sign-In has no app-triggered sign-out - a player manages that
         // from their Google account, same as any other Play Games title. We can
         // only stop treating this session as signed in.
+        analytics.log(Events.signOut())
         _account.value = null
     }
 

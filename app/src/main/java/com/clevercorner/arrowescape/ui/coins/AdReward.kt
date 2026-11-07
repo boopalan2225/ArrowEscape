@@ -6,6 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.clevercorner.arrowescape.ads.AdManager
+import com.clevercorner.arrowescape.analytics.AnalyticsTracker
+import com.clevercorner.arrowescape.analytics.Events
 import com.clevercorner.arrowescape.economy.CoinBank
 import com.clevercorner.arrowescape.economy.CoinGrant
 import kotlinx.coroutines.launch
@@ -24,17 +26,28 @@ import kotlinx.coroutines.launch
  * visibly greyed out.
  */
 @Composable
-fun rememberCoinAdLauncher(adManager: AdManager, bank: CoinBank): (CoinGrant) -> Unit {
+fun rememberCoinAdLauncher(
+    adManager: AdManager,
+    bank: CoinBank,
+    analytics: AnalyticsTracker? = null
+): (CoinGrant) -> Unit {
     val activity = LocalContext.current as? Activity
     val scope = rememberCoroutineScope()
 
-    return remember(adManager, bank, activity, scope) {
+    return remember(adManager, bank, analytics, activity, scope) {
         { offer ->
+            val purpose = "coins_${offer.id}"
+            analytics?.log(Events.rewardedAdStarted(0, purpose = purpose))
             activity?.let { host ->
                 adManager.showRewardedAd(
                     activity = host,
-                    onRewarded = { scope.launch { bank.creditAd(offer) } },
-                    onFailed = { /* Nothing was watched, so nothing is owed. */ }
+                    onRewarded = {
+                        analytics?.log(Events.rewardedAdCompleted(0, purpose = purpose, rewardAmount = offer.amount))
+                        scope.launch { bank.creditAd(offer) }
+                    },
+                    onFailed = {
+                        analytics?.log(Events.rewardedAdFailed(0, purpose = purpose))
+                    }
                 )
             }
         }

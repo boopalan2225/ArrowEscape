@@ -1,5 +1,9 @@
 package com.clevercorner.arrowescape
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,6 +52,7 @@ import com.clevercorner.arrowescape.ui.review.RatingScreen
 import com.clevercorner.arrowescape.ui.daily.DailyScreen
 import com.clevercorner.arrowescape.ui.dev.DevLevelScreen
 import com.clevercorner.arrowescape.ui.game.CurvedGameScreen
+import com.clevercorner.arrowescape.util.NetworkUtils
 import com.clevercorner.arrowescape.ui.game.CurvedGameViewModel
 import com.clevercorner.arrowescape.ui.game.CurvedGameViewModelFactory
 import com.clevercorner.arrowescape.ui.game.GameScreen
@@ -91,7 +96,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        cloudSave = PlayGamesCloudSave()
+        cloudSave = PlayGamesCloudSave(analytics)
 
         // Nothing below this line is needed to draw the first frame, and all
         // of it is slow: MobileAds.initialize does disk and IPC work that
@@ -114,7 +119,7 @@ class MainActivity : ComponentActivity() {
             cloudSave.signInSilently()
             CloudSyncCoordinator(cloudSave, preferences).start(lifecycleScope)
 
-            analytics.log(Events.appOpen())
+            analytics.log(Events.appOpen(isOffline = NetworkUtils.isOffline(applicationContext)))
         }
 
         // Every theme has its own voice. One listener for the whole app -
@@ -207,7 +212,7 @@ fun ArrowEscapeApp(
 
     // One launcher for every "watch an ad for coins" button in the app; the
     // grant is claimed in the reward callback, never on dismissal.
-    val watchAdForCoins = rememberCoinAdLauncher(adManager, coinBank)
+    val watchAdForCoins = rememberCoinAdLauncher(adManager, coinBank, analytics)
     val scopeForReview = rememberCoroutineScope()
 
     /** Remembers a rating decision, then leaves the screen. */
@@ -261,10 +266,17 @@ fun ArrowEscapeApp(
                     HomeScreen(
                 prefs = prefs,
                 onPlayClick = {
-                    analytics.log(Events.gameStarted(prefs.currentLevel))
+                    analytics.log(
+                        Events.gameStarted(
+                            level = prefs.currentLevel,
+                            mode = prefs.mode.name.lowercase(),
+                            isOffline = NetworkUtils.isOffline(context)
+                        )
+                    )
                     playLevel(prefs.currentLevel)
                 },
                 onModeSelect = { mode ->
+                    analytics.log(Events.gameModeChanged(mode.name.lowercase()))
                     scope.launch { preferences.setGameMode(mode) }
                 },
                 onJourneyClick = {
@@ -277,11 +289,12 @@ fun ArrowEscapeApp(
                     navController.navigate("coins")
                 },
                 onRateClick = {
-                    navController.navigate("rate")
+                    navController.navigate("rate?source=home_card")
                 },
                 onRateDismiss = {
                     // "Not now" spends one of the quota and resets the run,
                     // so the invitation needs a fresh streak to come back.
+                    analytics.log(Events.ratingAction(action = "dismissed_home_card", source = "home_card"))
                     scope.launch {
                         preferences.saveReviewState(
                             ReviewPolicy.afterAsk(prefs.review, prefs.totalLevelsCompleted)
@@ -376,15 +389,34 @@ fun ArrowEscapeApp(
 
         // Reached by choice only - from Settings, or the card on Home. The
         // automatic path is still Play's own sheet; see RatingScreen.
-        composable("rate") {
+        composable(
+            route = "rate?source={source}",
+            arguments = listOf(navArgument("source") { defaultValue = "home_card" })
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: "home_card"
+            val activity = context as? Activity
+
+            LaunchedEffect(source) {
+                analytics.log(Events.ratingScreenShown(source))
+            }
+
             RatingScreen(
-                onRateClick = {
-                    // Navigation to the Play listing lands later; the
-                    // decision is already worth remembering, because a
-                    // player who said yes must never be asked again.
+                onRateClick = { stars ->
+                    analytics.log(Events.ratingAction(action = "rated", stars = stars, source = source))
+                    activity?.let { act ->
+                        val uri = Uri.parse("market://details?id=${act.packageName}")
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        try {
+                            act.startActivity(intent)
+                        } catch (_: ActivityNotFoundException) {
+                            val webUri = Uri.parse("https://play.google.com/store/apps/details?id=${act.packageName}")
+                            act.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+                        }
+                    }
                     finishRating(ReviewPolicy.afterRated(prefs.review))
                 },
                 onLaterClick = {
+                    analytics.log(Events.ratingAction(action = "cancelled", source = source))
                     finishRating(ReviewPolicy.afterAsk(prefs.review, prefs.totalLevelsCompleted))
                 }
             )
@@ -403,7 +435,13 @@ fun ArrowEscapeApp(
                 prefs = prefs,
                 onBackClick = { navController.popBackStack() },
                 onPlayLevel = { level ->
-                    analytics.log(Events.gameStarted(level))
+                    analytics.log(
+                        Events.gameStarted(
+                            level = level,
+                            mode = prefs.mode.name.lowercase(),
+                            isOffline = NetworkUtils.isOffline(context)
+                        )
+                    )
                     playLevel(level)
                 }
             )
@@ -500,11 +538,18 @@ fun ArrowEscapeApp(
                 },
                 onThemeSelect = { themeId ->
                     auditionTheme(themeId, prefs.soundEnabled)
+                    analytics.log(Events.themeSelected(themeId))
                     scope.launch { preferences.setTheme(themeId) }
                 },
-                onBuyTheme = { theme -> coinBank.buyTheme(theme.id) },
+                onBuyTheme = { theme ->
+                    val bought = coinBank.buyTheme(theme.id)
+                    if (bought) {
+                        analytics.log(Events.themePurchased(theme.id))
+                    }
+                    bought
+                },
                 onCoinsClick = { navController.navigate("coins") },
-                onRateClick = { navController.navigate("rate") },
+                onRateClick = { navController.navigate("rate?source=settings") },
                 onAboutClick = { navController.navigate("about") },
                 onHowToPlayClick = {
                     // Replaying means arming both tours and going back to Home;

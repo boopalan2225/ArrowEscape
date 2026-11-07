@@ -23,6 +23,7 @@ import com.clevercorner.arrowescape.game.model.Cell
 import com.clevercorner.arrowescape.game.model.GameState
 import com.clevercorner.arrowescape.game.model.GameStatus
 import com.clevercorner.arrowescape.review.ReviewPrompter
+import com.clevercorner.arrowescape.util.NetworkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -163,7 +164,14 @@ class GameViewModel(
             _isGenerating.value = false
             prefetchNeighbours(level)
 
-            analytics.log(Events.levelStarted(level, generated.arrows.size))
+            analytics.log(
+                Events.levelStarted(
+                    level = level,
+                    arrowCount = generated.arrows.size,
+                    mode = "classic",
+                    isOffline = NetworkUtils.isOffline(context)
+                )
+            )
         }
     }
 
@@ -257,17 +265,17 @@ class GameViewModel(
      */
     fun onWatchAdForHints(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.log(Events.rewardedAdStarted(currentLevel))
+        analytics.log(Events.rewardedAdStarted(currentLevel, purpose = "hint"))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.log(Events.rewardedAdCompleted(currentLevel))
+                analytics.log(Events.rewardedAdCompleted(currentLevel, purpose = "hint", rewardAmount = HINTS_PER_LEVEL))
                 _hintsRemaining.value = HINTS_PER_LEVEL
                 adManager.loadRewardedAd(context)
             },
             onFailed = {
-                analytics.log(Events.rewardedAdFailed(currentLevel))
+                analytics.log(Events.rewardedAdFailed(currentLevel, purpose = "hint"))
             }
         )
     }
@@ -364,7 +372,6 @@ class GameViewModel(
         if (prefs.value.hapticsEnabled) feedback.playErrorHaptic()
 
         _gameState.value = newState
-        analytics.log(Events.invalidMove(newState.level, newState.lives))
 
         viewModelScope.launch {
             delay(SHAKE_ANIMATION_DURATION_MS)
@@ -372,8 +379,14 @@ class GameViewModel(
 
             // Check for out of lives
             if (newState.status == GameStatus.OUT_OF_LIVES) {
-                analytics.log(Events.livesExhausted(newState.level, newState.clearedPercentage))
-                analytics.log(Events.rewardedAdOffered(newState.level))
+                analytics.log(
+                    Events.livesExhausted(
+                        level = newState.level,
+                        clearedPercentage = newState.clearedPercentage,
+                        isOffline = NetworkUtils.isOffline(context)
+                    )
+                )
+                analytics.log(Events.rewardedAdOffered(newState.level, purpose = "continue"))
                 reviewPrompter.onLevelFailed(prefs.value.review)
             }
         }
@@ -381,11 +394,15 @@ class GameViewModel(
 
     private fun handleLevelComplete(state: GameState) {
         viewModelScope.launch {
-            analytics.log(Events.levelCompleted(
-                state.level,
-                state.mistakes,
-                continueUsedThisLevel
-            ))
+            analytics.log(
+                Events.levelCompleted(
+                    level = state.level,
+                    mistakes = state.mistakes,
+                    continueUsed = continueUsedThisLevel,
+                    mode = "classic",
+                    isOffline = NetworkUtils.isOffline(context)
+                )
+            )
 
             val stars = Scoring.starsFor(state.mistakes)
             preferences.saveLevelStars(MODE, state.level, stars)
@@ -409,18 +426,18 @@ class GameViewModel(
 
     fun onContinueWithAd(activity: Activity) {
         val currentLevel = _gameState.value.level
-        analytics.log(Events.rewardedAdStarted(currentLevel))
+        analytics.log(Events.rewardedAdStarted(currentLevel, purpose = "continue"))
 
         adManager.showRewardedAd(
             activity = activity,
             onRewarded = {
-                analytics.log(Events.rewardedAdCompleted(currentLevel))
+                analytics.log(Events.rewardedAdCompleted(currentLevel, purpose = "continue", rewardAmount = 3))
                 continueUsedThisLevel = true
                 _gameState.value = gameEngine.restoreLives(_gameState.value)
                 adManager.loadRewardedAd(context) // Preload next
             },
             onFailed = {
-                analytics.log(Events.rewardedAdFailed(currentLevel))
+                analytics.log(Events.rewardedAdFailed(currentLevel, purpose = "continue"))
             }
         )
     }

@@ -65,7 +65,6 @@ fun BannerAdView(
             adListener = object : AdListener() {
                 override fun onAdLoaded() {
                     Log.d(TAG, "Banner loaded")
-                    analytics.log(Events.adLoaded(AdFormat.BANNER))
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
@@ -98,7 +97,6 @@ fun BannerAdView(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        analytics.log(Events.adLoadRequested(AdFormat.BANNER))
         adView.loadAd(AdRequest.Builder().build())
 
         onDispose {

@@ -67,8 +67,8 @@ private const val MAX_STARS = 5
  */
 @Composable
 fun RatingScreen(
-    onRateClick: () -> Unit,
-    onLaterClick: () -> Unit,
+    onRateClick: (Int) -> Unit = {},
+    onLaterClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Nothing is read back out of this. It exists so tapping a star feels
@@ -113,7 +113,7 @@ fun RatingScreen(
         Spacer(Modifier.height(32.dp))
 
         Button(
-            onClick = onRateClick,
+            onClick = { onRateClick(picked) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
