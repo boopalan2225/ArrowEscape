@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">वे आपस में उलझ गए हैं। आइए और 60 सेकंड में उन्हें सुलझाइए!</string>
     <string name="notification_weekend_title">वीकेंड पर दिमाग को आराम दें ☕</string>
     <string name="notification_weekend_body">कोई जल्दबाजी नहीं, कोई टाइमर नहीं। बस सुकून देने वाली तीर पहेलियां।</string>
+    <string name="update_banner_available_title">नया अपडेट उपलब्ध है!</string>
+    <string name="update_banner_available_body">नई पहेलियों और सुधारों के साथ नया संस्करण तैयार है।</string>
+    <string name="update_banner_update_button">अभी अपडेट करें</string>
+    <string name="update_banner_later_button">बाद में</string>
+    <string name="update_banner_downloaded_title">अपडेट इंस्टॉल के लिए तैयार है!</string>
+    <string name="update_banner_downloaded_body">अपडेट डाउनलोड हो गया है। बदलाव लागू करने के लिए पुनः प्रारंभ करें।</string>
+    <string name="update_banner_restart_button">पुनः प्रारंभ करें और खेलें</string>
 </resources>

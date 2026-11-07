@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Elas se enrolaram todas e começaram a brigar. Venha desemaranhar em 60 segundos!</string>
     <string name="notification_weekend_title">Relaxamento mental de fim de semana ☕</string>
     <string name="notification_weekend_body">Sem pressa e sem cronômetro. Apenas quebra-cabeças satisfatórios de setas.</string>
+    <string name="update_banner_available_title">Nova atualização disponível!</string>
+    <string name="update_banner_available_body">Uma nova versão com novos quebra-cabeças e melhorias está pronta.</string>
+    <string name="update_banner_update_button">Atualizar agora</string>
+    <string name="update_banner_later_button">Mais tarde</string>
+    <string name="update_banner_downloaded_title">Atualização pronta para instalar!</string>
+    <string name="update_banner_downloaded_body">A atualização foi baixada. Reinicie agora para aplicar as mudanças.</string>
+    <string name="update_banner_restart_button">Reiniciar e jogar</string>
 </resources>

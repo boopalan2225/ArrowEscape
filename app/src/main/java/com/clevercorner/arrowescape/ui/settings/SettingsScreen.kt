@@ -58,6 +58,7 @@ fun SettingsScreen(
     onHapticsToggle: (Boolean) -> Unit,
     onNotificationsToggle: (Boolean) -> Unit = {},
     onDevModeToggle: (Boolean) -> Unit = {},
+    onMockUpdateModeChange: (GamePreferences.MockUpdateMode) -> Unit = {},
     /** Receives an [AppTheme] id, or [AppTheme.SYSTEM_ID] to follow the phone. */
     onThemeSelect: (String) -> Unit = {},
     /** Spends coins on a locked look. False when the purse came up short. */
@@ -224,6 +225,95 @@ fun SettingsScreen(
                                 checked = prefs.devMode,
                                 onCheckedChange = onDevModeToggle
                             )
+                            // All 3 Update Simulation Options: Off, Available, Downloaded
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Text("🚀", fontSize = 18.sp)
+                                    Column {
+                                        Text(
+                                            text = stringResource(R.string.settings_debug_mock_update_title),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = when (prefs.mockUpdateMode) {
+                                                GamePreferences.MockUpdateMode.AVAILABLE ->
+                                                    stringResource(R.string.settings_debug_mock_update_desc_available)
+                                                GamePreferences.MockUpdateMode.DOWNLOADED ->
+                                                    stringResource(R.string.settings_debug_mock_update_desc_downloaded)
+                                                GamePreferences.MockUpdateMode.OFF ->
+                                                    stringResource(R.string.settings_debug_mock_update_desc_off)
+                                            },
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    val isOff = prefs.mockUpdateMode == GamePreferences.MockUpdateMode.OFF
+                                    FilledTonalButton(
+                                        onClick = { onMockUpdateModeChange(GamePreferences.MockUpdateMode.OFF) },
+                                        colors = ButtonDefaults.filledTonalButtonColors(
+                                            containerColor = if (isOff)
+                                                MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                                        ),
+                                        modifier = Modifier.weight(1f),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.settings_debug_mock_update_off),
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isOff) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+
+                                    val isAvail = prefs.mockUpdateMode == GamePreferences.MockUpdateMode.AVAILABLE
+                                    FilledTonalButton(
+                                        onClick = { onMockUpdateModeChange(GamePreferences.MockUpdateMode.AVAILABLE) },
+                                        colors = ButtonDefaults.filledTonalButtonColors(
+                                            containerColor = if (isAvail)
+                                                MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                                        ),
+                                        modifier = Modifier.weight(1.2f),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.settings_debug_mock_update_available),
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isAvail) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+
+                                    val isDown = prefs.mockUpdateMode == GamePreferences.MockUpdateMode.DOWNLOADED
+                                    FilledTonalButton(
+                                        onClick = { onMockUpdateModeChange(GamePreferences.MockUpdateMode.DOWNLOADED) },
+                                        colors = ButtonDefaults.filledTonalButtonColors(
+                                            containerColor = if (isDown)
+                                                MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                                        ),
+                                        modifier = Modifier.weight(1.3f),
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.settings_debug_mock_update_downloaded),
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isDown) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                }
+                            }
                             GameMode.entries.forEach { mode ->
                                 val modeLabel = stringResource(mode.labelRes)
                                 SettingsClickableItem(

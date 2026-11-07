@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Mereka kusut dan saling menuduh. Ayo lepaskan mereka dalam 60 detik!</string>
     <string name="notification_weekend_title">Relaksasi otak akhir pekan ☕</string>
     <string name="notification_weekend_body">Tanpa buru-buru, tanpa batas waktu. Nikmati teka-teki panah yang memuaskan.</string>
+    <string name="update_banner_available_title">Pembaruan baru tersedia!</string>
+    <string name="update_banner_available_body">Versi terbaru dengan teka-teki baru dan peningkatan telah siap.</string>
+    <string name="update_banner_update_button">Perbarui Sekarang</string>
+    <string name="update_banner_later_button">Nanti</string>
+    <string name="update_banner_downloaded_title">Pembaruan siap dipasang!</string>
+    <string name="update_banner_downloaded_body">Pembaruan selesai diunduh. Mulai ulang sekarang untuk menerapkan perubahan.</string>
+    <string name="update_banner_restart_button">Mulai Ulang &amp; Mainkan</string>
 </resources>

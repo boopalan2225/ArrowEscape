@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Se enredaron y empezaron a discutir. ¡Ven a desenredarlas en 60 segundos!</string>
     <string name="notification_weekend_title">Descanso mental de fin de semana ☕</string>
     <string name="notification_weekend_body">Sin prisas ni temporizadores. Solo rompecabezas relajantes y satisfactorios.</string>
+    <string name="update_banner_available_title">¡Nueva actualización disponible!</string>
+    <string name="update_banner_available_body">Una nueva versión con nuevos rompecabezas y mejoras está lista.</string>
+    <string name="update_banner_update_button">Actualizar ahora</string>
+    <string name="update_banner_later_button">Más tarde</string>
+    <string name="update_banner_downloaded_title">¡Actualización lista para instalar!</string>
+    <string name="update_banner_downloaded_body">La actualización se descargó. Reinicia ahora para aplicar los cambios.</string>
+    <string name="update_banner_restart_button">Reiniciar y jugar</string>
 </resources>

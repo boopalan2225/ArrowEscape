@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">لقد تشابكت وبدأت بالجدال. تعال وحررها في 60 ثانية!</string>
     <string name="notification_weekend_title">استراحة ذهنية في عطلة نهاية الأسبوع ☕</string>
     <string name="notification_weekend_body">لا وقت محدد ولا استعجال. فقط ألغاز أسهم مريحة وممتعة.</string>
+    <string name="update_banner_available_title">تحديث جديد متاح!</string>
+    <string name="update_banner_available_body">نسخة جديدة تحتوي على ألغاز وتحسينات جديدة جاهزة الآن.</string>
+    <string name="update_banner_update_button">تحديث الآن</string>
+    <string name="update_banner_later_button">لاحقاً</string>
+    <string name="update_banner_downloaded_title">التحديث جاهز للتثبيت!</string>
+    <string name="update_banner_downloaded_body">تم اكتمال تنزيل التحديث. أعد تشغيل اللعبة لتطبيق التغييرات.</string>
+    <string name="update_banner_restart_button">إعادة التشغيل واللعب</string>
 </resources>

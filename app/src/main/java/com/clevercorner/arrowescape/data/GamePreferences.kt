@@ -46,6 +46,7 @@ class GamePreferences(
         private val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         private val KEY_LEVELS_SINCE_INTERSTITIAL = intPreferencesKey("levels_since_interstitial")
         private val KEY_DEV_MODE = booleanPreferencesKey("dev_mode") // Open any level, no progress changes
+        private val KEY_MOCK_UPDATE_MODE = stringPreferencesKey("mock_update_mode") // Dev mockup for customer update banner: "off", "available", "downloaded"
         private val KEY_THEME = stringPreferencesKey("theme") // AppTheme.id; absent = match the phone
         private val KEY_GAME_MODE = stringPreferencesKey("game_mode") // GameMode.id the player last chose
         private val KEY_MIGRATED = booleanPreferencesKey("progress_migrated_to_per_mode")
@@ -134,6 +135,17 @@ class GamePreferences(
             highestLevel.coerceAtMost(totalLevels)
     }
 
+    enum class MockUpdateMode(val id: String) {
+        OFF("off"),
+        AVAILABLE("available"),
+        DOWNLOADED("downloaded");
+
+        companion object {
+            fun fromId(id: String?): MockUpdateMode =
+                entries.firstOrNull { it.id == id } ?: OFF
+        }
+    }
+
     /**
      * Data class representing all preferences.
      *
@@ -149,6 +161,8 @@ class GamePreferences(
         val levelsSinceInterstitial: Int = 0,
         /** Developer mode: level picker, prev/next, and play never touches saved progress. */
         val devMode: Boolean = false,
+        /** Persisted mock: simulate Google Play in-app update banner on launch for testing. */
+        val mockUpdateMode: MockUpdateMode = MockUpdateMode.OFF,
         /** [com.clevercorner.arrowescape.ui.theme.AppTheme.id] the player picked; null = never chose. */
         val themeId: String? = null,
         /** False until the player has walked through (or skipped) the tutorial. */
@@ -197,6 +211,7 @@ class GamePreferences(
                 notificationsEnabled = stored[KEY_NOTIFICATIONS_ENABLED] ?: true,
                 levelsSinceInterstitial = stored[KEY_LEVELS_SINCE_INTERSTITIAL] ?: 0,
                 devMode = stored[KEY_DEV_MODE] ?: false,
+                mockUpdateMode = MockUpdateMode.fromId(stored[KEY_MOCK_UPDATE_MODE]),
                 themeId = stored[KEY_THEME],
                 tutorialDone = stored[KEY_TUTORIAL_DONE] ?: false,
                 gameTourDone = stored[KEY_GAME_TOUR_DONE] ?: false,
@@ -606,8 +621,15 @@ class GamePreferences(
         }
     }
 
-    suspend fun setDevMode(enabled: Boolean) {        context.dataStore.edit { prefs ->
+    suspend fun setDevMode(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
             prefs[KEY_DEV_MODE] = enabled
+        }
+    }
+
+    suspend fun setMockUpdateMode(mode: MockUpdateMode) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_MOCK_UPDATE_MODE] = mode.id
         }
     }
 

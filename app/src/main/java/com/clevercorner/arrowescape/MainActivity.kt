@@ -43,6 +43,8 @@ import com.clevercorner.arrowescape.economy.CoinRules
 import com.clevercorner.arrowescape.game.daily.DailyCalendar
 import com.clevercorner.arrowescape.notifications.AppNotifications
 import com.clevercorner.arrowescape.notifications.DailyReminderWorker
+import com.clevercorner.arrowescape.update.InAppUpdateManager
+import com.clevercorner.arrowescape.update.UpdateState
 import com.clevercorner.arrowescape.notifications.rememberNotificationPermissionLauncher
 import com.clevercorner.arrowescape.review.ReviewPolicy
 import com.clevercorner.arrowescape.review.ReviewState
@@ -92,12 +94,17 @@ class MainActivity : ComponentActivity() {
     /** Activity-scoped: signing in needs an Activity to show a dialog over. */
     private lateinit var cloudSave: CloudSave
 
+    /** In-app updates: non-intrusive banner on home screen. */
+    private val updateManager by lazy { InAppUpdateManager(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         cloudSave = PlayGamesCloudSave(analytics)
+        updateManager.registerListener()
+        updateManager.checkForUpdate()
 
         // Nothing below this line is needed to draw the first frame, and all
         // of it is slow: MobileAds.initialize does disk and IPC work that
@@ -182,7 +189,8 @@ class MainActivity : ComponentActivity() {
                                 analytics = analytics,
                                 cloudSave = cloudSave,
                                 feedback = feedback,
-                                coinBank = coinBank
+                                coinBank = coinBank,
+                                updateManager = updateManager
                             )
 
                             // Above every screen, because a grant can settle
@@ -194,6 +202,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        updateManager.unregisterListener()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -209,7 +222,8 @@ fun ArrowEscapeApp(
     analytics: AnalyticsTracker,
     cloudSave: CloudSave,
     feedback: GameFeedback,
-    coinBank: CoinBank
+    coinBank: CoinBank,
+    updateManager: InAppUpdateManager
 ) {
     val navController = rememberNavController()
     // Not seeded with a caller-supplied value: this composable is only
@@ -241,6 +255,25 @@ fun ArrowEscapeApp(
                 navController.navigate("daily")
             }
             activity.intent.removeExtra(AppNotifications.EXTRA_DESTINATION)
+        }
+    }
+
+    // In-app updates monitoring
+    val updateState by updateManager.state.collectAsState()
+    LaunchedEffect(updateState) {
+        if (updateState is UpdateState.Available || updateState is UpdateState.Downloaded) {
+            analytics.log(
+                Events.appUpdateShown(
+                    if (updateState is UpdateState.Downloaded) "downloaded" else "available"
+                )
+            )
+        }
+    }
+    LaunchedEffect(prefs.mockUpdateMode) {
+        when (prefs.mockUpdateMode) {
+            GamePreferences.MockUpdateMode.AVAILABLE -> updateManager.mockUpdate(UpdateState.Available)
+            GamePreferences.MockUpdateMode.DOWNLOADED -> updateManager.mockUpdate(UpdateState.Downloaded)
+            GamePreferences.MockUpdateMode.OFF -> updateManager.mockUpdate(UpdateState.Idle)
         }
     }
 
@@ -324,10 +357,23 @@ fun ArrowEscapeApp(
                 onSettingsClick = {
                     navController.navigate("settings")
                 },
-                        onDevClick = {
-                            navController.navigate("dev")
-                        }
-                    )
+                onDevClick = {
+                    navController.navigate("dev")
+                },
+                updateState = updateState,
+                onUpdateClick = {
+                    if (updateState is UpdateState.Downloaded) {
+                        analytics.log(Events.appUpdateAction("restart"))
+                        updateManager.completeUpdate()
+                    } else {
+                        analytics.log(Events.appUpdateAction("update"))
+                        activity?.let { updateManager.startUpdate(it) }
+                    }
+                },
+                onDismissUpdate = {
+                    analytics.log(Events.appUpdateAction("dismiss"))
+                }
+            )
 
                     if (!prefs.tutorialDone) {
                         SpotlightOverlay(
@@ -555,6 +601,14 @@ fun ArrowEscapeApp(
                 },
                 onDevModeToggle = { enabled ->
                     scope.launch { preferences.setDevMode(enabled) }
+                },
+                onMockUpdateModeChange = { mode ->
+                    scope.launch { preferences.setMockUpdateMode(mode) }
+                    when (mode) {
+                        GamePreferences.MockUpdateMode.AVAILABLE -> updateManager.mockUpdate(UpdateState.Available)
+                        GamePreferences.MockUpdateMode.DOWNLOADED -> updateManager.mockUpdate(UpdateState.Downloaded)
+                        GamePreferences.MockUpdateMode.OFF -> updateManager.mockUpdate(UpdateState.Idle)
+                    }
                 },
                 onThemeSelect = { themeId ->
                     auditionTheme(themeId, prefs.soundEnabled)

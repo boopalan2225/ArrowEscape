@@ -1,9 +1,12 @@
 package com.clevercorner.arrowescape.ui.home
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -39,6 +42,7 @@ import com.clevercorner.arrowescape.ui.theme.AppTheme
 import com.clevercorner.arrowescape.ui.theme.ArrowEscapeTheme
 import com.clevercorner.arrowescape.ui.tutorial.SpotlightTarget
 import com.clevercorner.arrowescape.ui.tutorial.spotlightTarget
+import com.clevercorner.arrowescape.update.UpdateState
 
 /**
  * The front door: pick a mode, see where you are in it, and play.
@@ -58,6 +62,9 @@ fun HomeScreen(
     onRateDismiss: () -> Unit = {},
     onSettingsClick: () -> Unit,
     onDevClick: (() -> Unit)? = null,
+    updateState: UpdateState = UpdateState.Idle,
+    onUpdateClick: () -> Unit = {},
+    onDismissUpdate: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val progress = prefs.activeProgress
@@ -85,6 +92,27 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             GameTitle()
+
+            // In-App Notification: Option A Non-intrusive Update Banner
+            var bannerDismissedForSession by remember { mutableStateOf(false) }
+            val showBanner = !bannerDismissedForSession && (updateState is UpdateState.Available || updateState is UpdateState.Downloaded)
+            AnimatedVisibility(
+                visible = showBanner,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column {
+                    Spacer(Modifier.height(16.dp))
+                    UpdateBannerCard(
+                        isDownloaded = updateState is UpdateState.Downloaded,
+                        onUpdateClick = onUpdateClick,
+                        onDismiss = {
+                            bannerDismissedForSession = true
+                            onDismissUpdate()
+                        }
+                    )
+                }
+            }
 
             Spacer(Modifier.height(28.dp))
 

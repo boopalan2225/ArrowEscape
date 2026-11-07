@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Они запутались и начали спорить. Приходи и распутай их за минуту!</string>
     <string name="notification_weekend_title">Передышка на выходных ☕</string>
     <string name="notification_weekend_body">Без спешки и таймеров. Только плавные и приятные головоломки со стрелками.</string>
+    <string name="update_banner_available_title">Доступно обновление!</string>
+    <string name="update_banner_available_body">Новая версия со свежими головоломками и улучшениями уже готова.</string>
+    <string name="update_banner_update_button">Обновить</string>
+    <string name="update_banner_later_button">Позже</string>
+    <string name="update_banner_downloaded_title">Обновление готово к установке!</string>
+    <string name="update_banner_downloaded_body">Обновление загружено. Перезапустите игру, чтобы применить изменения.</string>
+    <string name="update_banner_restart_button">Перезапустить и играть</string>
 </resources>

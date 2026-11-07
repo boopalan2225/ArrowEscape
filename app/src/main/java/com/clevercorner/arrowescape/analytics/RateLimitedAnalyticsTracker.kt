@@ -74,8 +74,12 @@ object AnalyticsLimits {
      */
     private val AD_FAILURES = LogLimit(maxPerSession = 20, minIntervalMs = 5_000)
 
+    /** Update banner impressions are capped at 1 per session to prevent spam. */
+    private val UPDATE_SHOWN = LogLimit(maxPerSession = 1, minIntervalMs = 60_000)
+
     val DEFAULTS: Map<String, LogLimit> = mapOf(
         Events.adLoadFailed(AdFormat.REWARDED, 0, "").name to AD_FAILURES,
-        Events.adShowFailed(AdFormat.REWARDED, 0, "").name to AD_FAILURES
+        Events.adShowFailed(AdFormat.REWARDED, 0, "").name to AD_FAILURES,
+        Events.appUpdateShown().name to UPDATE_SHOWN
     )
 }

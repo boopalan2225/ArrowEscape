@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">พวกมันพันกันยุ่งเหยิงไปหมด มาช่วยคลี่คลายใน 60 วินาทีกันเถอะ!</string>
     <string name="notification_weekend_title">ผ่อนคลายสมองในวันหยุด ☕</string>
     <string name="notification_weekend_body">ไม่ต้องรีบ ไม่มีจับเวลา แค่เพลิดเพลินกับปริศนาลูกศรโค้งแสนเพลิน</string>
+    <string name="update_banner_available_title">มีการอัปเดตใหม่!</string>
+    <string name="update_banner_available_body">เวอร์ชันใหม่พร้อมปริศนาและการปรับปรุงใหม่พร้อมแล้ว</string>
+    <string name="update_banner_update_button">อัปเดตทันที</string>
+    <string name="update_banner_later_button">ไว้คราวหน้า</string>
+    <string name="update_banner_downloaded_title">อัปเดตพร้อมติดตั้งแล้ว!</string>
+    <string name="update_banner_downloaded_body">ดาวน์โหลดอัปเดตเสร็จแล้ว รีสตาร์ทเกมเพื่อใช้งาน</string>
+    <string name="update_banner_restart_button">รีสตาร์ทและเล่น</string>
 </resources>

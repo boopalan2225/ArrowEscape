@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Sie haben sich verheddert und streiten schon. Hilf ihnen in 60 Sekunden!</string>
     <string name="notification_weekend_title">Wochenend-Entspannung für den Kopf ☕</string>
     <string name="notification_weekend_body">Kein Stress, kein Timer. Einfach herrlich entspannende Pfeilrätsel.</string>
+    <string name="update_banner_available_title">Neues Update verfügbar!</string>
+    <string name="update_banner_available_body">Eine neue Version mit frischen Rätseln und Verbesserungen ist bereit.</string>
+    <string name="update_banner_update_button">Jetzt aktualisieren</string>
+    <string name="update_banner_later_button">Später</string>
+    <string name="update_banner_downloaded_title">Update bereit zur Installation!</string>
+    <string name="update_banner_downloaded_body">Das Update wurde heruntergeladen. Starte neu, um die Änderungen zu übernehmen.</string>
+    <string name="update_banner_restart_button">Neu starten &amp; spielen</string>
 </resources>

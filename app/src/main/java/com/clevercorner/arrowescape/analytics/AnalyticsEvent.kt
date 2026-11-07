@@ -230,6 +230,14 @@ object Events {
     fun notificationOpened(type: String) =
         AnalyticsEvent("notification_opened", mapOf(Params.TYPE to type))
 
+    // ---- In-App Updates ------------------------------------------------
+
+    fun appUpdateShown(status: String = "available") =
+        AnalyticsEvent("app_update_shown", mapOf(Params.ACTION to status))
+
+    fun appUpdateAction(action: String) =
+        AnalyticsEvent("app_update_action", mapOf(Params.ACTION to action))
+
     // ---- Ad funnel, as seen by the game ---------------------------------
 
     fun rewardedAdOffered(level: Int, purpose: String = "continue") =

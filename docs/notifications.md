@@ -1,6 +1,6 @@
-# Notifications System & Push Triggers Specification
+# Notifications Architecture & Push Specification
 
-This document details the on-device notification triggers, creative messages, schedule windows, and deep-link behaviors for **Arrow Escape** (`com.clevercorner.arrowescape`).
+This document details the on-device notification triggers, creative messages, schedule windows, deep-link behaviors, and in-app update notifications for **Arrow Escape** (`com.clevercorner.arrowescape`).
 
 ---
 
@@ -133,7 +133,7 @@ Arrow Escape implements a **100% on-device, local-only, privacy-first** notifica
 
 ## 4. Multi-Language Translations (All 15 Locales)
 
-All messages are translated, verified, and escaped (including `'` escaping for Android AAPT2) across all supported locales:
+All messages are translated, verified, and escaped across all supported locales:
 
 | Language (Code) | Streak Saver Title & Body | Inactivity Title & Body | Weekend Zen Title & Body | Fun Challenge Title & Body |
 | :--- | :--- | :--- | :--- | :--- |
@@ -152,3 +152,24 @@ All messages are translated, verified, and escaped (including `'` escaping for A
 | **Arabic** (`values-ar`) | **🔥 لا تدع سلسلتك تنكسر!**<br>سلسلتك لمدة %1$d أيام في انتظارك. الأسهم لن تفك تشابكها بنفسها! | **الأسهم تفتقدك! 🏹**<br>لقد تشابكت وبدأت بالجدال. تعال وحررها في 60 ثانية! | **استراحة ذهنية في عطلة نهاية الأسبوع ☕**<br>لا وقت محدد ولا استعجال. فقط ألغاز أسهم مريحة وممتعة. | **لغز اليوم يظن نفسه ذكياً 😏**<br>لوحة جديدة بانتظارك. هل يمكنك حلها في أقل من دقيقتين؟ |
 | **Thai** (`values-th`) | **🔥 อย่าให้สถิติต่อเนื่องหลุด!**<br>สถิติ %1$d วันของคุณกำลังรออยู่ ลูกศรไม่ได้คลี่คลายเองนะ! | **ลูกศรคิดถึงคุณแล้วนะ! 🏹**<br>พวกมันพันกันยุ่งเหยิงไปหมด มาช่วยคลี่คลายใน 60 วินาทีกันเถอะ! | **ผ่อนคลายสมองในวันหยุด ☕**<br>ไม่ต้องรีบ ไม่มีจับเวลา แค่เพลิดเพลินกับปริศนาลูกศรโค้งแสนเพลิน | **ปริศนาวันนี้ดูท้าทายไม่เบา 😏**<br>กระดานใหม่มาแล้ว คุณจะแก้ได้ภายใน 2 นาทีไหม? |
 | **Vietnamese** (`values-vi`) | **🔥 Đừng để đứt chuỗi chiến thắng!**<br>Chuỗi %1$d ngày của bạn đang chờ. Những mũi tên không tự gỡ rối được đâu! | **Những mũi tên đang nhớ bạn đấy! 🏹**<br>Chúng bị rối vào nhau rồi. Hãy vào gỡ rối chỉ trong 60 giây! | **Thư giãn cuối tuần ☕**<br>Không vội vã, không giới hạn thời gian. Chỉ có những mũi tên thư giãn và êm dịu. | **Câu đố hôm nay có vẻ rất thông minh 😏**<br>Bảng mới đã sẵn sàng. Bạn có thể giải nó trong dưới 2 phút không? |
+
+---
+
+## 5. In-App Notification: New App Update
+
+In addition to background lockscreen notifications, the app includes an on-screen **In-App Update Banner** driven by the official Google Play Core In-App Updates API (`com.google.android.play:app-update-ktx`).
+
+### Behavior & Features
+1. **Non-Intrusive Banner**: Placed at the top of the Home screen without obscuring gameplay or buttons.
+2. **Session Dismissal**: Tapping `[Later]` smoothly hides the banner for the duration of the current session.
+3. **Flexible Download**: The update downloads in the background while the player continues playing.
+4. **Fallback Handling**: If Google Play In-App Updates are unsupported (e.g. sideloaded or custom ROM), tapping `[Update Now]` cleanly opens the Google Play Store app listing.
+5. **Unified Settings Control (3-Option Selector)**:
+   - The developer simulation option is placed exclusively in **Settings ➔ Developer Tools ➔ "Simulate App Update"**.
+   - Features 3 persistent modes:
+     - **`[Off]`**: Normal production behavior (no mock).
+     - **`[Available 🚀]`**: Persistent: shows the "Update Available" banner with `[Update Now]` on the Home screen across all launches.
+     - **`[Downloaded ✨]`**: Persistent: shows the "Update Downloaded" banner with `[Restart & Play]` on the Home screen across all launches.
+6. **Minimal, Non-Spammy Analytics**:
+   - `app_update_shown`: Throttled via `RateLimitedAnalyticsTracker` to at most **1 per session** (eliminating noise from screen rotations or tab switches).
+   - `app_update_action`: Fired only upon explicit user button tap (`"update"`, `"restart"`, or `"dismiss"`).

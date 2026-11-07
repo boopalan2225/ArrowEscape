@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">They got tangled up and started arguing. Come untangle them in 60 seconds!</string>
     <string name="notification_weekend_title">Weekend brain escape ☕</string>
     <string name="notification_weekend_body">No timers, no rush. Just smooth, satisfying arrow untangling.</string>
+    <string name="update_banner_available_title">New update available!</string>
+    <string name="update_banner_available_body">A fresh version with new puzzles and enhancements is ready.</string>
+    <string name="update_banner_update_button">Update Now</string>
+    <string name="update_banner_later_button">Later</string>
+    <string name="update_banner_downloaded_title">Update ready to install!</string>
+    <string name="update_banner_downloaded_body">The update finished downloading. Restart now to apply changes.</string>
+    <string name="update_banner_restart_button">Restart &amp; Play</string>
 </resources>

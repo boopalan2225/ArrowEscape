@@ -240,6 +240,8 @@ dependencies {
 
     // Google Play In-App Review (the "rate this game" sheet)
     implementation("com.google.android.play:review-ktx:2.0.1")
+    // Google Play In-App Updates
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

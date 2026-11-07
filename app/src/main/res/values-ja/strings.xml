@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">絡まり合って動けなくなっています。サクッと1分で助け出そう！</string>
     <string name="notification_weekend_title">週末の脳トレタイム☕</string>
     <string name="notification_weekend_body">制限時間なし、焦りゼロ。心地よいパズルでリフレッシュしましょう。</string>
+    <string name="update_banner_available_title">最新のアップデートがあります！</string>
+    <string name="update_banner_available_body">新しいパズルや改善が含まれた新バージョンが利用可能です。</string>
+    <string name="update_banner_update_button">今すぐ更新</string>
+    <string name="update_banner_later_button">あとで</string>
+    <string name="update_banner_downloaded_title">アップデートの準備が完了しました！</string>
+    <string name="update_banner_downloaded_body">ダウンロードが完了しました。再起動して適用してください。</string>
+    <string name="update_banner_restart_button">再起動してプレイ</string>
 </resources>

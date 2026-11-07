@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Chúng bị rối vào nhau rồi. Hãy vào gỡ rối chỉ trong 60 giây!</string>
     <string name="notification_weekend_title">Thư giãn cuối tuần ☕</string>
     <string name="notification_weekend_body">Không vội vã, không giới hạn thời gian. Chỉ có những mũi tên thư giãn và êm dịu.</string>
+    <string name="update_banner_available_title">Có bản cập nhật mới!</string>
+    <string name="update_banner_available_body">Phiên bản mới với nhiều câu đố và cải tiến đã sẵn sàng.</string>
+    <string name="update_banner_update_button">Cập nhật ngay</string>
+    <string name="update_banner_later_button">Để sau</string>
+    <string name="update_banner_downloaded_title">Bản cập nhật đã sẵn sàng cài đặt!</string>
+    <string name="update_banner_downloaded_body">Đã tải xong bản cập nhật. Khởi động lại ngay để áp dụng.</string>
+    <string name="update_banner_restart_button">Khởi động lại &amp; chơi</string>
 </resources>

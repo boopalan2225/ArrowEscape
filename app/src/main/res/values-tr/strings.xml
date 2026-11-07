@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">Birbirine dolandılar ve tartışıyorlar. Gel ve 60 saniyede onları çöz!</string>
     <string name="notification_weekend_title">Hafta sonu zihin molası ☕</string>
     <string name="notification_weekend_body">Acele yok, süre sınırı yok. Sadece rahatlatıcı ve keyifli ok bulmacaları.</string>
+    <string name="update_banner_available_title">Yeni güncelleme mevcut!</string>
+    <string name="update_banner_available_body">Yeni bulmacalar ve iyileştirmeler içeren yeni bir sürüm hazır.</string>
+    <string name="update_banner_update_button">Şimdi Güncelle</string>
+    <string name="update_banner_later_button">Daha Sonra</string>
+    <string name="update_banner_downloaded_title">Güncelleme yüklenmeye hazır!</string>
+    <string name="update_banner_downloaded_body">Güncelleme indirildi. Değişiklikleri uygulamak için şimdi yeniden başlatın.</string>
+    <string name="update_banner_restart_button">Yeniden Başlat ve Oyna</string>
 </resources>

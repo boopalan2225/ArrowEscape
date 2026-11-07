@@ -7,6 +7,13 @@
     <string name="settings_debug_tap_to_show" translatable="false">Tap to show</string>
     <string name="settings_debug_dev_mode_title" translatable="false">Developer Mode</string>
     <string name="settings_debug_dev_mode_subtitle" translatable="false">Open any level from Home; play never changes your progress</string>
+    <string name="settings_debug_mock_update_title" translatable="false">Simulate App Update</string>
+    <string name="settings_debug_mock_update_off" translatable="false">Off</string>
+    <string name="settings_debug_mock_update_available" translatable="false">Available 🚀</string>
+    <string name="settings_debug_mock_update_downloaded" translatable="false">Downloaded ✨</string>
+    <string name="settings_debug_mock_update_desc_off" translatable="false">Normal behavior (no mock)</string>
+    <string name="settings_debug_mock_update_desc_available" translatable="false">Persistent: Shows \'Update Available\' on Home</string>
+    <string name="settings_debug_mock_update_desc_downloaded" translatable="false">Persistent: Shows \'Update Downloaded\' on Home</string>
     <string name="settings_debug_unlock_all_title" translatable="false">Unlock All: %1$s</string>
     <string name="settings_debug_unlock_all_subtitle" translatable="false">Set %1$s progress to level %2$d</string>
     <string name="settings_debug_reset_title" translatable="false">Reset: %1$s</string>

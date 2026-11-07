@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">它们全缠在一起吵起来了，快来用 60 秒解开它们！</string>
     <string name="notification_weekend_title">周末大脑放松时光 ☕</string>
     <string name="notification_weekend_body">无需赶时间，没有倒计时。只有丝滑治愈的箭头解谜。</string>
+    <string name="update_banner_available_title">有新版本可用！</string>
+    <string name="update_banner_available_body">包含新谜题与性能优化的全新版本已就绪。</string>
+    <string name="update_banner_update_button">立即更新</string>
+    <string name="update_banner_later_button">稍后</string>
+    <string name="update_banner_downloaded_title">更新已准备就绪！</string>
+    <string name="update_banner_downloaded_body">更新已下载完成。立即重启游戏以应用新内容。</string>
+    <string name="update_banner_restart_button">重启并开始游戏</string>
 </resources>

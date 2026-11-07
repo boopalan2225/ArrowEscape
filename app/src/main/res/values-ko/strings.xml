@@ -394,4 +394,11 @@
     <string name="notification_inactivity_body">화살표들이 뒤엉켜 있어요. 60초 만에 시원하게 풀어보세요!</string>
     <string name="notification_weekend_title">주말 힐링 퍼즐 타임 ☕</string>
     <string name="notification_weekend_body">시간제한 없이 여유롭게. 부드럽고 만족스러운 퍼즐을 즐겨보세요.</string>
+    <string name="update_banner_available_title">새로운 업데이트가 있습니다!</string>
+    <string name="update_banner_available_body">새로운 퍼즐과 개선 사항이 포함된 최신 버전이 준비되었습니다.</string>
+    <string name="update_banner_update_button">지금 업데이트</string>
+    <string name="update_banner_later_button">나중에</string>
+    <string name="update_banner_downloaded_title">업데이트 설치 준비 완료!</string>
+    <string name="update_banner_downloaded_body">다운로드가 완료되었습니다. 게임을 다시 시작하여 적용하세요.</string>
+    <string name="update_banner_restart_button">다시 시작하고 플레이</string>
 </resources>
